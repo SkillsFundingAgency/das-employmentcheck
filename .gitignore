@@ -261,3 +261,4 @@ src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 *.ncrunchsolution
 *.ncrunchproject
 /src/SFA.DAS.EAS.Web/SFA.DAS.EAS.Web.csproj.DotSettings
+*.dbmdl
