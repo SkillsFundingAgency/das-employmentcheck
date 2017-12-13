@@ -60,13 +60,13 @@
     <Folder Include="Tables" />
     <Folder Include="Schemas" />
     <Folder Include="StoredProcedures" />
-    <Folder Include="Types" />
+    <Folder Include="UserDefinedTypes" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Tables\DAS_SubmissionEvents.sql" />
     <None Include="Schemas\employer_check.sql" />
     <None Include="StoredProcedures\GetLastKnownProcessedEventId.sql" />
     <None Include="StoredProcedures\GetPreviousHandledSubmissionEvents.sql" />
-    <None Include="Types\UlnTableType.sql" />
+    <None Include="UserDefinedTypes\UlnTableType.sql" />
   </ItemGroup>
 </Project>

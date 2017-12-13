@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2008
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.SubmissionEventCloudService", "SFA.DAS.SubmissionEventCloudService\SFA.DAS.SubmissionEventCloudService.ccproj", "{9984C087-A9D7-439F-B7A4-C38C6F972F0B}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.EmploymentCheck.Database", "SFA.DAS.EmploymentCheck.Database\SFA.DAS.EmploymentCheck.Database.sqlproj", "{8A55EB79-ED7B-47E9-A3EB-B5043371C356}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Database.Tests", "SFA.DAS.EmploymentCheck.Database.Tests\SFA.DAS.EmploymentCheck.Database.Tests.csproj", "{8155654C-7AE1-4485-81B8-4A95FCF52FF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.DataAccess", "SFA.DAS.EmploymentCheck.DataAccess\SFA.DAS.EmploymentCheck.DataAccess.csproj", "{D087A675-AF54-45EB-91A3-55EFFEDA1881}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,10 @@ Global
 		{8155654C-7AE1-4485-81B8-4A95FCF52FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8155654C-7AE1-4485-81B8-4A95FCF52FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8155654C-7AE1-4485-81B8-4A95FCF52FF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

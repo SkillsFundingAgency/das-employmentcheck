@@ -7,7 +7,7 @@ using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Sql.Client;
 
-namespace SFA.DAS.EmploymentCheck.Infrastructure.Data
+namespace SFA.DAS.EmploymentCheck.DataAccess
 {
     public class SubmissionEventRepository : BaseRepository, ISubmissionEventRepository
     {
