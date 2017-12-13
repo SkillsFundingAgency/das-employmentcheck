@@ -2,7 +2,7 @@
 (
 	[Id] BIGINT PRIMARY KEY,
 	[NiNumber] NVARCHAR(9) NULL,
-	[Uln] NVARCHAR(9) NULL,
+	[Uln] BIGINT NOT NULL,
 	[PassedValidationCheck] BIT,
     [CreatedOn] DATE NOT NULL DEFAULT GetDate()
 )

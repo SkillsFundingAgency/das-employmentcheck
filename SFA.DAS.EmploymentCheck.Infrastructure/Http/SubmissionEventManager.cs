@@ -89,8 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Infrastructure.Http
                 LastProcessedEventId);
 
             var submissionEventResponse = await _httpClientWrapper.GetAsync(url.ToUri());
-            var unProcessedEvents =
-                await _httpClientWrapper.ReadResponse<PageOfResults<NinoChangedEventMessage>>(submissionEventResponse);
+            var unProcessedEvents = await _httpClientWrapper.ReadResponse<PageOfResults<NinoChangedEventMessage>>(submissionEventResponse);
             return unProcessedEvents;
         }
 

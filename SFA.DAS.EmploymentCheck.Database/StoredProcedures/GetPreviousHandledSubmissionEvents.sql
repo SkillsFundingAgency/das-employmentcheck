@@ -1,10 +1,7 @@
 ﻿CREATE PROCEDURE [employer_check].[GetPreviousHandledSubmissionEvents]
-	@json NVARCHAR(MAX)
+	@ulns [employer_check].[UlnTableType]
 AS
 
 SELECT NiNumber, Uln, PassedValidationCheck
 FROM [employer_check].[DAS_SubmissionEvents]
-WHERE Uln IN (
-		SELECT [value]
-		FROM OPENJSON(@json)
-	)
+WHERE Uln IN (SELECT Uln FROM @ulns)
