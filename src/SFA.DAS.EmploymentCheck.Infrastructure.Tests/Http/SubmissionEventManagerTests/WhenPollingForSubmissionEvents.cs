@@ -45,13 +45,13 @@ namespace SFA.DAS.EmploymentCheck.Infrastructure.Tests.Http.SubmissionEventManag
                         {
                             new PreviousHandledSubmissionEvent
                             {
-                                Uln = "1000000001",
+                                Uln = 1000000001,
                                 NiNumber = "AB123456B",
                                 PassedValidationCheck = false
                             },
                             new PreviousHandledSubmissionEvent
                             {
-                                Uln = "1000000000",
+                                Uln = 1000000000,
                                 NiNumber = "AB123456A",
                                 PassedValidationCheck = true
                             }

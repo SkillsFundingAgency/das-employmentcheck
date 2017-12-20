@@ -104,6 +104,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj">
+      <Project>{81703522-B65D-4343-A99D-A58A8F54E899}</Project>
+      <Name>SFA.DAS.EmploymentCheck.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Domain\SFA.DAS.EmploymentCheck.Domain.csproj">
       <Project>{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}</Project>
       <Name>SFA.DAS.EmploymentCheck.Domain</Name>

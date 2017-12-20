@@ -8,8 +8,6 @@ namespace SFA.DAS.EmploymentCheck.Domain.Configuration
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
 
-        public CompaniesHouseConfiguration CompaniesHouse { get; set; }
-
         public string SubmissionEventApiAddress { get; set; }
     }
 }

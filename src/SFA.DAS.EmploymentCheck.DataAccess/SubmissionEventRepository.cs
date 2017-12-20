@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.DataAccess
         {
         }
 
-        public async Task<long> GetPollingProcessingStartingPoint()
+        public async Task<long> GetLastProcessedEventId()
         {
             var result = await WithConnection(async c => await c.ExecuteAsync(
                 sql: "[employer_check].[GetLastKnownProcessedEventId]",
@@ -39,6 +39,21 @@ namespace SFA.DAS.EmploymentCheck.DataAccess
             );
 
             return result;
+        }
+
+        public async Task SetLastProcessedEvent(long id)
+        {
+            await WithConnection(async c =>
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@lastEventId", id);
+
+                    return await c.ExecuteAsync(
+                        sql: "[employer_check].[SetLastProcessedEventId]",
+                        param: parameters,
+                        commandType: CommandType.StoredProcedure);
+                }
+            );
         }
 
         private DataTable GenerateUlnsDataTable(IEnumerable<long> ulns)

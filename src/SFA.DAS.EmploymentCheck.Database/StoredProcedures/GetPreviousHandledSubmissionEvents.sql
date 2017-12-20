@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [employer_check].[GetPreviousHandledSubmissionEvents]
-	@ulns [employer_check].[UlnTableType]
+	@ulns [employer_check].[UlnTableType] READONLY
 AS
 
 SELECT NiNumber, Uln, PassedValidationCheck

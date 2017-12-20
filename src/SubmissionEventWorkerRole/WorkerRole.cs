@@ -5,10 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
+using SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckForChangedNationalInsuranceNumbers;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using StructureMap;
 using SubmissionEventWorkerRole.DependencyResolution;
@@ -20,8 +22,7 @@ namespace SubmissionEventWorkerRole
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
         private IContainer _container;
-
-        private ISubmissionEventManager _submissionManager;
+        private IMediator _mediator;
 
         public override void Run()
         {
@@ -39,14 +40,10 @@ namespace SubmissionEventWorkerRole
 
         public override bool OnStart()
         {
-            // Set the maximum number of concurrent connections
             ServicePointManager.DefaultConnectionLimit = 12;
 
-            // For information on handling configuration changes
-            // see the MSDN topic at https://go.microsoft.com/fwlink/?LinkId=166357.
-
             _container = ConfigureIocContainer();
-            _submissionManager = _container.GetInstance<ISubmissionEventManager>();
+            _mediator = _container.GetInstance<IMediator>();
             bool result = base.OnStart();
 
             Trace.TraceInformation("SubmissionEventWorkerRole has been started");
@@ -68,11 +65,9 @@ namespace SubmissionEventWorkerRole
 
         private async Task RunAsync(CancellationToken cancellationToken)
         {
-            await _submissionManager.DetermineProcessingStartingPoint();
-            
             while (!cancellationToken.IsCancellationRequested)
             {
-                await _submissionManager.PollSubmissionEvents();
+                await _mediator.PublishAsync(new InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest());
                 await Task.Delay(300000, cancellationToken);
             }
         }

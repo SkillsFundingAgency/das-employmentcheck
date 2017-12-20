@@ -40,19 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\CompaniesHouseConfiguration.cs" />
     <Compile Include="Configuration\EmploymentCheckConfiguration.cs" />
     <Compile Include="Interfaces\IEmploymentCheckConfiguration.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="Interfaces\ISubmissionEventOrchestrator.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
-    <Compile Include="Interfaces\IHttpClientWrapper.cs" />
-    <Compile Include="Interfaces\ISubmissionEventManager.cs" />
     <Compile Include="Interfaces\ISubmissionEventRepository.cs" />
     <Compile Include="Models\PreviousHandledSubmissionEvent.cs" />
-    <Compile Include="Models\PreviouslyHandledSubmissionEventViewModel.cs" />
-    <Compile Include="OrchestratorResponse.cs" />
-    <Compile Include="PageOfResults.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

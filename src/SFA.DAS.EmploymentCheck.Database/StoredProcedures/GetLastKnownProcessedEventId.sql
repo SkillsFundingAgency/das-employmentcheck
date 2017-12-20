@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [employer_check].[GetLastKnownProcessedEventId]
 AS
 
-SELECT MAX([Id]) AS Id FROM [employer_check].[DAS_SubmissionEvents]
+SELECT Id FROM [employer_check].[LastProcessedEvent]
 
 GO

@@ -6,3 +6,5 @@
 	[PassedValidationCheck] BIT,
     [CreatedOn] DATE NOT NULL DEFAULT GetDate()
 )
+GO
+CREATE INDEX IX_SubmissionEvent_Uln ON [employer_check].[DAS_SubmissionEvents] (Uln) INCLUDE ([NiNumber], [PassedValidationCheck])
