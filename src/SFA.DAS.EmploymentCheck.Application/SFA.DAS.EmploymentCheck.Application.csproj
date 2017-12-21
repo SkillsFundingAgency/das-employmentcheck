@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SFA.DAS.EmploymentCheck.Application</RootNamespace>
     <AssemblyName>SFA.DAS.EmploymentCheck.Application</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,11 +34,23 @@
     <Reference Include="MediatR, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MediatR.2.1.0\lib\net45\MediatR.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=3.13.8.999, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.13.8\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory.Platform, Version=3.13.8.999, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.13.8\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.EAS.Account.Api.Client, Version=1.0.0.50040, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Account.Api.Client.1.0.0.50040\lib\net45\SFA.DAS.EAS.Account.Api.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.EAS.Account.Api.Types, Version=1.0.0.36226, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Account.Api.Types.1.0.0.36226\lib\net45\SFA.DAS.EAS.Account.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Messaging, Version=3.0.0.49552, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Messaging.3.0.0.49552\lib\net45\SFA.DAS.Messaging.dll</HintPath>
@@ -63,6 +76,8 @@
   <ItemGroup>
     <Compile Include="Commands\InitiateEmploymentCheckForChangedNationalInsuranceNumbers\InitiateEmploymentCheckForChangedNationalInsuranceNumbersCommand.cs" />
     <Compile Include="Commands\InitiateEmploymentCheckForChangedNationalInsuranceNumbers\InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest.cs" />
+    <Compile Include="Commands\RequestEmploymentCheckForEmployerPayeSchemes\RequestEmploymentCheckForEmployerPayeSchemesCommand.cs" />
+    <Compile Include="Commands\RequestEmploymentCheckForEmployerPayeSchemes\RequestEmploymentCheckForEmployerPayeSchemesRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,7 +85,9 @@
     <None Include="packages.config" />
     <None Include="Properties\packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Commands\PerformEmploymentCheck\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Domain\SFA.DAS.EmploymentCheck.Domain.csproj">
       <Project>{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}</Project>

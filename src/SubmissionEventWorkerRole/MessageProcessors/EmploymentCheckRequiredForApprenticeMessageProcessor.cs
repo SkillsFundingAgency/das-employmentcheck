@@ -1,0 +1,28 @@
+﻿using System.Threading.Tasks;
+using MediatR;
+using SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes;
+using SFA.DAS.EmploymentCheck.Events;
+using SFA.DAS.Messaging;
+using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
+
+namespace SubmissionEventWorkerRole.MessageProcessors
+{
+    public class EmploymentCheckRequiredForApprenticeMessageProcessor : MessageProcessor<EmploymentCheckRequiredForApprenticeMessage>
+    {
+        private readonly IMediator _mediator;
+
+        public EmploymentCheckRequiredForApprenticeMessageProcessor(IMessageSubscriberFactory subscriberFactory, ILog log, IMediator mediator) : base(subscriberFactory, log)
+        {
+            _mediator = mediator;
+        }
+
+        protected override async Task ProcessMessage(EmploymentCheckRequiredForApprenticeMessage messageContent)
+        {
+            await _mediator.PublishAsync(new RequestEmploymentCheckForEmployerPayeSchemesRequest
+            (
+                messageContent.NationalInsuranceNumber, messageContent.Uln, messageContent.EmployerAccountId, messageContent.Ukprn, messageContent.ActualStartDate
+            ));
+        }
+    }
+}

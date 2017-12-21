@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
 using SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckForChangedNationalInsuranceNumbers;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 using StructureMap;
 using SubmissionEventWorkerRole.DependencyResolution;
 
@@ -19,8 +20,8 @@ namespace SubmissionEventWorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
         private IContainer _container;
         private IMediator _mediator;
 
@@ -30,11 +31,11 @@ namespace SubmissionEventWorkerRole
 
             try
             {
-                this.RunAsync(this.cancellationTokenSource.Token).Wait();
+                RunAsync(this._cancellationTokenSource.Token).Wait();
             }
             finally
             {
-                this.runCompleteEvent.Set();
+                _runCompleteEvent.Set();
             }
         }
 
@@ -55,8 +56,8 @@ namespace SubmissionEventWorkerRole
         {
             Trace.TraceInformation("SubmissionEventWorkerRole is stopping");
 
-            this.cancellationTokenSource.Cancel();
-            this.runCompleteEvent.WaitOne();
+            _cancellationTokenSource.Cancel();
+            _runCompleteEvent.WaitOne();
 
             base.OnStop();
 
@@ -65,6 +66,10 @@ namespace SubmissionEventWorkerRole
 
         private async Task RunAsync(CancellationToken cancellationToken)
         {
+            var messageProcessors = _container.GetAllInstances<IMessageProcessor>();
+
+            messageProcessors.Select(x => x.RunAsync(_cancellationTokenSource.Token));
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 await _mediator.PublishAsync(new InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest());

@@ -50,13 +50,19 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
         {
             var publishTasks = eventsRequiringEmploymentCheck.Select(x =>
                 _messagePublisher.PublishAsync(new EmploymentCheckRequiredForApprenticeMessage(x.NiNumber, x.Uln,
-                    x.EmployerReferenceNumber, x.Ukprn, x.ActualStartDate)));
+                    x.EmployerReferenceNumber.Value, x.Ukprn, x.ActualStartDate.Value)));
             await Task.WhenAll(publishTasks);
         }
 
         private IEnumerable<SubmissionEvent> GetEventsRequiringEmploymentCheck(IEnumerable<SubmissionEvent> unprocessedEvents, IEnumerable<PreviousHandledSubmissionEvent> previousEmploymentCheckResults)
         {
-            return unprocessedEvents.Where(submissionEvent => !previousEmploymentCheckResults.Any(x => x.Uln == submissionEvent.Uln && x.NiNumber == submissionEvent.NiNumber && x.PassedValidationCheck)).ToList();
+            var eventsWithSufficientData = GetEventsWithMandatoryEmploymentCheckData(unprocessedEvents);
+            return eventsWithSufficientData.Where(submissionEvent => !previousEmploymentCheckResults.Any(x => x.Uln == submissionEvent.Uln && x.NiNumber == submissionEvent.NiNumber && x.PassedValidationCheck)).ToList();
+        }
+
+        private IEnumerable<SubmissionEvent> GetEventsWithMandatoryEmploymentCheckData(IEnumerable<SubmissionEvent> unprocessedEvents)
+        {
+            return unprocessedEvents.Where(x => x.ActualStartDate.HasValue && x.EmployerReferenceNumber.HasValue);
         }
 
         private async Task<IEnumerable<PreviousHandledSubmissionEvent>> GetPreviousEmploymentCheckResults(IEnumerable<SubmissionEvent> unprocessedEvents)

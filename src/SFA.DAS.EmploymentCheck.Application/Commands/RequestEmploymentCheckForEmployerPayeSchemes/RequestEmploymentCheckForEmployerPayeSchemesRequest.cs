@@ -1,14 +1,11 @@
 ﻿using System;
-using SFA.DAS.Messaging.Attributes;
+using MediatR;
 
-namespace SFA.DAS.EmploymentCheck.Events
+namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes
 {
-    [MessageGroup("employment_check_required")]
-    public class EmploymentCheckRequiredForApprenticeMessage
+    public class RequestEmploymentCheckForEmployerPayeSchemesRequest : IAsyncNotification
     {
-        public EmploymentCheckRequiredForApprenticeMessage() { }
-
-        public EmploymentCheckRequiredForApprenticeMessage(string nationalInsuranceNumber, long uln, long employerAccountId, long ukprn, DateTime actualStartDate)
+        public RequestEmploymentCheckForEmployerPayeSchemesRequest(string nationalInsuranceNumber, long uln, long employerAccountId, long ukprn, DateTime actualStartDate)
         {
             NationalInsuranceNumber = nationalInsuranceNumber;
             Uln = uln;
