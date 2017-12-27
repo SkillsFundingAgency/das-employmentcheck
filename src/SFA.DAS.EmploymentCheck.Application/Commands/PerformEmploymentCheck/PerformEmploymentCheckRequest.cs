@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using MediatR;
 
-namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
 {
-    public class RequestEmploymentCheckForEmployerPayeSchemesRequest : IAsyncNotification
+    public class PerformEmploymentCheckRequest : IAsyncNotification
     {
-        public RequestEmploymentCheckForEmployerPayeSchemesRequest(string nationalInsuranceNumber, long uln, long employerAccountId, long ukprn, DateTime actualStartDate)
+        public PerformEmploymentCheckRequest(string nationalInsuranceNumber, long uln, long employerAccountId, long ukprn, DateTime actualStartDate, IEnumerable<string> payeSchemes)
         {
             NationalInsuranceNumber = nationalInsuranceNumber;
             Uln = uln;
             EmployerAccountId = employerAccountId;
             Ukprn = ukprn;
             ActualStartDate = actualStartDate;
+            PayeSchemes = payeSchemes;
         }
 
         public string NationalInsuranceNumber { get; }
@@ -19,5 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
         public long EmployerAccountId { get; }
         public long Ukprn { get; }
         public DateTime ActualStartDate { get; }
+        public IEnumerable<string> PayeSchemes { get; }
     }
 }

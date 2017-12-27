@@ -1,10 +1,8 @@
 ﻿CREATE TABLE [employer_check].[DAS_SubmissionEvents]
 (
-	[Id] BIGINT PRIMARY KEY,
+	[Uln] BIGINT NOT NULL PRIMARY KEY,
 	[NiNumber] NVARCHAR(9) NULL,
-	[Uln] BIGINT NOT NULL,
 	[PassedValidationCheck] BIT,
-    [CreatedOn] DATE NOT NULL DEFAULT GetDate()
+    [CheckedOn] DATE NOT NULL DEFAULT GetDate()
 )
 GO
-CREATE INDEX IX_SubmissionEvent_Uln ON [employer_check].[DAS_SubmissionEvents] (Uln) INCLUDE ([NiNumber], [PassedValidationCheck])

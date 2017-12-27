@@ -56,6 +56,23 @@ namespace SFA.DAS.EmploymentCheck.DataAccess
             );
         }
 
+        public async Task StoreEmploymentCheckResult(PreviousHandledSubmissionEvent submissionEvent)
+        {
+            await WithConnection(async c =>
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@uln", submissionEvent.Uln);
+                    parameters.Add("@nationalInsuranceNumber", submissionEvent.NiNumber);
+                    parameters.Add("@passedValidationCheck", submissionEvent.PassedValidationCheck);
+
+                    return await c.ExecuteAsync(
+                        sql: "[employer_check].[StoreEmploymentCheckResult]",
+                        param: parameters,
+                        commandType: CommandType.StoredProcedure);
+                }
+            );
+        }
+
         private DataTable GenerateUlnsDataTable(IEnumerable<long> ulns)
         {
             var result = new DataTable();
