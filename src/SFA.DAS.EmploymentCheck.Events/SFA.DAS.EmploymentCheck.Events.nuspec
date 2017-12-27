@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>SFA.DAS.EmploymentCheck.Events</id>
+    <version>1.0.0</version>
+    <authors>DAS</authors>
+    <owners>DAS</owners>
+    <licenseUrl>https://github.com/SkillsFundingAgency/das-employmentcheck/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/SkillsFundingAgency/das-employmentcheck</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A collection of classes that are use in events within the DAS Employment Check</description>
+    <summary>Library for DAS Employment Check events</summary>
+    <releaseNotes />
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="SFA.DAS.Messaging" version="3.0.0.49552"/>
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\SFA.DAS.EmploymentCheck.Events.dll" target="lib\net45\SFA.DAS.EmploymentCheck.Events.dll" />
+  </files>
+</package>
