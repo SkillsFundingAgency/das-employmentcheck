@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Provider.Events.Api.Types;
 
@@ -17,25 +19,35 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
         private ISubmissionEventRepository _repository;
         private readonly IPaymentsEventsApiClient _eventsApi;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly ILog _logger;
 
-        public InitiateEmploymentCheckForChangedNationalInsuranceNumbersCommand(ISubmissionEventRepository repository, IPaymentsEventsApiClient eventsApi, IMessagePublisher messagePublisher)
+        public InitiateEmploymentCheckForChangedNationalInsuranceNumbersCommand(ISubmissionEventRepository repository, IPaymentsEventsApiClient eventsApi, IMessagePublisher messagePublisher, ILog logger)
         {
             _repository = repository;
             _eventsApi = eventsApi;
             _messagePublisher = messagePublisher;
+            _logger = logger;
         }
 
         public async Task Handle(InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest notification)
         {
-            var unprocessedEvents = await GetUnprocessedEvents();
+            try
+            {
+                var unprocessedEvents = await GetUnprocessedEvents();
 
-            var previousEmploymentCheckResults = await GetPreviousEmploymentCheckResults(unprocessedEvents);
+                var previousEmploymentCheckResults = await GetPreviousEmploymentCheckResults(unprocessedEvents);
 
-            var eventsRequiringEmploymentCheck = GetEventsRequiringEmploymentCheck(unprocessedEvents, previousEmploymentCheckResults);
+                var eventsRequiringEmploymentCheck = GetEventsRequiringEmploymentCheck(unprocessedEvents, previousEmploymentCheckResults);
 
-            await RequestEmploymentCheck(eventsRequiringEmploymentCheck);
+                await RequestEmploymentCheck(eventsRequiringEmploymentCheck);
 
-            await StoreLastProcessedEvent(unprocessedEvents);
+                await StoreLastProcessedEvent(unprocessedEvents);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error processing submission events - {ex.Message}");
+                throw;
+            }
         }
 
         private async Task StoreLastProcessedEvent(IEnumerable<SubmissionEvent> unprocessedEvents)
