@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="SFA.DAS.SubmissionEventCloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="5" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="SubmissionEventWorkerRole">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+
+      <Setting name="LoggingRedisConnectionString" value=""/>
+      <Setting name="LoggingRedisKey" value=""/>
+      <Setting name="InstrumentationKey" value="" />
+      <Setting name="EnvironmentName" value="LOCAL" />
+
+      <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true;" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>
