@@ -4,6 +4,13 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+
+      <Setting name="LoggingRedisConnectionString" value=""/>
+      <Setting name="LoggingRedisKey" value=""/>
+      <Setting name="InstrumentationKey" value="" />
+      <Setting name="EnvironmentName" value="LOCAL" />
+
+      <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true;" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

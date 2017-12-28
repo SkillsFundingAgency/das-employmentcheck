@@ -4,6 +4,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Interfaces
 {
     public interface IEmploymentCheckConfiguration
     {
-        string SubmissionEventApiAddress { get; set; }
+        string DatabaseConnectionString { get; set; }
+        string ServiceBusConnectionString { get; set; }
     }
 }

@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
-using SFA.DAS.EmploymentCheck.Domain;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using StructureMap.TypeRules;
-using IConfiguration = SFA.DAS.EmploymentCheck.Domain.Interfaces.IConfiguration;
 
 namespace SubmissionEventWorkerRole.DependencyResolution
 {
@@ -33,7 +29,7 @@ namespace SubmissionEventWorkerRole.DependencyResolution
 
                 var config = GetConfiguration();
 
-                For<IConfiguration>().Use<EmploymentCheckConfiguration>();
+                For<IEmploymentCheckConfiguration>().Use<EmploymentCheckConfiguration>();
                 RegisterRepositories(config.DatabaseConnectionString);
                 RegisterMapper();
                 AddMediatrRegistrations();

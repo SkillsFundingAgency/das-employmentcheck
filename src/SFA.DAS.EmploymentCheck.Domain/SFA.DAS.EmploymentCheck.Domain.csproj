@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Configuration\EmploymentCheckConfiguration.cs" />
     <Compile Include="Interfaces\IEmploymentCheckConfiguration.cs" />
-    <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\ISubmissionEventRepository.cs" />
     <Compile Include="Models\PreviousHandledSubmissionEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
