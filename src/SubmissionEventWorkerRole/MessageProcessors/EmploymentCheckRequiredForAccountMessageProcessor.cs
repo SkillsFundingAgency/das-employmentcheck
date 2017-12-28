@@ -3,11 +3,13 @@ using MediatR;
 using SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging;
+using SFA.DAS.Messaging.AzureServiceBus.Attributes;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
 namespace SubmissionEventWorkerRole.MessageProcessors
 {
+    [TopicSubscription("EmploymentCheck_CheckRequiredForAccount")]
     public class EmploymentCheckRequiredForAccountMessageProcessor : MessageProcessor<EmploymentCheckRequiredForAccountMessage>
     {
         private readonly IMediator _mediator;
