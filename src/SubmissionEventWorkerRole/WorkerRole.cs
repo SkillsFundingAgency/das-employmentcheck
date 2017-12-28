@@ -82,8 +82,8 @@ namespace SubmissionEventWorkerRole
         {
             var container = new Container(c =>
             {
-                c.AddRegistry<DefaultRegistry>();
                 c.Policies.Add(new TopicMessagePublisherPolicy<EmploymentCheckConfiguration>(_serviceName, new NLogLogger(typeof(TopicMessagePublisher))));
+                c.AddRegistry<DefaultRegistry>();
             });
             return container;
         }

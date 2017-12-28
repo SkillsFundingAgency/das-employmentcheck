@@ -75,8 +75,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
         private async Task<IEnumerable<SubmissionEvent>> GetUnprocessedEvents()
         {
             var startingEventId = await GetStartingEventId();
-            var unprocessedEvents = _eventsApi.GetSubmissionEvents(startingEventId);
-            return unprocessedEvents.Result.Items;
+            var unprocessedEvents = await _eventsApi.GetSubmissionEvents(startingEventId);
+            return unprocessedEvents.Items;
         }
 
         private async Task<long> GetStartingEventId()

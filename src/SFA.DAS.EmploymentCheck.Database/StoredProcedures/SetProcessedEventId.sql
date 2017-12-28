@@ -2,6 +2,7 @@
 	@lastEventId BIGINT
 AS
 
-UPDATE [employer_check].[LastProcessedEvent] SET Id = @lastEventId
+DELETE FROM [employer_check].[LastProcessedEvent]
+INSERT INTO [employer_check].[LastProcessedEvent] (Id) VALUES (@lastEventId)
 
 GO

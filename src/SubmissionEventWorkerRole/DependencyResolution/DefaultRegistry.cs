@@ -2,6 +2,7 @@
 using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.EmploymentCheck.DataAccess;
 using StructureMap;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
@@ -22,16 +23,16 @@ namespace SubmissionEventWorkerRole.DependencyResolution
             {
                 scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.ToUpperInvariant().StartsWith("SFA.DAS."));
                 scan.RegisterConcreteTypesAgainstTheFirstInterface();
-
-                var config = GetConfiguration();
-
-                For<IEmploymentCheckConfiguration>().Use(config);
-                RegisterRepositories(config.DatabaseConnectionString);
-                RegisterApis(config);
-                AddMediatrRegistrations();
-
-                ConfigureLogging();
             });
+
+            var config = GetConfiguration();
+
+            For<IEmploymentCheckConfiguration>().Use(config);
+            RegisterRepositories(config.DatabaseConnectionString);
+            RegisterApis(config);
+            AddMediatrRegistrations();
+
+            ConfigureLogging();
         }
 
         private void RegisterApis(EmploymentCheckConfiguration config)
@@ -70,7 +71,7 @@ namespace SubmissionEventWorkerRole.DependencyResolution
 
         private void RegisterRepositories(string connectionString)
         {
-            For<ISubmissionEventRepository>().Use<ISubmissionEventRepository>().Ctor<string>().Is(connectionString);
+            For<ISubmissionEventRepository>().Use<SubmissionEventRepository>().Ctor<string>().Is(connectionString);
         }
 
     }

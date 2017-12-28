@@ -89,6 +89,7 @@
     <Compile Include="Commands\PerformEmploymentCheck\PerformEmploymentCheckRequest.cs" />
     <Compile Include="Commands\RequestEmploymentCheckForEmployerPayeSchemes\RequestEmploymentCheckForEmployerPayeSchemesCommand.cs" />
     <Compile Include="Commands\RequestEmploymentCheckForEmployerPayeSchemes\RequestEmploymentCheckForEmployerPayeSchemesRequest.cs" />
+    <Compile Include="Gateways\HmrcGateway.cs" />
     <Compile Include="Gateways\IHmrcGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
