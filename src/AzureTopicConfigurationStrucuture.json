@@ -1,0 +1,10 @@
+[
+  {
+    "topicName": "employment_check_for_account",
+    "subscription": [ "EmploymentCheck_CheckRequiredForAccount" ]
+  },
+  {
+    "topicName": "employment_check_required",
+    "subscription": [ "EmploymentCheck_CheckRequiredForApprentice" ]
+  }
+]
