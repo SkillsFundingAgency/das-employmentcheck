@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Provider.Events.Api.Types;
 
@@ -29,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             _repository = new Mock<ISubmissionEventRepository>();
             _eventsApi = new Mock<IPaymentsEventsApiClient>();
             _messagePublisher = new Mock<IMessagePublisher>();
-            _target = new InitiateEmploymentCheckForChangedNationalInsuranceNumbersCommand(_repository.Object, _eventsApi.Object, _messagePublisher.Object);
+            _target = new InitiateEmploymentCheckForChangedNationalInsuranceNumbersCommand(_repository.Object, _eventsApi.Object, _messagePublisher.Object, Mock.Of<ILog>());
 
             _submissionEvent = new SubmissionEvent { Uln = 1234565, NiNumber = "JA123456C", Id = 124, ActualStartDate = DateTime.Now.AddYears(-1), EmployerReferenceNumber = 123456, Ukprn = 5465 };
         }
