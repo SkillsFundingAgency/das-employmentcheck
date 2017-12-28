@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
+using Microsoft.Azure;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
 using SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckForChangedNationalInsuranceNumbers;
-using SFA.DAS.EmploymentCheck.Domain.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Configuration;
+using SFA.DAS.Messaging.AzureServiceBus;
+using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
 using StructureMap;
 using SubmissionEventWorkerRole.DependencyResolution;
 
@@ -20,6 +19,8 @@ namespace SubmissionEventWorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
+        private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
+
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
         private IContainer _container;
@@ -82,6 +83,7 @@ namespace SubmissionEventWorkerRole
             var container = new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
+                c.Policies.Add(new TopicMessagePublisherPolicy<EmploymentCheckConfiguration>(_serviceName, new NLogLogger(typeof(TopicMessagePublisher))));
             });
             return container;
         }

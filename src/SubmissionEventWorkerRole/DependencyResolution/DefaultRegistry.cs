@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
+using SFA.DAS.Events.Api.Client;
 using SFA.DAS.NLog.Logger;
-using StructureMap.TypeRules;
+using SFA.DAS.Provider.Events.Api.Client;
 
 namespace SubmissionEventWorkerRole.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {
-        private string ServiceName = CloudConfigurationManager.GetSetting("ServiceName");
+        private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
         private const string Version = "1.0";
 
         public DefaultRegistry()
@@ -29,14 +25,21 @@ namespace SubmissionEventWorkerRole.DependencyResolution
 
                 var config = GetConfiguration();
 
-                For<IEmploymentCheckConfiguration>().Use<EmploymentCheckConfiguration>();
+                For<IEmploymentCheckConfiguration>().Use(config);
                 RegisterRepositories(config.DatabaseConnectionString);
-                RegisterMapper();
+                RegisterApis(config);
                 AddMediatrRegistrations();
 
                 ConfigureLogging();
             });
         }
+
+        private void RegisterApis(EmploymentCheckConfiguration config)
+        {
+            For<IEventsApi>().Use(new EventsApi(config.EventsApi));
+            For<IPaymentsEventsApiClient>().Use(new PaymentsEventsApiClient(config.PaymentsEvents));
+        }
+
         private void ConfigureLogging()
         {
             For<ILog>().Use(x => new NLogLogger(x.ParentType, null, null)).AlwaysUnique();
@@ -47,7 +50,7 @@ namespace SubmissionEventWorkerRole.DependencyResolution
             var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
 
             var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(ServiceName, environment, Version));
+            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(_serviceName, environment, Version));
 
             return configurationService.Get<EmploymentCheckConfiguration>();
         }
@@ -63,33 +66,6 @@ namespace SubmissionEventWorkerRole.DependencyResolution
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
 
             For<IMediator>().Use<Mediator>();
-        }
-
-        private void RegisterMapper()
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("SFA.DAS.EmploymentCheck"));
-
-            var mappingProfiles = new List<Profile>();
-
-            foreach (var assembly in assemblies)
-            {
-                var profiles = Assembly.Load(assembly.FullName).GetTypes()
-                    .Where(t => typeof(Profile).IsAssignableFrom(t))
-                    .Where(t => t.IsConcrete() && t.HasConstructors())
-                    .Select(t => (Profile)Activator.CreateInstance(t));
-
-                mappingProfiles.AddRange(profiles);
-            }
-
-            var config = new MapperConfiguration(cfg =>
-            {
-                mappingProfiles.ForEach(cfg.AddProfile);
-            });
-
-            var mapper = config.CreateMapper();
-
-            For<IConfigurationProvider>().Use(config).Singleton();
-            For<IMapper>().Use(mapper).Singleton();
         }
 
         private void RegisterRepositories(string connectionString)

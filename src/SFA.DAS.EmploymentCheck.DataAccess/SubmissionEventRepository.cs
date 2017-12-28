@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.DataAccess
 {
     public class SubmissionEventRepository : BaseRepository, ISubmissionEventRepository
     {
-        public SubmissionEventRepository(IConfiguration configuration, ILog logger) : base(configuration.DatabaseConnectionString, logger)
+        public SubmissionEventRepository(IEmploymentCheckConfiguration configuration, ILog logger) : base(configuration.DatabaseConnectionString, logger)
         {
         }
 
