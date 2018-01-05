@@ -3,7 +3,7 @@
   <Role name="SubmissionEventWorkerRole">
     <Instances count="3" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="__StorageConnectionString__" />
 
       <Setting name="LoggingRedisConnectionString" value="__LoggingRedisConnectionString__"/>
       <Setting name="LoggingRedisKey" value="__LoggingRedisKey__"/>
