@@ -77,4 +77,7 @@
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmploymentCheck.Database.refactorlog" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Database.publish.xml" />
+  </ItemGroup>
 </Project>
