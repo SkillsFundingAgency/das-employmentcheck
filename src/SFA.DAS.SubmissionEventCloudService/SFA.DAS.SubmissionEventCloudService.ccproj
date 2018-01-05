@@ -32,7 +32,11 @@
   </PropertyGroup>
   <!-- Items for the project -->
   <ItemGroup>
+    <ServiceConfiguration Include="ServiceConfiguration.PreProd.cscfg" />
     <ServiceDefinition Include="ServiceDefinition.csdef" />
+    <None Include="Configuration\ServiceDefinition.Cloud.csdef" />
+    <None Include="Configuration\ServiceDefinition.Release.csdef" />
+    <ServiceConfiguration Include="ServiceConfiguration.Release.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
@@ -48,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SubmissionEventWorkerRoleContent\" />
+    <Folder Include="Configuration\" />
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="SubmissionEventWorkerRoleContent\diagnostics.wadcfgx" />
