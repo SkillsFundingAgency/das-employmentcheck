@@ -9,6 +9,7 @@
       <Setting name="InstrumentationKey" />
       <Setting name="EnvironmentName" />
       <Setting name="ConfigurationStorageConnectionString" />
+      <Setting name="TokenServiceCertificateThumbprint" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

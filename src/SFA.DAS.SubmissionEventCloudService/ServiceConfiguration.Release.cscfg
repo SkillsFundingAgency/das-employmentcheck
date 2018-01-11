@@ -10,6 +10,7 @@
       <Setting name="InstrumentationKey" value="__InstrumentationKey__" />
       <Setting name="EnvironmentName" value="__EnvironmentName__" />
       <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
+      <Setting name="TokenServiceCertificateThumbprint" value="__TokenServiceCertificateThumbprint__" />
     </ConfigurationSettings>
   </Role>
   <NetworkConfiguration>

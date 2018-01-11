@@ -1,4 +1,7 @@
-﻿using MediatR;
+﻿using System;
+using System.Net.Http;
+using HMRC.ESFA.Levy.Api.Client;
+using MediatR;
 using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
@@ -9,12 +12,15 @@ using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.TokenService.Api.Client;
+using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Domain.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SubmissionEventWorkerRole.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {
         private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
+        private readonly string _tokenServiceName = CloudConfigurationManager.GetSetting("TokenServiceName");
         private const string Version = "1.0";
 
         public DefaultRegistry()
@@ -25,11 +31,14 @@ namespace SubmissionEventWorkerRole.DependencyResolution
                 scan.RegisterConcreteTypesAgainstTheFirstInterface();
             });
 
-            var config = GetConfiguration();
+            var employmentCheckConfig = GetConfiguration<EmploymentCheckConfiguration>(_serviceName);
+            For<IEmploymentCheckConfiguration>().Use(employmentCheckConfig);
 
-            For<IEmploymentCheckConfiguration>().Use(config);
-            RegisterRepositories(config.DatabaseConnectionString);
-            RegisterApis(config);
+            var tokenServiceConfig = GetConfiguration<TokenServiceApiClientConfiguration>(_tokenServiceName);
+            For<ITokenServiceApiClientConfiguration>().Use(tokenServiceConfig);
+
+            RegisterRepositories(employmentCheckConfig.DatabaseConnectionString);
+            RegisterApis(employmentCheckConfig);
             AddMediatrRegistrations();
 
             ConfigureLogging();
@@ -39,6 +48,14 @@ namespace SubmissionEventWorkerRole.DependencyResolution
         {
             For<IEventsApi>().Use(new EventsApi(config.EventsApi));
             For<IPaymentsEventsApiClient>().Use(new PaymentsEventsApiClient(config.PaymentsEvents));
+            For<IApprenticeshipLevyApiClient>().Use(new ApprenticeshipLevyApiClient(GetLevyHttpClient(config)));
+        }
+
+        private HttpClient GetLevyHttpClient(EmploymentCheckConfiguration config)
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(config.HmrcBaseUrl);
+            return client;
         }
 
         private void ConfigureLogging()
@@ -46,14 +63,14 @@ namespace SubmissionEventWorkerRole.DependencyResolution
             For<ILog>().Use(x => new NLogLogger(x.ParentType, null, null)).AlwaysUnique();
         }
 
-        private EmploymentCheckConfiguration GetConfiguration()
+        private T GetConfiguration<T>(string serviceName)
         {
             var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
 
             var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(_serviceName, environment, Version));
+            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(serviceName, environment, Version));
 
-            return configurationService.Get<EmploymentCheckConfiguration>();
+            return configurationService.Get<T>();
         }
 
         private static IConfigurationRepository GetConfigurationRepository()
