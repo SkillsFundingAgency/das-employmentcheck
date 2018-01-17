@@ -35,11 +35,17 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
             {
                 var unprocessedEvents = await GetUnprocessedEvents();
 
+                _logger.Info($"{unprocessedEvents.Count()} unprocessed events to be processed");
+
                 var previousEmploymentCheckResults = await GetPreviousEmploymentCheckResults(unprocessedEvents);
 
                 var eventsRequiringEmploymentCheck = GetEventsRequiringEmploymentCheck(unprocessedEvents, previousEmploymentCheckResults);
 
+                _logger.Info($"{eventsRequiringEmploymentCheck.Count()} events require employment check");
+
                 await RequestEmploymentCheck(eventsRequiringEmploymentCheck);
+
+                _logger.Info($"Employment check requested for {eventsRequiringEmploymentCheck.Count()} events");
 
                 await StoreLastProcessedEvent(unprocessedEvents);
             }
@@ -55,6 +61,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
             if (unprocessedEvents.Any())
             {
                 await _repository.SetLastProcessedEvent(unprocessedEvents.Last().Id);
+
+                _logger.Info($"Last processed event id set to {unprocessedEvents.Last().Id}");
             }
         }
 

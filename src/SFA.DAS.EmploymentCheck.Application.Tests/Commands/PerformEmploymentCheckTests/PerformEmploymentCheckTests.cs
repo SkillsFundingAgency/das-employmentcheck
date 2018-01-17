@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
+using NLog;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Gateways;
@@ -29,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.PerformEmploymentCh
             _hmrcGateway = new Mock<IHmrcGateway>();
             _repository = new Mock<ISubmissionEventRepository>();
             _eventsApi = new Mock<IEventsApi>();
-            _target = new PerformEmploymentCheckCommand(_hmrcGateway.Object, _eventsApi.Object, _repository.Object);
+            _target = new PerformEmploymentCheckCommand(_hmrcGateway.Object, _eventsApi.Object, _repository.Object, Mock.Of<ILogger>());
 
             var payeSchemes = new List<string> { "ABC/123", "ZZZ/999", "DFH/124" };
             _request = new PerformEmploymentCheckRequest("AA123456C", 123456, 543, 765, DateTime.Now.AddDays(-1), payeSchemes);
