@@ -32,6 +32,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
 
             var checkPassed = await DoEmploymentCheck(notification);
 
+            _logger.Info($"Employment check completed for {notification.NationalInsuranceNumber}, result = {checkPassed}");
+
             await StoreEmploymentCheckResult(notification, checkPassed);
             await CreateEmploymentCheckCompleteEvent(notification, checkPassed);
         }
