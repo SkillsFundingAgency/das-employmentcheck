@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
+using NLog;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
@@ -24,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
         {
             _accountApiClient = new Mock<IAccountApiClient>();
             _messagePublisher = new Mock<IMessagePublisher>();
-            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object);
+            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, Mock.Of<ILogger>());
         }
 
         [Test]
