@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediatR;
+using NLog;
 using SFA.DAS.EmploymentCheck.Application.Gateways;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
@@ -15,17 +16,23 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
         private readonly IHmrcGateway _hmrcGateway;
         private readonly IEventsApi _eventsApi;
         private readonly ISubmissionEventRepository _repository;
+        private readonly ILogger _logger;
 
-        public PerformEmploymentCheckCommand(IHmrcGateway hmrcGateway, IEventsApi eventsApi, ISubmissionEventRepository repository)
+        public PerformEmploymentCheckCommand(IHmrcGateway hmrcGateway, IEventsApi eventsApi, ISubmissionEventRepository repository, ILogger logger)
         {
             _hmrcGateway = hmrcGateway;
             _eventsApi = eventsApi;
             _repository = repository;
+            _logger = logger;
         }
 
         public async Task Handle(PerformEmploymentCheckRequest notification)
         {
+            _logger.Info($"Performing employment check for {notification.NationalInsuranceNumber}");
+
             var checkPassed = await DoEmploymentCheck(notification);
+
+            _logger.Info($"Employment check completed for {notification.NationalInsuranceNumber}, result = {checkPassed}");
 
             await StoreEmploymentCheckResult(notification, checkPassed);
             await CreateEmploymentCheckCompleteEvent(notification, checkPassed);
@@ -49,6 +56,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
             var checkPassed = false;
             foreach (var payeScheme in notification.PayeSchemes)
             {
+                _logger.Info($"Calling HMRC employment check for NINO: {notification.NationalInsuranceNumber} and Paye Scheme: {payeScheme}");
+
                 checkPassed = await _hmrcGateway.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, notification.NationalInsuranceNumber, notification.ActualStartDate);
                 if (checkPassed)
                 {

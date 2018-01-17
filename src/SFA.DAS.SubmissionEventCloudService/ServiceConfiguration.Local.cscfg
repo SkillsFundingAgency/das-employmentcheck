@@ -11,6 +11,7 @@
       <Setting name="EnvironmentName" value="LOCAL" />
 
       <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true;" />
+      <Setting name="TokenServiceCertificateThumbprint" value="" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

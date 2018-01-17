@@ -9,5 +9,6 @@ namespace SFA.DAS.EmploymentCheck.Domain.Interfaces
         string MessageServiceBusConnectionString { get; set; }
         EventsApiClientConfiguration EventsApi { get; set; }
         PaymentsEventsApiConfiguration PaymentsEvents { get; set; }
+        string HmrcBaseUrl { get; set; }
     }
 }
