@@ -210,6 +210,8 @@
     create warnings when detecting version missmatches among references.
     -->
     <AutoUnifyAssemblyReferences>false</AutoUnifyAssemblyReferences>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="TransformXml" AssemblyFile="$(VSToolsPath)\Web\Microsoft.Web.Publishing.Tasks.dll" />
