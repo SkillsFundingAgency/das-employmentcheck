@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.DataAccess;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
@@ -22,6 +23,7 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution
     {
         private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
         private readonly string _tokenServiceName = CloudConfigurationManager.GetSetting("TokenServiceName");
+        private readonly string _accountApiServiceName = CloudConfigurationManager.GetSetting("AccountApiServiceName");
         private readonly string _serviceVersion = CloudConfigurationManager.GetSetting("ServiceVersion");
 
         public DefaultRegistry()
@@ -36,9 +38,6 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution
             var employmentCheckConfig = GetConfiguration<EmploymentCheckConfiguration>(_serviceName);
             For<IEmploymentCheckConfiguration>().Use(employmentCheckConfig);
 
-            var tokenServiceConfig = GetConfiguration<TokenServiceApiClientConfiguration>(_tokenServiceName);
-            For<ITokenServiceApiClientConfiguration>().Use(tokenServiceConfig);
-
             RegisterRepositories(employmentCheckConfig.DatabaseConnectionString);
             RegisterApis(employmentCheckConfig);
             AddMediatrRegistrations();
@@ -51,6 +50,12 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution
             For<IEventsApi>().Use(new EventsApi(config.EventsApi));
             For<IPaymentsEventsApiClient>().Use(new PaymentsEventsApiClient(config.PaymentsEvents));
             For<IApprenticeshipLevyApiClient>().Use(new ApprenticeshipLevyApiClient(GetLevyHttpClient(config)));
+
+            var accountApiConfig = GetConfiguration<AccountApiConfiguration>(_accountApiServiceName);
+            For<IAccountApiClient>().Use(new AccountApiClient(accountApiConfig));
+
+            var tokenServiceConfig = GetConfiguration<TokenServiceApiClientConfiguration>(_tokenServiceName);
+            For<ITokenServiceApiClient>().Use(new TokenServiceApiClient(tokenServiceConfig));
         }
 
         private HttpClient GetLevyHttpClient(EmploymentCheckConfiguration config)

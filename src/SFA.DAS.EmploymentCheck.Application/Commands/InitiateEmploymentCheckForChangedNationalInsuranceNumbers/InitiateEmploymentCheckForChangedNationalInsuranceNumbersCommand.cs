@@ -102,7 +102,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
         private async Task<long> GetStartingEventId()
         {
             var lastProcessedEventId = await _repository.GetLastProcessedEventId();
-            var startingEventId = lastProcessedEventId + 1;
+            var startingEventId = lastProcessedEventId;
             return startingEventId;
         }
     }

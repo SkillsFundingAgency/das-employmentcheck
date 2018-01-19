@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             var previousEventId = 123;
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new SubmissionEvent[] {} });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new SubmissionEvent[] {} });
 
             await _target.Handle(new InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest());
 
@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             var previousEventId = 123;
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
 
             var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln, NiNumber = _submissionEvent.NiNumber, PassedValidationCheck = true };
             _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             var previousEventId = 123;
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
 
             var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln, NiNumber = "AA123456A", PassedValidationCheck = true };
             _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
@@ -93,7 +93,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             var previousEventId = 123;
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
 
             var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln, NiNumber = _submissionEvent.NiNumber, PassedValidationCheck = false };
             _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
@@ -116,7 +116,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             var previousEventId = 123;
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
 
             var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln + 1, NiNumber = _submissionEvent.NiNumber, PassedValidationCheck = true };
             _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
@@ -139,7 +139,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             var previousEventId = 123;
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent }});
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent }});
 
             await _target.Handle(new InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest());
 
@@ -153,7 +153,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
             _submissionEvent.EmployerReferenceNumber = null;
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
 
             var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln + 1, NiNumber = _submissionEvent.NiNumber, PassedValidationCheck = true };
             _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
@@ -170,7 +170,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
             _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
 
             _submissionEvent.ActualStartDate = null;
-            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId + 1, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
 
             var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln + 1, NiNumber = _submissionEvent.NiNumber, PassedValidationCheck = true };
             _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
