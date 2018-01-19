@@ -6,22 +6,23 @@ using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.DataAccess;
-using StructureMap;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.TokenService.Api.Client;
+using StructureMap;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Domain.Configuration.TokenServiceApiClientConfiguration;
 
-namespace SubmissionEventWorkerRole.DependencyResolution
+namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {
         private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
         private readonly string _tokenServiceName = CloudConfigurationManager.GetSetting("TokenServiceName");
-        private const string Version = "1.0";
+        private readonly string _serviceVersion = CloudConfigurationManager.GetSetting("ServiceVersion");
 
         public DefaultRegistry()
         {
@@ -29,6 +30,7 @@ namespace SubmissionEventWorkerRole.DependencyResolution
             {
                 scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.ToUpperInvariant().StartsWith("SFA.DAS."));
                 scan.RegisterConcreteTypesAgainstTheFirstInterface();
+                scan.AddAllTypesOf<IMessageProcessor>();
             });
 
             var employmentCheckConfig = GetConfiguration<EmploymentCheckConfiguration>(_serviceName);
@@ -68,7 +70,7 @@ namespace SubmissionEventWorkerRole.DependencyResolution
             var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
 
             var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(serviceName, environment, Version));
+            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(serviceName, environment, _serviceVersion));
 
             return configurationService.Get<T>();
         }

@@ -8,18 +8,19 @@ using Microsoft.Azure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckForChangedNationalInsuranceNumbers;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
+using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution;
 using SFA.DAS.Messaging.AzureServiceBus;
 using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 using StructureMap;
-using SubmissionEventWorkerRole.DependencyResolution;
 
-namespace SubmissionEventWorkerRole
+namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
         private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
+        private readonly string _serviceVersion = CloudConfigurationManager.GetSetting("ServiceVersion");
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
@@ -69,7 +70,7 @@ namespace SubmissionEventWorkerRole
         {
             var messageProcessors = _container.GetAllInstances<IMessageProcessor>();
 
-            messageProcessors.Select(x => x.RunAsync(_cancellationTokenSource.Token));
+            messageProcessors.Select(x => x.RunAsync(_cancellationTokenSource));
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -82,7 +83,8 @@ namespace SubmissionEventWorkerRole
         {
             var container = new Container(c =>
             {
-                c.Policies.Add(new TopicMessagePublisherPolicy<EmploymentCheckConfiguration>(_serviceName, new NLogLogger(typeof(TopicMessagePublisher))));
+                c.Policies.Add(new TopicMessagePublisherPolicy<EmploymentCheckConfiguration>(_serviceName, _serviceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
+                c.Policies.Add(new TopicMessageSubscriberPolicy<EmploymentCheckConfiguration>(_serviceName, _serviceVersion));
                 c.AddRegistry<DefaultRegistry>();
             });
             return container;
