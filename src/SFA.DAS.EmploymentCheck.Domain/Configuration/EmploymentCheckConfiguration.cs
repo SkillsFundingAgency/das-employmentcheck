@@ -4,7 +4,7 @@ using SFA.DAS.Provider.Events.Api.Client;
 
 namespace SFA.DAS.EmploymentCheck.Domain.Configuration
 {
-    public class EmploymentCheckConfiguration : IEmploymentCheckConfiguration, ITopicMessagePublisherConfiguration
+    public class EmploymentCheckConfiguration : IEmploymentCheckConfiguration, ITopicMessagePublisherConfiguration, ITopicMessageSubscriberConfiguration
     {
         public string DatabaseConnectionString { get; set; }
         public string MessageServiceBusConnectionString { get; set; }

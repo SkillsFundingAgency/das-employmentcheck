@@ -7,7 +7,7 @@ using SFA.DAS.Messaging.AzureServiceBus.Attributes;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
-namespace SubmissionEventWorkerRole.MessageProcessors
+namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.MessageProcessors
 {
     [TopicSubscription("EmploymentCheck_CheckRequiredForAccount")]
     public class EmploymentCheckRequiredForAccountMessageProcessor : MessageProcessor<EmploymentCheckRequiredForAccountMessage>
