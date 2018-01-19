@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole
         {
             var messageProcessors = _container.GetAllInstances<IMessageProcessor>();
 
-            messageProcessors.Select(x => x.RunAsync(_cancellationTokenSource));
+            messageProcessors.Select(x => x.RunAsync(_cancellationTokenSource)).ToList();
 
             while (!cancellationToken.IsCancellationRequested)
             {
