@@ -10,8 +10,14 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="SFA.DAS.Configuration" Version="1.0.0.43116" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="1.0.0.43116" />
+    <PackageReference Include="SFA.DAS.Configuration.FileStorage" Version="1.0.0.43116" />
+    <PackageReference Include="WindowsAzure.Storage" Version="4.3.0" />
+    <PackageReference Include="Microsoft.WindowsAzure.ConfigurationManager" Version="3.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="Microsoft.WindowsAzure.SDK" Version="2.9.0" />
     <PackageReference Include="NUnit" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
     <PackageReference Include="SpecFlow" Version="2.2.1" />
@@ -47,6 +53,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.WebApiStub\SFA.DAS.EmploymentCheck.WebApiStub.csproj" />
+    <ProjectReference Include="..\SubmissionEventWorkerRole\SubmissionEventWorkerRole.csproj" />
   </ItemGroup>
   
   <Target Name="PrecompileScript" BeforeTargets="BeforeBuild">

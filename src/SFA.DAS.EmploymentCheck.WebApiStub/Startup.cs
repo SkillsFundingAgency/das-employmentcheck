@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.WebApiStub.Services;
 
 namespace SFA.DAS.EmploymentCheck.WebApiStub
 {
@@ -29,6 +30,8 @@ namespace SFA.DAS.EmploymentCheck.WebApiStub
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddSingleton<IAccountsRepository, AccountsRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
