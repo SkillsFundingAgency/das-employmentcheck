@@ -21,10 +21,11 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.MessageProcessors
 
         protected override async Task ProcessMessage(EmploymentCheckRequiredForApprenticeMessage messageContent)
         {
-            await _mediator.PublishAsync(new RequestEmploymentCheckForEmployerPayeSchemesRequest
+            var request = new RequestEmploymentCheckForEmployerPayeSchemesRequest
             (
                 messageContent.NationalInsuranceNumber, messageContent.Uln, messageContent.EmployerAccountId, messageContent.Ukprn, messageContent.ActualStartDate
-            ));
+            );
+            await _mediator.PublishAsync(request);
         }
     }
 }
