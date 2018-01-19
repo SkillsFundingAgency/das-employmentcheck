@@ -17,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.DataAccess
 
         public async Task<long> GetLastProcessedEventId()
         {
-            var result = await WithConnection(async c => await c.ExecuteAsync(
+            var result = await WithConnection(async c => await c.ExecuteScalarAsync<long>(
                 sql: "[employer_check].[GetLastKnownProcessedEventId]",
                 commandType: CommandType.StoredProcedure));
 
