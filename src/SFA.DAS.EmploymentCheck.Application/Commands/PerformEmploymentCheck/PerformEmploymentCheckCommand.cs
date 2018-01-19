@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediatR;
-using NLog;
 using SFA.DAS.EmploymentCheck.Application.Gateways;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Types;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
 {
@@ -16,9 +16,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
         private readonly IHmrcGateway _hmrcGateway;
         private readonly IEventsApi _eventsApi;
         private readonly ISubmissionEventRepository _repository;
-        private readonly ILogger _logger;
+        private readonly ILog _logger;
 
-        public PerformEmploymentCheckCommand(IHmrcGateway hmrcGateway, IEventsApi eventsApi, ISubmissionEventRepository repository, ILogger logger)
+        public PerformEmploymentCheckCommand(IHmrcGateway hmrcGateway, IEventsApi eventsApi, ISubmissionEventRepository repository, ILog logger)
         {
             _hmrcGateway = hmrcGateway;
             _eventsApi = eventsApi;
@@ -28,14 +28,22 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
 
         public async Task Handle(PerformEmploymentCheckRequest notification)
         {
-            _logger.Info($"Performing employment check for {notification.NationalInsuranceNumber}");
+            try
+            {
+                _logger.Info($"Performing employment check for {notification.NationalInsuranceNumber}");
 
-            var checkPassed = await DoEmploymentCheck(notification);
+                var checkPassed = await DoEmploymentCheck(notification);
 
-            _logger.Info($"Employment check completed for {notification.NationalInsuranceNumber}, result = {checkPassed}");
+                _logger.Info($"Employment check completed for {notification.NationalInsuranceNumber}, result = {checkPassed}");
 
-            await StoreEmploymentCheckResult(notification, checkPassed);
-            await CreateEmploymentCheckCompleteEvent(notification, checkPassed);
+                await StoreEmploymentCheckResult(notification, checkPassed);
+                await CreateEmploymentCheckCompleteEvent(notification, checkPassed);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error performing employment check - {ex.Message}");
+                throw;
+            }
         }
 
         private async Task CreateEmploymentCheckCompleteEvent(PerformEmploymentCheckRequest notification, bool checkPassed)

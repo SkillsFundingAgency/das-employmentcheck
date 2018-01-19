@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
-using NLog;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCheckForEmployerPayeSchemesTests
 {
@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
         {
             _accountApiClient = new Mock<IAccountApiClient>();
             _messagePublisher = new Mock<IMessagePublisher>();
-            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, Mock.Of<ILogger>());
+            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, Mock.Of<ILog>());
         }
 
         [Test]

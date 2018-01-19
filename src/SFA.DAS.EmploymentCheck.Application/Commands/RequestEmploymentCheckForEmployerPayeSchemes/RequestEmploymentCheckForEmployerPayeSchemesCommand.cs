@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
-using NLog;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes
 {
@@ -13,9 +14,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
     {
         private readonly IMessagePublisher _messagePublisher;
         private readonly IAccountApiClient _accountApiClient;
-        private readonly ILogger _logger;
+        private readonly ILog _logger;
 
-        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, ILogger logger)
+        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, ILog logger)
         {
             _messagePublisher = messagePublisher;
             _accountApiClient = accountApiClient;
@@ -24,10 +25,18 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
 
         public async Task Handle(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
         {
-            _logger.Info($"Getting PAYE schemes for account {notification.EmployerAccountId} to perform employment check for NINO: {notification.NationalInsuranceNumber}");
-            var payeSchemes = await GetPayeSchemesForAccount(notification);
+            try
+            {
+                _logger.Info($"Getting PAYE schemes for account {notification.EmployerAccountId} to perform employment check for NINO: {notification.NationalInsuranceNumber}");
+                var payeSchemes = await GetPayeSchemesForAccount(notification);
 
-            await RequestEmploymentCheck(notification, payeSchemes);
+                await RequestEmploymentCheck(notification, payeSchemes);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error getting paye schemes for employment check - {ex.Message}");
+                throw;
+            }
         }
 
         private async Task RequestEmploymentCheck(RequestEmploymentCheckForEmployerPayeSchemesRequest notification, IEnumerable<string> payeSchemes)
