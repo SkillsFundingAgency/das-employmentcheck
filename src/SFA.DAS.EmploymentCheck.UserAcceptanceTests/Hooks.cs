@@ -1,8 +1,8 @@
-﻿using BoDi;
-using TechTalk.SpecFlow;
+﻿using TechTalk.SpecFlow;
+using BoDi;
 using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
 
-namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
+namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests
 {
     [Binding]
     public class Hooks
@@ -19,7 +19,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [BeforeScenario]
         public void BeforeScenario()
         {
-            _objectContainer.RegisterInstanceAs(new TestContext().Client);
             sut = new WorkerRole();
             sut.OnStart();
             sut.Run();
