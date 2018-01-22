@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Configuration
                 {
                     var thumbprint = CloudConfigurationManager.GetSetting("TokenServiceCertificateThumbprint");
 
-                    if (string.IsNullOrEmpty(thumbprint))
+                    if (string.IsNullOrWhiteSpace(thumbprint))
                     {
                         return null;
                     }
