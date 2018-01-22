@@ -24,9 +24,6 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Features
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Compliance.feature"
-#line hidden
-        
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
@@ -78,17 +75,11 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Features
                 @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
             }
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Employment Check", @__tags);
-#line 7
-this.ScenarioSetup(scenarioInfo);
-#line 8
-testRunner.Given(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRef), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 9
-testRunner.And(string.Format("a call to the HMRC API with EmpRef {0} and NINO {1} response {2}", empRef, nino, hmrcresponse), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 10
-testRunner.When(string.Format("A Submission Event has raised with EmpRef {0} and NINO {1} and ULN {2}", empRef, nino, uln), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 11
-testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
+            this.ScenarioSetup(scenarioInfo);
+            testRunner.Given(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRef), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+            testRunner.And(string.Format("a call to the HMRC API with EmpRef {0} and NINO {1} response {2}", empRef, nino, hmrcresponse), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+            testRunner.When(string.Format("A Submission Event has raised with EmpRef {0} and NINO {1} and ULN {2}", empRef, nino, uln), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+            testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
             this.ScenarioCleanup();
         }
     }
