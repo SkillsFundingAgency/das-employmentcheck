@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Application.Gateways;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
@@ -49,8 +50,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck
         private async Task CreateEmploymentCheckCompleteEvent(PerformEmploymentCheckRequest notification, bool checkPassed)
         {
             var completeEvent = new EmploymentCheckCompleteEvent(notification.NationalInsuranceNumber, notification.Uln, notification.EmployerAccountId, notification.Ukprn, DateTime.Now, checkPassed);
-            var genericEvent = new GenericEvent<EmploymentCheckCompleteEvent> { CreatedOn = DateTime.Now, Payload = completeEvent };
-            await _eventsApi.CreateGenericEvent<EmploymentCheckCompleteEvent>(genericEvent);
+            var genericEvent = new GenericEvent { CreatedOn = DateTime.Now, Payload = JsonConvert.SerializeObject(completeEvent), Type = completeEvent.GetType().Name };
+            await _eventsApi.CreateGenericEvent(genericEvent);
         }
 
         private async Task StoreEmploymentCheckResult(PerformEmploymentCheckRequest notification, bool checkPassed)
