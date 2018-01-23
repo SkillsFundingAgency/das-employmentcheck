@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Commands.PerformEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Gateways;
@@ -49,9 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.PerformEmploymentCh
                 x => x.StoreEmploymentCheckResult(It.Is<PreviousHandledSubmissionEvent>(y => y.Uln == _request.Uln && y.NiNumber == _request.NationalInsuranceNumber && y.PassedValidationCheck)),
                 Times.Once);
             _eventsApi.Verify(
-                x => x.CreateGenericEvent<EmploymentCheckCompleteEvent>(It.Is<GenericEvent<EmploymentCheckCompleteEvent>>(y =>
-                    y.Payload.Uln == _request.Uln && y.Payload.CheckDate.Date == DateTime.Now.Date && y.Payload.EmployerAccountId == _request.EmployerAccountId &&
-                    y.Payload.NationalInsuranceNumber == _request.NationalInsuranceNumber && y.Payload.Ukprn == _request.Ukprn && y.Payload.CheckPassed)), Times.Once);
+                x => x.CreateGenericEvent(It.Is<GenericEvent>(y => !string.IsNullOrWhiteSpace(y.Payload) && y.Type == "EmploymentCheckCompleteEvent")), Times.Once);
         }
 
         [Test]
@@ -68,9 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.PerformEmploymentCh
                 x => x.StoreEmploymentCheckResult(It.Is<PreviousHandledSubmissionEvent>(y => y.Uln == _request.Uln && y.NiNumber == _request.NationalInsuranceNumber && !y.PassedValidationCheck)),
                 Times.Once);
             _eventsApi.Verify(
-                x => x.CreateGenericEvent<EmploymentCheckCompleteEvent>(It.Is<GenericEvent<EmploymentCheckCompleteEvent>>(y =>
-                    y.Payload.Uln == _request.Uln && y.Payload.CheckDate.Date == DateTime.Now.Date && y.Payload.EmployerAccountId == _request.EmployerAccountId &&
-                    y.Payload.NationalInsuranceNumber == _request.NationalInsuranceNumber && y.Payload.Ukprn == _request.Ukprn && !y.Payload.CheckPassed)), Times.Once);
+                x => x.CreateGenericEvent(It.Is<GenericEvent>(y => !string.IsNullOrWhiteSpace(y.Payload) && y.Type == "EmploymentCheckCompleteEvent")), Times.Once);
         }
     }
 }
