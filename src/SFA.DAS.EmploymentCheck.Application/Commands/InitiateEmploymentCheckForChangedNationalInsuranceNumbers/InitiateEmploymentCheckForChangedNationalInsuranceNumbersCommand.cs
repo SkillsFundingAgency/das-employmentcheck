@@ -52,7 +52,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
             catch (Exception ex)
             {
                 _logger.Error(ex, $"Error processing submission events - {ex.Message}");
-                throw;
             }
         }
 
