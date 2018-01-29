@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.MessageProcessors
         {
             var request = new RequestEmploymentCheckForEmployerPayeSchemesRequest
             (
-                messageContent.NationalInsuranceNumber, messageContent.Uln, messageContent.EmployerAccountId, messageContent.Ukprn, messageContent.ActualStartDate
+                messageContent.NationalInsuranceNumber, messageContent.Uln, messageContent.ApprenticeshipId, messageContent.Ukprn, messageContent.ActualStartDate
             );
             await _mediator.PublishAsync(request);
         }

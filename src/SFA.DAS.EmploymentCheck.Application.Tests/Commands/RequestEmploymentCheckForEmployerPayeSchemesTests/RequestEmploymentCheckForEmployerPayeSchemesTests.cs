@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Client.Interfaces;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes;
@@ -19,19 +21,23 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
         private RequestEmploymentCheckForEmployerPayeSchemesCommand _target;
         private Mock<IAccountApiClient> _accountApiClient;
         private Mock<IMessagePublisher> _messagePublisher;
+        private Mock<IProviderCommitmentsApi> _commitmentsApi;
         
         [SetUp]
         public void SetUp()
         {
             _accountApiClient = new Mock<IAccountApiClient>();
             _messagePublisher = new Mock<IMessagePublisher>();
-            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, Mock.Of<ILog>());
+            _commitmentsApi = new Mock<IProviderCommitmentsApi>();
+            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, _commitmentsApi.Object, Mock.Of<ILog>());
         }
 
         [Test]
         public async Task WhenAnEmploymentCheckIsRequestedThenACheckIsRequestedForThePayeSchemesLinkedToTheEmployersAccount()
         {
             var request = new RequestEmploymentCheckForEmployerPayeSchemesRequest("AB12345C", 1324, 6543, 4353443, DateTime.Now.AddYears(-1));
+            var expectedAccountId = 349875;
+            _commitmentsApi.Setup(x => x.GetProviderApprenticeship(request.Ukprn, request.ApprenticeshipId)).ReturnsAsync(new Apprenticeship { EmployerAccountId = expectedAccountId });
             var accountPayeSchemes = new List<ResourceViewModel>
             {
                 new ResourceViewModel {Id = "ABC/123"},
@@ -39,14 +45,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
             };
             var account = new AccountDetailViewModel { PayeSchemes = new ResourceList(accountPayeSchemes) };
 
-            _accountApiClient.Setup(x => x.GetAccount(request.EmployerAccountId)).ReturnsAsync(account);
+            _accountApiClient.Setup(x => x.GetAccount(expectedAccountId)).ReturnsAsync(account);
 
             await _target.Handle(request);
 
             _messagePublisher.Verify(
                 x => x.PublishAsync(It.Is<EmploymentCheckRequiredForAccountMessage>(y =>
                     y.Uln == request.Uln && y.ActualStartDate == request.ActualStartDate &&
-                    y.EmployerAccountId == request.EmployerAccountId &&
+                    y.EmployerAccountId == expectedAccountId &&
                     y.NationalInsuranceNumber == request.NationalInsuranceNumber && y.Ukprn == request.Ukprn &&
                     y.PayeSchemes.SequenceEqual(accountPayeSchemes.Select(z => z.Id)))), Times.Once());
         }
