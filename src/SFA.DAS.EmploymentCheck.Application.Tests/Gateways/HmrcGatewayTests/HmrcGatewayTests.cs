@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
             var payeScheme = "ABC/123";
             var nationalInsuranceNumber = "AB123456C";
             var startDate = DateTime.Now.AddYears(-1);
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, null)).ReturnsAsync(levyServiceResponse);
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).ReturnsAsync(levyServiceResponse);
 
             var result = await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate);
 
