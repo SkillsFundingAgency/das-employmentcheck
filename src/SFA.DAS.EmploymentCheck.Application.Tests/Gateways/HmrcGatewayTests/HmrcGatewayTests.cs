@@ -57,7 +57,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
             var payeScheme = "ABC/123";
             var nationalInsuranceNumber = "AB123456C";
             var startDate = DateTime.Now.AddYears(-1);
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).ReturnsAsync(levyServiceResponse);
             _apprenticeshipLevyService.SetupSequence(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).Throws(new ApiHttpException(408, "", "", "")).Throws(new ApiHttpException(408, "", "", "")).ReturnsAsync(levyServiceResponse);
 
             var result = await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate);
@@ -77,13 +76,48 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
             var payeScheme = "ABC/123";
             var nationalInsuranceNumber = "AB123456C";
             var startDate = DateTime.Now.AddYears(-1);
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).ReturnsAsync(levyServiceResponse);
             _apprenticeshipLevyService.SetupSequence(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).Throws(new ApiHttpException(429, "", "", "")).Throws(new ApiHttpException(429, "", "", "")).ReturnsAsync(levyServiceResponse);
 
             var result = await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate);
 
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(3));
             Assert.AreEqual(true, result);
+        }
+
+        [Test]
+        public void WhenTheServiceReturnsAnInternalServerErrorThenTheCallIsRetriedFiveTimes()
+        {
+            var expectedToken = "ABC12345";
+
+            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(new PrivilegedAccessToken { AccessCode = expectedToken });
+            var levyServiceResponse = new EmploymentStatus { Employed = true };
+
+            var payeScheme = "ABC/123";
+            var nationalInsuranceNumber = "AB123456C";
+            var startDate = DateTime.Now.AddYears(-1);
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).Throws(new ApiHttpException(500, "", "", ""));
+
+            Assert.ThrowsAsync<ApiHttpException>(async () => await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate));
+
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(6));
+        }
+
+        [Test]
+        public void WhenTheServiceReturnsAServiceUnavailableErrorThenTheCallIsRetriedFiveTimes()
+        {
+            var expectedToken = "ABC12345";
+
+            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(new PrivilegedAccessToken { AccessCode = expectedToken });
+            var levyServiceResponse = new EmploymentStatus { Employed = true };
+
+            var payeScheme = "ABC/123";
+            var nationalInsuranceNumber = "AB123456C";
+            var startDate = DateTime.Now.AddYears(-1);
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).Throws(new ApiHttpException(503, "", "", ""));
+
+            Assert.ThrowsAsync<ApiHttpException>(async () => await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate));
+
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(6));
         }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
+using Microsoft.Azure;
 using Polly;
-using Polly.Retry;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.TokenService.Api.Client;
 
@@ -38,16 +37,20 @@ namespace SFA.DAS.EmploymentCheck.Application.Gateways
             });
         }
 
-        private RetryPolicy GetRetryPolicy()
+        private Policy GetRetryPolicy()
         {
-            return Policy
-                .Handle<ApiHttpException>(ex => ex.HttpCode == 429 || ex.HttpCode == 408)
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(10),
-                    (exception, timespan) =>
-                    {
-                        _logger.Warn($"Exception calling HMRC API: ({exception.Message}). Retrying...");
-                    }
-                );
+            var retryDelay = int.Parse(CloudConfigurationManager.GetSetting("HmrcRetryDelay"));
+            var retryPolicy = Policy.Handle<ApiHttpException>(ex => ex.HttpCode == 429 || ex.HttpCode == 408)
+                    .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromMilliseconds(retryDelay), (exception, timespan) => LogWarning(exception));
+
+            return retryPolicy.WrapAsync(
+                Policy.Handle<ApiHttpException>(ex => ex.HttpCode == 503 || ex.HttpCode == 500)
+                    .WaitAndRetryAsync(5, i => TimeSpan.FromMilliseconds(retryDelay), (exception, timespan) => LogWarning(exception)));
+        }
+
+        private void LogWarning(Exception exception)
+        {
+            _logger.Warn($"Exception calling HMRC API: ({exception.Message}). Retrying...");
         }
     }
 }
