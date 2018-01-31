@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Gateways
         {
             return Policy
                 .Handle<ApiHttpException>(ex => ex.HttpCode == 429 || ex.HttpCode == 408)
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(1),
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(10),
                     (exception, timespan) =>
                     {
                         _logger.Warn($"Exception calling HMRC API: ({exception.Message}). Retrying...");
