@@ -3,6 +3,9 @@ using System.Net.Http;
 using HMRC.ESFA.Levy.Api.Client;
 using MediatR;
 using Microsoft.Azure;
+using SFA.DAS.Commitments.Api.Client;
+using SFA.DAS.Commitments.Api.Client.Configuration;
+using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EAS.Account.Api.Client;
@@ -24,6 +27,7 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution
         private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
         private readonly string _tokenServiceName = CloudConfigurationManager.GetSetting("TokenServiceName");
         private readonly string _accountApiServiceName = CloudConfigurationManager.GetSetting("AccountApiServiceName");
+        private readonly string _commitmentsApiServiceName = CloudConfigurationManager.GetSetting("CommitmentsApiServiceName");
         private readonly string _serviceVersion = CloudConfigurationManager.GetSetting("ServiceVersion");
 
         public DefaultRegistry()
@@ -56,6 +60,9 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole.DependencyResolution
 
             var tokenServiceConfig = GetConfiguration<TokenServiceApiClientConfiguration>(_tokenServiceName);
             For<ITokenServiceApiClient>().Use(new TokenServiceApiClient(tokenServiceConfig));
+
+            var commitmentApiConfig = GetConfiguration<CommitmentsApiClientConfiguration>(_commitmentsApiServiceName);
+            For<IProviderCommitmentsApi>().Use<ProviderCommitmentsApi>().Ctor<ICommitmentsApiClientConfiguration>().Is(commitmentApiConfig);
         }
 
         private HttpClient GetLevyHttpClient(EmploymentCheckConfiguration config)

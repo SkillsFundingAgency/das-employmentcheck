@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
@@ -14,12 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
     {
         private readonly IMessagePublisher _messagePublisher;
         private readonly IAccountApiClient _accountApiClient;
+        private readonly IProviderCommitmentsApi _commitmentsApi;
         private readonly ILog _logger;
 
-        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, ILog logger)
+        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, IProviderCommitmentsApi commitmentsApi, ILog logger)
         {
             _messagePublisher = messagePublisher;
             _accountApiClient = accountApiClient;
+            _commitmentsApi = commitmentsApi;
             _logger = logger;
         }
 
@@ -27,10 +30,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
         {
             try
             {
-                _logger.Info($"Getting PAYE schemes for account {notification.EmployerAccountId} to perform employment check for NINO: {notification.NationalInsuranceNumber}");
-                var payeSchemes = await GetPayeSchemesForAccount(notification);
+                var employerAccountId = await GetEmployerAccountId(notification);
+                var payeSchemes = await GetPayeSchemesForAccount(employerAccountId);
 
-                await RequestEmploymentCheck(notification, payeSchemes);
+                await RequestEmploymentCheck(notification, employerAccountId, payeSchemes);
             }
             catch (Exception ex)
             {
@@ -39,16 +42,24 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
             }
         }
 
-        private async Task RequestEmploymentCheck(RequestEmploymentCheckForEmployerPayeSchemesRequest notification, IEnumerable<string> payeSchemes)
+        private async Task<long> GetEmployerAccountId(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
+        {
+            _logger.Info($"Getting PAYE schemes for apprenticeship {notification.ApprenticeshipId} to perform employment check for NINO: {notification.NationalInsuranceNumber}");
+            var apprenticeship = await _commitmentsApi.GetProviderApprenticeship(notification.Ukprn, notification.ApprenticeshipId);
+            return apprenticeship.EmployerAccountId;
+        }
+
+        private async Task RequestEmploymentCheck(RequestEmploymentCheckForEmployerPayeSchemesRequest notification, long employerAccountId, IEnumerable<string> payeSchemes)
         {
             await _messagePublisher.PublishAsync(new EmploymentCheckRequiredForAccountMessage(
-                notification.NationalInsuranceNumber, notification.Uln, notification.EmployerAccountId, notification.Ukprn,
+                notification.NationalInsuranceNumber, notification.Uln, employerAccountId, notification.Ukprn,
                 notification.ActualStartDate, payeSchemes));
         }
 
-        private async Task<IEnumerable<string>> GetPayeSchemesForAccount(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
+        private async Task<IEnumerable<string>> GetPayeSchemesForAccount(long employerAccountId)
         {
-            var account = await _accountApiClient.GetAccount(notification.EmployerAccountId);
+            _logger.Info($"Getting PAYE schemes for account {employerAccountId} to perform employment check");
+            var account = await _accountApiClient.GetAccount(employerAccountId);
             var payeSchemes = account.PayeSchemes.Select(x => x.Id);
             return payeSchemes;
         }

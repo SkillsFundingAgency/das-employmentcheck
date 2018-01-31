@@ -52,7 +52,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
             catch (Exception ex)
             {
                 _logger.Error(ex, $"Error processing submission events - {ex.Message}");
-                throw;
             }
         }
 
@@ -70,7 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
         {
             var publishTasks = eventsRequiringEmploymentCheck.Select(x =>
                 _messagePublisher.PublishAsync(new EmploymentCheckRequiredForApprenticeMessage(x.NiNumber, x.Uln,
-                    x.EmployerReferenceNumber.Value, x.Ukprn, x.ActualStartDate.Value)));
+                    x.ApprenticeshipId.Value, x.Ukprn, x.ActualStartDate.Value)));
             await Task.WhenAll(publishTasks);
         }
 
@@ -82,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
 
         private IEnumerable<SubmissionEvent> GetEventsWithMandatoryEmploymentCheckData(IEnumerable<SubmissionEvent> unprocessedEvents)
         {
-            return unprocessedEvents.Where(x => x.ActualStartDate.HasValue && x.EmployerReferenceNumber.HasValue);
+            return unprocessedEvents.Where(x => x.ActualStartDate.HasValue && x.ApprenticeshipId.HasValue);
         }
 
         private async Task<IEnumerable<PreviousHandledSubmissionEvent>> GetPreviousEmploymentCheckResults(IEnumerable<SubmissionEvent> unprocessedEvents)
