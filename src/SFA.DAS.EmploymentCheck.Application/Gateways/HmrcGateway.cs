@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Gateways
 
             return retryPolicy.WrapAsync(
                 Policy.Handle<ApiHttpException>(ex => ex.HttpCode == 503 || ex.HttpCode == 500)
-                    .WaitAndRetryAsync(5, i => TimeSpan.FromMilliseconds(retryDelay), (exception, timespan) => LogWarning(exception)));
+                    .WaitAndRetryAsync(10, i => TimeSpan.FromMilliseconds(retryDelay), (exception, timespan) => LogWarning(exception)));
         }
 
         private void LogWarning(Exception exception)

@@ -85,7 +85,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
         }
 
         [Test]
-        public void WhenTheServiceReturnsAnInternalServerErrorThenTheCallIsRetriedFiveTimes()
+        public void WhenTheServiceReturnsAnInternalServerErrorThenTheCallIsRetriedElevenTimes()
         {
             var expectedToken = "ABC12345";
 
@@ -99,11 +99,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
 
             Assert.ThrowsAsync<ApiHttpException>(async () => await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate));
 
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(6));
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(11));
         }
 
         [Test]
-        public void WhenTheServiceReturnsAServiceUnavailableErrorThenTheCallIsRetriedFiveTimes()
+        public void WhenTheServiceReturnsAServiceUnavailableErrorThenTheCallIsRetriedElevenTimes()
         {
             var expectedToken = "ABC12345";
 
@@ -117,7 +117,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
 
             Assert.ThrowsAsync<ApiHttpException>(async () => await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate));
 
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(6));
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(11));
         }
     }
 }
