@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
+using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -19,15 +21,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
         private readonly IMessagePublisher _messagePublisher;
         private readonly IAccountApiClient _accountApiClient;
         private readonly IProviderCommitmentsApi _commitmentsApi;
-        private readonly ISubmissionEventRepository _repository;
+        private readonly EmploymentCheckCompletedService _employmentCheckService;
         private readonly ILog _logger;
 
-        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, IProviderCommitmentsApi commitmentsApi, ISubmissionEventRepository repository, ILog logger)
+        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, IProviderCommitmentsApi commitmentsApi, ISubmissionEventRepository repository, IEventsApi eventsApi, ILog logger)
         {
             _messagePublisher = messagePublisher;
             _accountApiClient = accountApiClient;
             _commitmentsApi = commitmentsApi;
-            _repository = repository;
+            _employmentCheckService = new EmploymentCheckCompletedService(eventsApi, repository);
             _logger = logger;
         }
 
@@ -55,8 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
 
         private async Task CreateNegativeEmploymentCheckResult(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
         {
-            var result = new PreviousHandledSubmissionEvent { NiNumber = notification.NationalInsuranceNumber, Uln = notification.Uln, PassedValidationCheck = false };
-            await _repository.StoreEmploymentCheckResult(result);
+            await _employmentCheckService.CompleteEmploymentCheck(notification.NationalInsuranceNumber, notification.Uln, notification.Ukprn, false);
         }
 
         private async Task<long?> GetEmployerAccountId(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)

@@ -13,6 +13,8 @@ using SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmpl
 using SFA.DAS.EmploymentCheck.Domain.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
+using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Events.Api.Types;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -26,7 +28,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IProviderCommitmentsApi> _commitmentsApi;
         private Mock<ISubmissionEventRepository> _repository;
-        
+        private Mock<IEventsApi> _eventsApi;
+
         [SetUp]
         public void SetUp()
         {
@@ -34,7 +37,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
             _messagePublisher = new Mock<IMessagePublisher>();
             _commitmentsApi = new Mock<IProviderCommitmentsApi>();
             _repository = new Mock<ISubmissionEventRepository>();
-            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, _commitmentsApi.Object, _repository.Object, Mock.Of<ILog>());
+            _eventsApi = new Mock<IEventsApi>();
+            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, _commitmentsApi.Object, _repository.Object, _eventsApi.Object, Mock.Of<ILog>());
         }
 
         [Test]
@@ -70,7 +74,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
 
             await _target.Handle(request);
 
-            _repository.Verify(x => x.StoreEmploymentCheckResult(It.Is<PreviousHandledSubmissionEvent>(y => y.Uln == request.Uln && y.NiNumber == request.NationalInsuranceNumber && !y.PassedValidationCheck)));
+            _repository.Verify(x => x.StoreEmploymentCheckResult(It.Is<PreviousHandledSubmissionEvent>(y => y.Uln == request.Uln && y.NiNumber == request.NationalInsuranceNumber && !y.PassedValidationCheck)), Times.Once);
+            _eventsApi.Verify(x => x.CreateGenericEvent(It.Is<GenericEvent>(y => !string.IsNullOrWhiteSpace(y.Payload) && y.Type == "EmploymentCheckCompleteEvent")), Times.Once);
         }
     }
 }

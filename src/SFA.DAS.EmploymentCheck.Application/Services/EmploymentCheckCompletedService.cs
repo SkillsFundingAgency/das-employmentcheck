@@ -20,6 +20,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             _repository = repository;
         }
 
+        internal async Task CompleteEmploymentCheck(string nationalInsuranceNumber, long uln, long ukprn, bool checkPassed)
+        {
+            await CompleteEmploymentCheck(nationalInsuranceNumber, uln, 0, ukprn, checkPassed);
+        }
+
         internal async Task CompleteEmploymentCheck(string nationalInsuranceNumber, long uln, long employerAccountId, long ukprn, bool checkPassed)
         {
             await CreateEmploymentCheckCompleteEvent(nationalInsuranceNumber, uln, employerAccountId, ukprn, checkPassed);
