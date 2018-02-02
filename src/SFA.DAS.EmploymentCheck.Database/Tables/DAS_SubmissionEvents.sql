@@ -3,6 +3,6 @@
 	[Uln] BIGINT NOT NULL PRIMARY KEY,
 	[NiNumber] NVARCHAR(9) NULL,
 	[PassedValidationCheck] BIT,
-    [CheckedOn] DATE NOT NULL DEFAULT GetDate()
+    [CheckedOn] DATETIME NOT NULL DEFAULT GetDate()
 )
 GO
