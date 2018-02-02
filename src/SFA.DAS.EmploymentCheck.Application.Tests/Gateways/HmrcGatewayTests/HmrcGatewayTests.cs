@@ -108,8 +108,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
             var expectedToken = "ABC12345";
 
             _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(new PrivilegedAccessToken { AccessCode = expectedToken });
-            var levyServiceResponse = new EmploymentStatus { Employed = true };
-
+            
             var payeScheme = "ABC/123";
             var nationalInsuranceNumber = "AB123456C";
             var startDate = DateTime.Now.AddYears(-1);
@@ -118,6 +117,23 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Gateways.HmrcGatewayTests
             Assert.ThrowsAsync<ApiHttpException>(async () => await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate));
 
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date), Times.Exactly(11));
+        }
+
+        [Test]
+        public async Task WhenTheServiceReturnsNotFoundThenFalseIsReturned()
+        {
+            var expectedToken = "ABC12345";
+
+            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(new PrivilegedAccessToken { AccessCode = expectedToken });
+            
+            var payeScheme = "ABC/123";
+            var nationalInsuranceNumber = "AB123456C";
+            var startDate = DateTime.Now.AddYears(-1);
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(expectedToken, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date)).Throws(new ApiHttpException(404, "", "", ""));
+
+            var result = await _target.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, nationalInsuranceNumber, startDate);
+
+            Assert.IsFalse(result);
         }
     }
 }

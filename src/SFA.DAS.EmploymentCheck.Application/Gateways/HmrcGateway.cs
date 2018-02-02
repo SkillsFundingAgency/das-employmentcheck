@@ -31,9 +31,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Gateways
             {
                 var token = await _tokenService.GetPrivilegedAccessTokenAsync();
 
-                var response = await _apprenticeshipLevyService.GetEmploymentStatus(token.AccessCode, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date);
-
-                return response.Employed;
+                try
+                {
+                    var response = await _apprenticeshipLevyService.GetEmploymentStatus(token.AccessCode, payeScheme, nationalInsuranceNumber, startDate, DateTime.Now.Date);
+                    return response.Employed;
+                }
+                catch (ApiHttpException e) when (e.HttpCode == 404)
+                {
+                    return false;
+                }
             });
         }
 
