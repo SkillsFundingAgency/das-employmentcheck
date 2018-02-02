@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.EmploymentCheck.Domain.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
@@ -16,13 +19,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
         private readonly IMessagePublisher _messagePublisher;
         private readonly IAccountApiClient _accountApiClient;
         private readonly IProviderCommitmentsApi _commitmentsApi;
+        private readonly ISubmissionEventRepository _repository;
         private readonly ILog _logger;
 
-        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, IProviderCommitmentsApi commitmentsApi, ILog logger)
+        public RequestEmploymentCheckForEmployerPayeSchemesCommand(IMessagePublisher messagePublisher, IAccountApiClient accountApiClient, IProviderCommitmentsApi commitmentsApi, ISubmissionEventRepository repository, ILog logger)
         {
             _messagePublisher = messagePublisher;
             _accountApiClient = accountApiClient;
             _commitmentsApi = commitmentsApi;
+            _repository = repository;
             _logger = logger;
         }
 
@@ -31,9 +36,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
             try
             {
                 var employerAccountId = await GetEmployerAccountId(notification);
-                var payeSchemes = await GetPayeSchemesForAccount(employerAccountId);
+                if (!employerAccountId.HasValue)
+                {
+                    await CreateNegativeEmploymentCheckResult(notification);
+                    return;
+                }
 
-                await RequestEmploymentCheck(notification, employerAccountId, payeSchemes);
+                var payeSchemes = await GetPayeSchemesForAccount(employerAccountId.Value);
+
+                await RequestEmploymentCheck(notification, employerAccountId.Value, payeSchemes);
             }
             catch (Exception ex)
             {
@@ -42,11 +53,25 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
             }
         }
 
-        private async Task<long> GetEmployerAccountId(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
+        private async Task CreateNegativeEmploymentCheckResult(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
         {
-            _logger.Info($"Getting PAYE schemes for apprenticeship {notification.ApprenticeshipId} to perform employment check for NINO: {notification.NationalInsuranceNumber}");
-            var apprenticeship = await _commitmentsApi.GetProviderApprenticeship(notification.Ukprn, notification.ApprenticeshipId);
-            return apprenticeship.EmployerAccountId;
+            var result = new PreviousHandledSubmissionEvent { NiNumber = notification.NationalInsuranceNumber, Uln = notification.Uln, PassedValidationCheck = false };
+            await _repository.StoreEmploymentCheckResult(result);
+        }
+
+        private async Task<long?> GetEmployerAccountId(RequestEmploymentCheckForEmployerPayeSchemesRequest notification)
+        {
+            try
+            {
+                _logger.Info($"Getting PAYE schemes for apprenticeship {notification.ApprenticeshipId} to perform employment check for NINO: {notification.NationalInsuranceNumber}");
+                var apprenticeship = await _commitmentsApi.GetProviderApprenticeship(notification.Ukprn, notification.ApprenticeshipId);
+                return apprenticeship.EmployerAccountId;
+            }
+            catch (HttpRequestException ex) when (ex.Message.Contains("401"))
+            {
+                _logger.Info($"Commitments API returned UNAUTHORISED for apprentieceship {notification.ApprenticeshipId} and provider {notification.Ukprn}");
+                return null;
+            }
         }
 
         private async Task RequestEmploymentCheck(RequestEmploymentCheckForEmployerPayeSchemesRequest notification, long employerAccountId, IEnumerable<string> payeSchemes)

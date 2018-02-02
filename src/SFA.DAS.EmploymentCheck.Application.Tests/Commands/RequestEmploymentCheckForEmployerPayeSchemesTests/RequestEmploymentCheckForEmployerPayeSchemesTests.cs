@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -9,6 +10,8 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckForEmployerPayeSchemes;
+using SFA.DAS.EmploymentCheck.Domain.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Models;
 using SFA.DAS.EmploymentCheck.Events;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
@@ -22,6 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
         private Mock<IAccountApiClient> _accountApiClient;
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IProviderCommitmentsApi> _commitmentsApi;
+        private Mock<ISubmissionEventRepository> _repository;
         
         [SetUp]
         public void SetUp()
@@ -29,7 +33,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
             _accountApiClient = new Mock<IAccountApiClient>();
             _messagePublisher = new Mock<IMessagePublisher>();
             _commitmentsApi = new Mock<IProviderCommitmentsApi>();
-            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, _commitmentsApi.Object, Mock.Of<ILog>());
+            _repository = new Mock<ISubmissionEventRepository>();
+            _target = new RequestEmploymentCheckForEmployerPayeSchemesCommand(_messagePublisher.Object, _accountApiClient.Object, _commitmentsApi.Object, _repository.Object, Mock.Of<ILog>());
         }
 
         [Test]
@@ -55,6 +60,17 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.RequestEmploymentCh
                     y.EmployerAccountId == expectedAccountId &&
                     y.NationalInsuranceNumber == request.NationalInsuranceNumber && y.Ukprn == request.Ukprn &&
                     y.PayeSchemes.SequenceEqual(accountPayeSchemes.Select(z => z.Id)))), Times.Once());
+        }
+
+        [Test]
+        public async Task WhenTheCommitmentHasADifferentProviderIdToThRequestThenANegativeEmploymentCheckResultIsStored()
+        {
+            var request = new RequestEmploymentCheckForEmployerPayeSchemesRequest("AB12345C", 1324, 6543, 4353443, DateTime.Now.AddYears(-1));
+            _commitmentsApi.Setup(x => x.GetProviderApprenticeship(request.Ukprn, request.ApprenticeshipId)).Throws(new HttpRequestException("SAD STRING THAT CONTAINS 401 SO WE CAN DETERMINE THE STATUS CODE! :("));
+
+            await _target.Handle(request);
+
+            _repository.Verify(x => x.StoreEmploymentCheckResult(It.Is<PreviousHandledSubmissionEvent>(y => y.Uln == request.Uln && y.NiNumber == request.NationalInsuranceNumber && !y.PassedValidationCheck)));
         }
     }
 }
