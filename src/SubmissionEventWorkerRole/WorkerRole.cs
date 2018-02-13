@@ -75,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole
             while (!cancellationToken.IsCancellationRequested)
             {
                 await _mediator.PublishAsync(new InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest());
-                await Task.Delay(300000, cancellationToken);
+                await Task.Delay(60000, cancellationToken);
             }
         }
 

@@ -8,18 +8,18 @@ namespace SFA.DAS.EmploymentCheck.Events
     {
         public EmploymentCheckRequiredForApprenticeMessage() { }
 
-        public EmploymentCheckRequiredForApprenticeMessage(string nationalInsuranceNumber, long uln, long employerAccountId, long ukprn, DateTime actualStartDate)
+        public EmploymentCheckRequiredForApprenticeMessage(string nationalInsuranceNumber, long uln, long apprenticeshipId, long ukprn, DateTime actualStartDate)
         {
             NationalInsuranceNumber = nationalInsuranceNumber;
             Uln = uln;
-            EmployerAccountId = employerAccountId;
+            ApprenticeshipId = apprenticeshipId;
             Ukprn = ukprn;
             ActualStartDate = actualStartDate;
         }
 
         public string NationalInsuranceNumber { get; set; }
         public long Uln { get; set; }
-        public long EmployerAccountId { get; set; }
+        public long ApprenticeshipId { get; set; }
         public long Ukprn { get; set;  }
         public DateTime ActualStartDate { get; set; }
     }
