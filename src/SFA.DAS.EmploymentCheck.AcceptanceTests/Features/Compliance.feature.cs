@@ -24,6 +24,9 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Features
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
+#line 1 "Compliance.feature"
+#line hidden
+        
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
@@ -64,9 +67,9 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Features
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Employment Check")]
         [NUnit.Framework.CategoryAttribute("AMl1297")]
-        [NUnit.Framework.TestCaseAttribute("24979", "333/AA00001", "QQ123456C", "5641235789", "Employed", "Yes", null)]
-        [NUnit.Framework.TestCaseAttribute("24979", "333/AA00001", "QQ123456D", "5641235779", "NotEmployed", "No", null)]
-        public virtual void EmploymentCheck(string accountId, string empRef, string nino, string uln, string hmrcresponse, string check, string[] exampleTags)
+        [NUnit.Framework.TestCaseAttribute("24979", "333/AA00001", "QQ123456C", "5641235789", "Employed", "Yes", "10007898", "112233", null)]
+        [NUnit.Framework.TestCaseAttribute("24979", "333/AA00001", "QQ123456D", "5641235779", "NotEmployed", "No", "10007898", "112234", null)]
+        public virtual void EmploymentCheck(string accountId, string empRef, string nino, string uln, string hmrcresponse, string check, string ukprn, string apprenticeshipId, string[] exampleTags)
         {
             string[] @__tags = new string[] {
                     "AMl1297"};
@@ -75,11 +78,22 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Features
                 @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
             }
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Employment Check", @__tags);
-            this.ScenarioSetup(scenarioInfo);
-            testRunner.Given(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRef), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-            testRunner.And(string.Format("a call to the HMRC API with EmpRef {0} and NINO {1} response {2}", empRef, nino, hmrcresponse), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-            testRunner.When(string.Format("A Submission Event has raised with EmpRef {0} and NINO {1} and ULN {2}", empRef, nino, uln), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-            testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 7
+this.ScenarioSetup(scenarioInfo);
+#line 8
+testRunner.Given(string.Format("A Submission Event has raised with Apprenticeship {0} and NINO {1} and ULN {2} an" +
+                        "d Ukprn {3}", apprenticeshipId, nino, uln, ukprn), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 9
+testRunner.And(string.Format("a Commitment with Apprenticeship {0} and Ukprn {1} and Account Id {2} exists", apprenticeshipId, ukprn, accountId), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 10
+testRunner.And(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRef), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 11
+testRunner.And(string.Format("a call to the HMRC API with EmpRef {0} and NINO {1} response {2}", empRef, nino, hmrcresponse), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 12
+testRunner.When("I run the worker role", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 13
+testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
             this.ScenarioCleanup();
         }
     }
