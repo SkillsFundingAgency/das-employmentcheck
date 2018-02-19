@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using TechTalk.SpecFlow;
 using BoDi;
 using SFA.DAS.ProviderEventsApiSubstitute.WebAPI;
@@ -105,20 +106,21 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests
                     .HandleResult<long>(r => r != 1)
                     .WaitAndRetryAsync(_sleepDurations)
                     .ExecuteAsync(async () => await _repository.GetLastProcessedEventId());
-
+            
+            
             _results = await Policy
                     .HandleResult<List<PreviousHandledSubmissionEvent>>(r => r.Count != 1)
                     .WaitAndRetryAsync(_sleepDurations)
                     .ExecuteAsync(async () => await _repository.GetPreviouslyHandledSubmissionEvents(_uln));
-            
+
             cancellationTokenSource.Cancel();
-            
+
         }
 
         [Then(@"I should have PassedValidationCheck (Yes|No) for ULN (.*) and NINO (.*)")]
         public void ThenIShouldHavePassedValidationCheckYesForULNAndNINOQQC(string validationCheck, string uln, string nino)
         {
-            Assert.AreEqual(validationCheck == "Yes" ? true : false, _results[0].PassedValidationCheck);
+            Assert.AreEqual(validationCheck == "Yes" ? true : false, _results.FirstOrDefault()?.PassedValidationCheck);
         }
     }
 }

@@ -3,6 +3,7 @@ using Dapper;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Infrastructure
@@ -47,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Infrastructure
             }
             );
 
-            return result.AsList();
+            return result.ToList();
         }
     }
 }
