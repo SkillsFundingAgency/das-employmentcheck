@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Infrastructure
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure
 {
     public abstract class DbConnection
     {

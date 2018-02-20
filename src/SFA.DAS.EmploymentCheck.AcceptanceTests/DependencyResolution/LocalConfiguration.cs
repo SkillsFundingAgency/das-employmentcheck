@@ -4,7 +4,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 
-namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.DependencyResolution
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
 {
     public class LocalConfiguration
     {

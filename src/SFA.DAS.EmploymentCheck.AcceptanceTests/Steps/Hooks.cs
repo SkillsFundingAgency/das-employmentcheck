@@ -1,17 +1,18 @@
-﻿using TechTalk.SpecFlow;
+﻿using System.Threading.Tasks;
+using TechTalk.SpecFlow;
 using BoDi;
 using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using SFA.DAS.AccountsApiSubstitute.WebAPI;
-using SFA.DAS.EmploymentCheck.UserAcceptanceTests.DependencyResolution;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution;
 using SFA.DAS.ProviderEventsApiSubstitute.WebAPI;
 using SFA.DAS.CommitmentsApiSubstitute.WebAPI;
 using SFA.DAS.HmrcApiSubstitute.WebAPI;
 using SFA.DAS.ApiSubstitute.WebAPI;
 using SFA.DAS.ApiSubstitute.WebAPI.MessageHandlers;
-using SFA.DAS.EmploymentCheck.UserAcceptanceTests.Infrastructure;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests
+
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
     public class Hooks

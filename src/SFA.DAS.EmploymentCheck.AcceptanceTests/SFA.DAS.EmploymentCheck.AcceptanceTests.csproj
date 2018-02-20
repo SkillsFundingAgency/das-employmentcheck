@@ -7,8 +7,8 @@
     <ProjectGuid>{EC560BEB-68FC-43D2-A96A-97417CABE119}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SFA.DAS.EmploymentCheck.UserAcceptanceTests</RootNamespace>
-    <AssemblyName>SFA.DAS.EmploymentCheck.UserAcceptanceTests</AssemblyName>
+    <RootNamespace>SFA.DAS.EmploymentCheck.AcceptanceTests</RootNamespace>
+    <AssemblyName>SFA.DAS.EmploymentCheck.AcceptanceTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -182,14 +182,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ComplianceSteps.cs" />
+    <Compile Include="Steps\ComplianceSteps.cs" />
     <Compile Include="DependencyResolution\LocalConfiguration.cs" />
     <Compile Include="Features\Compliance.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Compliance.feature</DependentUpon>
     </Compile>
-    <Compile Include="Hooks.cs" />
+    <Compile Include="Steps\Hooks.cs" />
     <Compile Include="Infrastructure\DbConnection.cs" />
     <Compile Include="Infrastructure\EmploymentCheckRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

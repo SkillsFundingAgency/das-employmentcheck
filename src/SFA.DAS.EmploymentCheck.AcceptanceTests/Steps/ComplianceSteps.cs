@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
 using TechTalk.SpecFlow;
 using BoDi;
 using SFA.DAS.ProviderEventsApiSubstitute.WebAPI;
@@ -7,20 +10,17 @@ using SFA.DAS.AccountsApiSubstitute.WebAPI;
 using SFA.DAS.ApiSubstitute.Utilities;
 using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
 using SFA.DAS.EAS.Account.Api.Types;
-using System.Collections.Generic;
 using SFA.DAS.HmrcApiSubstitute.WebAPI;
 using HMRC.ESFA.Levy.Api.Types;
 using SFA.DAS.Provider.Events.Api.Types;
 using SFA.DAS.CommitmentsApiSubstitute.WebAPI;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using System.Threading.Tasks;
-using System.Threading;
-using SFA.DAS.EmploymentCheck.UserAcceptanceTests.Infrastructure;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using Polly;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
     public class ComplianceSteps

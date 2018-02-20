@@ -6,7 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Infrastructure
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure
 {
     public class EmploymentCheckRepository : DbConnection
     {

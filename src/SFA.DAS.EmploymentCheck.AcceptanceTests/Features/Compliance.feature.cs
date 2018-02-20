@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SFA.DAS.EmploymentCheck.UserAcceptanceTests.Features
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
 {
     using TechTalk.SpecFlow;
     
