@@ -1,19 +1,21 @@
-﻿using Microsoft.Azure;
+﻿using System.Configuration;
+using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
 
+
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
 {
     public class LocalConfiguration
     {
-        private readonly string _environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-        private readonly string _serviceName = CloudConfigurationManager.GetSetting("ServiceName");
-        private readonly string _tokenServiceName = CloudConfigurationManager.GetSetting("TokenServiceName");
-        private readonly string _accountApiServiceName = CloudConfigurationManager.GetSetting("AccountApiServiceName");
-        private readonly string _commitmentsApiServiceName = CloudConfigurationManager.GetSetting("CommitmentsApiServiceName");
-        private readonly string _serviceVersion = CloudConfigurationManager.GetSetting("ServiceVersion");
+        private readonly string _environment = GetSetting("EnvironmentName");
+        private readonly string _serviceName = GetSetting("ServiceName");
+        private readonly string _tokenServiceName = GetSetting("TokenServiceName");
+        private readonly string _accountApiServiceName = GetSetting("AccountApiServiceName");
+        private readonly string _commitmentsApiServiceName = GetSetting("CommitmentsApiServiceName");
+        private readonly string _serviceVersion = GetSetting("ServiceVersion");
 
         public string PaymentsApiBaseUrl { get; private set; }
 
@@ -51,5 +53,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
             var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(serviceName, _environment, _serviceVersion));
             return configurationService.Get<T>();
         }
+
+        private static string GetSetting(string key)
+        {
+            var value = ConfigurationManager.AppSettings[key];
+            return string.IsNullOrEmpty(value) ? string.Empty : value;
+        }
+
     }
 }
