@@ -84,13 +84,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [AfterScenario]
         public void AfterScenario()
         {
-            sut.OnStop();
-            AccountsApi.Dispose();
-            ProviderEventsApi.Dispose();
-            CommitmentsApi.Dispose();
-            HmrcApi.Dispose();
-            EventsApiSubstitute.Dispose();
-            TokenApiSubstitute.Dispose();
+            sut?.OnStop();
+            AccountsApi?.Dispose();
+            ProviderEventsApi?.Dispose();
+            CommitmentsApi?.Dispose();
+            HmrcApi?.Dispose();
+            EventsApiSubstitute?.Dispose();
+            TokenApiSubstitute?.Dispose();
         }
     }
 }
