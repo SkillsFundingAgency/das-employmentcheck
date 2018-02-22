@@ -19,6 +19,8 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using Polly;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using NUnit.Framework;
+using SFA.DAS.ApiSubstitute.WebAPI.MessageHandlers;
+using SFA.DAS.TokenService.Api.Types;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
@@ -82,16 +84,26 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             var accountmodel = _objectCreator.Create<AccountDetailViewModel>(x => { x.AccountId = long.Parse(accountid); x.PayeSchemes = resourceList; });
              
             accountsApiMessageHandlers.SetupGetAccount(long.Parse(accountid), accountmodel);
+            accountsApiMessageHandlers.SetupCall($"/api/accounts/internal/{accountid}", System.Net.HttpStatusCode.OK, accountmodel);
+
         }
-        
+
         [Given(@"a call to the HMRC API with EmpRef (.*) and NINO (.*) response (Employed|NotEmployed)")]
         public void GivenACallToTheHMRCAPIWithEmpRefAAAndNINOQQCResponseEmployed(string empRef, string nino, string status)
         {
+            var tokenApiMessageHandlers = _objectContainer.Resolve<ApiMessageHandlers>("tokenserviceapi");
+
+            tokenApiMessageHandlers.SetupCall("/api/PrivilegedAccess", System.Net.HttpStatusCode.OK, new PrivilegedAccessToken {AccessCode = "AccessCode", ExpiryTime = DateTime.Now.AddDays(1) });
+
             var hmrcApiMessageHandlers = _objectContainer.Resolve<HmrcApiMessageHandler>();
 
             var stubresponse = _objectCreator.Create<EmploymentStatus>(x => { x.Employed = status == "Employed" ? true : false; x.Empref = empRef; x.Nino = nino; x.FromDate = new DateTime(2017, 12, 14); x.ToDate = DateTime.Now; });
 
             hmrcApiMessageHandlers.SetupGetEmploymentStatus(stubresponse, empRef, nino, new DateTime(2017, 12, 14), DateTime.Now);
+
+            var eventsApiMessageHandlers = _objectContainer.Resolve<ApiMessageHandlers>("eventsapi");
+
+            eventsApiMessageHandlers.SetupCall("/api/events/create", System.Net.HttpStatusCode.OK, "");
         }
 
         [When(@"I run the worker role")]
