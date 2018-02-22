@@ -4,6 +4,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.Domain.Configuration;
+using SFA.DAS.NLog.Logger;
 
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
@@ -31,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
 
         public string Dbconnectionstring { get; private set; }
 
-        public LocalConfiguration()
+        public LocalConfiguration(ILog logger)
         {
             _environment = GetSetting("EnvironmentName");
             _serviceName = GetSetting("ServiceName");
@@ -52,6 +53,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
             AccountsApiBaseUrl = accountApiConfig.ApiBaseUrl;
             HmrcApiBaseUrl = employmentCheckConfig.HmrcBaseUrl;
             Dbconnectionstring = employmentCheckConfig.DatabaseConnectionString;
+
+            logger.Info($"Events Api baseurl is {EventsApiBaseUrl}");
+            logger.Info($"Payments Api baseurl is {PaymentsApiBaseUrl}");
+            logger.Info($"Commitments Api baseurl is {CommitmentsApiBaseUrl}");
+            logger.Info($"Token Service Api baseurl is {TokenServiceApiBaseUrl}");
+            logger.Info($"Accounts Api baseurl is {AccountsApiBaseUrl}");
+            logger.Info($"Hmrc Api baseurl is {HmrcApiBaseUrl}");
         }
 
         private T GetConfiguration<T>(string serviceName)

@@ -67,8 +67,8 @@
     <Reference Include="Microsoft.Owin, Version=2.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.2.0.2\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin.Host.HttpListener, Version=2.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.2.0.2\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Host.HttpListener, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.4.0.0\lib\net451\Microsoft.Owin.Host.HttpListener.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Hosting, Version=2.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Hosting.2.0.2\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
@@ -96,14 +96,14 @@
     <Reference Include="Polly, Version=5.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.8.0\lib\net45\Polly.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.AccountsApiSubstitute.WebAPI, Version=1.0.0.59078, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.AccountsApiSubstitute.WebAPI.1.0.0.59078\lib\net45\SFA.DAS.AccountsApiSubstitute.WebAPI.dll</HintPath>
+    <Reference Include="SFA.DAS.AccountsApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.AccountsApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.AccountsApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.ApiSubstitute.Utilities, Version=1.0.0.59078, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.ApiSubstitute.Utilities.1.0.0.59078\lib\net45\SFA.DAS.ApiSubstitute.Utilities.dll</HintPath>
+    <Reference Include="SFA.DAS.ApiSubstitute.Utilities, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.ApiSubstitute.Utilities.1.0.0.60588\lib\net45\SFA.DAS.ApiSubstitute.Utilities.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.ApiSubstitute.WebAPI, Version=1.0.0.59078, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.ApiSubstitute.WebAPI.1.0.0.59078\lib\net45\SFA.DAS.ApiSubstitute.WebAPI.dll</HintPath>
+    <Reference Include="SFA.DAS.ApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.ApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.ApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Commitments.Api.Client, Version=1.68.0.34798, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Commitments.Api.Client.1.68.0.34798\lib\net45\SFA.DAS.Commitments.Api.Client.dll</HintPath>
@@ -111,8 +111,8 @@
     <Reference Include="SFA.DAS.Commitments.Api.Types, Version=2.0.0.58102, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.2.0.0.58102\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.CommitmentsApiSubstitute.WebAPI, Version=1.0.0.59078, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.CommitmentsApiSubstitute.WebAPI.1.0.0.59078\lib\net45\SFA.DAS.CommitmentsApiSubstitute.WebAPI.dll</HintPath>
+    <Reference Include="SFA.DAS.CommitmentsApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.CommitmentsApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.CommitmentsApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Common.Domain, Version=1.3.0.44308, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.3.0.44308\lib\net45\SFA.DAS.Common.Domain.dll</HintPath>
@@ -135,14 +135,17 @@
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.29.0.35031, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.29.0.35031\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.HmrcApiSubstitute.WebAPI, Version=1.0.0.59078, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.HmrcApiSubstitute.WebAPI.1.0.0.59078\lib\net45\SFA.DAS.HmrcApiSubstitute.WebAPI.dll</HintPath>
+    <Reference Include="SFA.DAS.EventsApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.EventsApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.EventsApiSubstitute.WebAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.HmrcApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.HmrcApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.HmrcApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Http, Version=1.0.0.35471, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Http.1.0.0.35471\lib\net45\SFA.DAS.Http.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.56651, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.56651\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
+    <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.47445, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.47445\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Provider.Events.Api.Client, Version=2.0.0.40478, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.40478\lib\net45\SFA.DAS.Provider.Events.Api.Client.dll</HintPath>
@@ -150,14 +153,17 @@
     <Reference Include="SFA.DAS.Provider.Events.Api.Types, Version=2.0.0.40478, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.40478\lib\net45\SFA.DAS.Provider.Events.Api.Types.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.ProviderEventsApiSubstitute.WebAPI, Version=1.0.0.59078, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.ProviderEventsApiSubstitute.WebAPI.1.0.0.59078\lib\net45\SFA.DAS.ProviderEventsApiSubstitute.WebAPI.dll</HintPath>
+    <Reference Include="SFA.DAS.ProviderEventsApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.ProviderEventsApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.ProviderEventsApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.TokenService.Api.Client, Version=1.0.0.26382, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.TokenService.Api.Client.1.0.0.26382\lib\net45\SFA.DAS.TokenService.Api.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.TokenService.Api.Types, Version=1.0.0.26382, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.TokenService.Api.Client.1.0.0.26382\lib\net45\SFA.DAS.TokenService.Api.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.TokenServiceApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.TokenServiceApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.TokenServiceApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

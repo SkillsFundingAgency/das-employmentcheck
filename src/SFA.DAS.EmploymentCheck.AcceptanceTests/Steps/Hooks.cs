@@ -8,15 +8,17 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution;
 using SFA.DAS.ProviderEventsApiSubstitute.WebAPI;
 using SFA.DAS.CommitmentsApiSubstitute.WebAPI;
 using SFA.DAS.HmrcApiSubstitute.WebAPI;
-using SFA.DAS.ApiSubstitute.WebAPI;
-using SFA.DAS.ApiSubstitute.WebAPI.MessageHandlers;
-
+using SFA.DAS.TokenServiceApiSubstitute.WebAPI;
+using SFA.DAS.EventsApiSubstitute.WebAPI;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
     public class Hooks
     {
+        private ILog _log;
+
         private IObjectContainer _objectContainer;
 
         private WorkerRole sut;
@@ -29,9 +31,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
         private HmrcApi HmrcApi;
 
-        private WebApiSubstitute EventsApiSubstitute;
+        private EventsApi EventsApiSubstitute;
         
-        private WebApiSubstitute TokenApiSubstitute;
+        private TokenServiceApi TokenApiSubstitute;
 
 
         public Hooks(IObjectContainer objectContainer)
@@ -42,7 +44,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [BeforeScenario]
         public async Task BeforeScenario()
         {
-            var config = new LocalConfiguration();
+            _log = new NLogLogger();
+
+            var config = new LocalConfiguration(_log);
+
             AccountsApiMessageHandler accountsApiMessageHandlers = new AccountsApiMessageHandler(config.AccountsApiBaseUrl);
             AccountsApi = new AccountsApi(accountsApiMessageHandlers);
 
@@ -51,16 +56,16 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
             CommitmentsApiMessageHandler commitmentsApiMessageHandlers = new CommitmentsApiMessageHandler(config.CommitmentsApiBaseUrl);
             CommitmentsApi = new CommitmentsApi(commitmentsApiMessageHandlers);
+            
+            EventsApiMessageHandler eventsApiMessageHandlers = new EventsApiMessageHandler(config.EventsApiBaseUrl);
+            EventsApiSubstitute = new EventsApi(eventsApiMessageHandlers);
+
+            TokenServiceApiMessageHandler tokenApiMessageHandlers = new TokenServiceApiMessageHandler(config.TokenServiceApiBaseUrl);
+            TokenApiSubstitute = new TokenServiceApi(tokenApiMessageHandlers);
 
             HmrcApiMessageHandler hmrcApiMessageHandlers = new HmrcApiMessageHandler(config.HmrcApiBaseUrl);
             HmrcApi = new HmrcApi(hmrcApiMessageHandlers);
-
-            ApiMessageHandlers eventsApiMessageHandlers = new ApiMessageHandlers(config.EventsApiBaseUrl);
-            EventsApiSubstitute = new WebApiSubstitute(eventsApiMessageHandlers);
             
-            ApiMessageHandlers tokenApiMessageHandlers = new ApiMessageHandlers(config.TokenServiceApiBaseUrl);
-            TokenApiSubstitute = new WebApiSubstitute(tokenApiMessageHandlers);
-
             EmploymentCheckRepository employmentCheckRepository = new EmploymentCheckRepository(config.Dbconnectionstring);
 
             sut = new WorkerRole();
@@ -71,8 +76,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             _objectContainer.RegisterInstanceAs(providerApiMessageHandlers);
             _objectContainer.RegisterInstanceAs(commitmentsApiMessageHandlers);
             _objectContainer.RegisterInstanceAs(hmrcApiMessageHandlers);
-            _objectContainer.RegisterInstanceAs(eventsApiMessageHandlers,"eventsapi");
-            _objectContainer.RegisterInstanceAs(tokenApiMessageHandlers,"tokenserviceapi");
+            _objectContainer.RegisterInstanceAs(eventsApiMessageHandlers);
+            _objectContainer.RegisterInstanceAs(tokenApiMessageHandlers);
             _objectContainer.RegisterInstanceAs(employmentCheckRepository);
 
             //Clean Database

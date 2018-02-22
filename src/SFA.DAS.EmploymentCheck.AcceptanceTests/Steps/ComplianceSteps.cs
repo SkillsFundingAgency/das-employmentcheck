@@ -19,8 +19,9 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using Polly;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using NUnit.Framework;
-using SFA.DAS.ApiSubstitute.WebAPI.MessageHandlers;
 using SFA.DAS.TokenService.Api.Types;
+using SFA.DAS.TokenServiceApiSubstitute.WebAPI;
+using SFA.DAS.EventsApiSubstitute.WebAPI;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
@@ -73,13 +74,11 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
 
         [Given(@"An Account with an Account Id (.*) and EmpRef (.*) exists")]
-        public void GivenAnAccountWithAnAccountIdAndEmpRefAAExists(string accountid, string empRef)
+        public void GivenAnAccountWithAnAccountIdAndEmpRefAAExists(string accountid, string payeschemes)
         {
             var accountsApiMessageHandlers = _objectContainer.Resolve<AccountsApiMessageHandler>();
 
-            var payeschemes = new List<ResourceViewModel> { new ResourceViewModel { Id = empRef, Href = $"api/accounts/{accountid}/payescheme/{empRef}" } };
-
-            var resourceList = new ResourceList(payeschemes);
+            var resourceList = new ResourceList(EmpRefs(accountid, payeschemes));
 
             var accountmodel = _objectCreator.Create<AccountDetailViewModel>(x => { x.AccountId = long.Parse(accountid); x.PayeSchemes = resourceList; });
              
@@ -87,25 +86,31 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             accountsApiMessageHandlers.SetupCall($"/api/accounts/internal/{accountid}", System.Net.HttpStatusCode.OK, accountmodel);
 
         }
-
-        [Given(@"a call to the HMRC API with EmpRef (.*) and NINO (.*) response (Employed|NotEmployed)")]
-        public void GivenACallToTheHMRCAPIWithEmpRefAAAndNINOQQCResponseEmployed(string empRef, string nino, string status)
+        [Given(@"Hmrc Api is configured as")]
+        public void GivenHmrcApiIsConfiguredAs(Table table)
         {
-            var tokenApiMessageHandlers = _objectContainer.Resolve<ApiMessageHandlers>("tokenserviceapi");
+            var tokenApiMessageHandlers = _objectContainer.Resolve<TokenServiceApiMessageHandler>();
 
-            tokenApiMessageHandlers.SetupCall("/api/PrivilegedAccess", System.Net.HttpStatusCode.OK, new PrivilegedAccessToken {AccessCode = "AccessCode", ExpiryTime = DateTime.Now.AddDays(1) });
+            tokenApiMessageHandlers.SetupCall("/api/PrivilegedAccess", System.Net.HttpStatusCode.OK, new PrivilegedAccessToken { AccessCode = "AccessCode", ExpiryTime = DateTime.Now.AddDays(1) });
+
+            var eventsApiMessageHandlers = _objectContainer.Resolve<EventsApiMessageHandler>();
+
+            eventsApiMessageHandlers.SetupCall("/api/events/create", System.Net.HttpStatusCode.OK, "");
 
             var hmrcApiMessageHandlers = _objectContainer.Resolve<HmrcApiMessageHandler>();
 
-            var stubresponse = _objectCreator.Create<EmploymentStatus>(x => { x.Employed = status == "Employed" ? true : false; x.Empref = empRef; x.Nino = nino; x.FromDate = new DateTime(2017, 12, 14); x.ToDate = DateTime.Now; });
+            foreach (var row in table.Rows)
+            {
+                var hmrcresponse = row["Response"];
+                var paye = row["Paye"];
+                var nino = row["Nino"];
 
-            hmrcApiMessageHandlers.SetupGetEmploymentStatus(stubresponse, empRef, nino, new DateTime(2017, 12, 14), DateTime.Now);
+                var stubresponse = _objectCreator.Create<EmploymentStatus>(x => { x.Employed = hmrcresponse == "Employed" ? true : false; x.Empref = paye; x.Nino = nino; x.FromDate = new DateTime(2017, 12, 14); x.ToDate = DateTime.Now; });
 
-            var eventsApiMessageHandlers = _objectContainer.Resolve<ApiMessageHandlers>("eventsapi");
-
-            eventsApiMessageHandlers.SetupCall("/api/events/create", System.Net.HttpStatusCode.OK, "");
+                hmrcApiMessageHandlers.SetupGetEmploymentStatus(stubresponse, paye, nino, new DateTime(2017, 12, 14), DateTime.Now);
+            }
         }
-
+        
         [When(@"I run the worker role")]
         public async Task WhenIRunTheWorkerRole()
         {
@@ -132,7 +137,19 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Then(@"I should have PassedValidationCheck (Yes|No) for ULN (.*) and NINO (.*)")]
         public void ThenIShouldHavePassedValidationCheckYesForULNAndNINOQQC(string validationCheck, string uln, string nino)
         {
-            Assert.AreEqual(validationCheck == "Yes" ? true : false, _results.FirstOrDefault()?.PassedValidationCheck);
+            Assert.AreEqual(validationCheck == "Yes" ? true : false, _results.FirstOrDefault(x=> x.Uln == long.Parse(uln))?.PassedValidationCheck);
+        }
+
+        private List<ResourceViewModel> EmpRefs(string accountid, string empRefs)
+        {
+            var payeschemes = new List<ResourceViewModel>();
+
+            foreach (var empref in empRefs.Split(','))
+            {
+                payeschemes.Add(new ResourceViewModel { Id = empref, Href = $"api/accounts/{accountid}/payescheme/{empref}" });
+            }
+
+            return payeschemes;
         }
     }
 }
