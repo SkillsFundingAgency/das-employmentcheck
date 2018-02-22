@@ -89,14 +89,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Given(@"Hmrc Api is configured as")]
         public void GivenHmrcApiIsConfiguredAs(Table table)
         {
-            var tokenApiMessageHandlers = _objectContainer.Resolve<TokenServiceApiMessageHandler>();
-
-            tokenApiMessageHandlers.SetupCall("/api/PrivilegedAccess", System.Net.HttpStatusCode.OK, new PrivilegedAccessToken { AccessCode = "AccessCode", ExpiryTime = DateTime.Now.AddDays(1) });
-
-            var eventsApiMessageHandlers = _objectContainer.Resolve<EventsApiMessageHandler>();
-
-            eventsApiMessageHandlers.SetupCall("/api/events/create", System.Net.HttpStatusCode.OK, "");
-
             var hmrcApiMessageHandlers = _objectContainer.Resolve<HmrcApiMessageHandler>();
 
             foreach (var row in table.Rows)
