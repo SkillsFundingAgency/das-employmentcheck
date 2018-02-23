@@ -31,8 +31,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Compliance", "\tIn order to identify learners \r\n\tAs a math idiot\r\n\tI want to be told the sum of " +
-                    "two numbers", ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Compliance", "\t\tIn order to identify learners that are being paid\r\n\t\tAs the SFA Funding Operati" +
+                    "onal team\r\n\t\tI want to extract information from various system\r\n\t\tSo that SFA Mo" +
+                    "nitoring Team can carry on with further investigation.", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -78,14 +79,14 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
                 @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
             }
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Employment Check", @__tags);
-#line 7
-this.ScenarioSetup(scenarioInfo);
 #line 8
+this.ScenarioSetup(scenarioInfo);
+#line 9
 testRunner.Given(string.Format("A Submission Event has raised with Apprenticeship {0} and NINO {1} and ULN {2} an" +
                         "d Ukprn {3}", apprenticeshipId, nino, uln, ukprn), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 9
-testRunner.And(string.Format("a Commitment with Apprenticeship {0} and Ukprn {1} and Account Id {2} exists", apprenticeshipId, ukprn, accountId), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 10
+testRunner.And(string.Format("a Commitment with Apprenticeship {0} and Ukprn {1} and Account Id {2} exists", apprenticeshipId, ukprn, accountId), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 11
 testRunner.And(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRefs), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
@@ -104,11 +105,11 @@ testRunner.And(string.Format("An Account with an Account Id {0} and EmpRef {1} e
                         "333/AA00001",
                         string.Format("{0}", nino),
                         string.Format("{0}", hmrcresponse)});
-#line 11
+#line 12
 testRunner.And("Hmrc Api is configured as", ((string)(null)), table1, "And ");
-#line 16
-testRunner.When("I run the worker role", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 17
+testRunner.When("I run the worker role", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 18
 testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();

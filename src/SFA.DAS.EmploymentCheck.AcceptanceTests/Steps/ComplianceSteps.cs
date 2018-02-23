@@ -19,9 +19,6 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using Polly;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using NUnit.Framework;
-using SFA.DAS.TokenService.Api.Types;
-using SFA.DAS.TokenServiceApiSubstitute.WebAPI;
-using SFA.DAS.EventsApiSubstitute.WebAPI;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {

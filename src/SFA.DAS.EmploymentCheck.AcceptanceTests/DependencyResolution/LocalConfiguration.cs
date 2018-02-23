@@ -12,10 +12,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
     public class LocalConfiguration
     {
         private readonly string _environment;
-        private readonly string _serviceName;
-        private readonly string _tokenServiceName;
-        private readonly string _accountApiServiceName;
-        private readonly string _commitmentsApiServiceName;
         private readonly string _serviceVersion;
 
         public string PaymentsApiBaseUrl { get; private set; }
@@ -35,16 +31,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution
         public LocalConfiguration(ILog logger)
         {
             _environment = GetSetting("EnvironmentName");
-            _serviceName = GetSetting("ServiceName");
-            _tokenServiceName = GetSetting("TokenServiceName");
-            _accountApiServiceName = GetSetting("AccountApiServiceName");
-            _commitmentsApiServiceName = GetSetting("CommitmentsApiServiceName");
             _serviceVersion = GetSetting("ServiceVersion");
 
-            var employmentCheckConfig = GetConfiguration<EmploymentCheckConfiguration>(_serviceName);
-            var accountApiConfig = GetConfiguration<AccountApiConfiguration>(_accountApiServiceName);
-            var tokenServiceConfig = GetConfiguration<TokenServiceApiClientConfiguration>(_tokenServiceName);
-            var commitmentApiConfig = GetConfiguration<CommitmentsApiClientConfiguration>(_commitmentsApiServiceName);
+            var serviceName = GetSetting("ServiceName");
+            var tokenServiceName = GetSetting("TokenServiceName");
+            var accountApiServiceName = GetSetting("AccountApiServiceName");
+            var commitmentsApiServiceName = GetSetting("CommitmentsApiServiceName");
+            
+            var employmentCheckConfig = GetConfiguration<EmploymentCheckConfiguration>(serviceName);
+            var accountApiConfig = GetConfiguration<AccountApiConfiguration>(accountApiServiceName);
+            var tokenServiceConfig = GetConfiguration<TokenServiceApiClientConfiguration>(tokenServiceName);
+            var commitmentApiConfig = GetConfiguration<CommitmentsApiClientConfiguration>(commitmentsApiServiceName);
 
             EventsApiBaseUrl = employmentCheckConfig.EventsApi.BaseUrl;
             PaymentsApiBaseUrl = employmentCheckConfig.PaymentsEvents.ApiBaseUrl;

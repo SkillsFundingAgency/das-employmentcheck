@@ -1,7 +1,8 @@
 ﻿Feature: Compliance
-	In order to identify learners 
-	As a math idiot
-	I want to be told the sum of two numbers
+		In order to identify learners that are being paid
+		As the SFA Funding Operational team
+		I want to extract information from various system
+		So that SFA Monitoring Team can carry on with further investigation.
 
 @AMl1297
 Scenario Outline: Employment Check

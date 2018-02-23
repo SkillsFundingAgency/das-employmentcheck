@@ -1,6 +1,8 @@
 ﻿
 using Dapper;
 using SFA.DAS.EmploymentCheck.Domain.Models;
+using SFA.DAS.NLog.Logger;
+using SFA.DAS.Sql.Client;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure
 {
-    public class EmploymentCheckRepository : DbConnection
+    public class EmploymentCheckRepository : BaseRepository
     {
-        public EmploymentCheckRepository(string connectionString) : base(connectionString)
+        public EmploymentCheckRepository(string connectionString, ILog logger) : base(connectionString, logger)
         {
 
         }

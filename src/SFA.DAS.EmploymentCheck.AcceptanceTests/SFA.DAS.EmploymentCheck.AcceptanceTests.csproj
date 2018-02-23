@@ -156,6 +156,9 @@
     <Reference Include="SFA.DAS.ProviderEventsApiSubstitute.WebAPI, Version=1.0.0.60588, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.ProviderEventsApiSubstitute.WebAPI.1.0.0.60588\lib\net45\SFA.DAS.ProviderEventsApiSubstitute.WebAPI.dll</HintPath>
     </Reference>
+    <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.44965, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.44965\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
+    </Reference>
     <Reference Include="SFA.DAS.TokenService.Api.Client, Version=1.0.0.26382, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.TokenService.Api.Client.1.0.0.26382\lib\net45\SFA.DAS.TokenService.Api.Client.dll</HintPath>
     </Reference>
@@ -197,9 +200,9 @@
       <DependentUpon>Compliance.feature</DependentUpon>
     </Compile>
     <Compile Include="Steps\Hooks.cs" />
-    <Compile Include="Infrastructure\DbConnection.cs" />
     <Compile Include="Infrastructure\EmploymentCheckRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\RegisterApi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
