@@ -81,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.InitiateEmploymentCheckFo
 
         private IEnumerable<SubmissionEvent> GetEventsWithMandatoryEmploymentCheckData(IEnumerable<SubmissionEvent> unprocessedEvents)
         {
-            return unprocessedEvents.Where(x => x.ActualStartDate.HasValue && x.ApprenticeshipId.HasValue);
+            return unprocessedEvents.Where(x => x.ActualStartDate.HasValue && x.ApprenticeshipId.HasValue && !string.IsNullOrWhiteSpace(x.NiNumber));
         }
 
         private async Task<IEnumerable<PreviousHandledSubmissionEvent>> GetPreviousEmploymentCheckResults(IEnumerable<SubmissionEvent> unprocessedEvents)

@@ -179,5 +179,22 @@ namespace SFA.DAS.EmploymentCheck.Application.Tests.Commands.InitiateEmploymentC
 
             _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<EmploymentCheckRequiredForApprenticeMessage>()), Times.Never());
         }
+
+        [Test]
+        public async Task WhenNoNationalInsuranceNumberIsProvidedThenACheckIsNotRequested()
+        {
+            var previousEventId = 123;
+            _repository.Setup(x => x.GetLastProcessedEventId()).ReturnsAsync(previousEventId);
+
+            _submissionEvent.NiNumber = null;
+            _eventsApi.Setup(x => x.GetSubmissionEvents(previousEventId, null, 0L, 1)).ReturnsAsync(new PageOfResults<SubmissionEvent> { Items = new[] { _submissionEvent } });
+
+            var previouslyHandledSubmissionEvent = new PreviousHandledSubmissionEvent { Uln = _submissionEvent.Uln + 1, NiNumber = _submissionEvent.NiNumber, PassedValidationCheck = true };
+            _repository.Setup(x => x.GetPreviouslyHandledSubmissionEvents(It.Is<IEnumerable<long>>(y => y.First() == _submissionEvent.Uln))).ReturnsAsync(new List<PreviousHandledSubmissionEvent> { previouslyHandledSubmissionEvent });
+
+            await _target.Handle(new InitiateEmploymentCheckForChangedNationalInsuranceNumbersRequest());
+
+            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<EmploymentCheckRequiredForApprenticeMessage>()), Times.Never());
+        }
     }
 }
