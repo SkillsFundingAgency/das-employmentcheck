@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Commands.RequestEmploymentCheckFor
             }
             catch (HttpRequestException ex) when (ex.Message.Contains("401"))
             {
-                _logger.Info($"Commitments API returned UNAUTHORISED for apprentieceship {notification.ApprenticeshipId} and provider {notification.Ukprn}");
+                _logger.Warn($"Commitments API returned UNAUTHORISED for apprentieceship {notification.ApprenticeshipId} and provider {notification.Ukprn}");
                 return null;
             }
         }

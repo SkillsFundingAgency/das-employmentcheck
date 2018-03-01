@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Gateways
                 }
                 catch (ApiHttpException e) when (e.HttpCode == 404)
                 {
-                    _logger.Info($"HMRC service returned NOT FOUND for {payeScheme} and {nationalInsuranceNumber}.");
+                    _logger.Warn($"HMRC service returned NOT FOUND for {payeScheme} and {nationalInsuranceNumber}.");
                     return false;
                 }
             });
