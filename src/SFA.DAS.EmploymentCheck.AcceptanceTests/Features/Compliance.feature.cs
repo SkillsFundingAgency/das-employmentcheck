@@ -114,6 +114,88 @@ testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {
 #line hidden
             this.ScenarioCleanup();
         }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("UKPRN mismatch")]
+        [NUnit.Framework.CategoryAttribute("AML2073")]
+        [NUnit.Framework.TestCaseAttribute("55443", "333/AA00001", "TT123456D", "5641235779", "No", "10007898", "112234", null)]
+        public virtual void UKPRNMismatch(string accountId, string empRef, string nino, string uln, string check, string ukprn, string apprenticeshipId, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "AML2073"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("UKPRN mismatch", @__tags);
+#line 28
+this.ScenarioSetup(scenarioInfo);
+#line 29
+testRunner.Given(string.Format("A Submission Event has raised with Apprenticeship {0} and NINO {1} and ULN {2} an" +
+                        "d Ukprn {3}", apprenticeshipId, nino, uln, ukprn), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 30
+testRunner.And(string.Format("a Commitment with Apprenticeship {0} and Ukprn {1} and Account Id {2} throws 401", apprenticeshipId, ukprn, accountId), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 31
+testRunner.And(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRef), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Paye",
+                        "Nino",
+                        "Response"});
+            table2.AddRow(new string[] {
+                        string.Format("{0}", empRef),
+                        string.Format("{0}", nino),
+                        "Employed"});
+#line 32
+testRunner.And("Hmrc Api is configured as", ((string)(null)), table2, "And ");
+#line 35
+testRunner.When("I run the worker role", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 36
+testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Hmrc returned Not Found")]
+        [NUnit.Framework.CategoryAttribute("AML2073")]
+        [NUnit.Framework.TestCaseAttribute("24978", "333/AA00001", "QQ123456D", "5641235779", "NotEmployed", "No", "10007898", "112234", null)]
+        public virtual void HmrcReturnedNotFound(string accountId, string empRef, string nino, string uln, string hmrcresponse, string check, string ukprn, string apprenticeshipId, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "AML2073"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Hmrc returned Not Found", @__tags);
+#line 44
+this.ScenarioSetup(scenarioInfo);
+#line 45
+testRunner.Given(string.Format("A Submission Event has raised with Apprenticeship {0} and NINO {1} and ULN {2} an" +
+                        "d Ukprn {3}", apprenticeshipId, nino, uln, ukprn), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 46
+testRunner.And(string.Format("a Commitment with Apprenticeship {0} and Ukprn {1} and Account Id {2} exists", apprenticeshipId, ukprn, accountId), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 47
+testRunner.And(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRef), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Paye",
+                        "Nino",
+                        "Response"});
+            table3.AddRow(new string[] {
+                        string.Format("{0}", empRef),
+                        string.Format("{0}", nino),
+                        string.Format("{0}", hmrcresponse)});
+#line 48
+testRunner.And("Hmrc Api is configured to return Not Found for", ((string)(null)), table3, "And ");
+#line 51
+testRunner.When("I run the worker role", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 52
+testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
     }
 }
 #pragma warning restore
