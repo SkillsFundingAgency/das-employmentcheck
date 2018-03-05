@@ -33,6 +33,7 @@
   <!-- Items for the project -->
   <ItemGroup>
     <ServiceConfiguration Include="ServiceConfiguration.PreProd.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.MO.cscfg" />
     <ServiceDefinition Include="ServiceDefinition.csdef" />
     <None Include="Configuration\ServiceDefinition.Cloud.csdef" />
     <None Include="Configuration\ServiceDefinition.Release.csdef" />
