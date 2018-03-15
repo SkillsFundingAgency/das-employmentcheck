@@ -19,6 +19,7 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using Polly;
 using SFA.DAS.EmploymentCheck.Domain.Models;
 using NUnit.Framework;
+using System.Net;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
@@ -59,6 +60,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             providereventsApiMessageHandlers.SetupGetSubmissionEvents(1, new PageOfResults<SubmissionEvent> { Items = new[] { submissionEvents }, PageNumber = 1, TotalNumberOfPages = 1 });
         }
 
+        [Given(@"a Commitment with Apprenticeship (.*) and Ukprn (.*) and Account Id (.*) throws 401")]
+        public void GivenACommitmentWithApprenticeshipAndUkprnAndAccountIdThrows(string apprenticeshipId, string ukprn, string accountid)
+        {
+            var commitmentsApiMessageHandlers = _objectContainer.Resolve<CommitmentsApiMessageHandler>();
+
+            var apprenticeship = _objectCreator.Create<Apprenticeship>(x => { x.ProviderId = long.Parse(ukprn); x.Id = long.Parse(apprenticeshipId); x.EmployerAccountId = long.Parse(accountid); });
+
+            commitmentsApiMessageHandlers.SetupGetProviderApprenticeship(long.Parse(ukprn), long.Parse(apprenticeshipId), apprenticeship,System.Net.HttpStatusCode.Unauthorized);
+        }
+
+
         [Given(@"a Commitment with Apprenticeship (.*) and Ukprn (.*) and Account Id (.*) exists")]
         public void GivenACommitmentWithApprenticeshipAndUkprnAndAccountIdExists(string apprenticeshipId, string ukprn, string accountid)
         {
@@ -86,6 +98,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Given(@"Hmrc Api is configured as")]
         public void GivenHmrcApiIsConfiguredAs(Table table)
         {
+            ConfigureHmrcApi(table, HttpStatusCode.OK);
+        }
+
+        [Given(@"Hmrc Api is configured to return Not Found for")]
+        public void GivenHmrcApiIsConfiguredToReturnNotFoundFor(Table table)
+        {
+            ConfigureHmrcApi(table, HttpStatusCode.NotFound);
+        }
+
+        private void ConfigureHmrcApi(Table table, HttpStatusCode httpStatusCode)
+        {
             var hmrcApiMessageHandlers = _objectContainer.Resolve<HmrcApiMessageHandler>();
 
             foreach (var row in table.Rows)
@@ -96,10 +119,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
                 var stubresponse = _objectCreator.Create<EmploymentStatus>(x => { x.Employed = hmrcresponse == "Employed" ? true : false; x.Empref = paye; x.Nino = nino; x.FromDate = new DateTime(2017, 12, 14); x.ToDate = DateTime.Now; });
 
-                hmrcApiMessageHandlers.SetupGetEmploymentStatus(stubresponse, paye, nino, new DateTime(2017, 12, 14), DateTime.Now);
+                hmrcApiMessageHandlers.SetupGetEmploymentStatus(stubresponse, paye, nino, new DateTime(2017, 12, 14), DateTime.Now, httpStatusCode);
             }
         }
-        
+
         [When(@"I run the worker role")]
         public async Task WhenIRunTheWorkerRole()
         {
