@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     [Binding]
     public class ComplianceSteps
     {
-        private readonly IEnumerable<TimeSpan> _sleepDurations = new[]
+        private readonly List<TimeSpan> _sleepDurations = new List<TimeSpan>()
         {
             TimeSpan.FromSeconds(1),
             TimeSpan.FromSeconds(2),
@@ -85,16 +85,35 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Given(@"An Account with an Account Id (.*) and EmpRef (.*) exists")]
         public void GivenAnAccountWithAnAccountIdAndEmpRefAAExists(string accountid, string payeschemes)
         {
-            var accountsApiMessageHandlers = _objectContainer.Resolve<AccountsApiMessageHandler>();
+            if (ScenarioContext.Current.ScenarioInfo.Tags.Contains("addmoreEmpRefstoanAccount"))
+            {
+                List<string> extrapaye = new List<string>();
+                for (int i = 0000; i <= 9996; i++)
+                {
+                    var firstpart = i.ToString().Length == 1 ? $"000{i.ToString()}" : i.ToString().Length == 2 ? $"00{i.ToString()}" : i.ToString().Length == 3 ? $"0{i.ToString()}" : i.ToString();
+                    extrapaye.Add($"{firstpart}/AA00001");
+                }
+                payeschemes = string.Join(",", extrapaye) + $",{payeschemes}";
 
+                _sleepDurations.AddRange(new List<TimeSpan>(){TimeSpan.FromMinutes(3),TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(8), TimeSpan.FromMinutes(10)});
+            }
+
+            AddAccountDetails(accountid, payeschemes);
+        }
+        
+        private void AddAccountDetails(string accountid, string payeschemes)
+        {
+            var accountsApiMessageHandlers = _objectContainer.Resolve<AccountsApiMessageHandler>();
+            
             var resourceList = new ResourceList(EmpRefs(accountid, payeschemes));
 
             var accountmodel = _objectCreator.Create<AccountDetailViewModel>(x => { x.AccountId = long.Parse(accountid); x.PayeSchemes = resourceList; });
-             
+
             accountsApiMessageHandlers.SetupGetAccount(long.Parse(accountid), accountmodel);
             accountsApiMessageHandlers.SetupCall($"/api/accounts/internal/{accountid}", System.Net.HttpStatusCode.OK, accountmodel);
-
         }
+
+
         [Given(@"Hmrc Api is configured as")]
         public void GivenHmrcApiIsConfiguredAs(Table table)
         {

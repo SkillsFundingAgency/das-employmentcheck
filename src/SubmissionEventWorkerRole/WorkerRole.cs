@@ -84,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole
             var container = new Container(c =>
             {
                 c.Policies.Add(new TopicMessagePublisherPolicy<EmploymentCheckConfiguration>(_serviceName, _serviceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
-                c.Policies.Add(new TopicMessageSubscriberPolicy<EmploymentCheckConfiguration>(_serviceName, _serviceVersion));
+                c.Policies.Add(new TopicMessageSubscriberPolicy<EmploymentCheckConfiguration>(_serviceName, _serviceVersion, true));
                 c.AddRegistry<DefaultRegistry>();
             });
             return container;

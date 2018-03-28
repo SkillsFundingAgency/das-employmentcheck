@@ -196,6 +196,57 @@ testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {
 #line hidden
             this.ScenarioCleanup();
         }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Azure message lock should be automatically renewed")]
+        [NUnit.Framework.CategoryAttribute("AMl2233")]
+        [NUnit.Framework.CategoryAttribute("addmoreEmpRefstoanAccount")]
+        [NUnit.Framework.TestCaseAttribute("22330", "333/AA00001", "AZ123456C", "5641235789", "Employed", "Yes", "10007898", "112233", "9997/AA00001,9998/AA00001,9999/AA00001", null)]
+        public virtual void AzureMessageLockShouldBeAutomaticallyRenewed(string accountId, string empRef, string nino, string uln, string hmrcresponse, string check, string ukprn, string apprenticeshipId, string empRefs, string[] exampleTags)
+        {
+            string[] @__tags = new string[] {
+                    "AMl2233",
+                    "addmoreEmpRefstoanAccount"};
+            if ((exampleTags != null))
+            {
+                @__tags = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(@__tags, exampleTags));
+            }
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Azure message lock should be automatically renewed", @__tags);
+#line 61
+this.ScenarioSetup(scenarioInfo);
+#line 62
+testRunner.Given(string.Format("A Submission Event has raised with Apprenticeship {0} and NINO {1} and ULN {2} an" +
+                        "d Ukprn {3}", apprenticeshipId, nino, uln, ukprn), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 63
+testRunner.And(string.Format("a Commitment with Apprenticeship {0} and Ukprn {1} and Account Id {2} exists", apprenticeshipId, ukprn, accountId), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 64
+testRunner.And(string.Format("An Account with an Account Id {0} and EmpRef {1} exists", accountId, empRefs), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Paye",
+                        "Nino",
+                        "Response"});
+            table4.AddRow(new string[] {
+                        "9997/AA00001",
+                        string.Format("{0}", nino),
+                        "NotEmployed"});
+            table4.AddRow(new string[] {
+                        "9998/AA00001",
+                        string.Format("{0}", nino),
+                        "NotEmployed"});
+            table4.AddRow(new string[] {
+                        "9999/AA00001",
+                        string.Format("{0}", nino),
+                        string.Format("{0}", hmrcresponse)});
+#line 65
+testRunner.And("Hmrc Api is configured as", ((string)(null)), table4, "And ");
+#line 70
+testRunner.When("I run the worker role", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 71
+testRunner.Then(string.Format("I should have PassedValidationCheck {0} for ULN {1} and NINO {2}", check, uln, nino), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
     }
 }
 #pragma warning restore

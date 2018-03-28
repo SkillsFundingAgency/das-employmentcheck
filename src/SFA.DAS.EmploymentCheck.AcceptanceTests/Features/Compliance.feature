@@ -54,3 +54,23 @@ Then I should have PassedValidationCheck <Check> for ULN <Uln> and NINO <Nino>
 Examples: 
 | AccountId | EmpRef      | Nino      | Uln        | Hmrcresponse | Check | Ukprn    | ApprenticeshipId |
 | 24978     | 333/AA00001 | QQ123456D | 5641235779 | NotEmployed  | No    | 10007898 | 112234           |
+
+
+@AMl2233
+@addmoreEmpRefstoanAccount
+Scenario Outline: Azure message lock should be automatically renewed
+Given A Submission Event has raised with Apprenticeship <ApprenticeshipId> and NINO <Nino> and ULN <Uln> and Ukprn <Ukprn>
+And a Commitment with Apprenticeship <ApprenticeshipId> and Ukprn <Ukprn> and Account Id <AccountId> exists
+And An Account with an Account Id <AccountId> and EmpRef <EmpRefs> exists
+And Hmrc Api is configured as 
+| Paye         | Nino   | Response       |
+| 9997/AA00001 | <Nino> | NotEmployed    |
+| 9998/AA00001 | <Nino> | NotEmployed    |
+| 9999/AA00001 | <Nino> | <Hmrcresponse> |
+When I run the worker role
+Then I should have PassedValidationCheck <Check> for ULN <Uln> and NINO <Nino>
+
+Examples: 
+| AccountId | EmpRef      | Nino      | Uln        | Hmrcresponse | Check | Ukprn    | ApprenticeshipId | EmpRefs                                |
+| 22330     | 333/AA00001 | AZ123456C | 5641235789 | Employed     | Yes   | 10007898 | 112233           | 9997/AA00001,9998/AA00001,9999/AA00001 |
+
