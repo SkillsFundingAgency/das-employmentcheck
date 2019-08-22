@@ -6,7 +6,6 @@
       <Task commandLine="StartUp\IIS.bat" executionContext="elevated" taskType="background"></Task>
     </Startup>
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="LoggingRedisConnectionString"/>
       <Setting name="LoggingRedisKey"/>
       <Setting name="InstrumentationKey" />
