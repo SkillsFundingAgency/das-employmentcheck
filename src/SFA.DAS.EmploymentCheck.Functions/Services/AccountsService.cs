@@ -1,10 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
+using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.EmploymentCheck.Functions.Clients;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services
 {
-    class AccountsService
+    public class AccountsService : IAccountsService
     {
+        private readonly IAccountsApiClient _accountsApiClient;
+
+        public AccountsService(IAccountsApiClient accountsApiClient)
+        {
+            _accountsApiClient = accountsApiClient;
+        }
+
+        public async Task<AccountDetailViewModel> GetAccountDetail(string hashedAccountId)
+        {
+            return await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/{hashedAccountId}");
+        }
     }
 }
