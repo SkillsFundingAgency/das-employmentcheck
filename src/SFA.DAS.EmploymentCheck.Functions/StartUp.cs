@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
+using Microsoft.Extensions.Options;
 using NServiceBus;
+using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -57,6 +60,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 builder.Services.AddNServiceBus(logger);
             }
+
+            builder.Services.Configure<AccountsApiConfiguration>(configuration.GetSection("AccountsInnerApi"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiConfiguration>>().Value);
 
             builder.Services.AddEmploymentCheckService();
         }

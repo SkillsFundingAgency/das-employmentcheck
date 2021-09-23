@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Clients;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 
@@ -12,6 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
     {
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddTransient<IAccountsApiClient, AccountsApiClient>();
             return serviceCollection;
         }
 
@@ -21,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddLogging((options) =>
             {
-                options.AddFilter(typeof(Startup).Namespace, LogLevel.Information);
+                options.AddFilter("SFA.DAS", LogLevel.Information); // this is because all logging is filtered out by defualt
                 options.SetMinimumLevel(LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {
