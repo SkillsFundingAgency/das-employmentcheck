@@ -7,7 +7,6 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 using Microsoft.Extensions.Options;
 using NServiceBus;
-using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
