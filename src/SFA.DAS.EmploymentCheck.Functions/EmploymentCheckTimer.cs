@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify;
+using SFA.DAS.EmploymentCheck.Functions.Commands.InitiateEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -19,13 +19,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
         [FunctionName(nameof(EmploymentCheckTimer))]
         public async Task Run([TimerTrigger("0 0 * * * *", RunOnStartup = true)]TimerInfo myTimer, ILogger log)
         {
-            var queryResult = await _mediator.Send(new GetApprenticesToVerifyRequest());
-            foreach (var result in queryResult.ApprenticesToVerify)
-            {
-                log.LogInformation("ULN: " + result.ULN);
-            }
+            await _mediator.Send(new InitiateEmploymentCheckRequest());
             
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            log.LogInformation($"Employment check triggered at: {DateTime.Now}");
         }
     }
 }
