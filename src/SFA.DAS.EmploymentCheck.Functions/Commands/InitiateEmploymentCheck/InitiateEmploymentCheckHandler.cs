@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.InitiateEmploymentCheck
 
             foreach (var apprentice in apprentices)
             {
-                await _eventPublisher.Publish(new EmploymentCheckForApprenticeRequiredCommand(apprentice.ULN, apprentice.NationalInsuranceNumber, apprentice.ActualStartDate, apprentice.HashedAccountId, apprentice.UKPRN));
+                await _eventPublisher.Publish(new EmploymentCheckForApprenticeRequired(apprentice.ULN, apprentice.NationalInsuranceNumber, apprentice.ActualStartDate, apprentice.HashedAccountId, apprentice.UKPRN));
             }
 
             return Unit.Value;
