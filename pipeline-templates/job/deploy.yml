@@ -1,6 +1,7 @@
 parameters:  
   Environment:
   ServiceConnection:
+  RunBlockOnPossibleDataLoss: false
 
 jobs:
 - deployment: DeployFunctionApp
