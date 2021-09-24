@@ -3,7 +3,7 @@ parameters:
   ServiceConnection:
 
 jobs:
-- deployment: DeployWebApp
+- deployment: DeployFunctionApp
   pool:
     name: DAS - Continuous Deployment Agents
   environment: ${{ parameters.Environment }}
@@ -35,15 +35,15 @@ jobs:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
             DeploymentPackagePath: $(Pipeline.Workspace)/EmploymentCheck/SFA.DAS.EmploymentCheck.Functions.zip
-        - template: azure-pipelines-templates/deploy/job/sql-dacpac-deploy.yml@das-platform-building-blocks
-          parameters:
-            AzureSubscription: ${{ parameters.ServiceConnection }}
-            ServerName: $(SharedSQLServerFQDN)
-            DatabaseName: $(DatabaseName)
-            SqlUsername: $(SharedSQLServerUsername)
-            SqlPassword: $(SharedSQLServerPassword)
-            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
-            RunBlockOnPossibleDataLoss: ${{ parameters.RunBlockOnPossibleDataLoss }}
-            Environment: ${{ parameters.Environment }}
-            pool: DAS - Continuous Deployment Agents
-            dependsOn: DeployWebApp
+- template: azure-pipelines-templates/deploy/job/sql-dacpac-deploy.yml@das-platform-building-blocks
+  parameters:
+    AzureSubscription: ${{ parameters.ServiceConnection }}
+    ServerName: $(SharedSQLServerFQDN)
+    DatabaseName: $(DatabaseName)
+    SqlUsername: $(SharedSQLServerUsername)
+    SqlPassword: $(SharedSQLServerPassword)
+    DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
+    RunBlockOnPossibleDataLoss: ${{ parameters.RunBlockOnPossibleDataLoss }}
+    Environment: ${{ parameters.Environment }}
+    pool: DAS - Continuous Deployment Agents
+    dependsOn: DeployFunctionApp
