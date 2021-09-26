@@ -5,8 +5,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Commands\**" />
+    <Compile Remove="Data\**" />
     <EmbeddedResource Remove="Commands\**" />
+    <EmbeddedResource Remove="Data\**" />
     <None Remove="Commands\**" />
+    <None Remove="Data\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="9.0.0" />
@@ -31,8 +34,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\EmployerIncentives\Enums\" />
   </ItemGroup>
 </Project>
