@@ -7,7 +7,6 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 using MediatR;
 using Microsoft.Extensions.Options;
-using NServiceBus;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify;
 
@@ -44,23 +43,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
 
             builder.Services.AddOptions();
-            
-            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
-            if (config["NServiceBusConnectionString"] == "UseDevelopmentStorage=true")
-            {
-                builder.Services.AddNServiceBus(logger, (options) =>
-                {
-                    options.EndpointConfiguration = (endpoint) =>
-                    {
-                        endpoint.UseTransport<LearningTransport>().StorageDirectory(Path.Combine(Directory.GetCurrentDirectory().Substring(0, Directory.GetCurrentDirectory().IndexOf("src")), @"src\SFA.DAS.EmploymentCheck.Functions\.learningtransport"));
-                        return endpoint;
-                    };
-                });
-            }
-            else
-            {
-                builder.Services.AddNServiceBus(logger);
-            }
 
             builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
 
