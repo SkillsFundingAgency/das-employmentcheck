@@ -29,6 +29,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Queries\" />
+    <Folder Include="Commands\" />
   </ItemGroup>
 </Project>

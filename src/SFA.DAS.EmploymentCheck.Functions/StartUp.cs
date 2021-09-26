@@ -8,8 +8,8 @@ using System.IO;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NServiceBus;
-using SFA.DAS.EmploymentCheck.Functions.Commands.InitiateEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 builder.Services.AddNServiceBus(logger);
             }
 
-            builder.Services.AddMediatR(typeof(InitiateEmploymentCheckRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
 
             builder.Services.Configure<AccountsApiConfiguration>(configuration.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiConfiguration>>().Value);
