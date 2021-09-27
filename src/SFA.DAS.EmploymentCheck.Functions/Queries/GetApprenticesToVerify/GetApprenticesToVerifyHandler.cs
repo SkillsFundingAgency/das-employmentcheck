@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify
     {
         public async Task<GetApprenticesToVerifyResult> Handle(GetApprenticesToVerifyRequest request, CancellationToken cancellationToken)
         {
-            return new GetApprenticesToVerifyResult(new List<ApprenticeToVerifyDto> { new ApprenticeToVerifyDto("ABC123", "ssdjhgffg", 34354, 4356456, DateTime.Now ) });
+            return new GetApprenticesToVerifyResult(new List<ApprenticeToVerifyDto> { new ApprenticeToVerifyDto(123, "ssdjhgffg", 34354, 4356456, 12345, DateTime.Now, DateTime.Now ) });
         }
     }
 }

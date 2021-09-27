@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -27,10 +25,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 
             var apprenticesToCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
 
-            foreach (var result in apprenticesToCheck)
+            var checkTasks = new List<Task>();
+            foreach (var apprentice in apprenticesToCheck)
             {
-                _logger.LogInformation("ULN: " + result.ULN);
+                checkTasks.Add(context.CallActivityAsync(nameof(CheckApprentice), apprentice));
             }
+
+            await Task.WhenAll(checkTasks);
 
             _logger.LogInformation("Employment check process completed successfully");
         }

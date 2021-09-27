@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Clients;
+using SFA.DAS.EmploymentCheck.Functions.Services;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -9,7 +12,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
     {
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddHttpClient();
             serviceCollection.AddTransient<IAccountsApiClient, AccountsApiClient>();
+            serviceCollection.AddTransient<IAccountsService, AccountsService>();
+            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             return serviceCollection;
         }
 

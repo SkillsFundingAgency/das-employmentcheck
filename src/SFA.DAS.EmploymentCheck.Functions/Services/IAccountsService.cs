@@ -5,6 +5,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
 {
     public interface IAccountsService
     {
-        Task<AccountDetailViewModel> GetAccountDetail(string hashedAccountId);
+        Task<AccountDetailViewModel> GetAccountDetail(long accountId);
     }
 }

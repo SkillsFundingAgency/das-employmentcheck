@@ -4,11 +4,8 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Commands\**" />
     <Compile Remove="Data\**" />
-    <EmbeddedResource Remove="Commands\**" />
     <EmbeddedResource Remove="Data\**" />
-    <None Remove="Commands\**" />
     <None Remove="Data\**" />
   </ItemGroup>
   <ItemGroup>

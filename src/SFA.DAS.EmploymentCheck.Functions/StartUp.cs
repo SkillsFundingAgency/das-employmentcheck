@@ -18,6 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddNLog();
+            builder.Services.AddOptions();
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -46,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
 
-            builder.Services.Configure<AccountsApiConfiguration>(configuration.GetSection("AccountsInnerApi"));
+            builder.Services.Configure<AccountsApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiConfiguration>>().Value);
 
             builder.Services.AddEmploymentCheckService();

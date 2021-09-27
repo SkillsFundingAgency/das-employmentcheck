@@ -4,19 +4,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Dtos
 {
     public class ApprenticeToVerifyDto
     {
-        public ApprenticeToVerifyDto(string hashedAccountId, string nationalInsuranceNumber, long uln, long ukprn, DateTime actualStartDate)
+        public ApprenticeToVerifyDto(long accountId, string nationalInsuranceNumber, long uln, long ukprn, long apprenticeshipId, DateTime startDate, DateTime endDate)
         {
-            HashedAccountId = hashedAccountId;
+            AccountId = accountId;
             NationalInsuranceNumber = nationalInsuranceNumber;
             ULN = uln;
             UKPRN = ukprn;
-            ActualStartDate = actualStartDate;
+            ApprenticeshipId = apprenticeshipId;
+            StartDate = startDate;
+            EndDate = endDate;
         }
 
-        public string HashedAccountId { get; }
+        public long AccountId { get; }
         public string NationalInsuranceNumber { get; }
         public long ULN { get; }
         public long UKPRN { get; }
-        public DateTime ActualStartDate { get; }
+        public long ApprenticeshipId { get; }
+        public DateTime StartDate { get; }
+        public DateTime EndDate { get; }
     }
 }
