@@ -59,9 +59,6 @@
             "type": "string",
             "defaultValue": "SFA.DAS.EmploymentCheck.Functions"
         },
-        "sharedServiceBusName": {
-            "type": "string"
-        },
         "databaseSkuName": {
             "type": "string",
             "defaultValue": "S0"
@@ -306,6 +303,10 @@
         "FunctionAppName": {
             "type": "string",
             "value": "[variables('functionAppName')]"
+        },
+        "DatabaseName": {
+            "type": "string",
+            "value": "[variables('databaseName')]"
         }
     }
 }
