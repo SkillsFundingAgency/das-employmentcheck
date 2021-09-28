@@ -25,8 +25,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
             {
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<EmploymentCheckResult>(
-                    sql: "[dbo].[EmploymentChecks]",
-                    commandType: CommandType.TableDirect);
+                    sql: "SELECT * FROM [dbo].[EmploymentChecks]",
+                    commandType: CommandType.Text);
 
                 return result.Select(x => new ApprenticeToVerifyDto(x.Id, x.AccountId, x.NationalInsuranceNumber, x.ULN, x.UKPRN, x.ApprenticeshipId, x.MinDate, x.MaxDate)).ToList();
             }
