@@ -5,14 +5,14 @@
     [UKPRN] BIGINT NULL,
     [ApprenticeshipId] BIGINT NULL,
     [AccountId] BIGINT NULL,
-    [NINO] NCHAR(9) NOT NULL,
+    [NationalInsuranceNumber] NCHAR(9) NOT NULL,
     [MinDate] DATETIME NOT NULL,
     [MaxDate] DATETIME NOT NULL,
     [CheckType] NVARCHAR(20) NOT NULL,
     [Result] BIT NULL,
     [LastUpdated] DATETIME NULL,
     [CreatedDate] DATETIME NULL DEFAULT getdate(),
-    CONSTRAINT UC_EmploymentChecks UNIQUE (Accountid, uln, ukprn, apprenticeshipid, nino, checktype)
+    CONSTRAINT UC_EmploymentChecks UNIQUE (Accountid, uln, ukprn, apprenticeshipid, nationalinsurancenumber, checktype)
 )
 GO
 CREATE INDEX [IX_EmploymentChecks_Column] ON [dbo].[EmploymentChecks] (uln, accountid, ukprn, checktype)

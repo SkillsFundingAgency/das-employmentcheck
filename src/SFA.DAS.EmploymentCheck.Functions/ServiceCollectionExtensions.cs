@@ -27,8 +27,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             serviceCollection.AddTransient<IEmploymentChecksRepository, EmploymentChecksRepository>();
             serviceCollection.AddHmrcClient();
-            serviceCollection.AddTransient<ITokenServiceApiClientConfiguration, TokenServiceApiClientConfiguration>();
-            serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>();
+            serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
+            {
+                var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
+                return new TokenServiceApiClient(config);
+            });
             return serviceCollection;
         }
 
