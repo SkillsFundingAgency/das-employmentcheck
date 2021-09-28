@@ -29,12 +29,12 @@ resources:
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
     ref: refs/tags/0.4.0
-    endpoint: GitHub (SFA)
+    endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
     name: SkillsFundingAgency/das-platform-automation
     ref: refs/tags/4.5.0
-    endpoint: GitHub (SFA)
+    endpoint: SkillsFundingAgency
   pipelines:
   - pipeline: das-employer-config
     project: Digital Apprenticeship Service
@@ -58,6 +58,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: AT DevTest Shared Resources
+  - group: AT das-employmentcheck
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -71,6 +72,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST DevTest Shared Resources
+  - group: TEST das-employmentcheck
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -84,6 +86,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST2 DevTest Shared Resources
+  - group: TEST2 das-employmentcheck
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -97,6 +100,7 @@ stages:
 #   variables:
 #   - group: PreProd Management Resources
 #   - group: PreProd Shared Resources
+#   - group: PREPROD das-employmentcheck 
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
@@ -110,6 +114,7 @@ stages:
 #   variables:
 #   - group: Prod Management Resources
 #   - group: Prod Shared Resources
+#   - group: PROD das-employmentcheck
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
@@ -123,6 +128,7 @@ stages:
 #   variables:
 #   - group: MO Management Resources
 #   - group: MO Shared Resources
+#   - group: MO das-employmentcheck
 #   jobs:
 #   - template: pipeline-templates/job/deploy.yml
 #     parameters:
