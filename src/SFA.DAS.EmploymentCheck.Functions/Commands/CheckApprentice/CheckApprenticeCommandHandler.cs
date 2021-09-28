@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Services;
 
@@ -11,11 +12,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
 {
     public class CheckApprenticeCommandHandler : IRequestHandler<CheckApprenticeCommand>
     {
+        private readonly IEmploymentChecksRepository _repository;
         private readonly IAccountsService _accountsService;
         private readonly IHmrcService _hmrcService;
 
-        public CheckApprenticeCommandHandler(IAccountsService accountsService, IHmrcService hmrcService)
+        public CheckApprenticeCommandHandler(IEmploymentChecksRepository repository, IAccountsService accountsService, IHmrcService hmrcService)
         {
+            _repository = repository;
             _accountsService = accountsService;
             _hmrcService = hmrcService;
         }
@@ -39,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
 
         private async Task StoreEmploymentCheckResult(ApprenticeToVerifyDto apprentice, bool checkPassed)
         {
-            throw new NotImplementedException();
+            await _repository.SaveEmploymentCheckResult(apprentice.Id, checkPassed);
         }
 
         private async Task<List<string>> GetAccountPayeSchemes(long accountId)

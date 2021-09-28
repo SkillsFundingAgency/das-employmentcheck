@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Models
 {
     public class EmploymentCheckResult
     {
+        public long Id { get; set; }
 		public long AccountId { get; set; }
         public long ULN { get; set; }
 	    public long ApprenticeshipId { get; set; }

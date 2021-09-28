@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 using MediatR;
@@ -49,6 +48,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             builder.Services.Configure<AccountsApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiConfiguration>>().Value);
+            builder.Services.Configure<HmrcApiSettings>(config.GetSection("HmrcApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiSettings>>().Value);
+            builder.Services.Configure<TokenServiceApiClientConfiguration>(config.GetSection("TokenService"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value);
+            builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
             builder.Services.AddEmploymentCheckService();
         }
