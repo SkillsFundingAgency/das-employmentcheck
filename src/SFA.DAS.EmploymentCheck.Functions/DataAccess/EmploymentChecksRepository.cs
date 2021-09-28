@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
 
                 await connection.OpenAsync();
                 await connection.ExecuteAsync(
-                    sql: "UPDATE dbo.EmploymentChecks SET Result = @result WHERE Id = @id",
+                    sql: "UPDATE dbo.EmploymentChecks SET Result = @result, LastUpdated = GETDATE() WHERE Id = @id",
                     commandType: CommandType.Text,
                     param: parameters);
             }
