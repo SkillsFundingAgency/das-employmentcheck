@@ -16,9 +16,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
         private readonly IEmploymentChecksRepository _repository;
         private readonly IAccountsService _accountsService;
         private readonly IHmrcService _hmrcService;
-        private readonly ILogger _logger;
+        private readonly ILogger<CheckApprenticeCommandHandler> _logger;
 
-        public CheckApprenticeCommandHandler(IEmploymentChecksRepository repository, IAccountsService accountsService, IHmrcService hmrcService, ILogger logger)
+        public CheckApprenticeCommandHandler(IEmploymentChecksRepository repository, IAccountsService accountsService, IHmrcService hmrcService, ILogger<CheckApprenticeCommandHandler> logger)
         {
             _repository = repository;
             _accountsService = accountsService;
