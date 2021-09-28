@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Clients
 
         private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            if (!_hostingEnvironment.IsDevelopment())
+            if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
             {
                 var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
                 httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
