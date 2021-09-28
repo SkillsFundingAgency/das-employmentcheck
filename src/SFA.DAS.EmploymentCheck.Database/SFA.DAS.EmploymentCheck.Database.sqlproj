@@ -69,6 +69,7 @@
     <Build Include="StoredProcedures\GetPreviousHandledSubmissionEvents.sql" />
     <Build Include="UserDefinedTypes\UlnTableType.sql" />
     <Build Include="StoredProcedures\StoreEmploymentCheckResult.sql" />
+    <Build Include="Tables\EmploymentChecks.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\LastProcessedEvent.sql" />
