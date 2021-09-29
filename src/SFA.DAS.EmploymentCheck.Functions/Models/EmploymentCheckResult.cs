@@ -13,7 +13,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Models
         public DateTime MinDate { get; set; }
         public DateTime MaxDate { get; set; }
         public string CheckType { get; set; }
-        public bool Result { get; set; }
+        public bool IsEmployed { get; set; }
         public DateTime LastUpdated { get; set; }
+        public bool HasBeenChecked { get; set; }
     }
 }

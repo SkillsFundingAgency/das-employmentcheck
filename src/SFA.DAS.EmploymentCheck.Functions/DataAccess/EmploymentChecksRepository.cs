@@ -15,12 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString;
+        private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public EmploymentChecksRepository(ApplicationSettings applicationSettings, AzureServiceTokenProvider azureServiceTokenProvider)
         {
             _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
+            _batchSize = applicationSettings.BatchSize;
         }
 
         public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
@@ -32,9 +34,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
                     connection.AccessToken = await _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource);
                 }
 
+                var parameters = new DynamicParameters();
+                parameters.Add("@batchSize", _batchSize);
+
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<EmploymentCheckResult>(
-                    sql: "SELECT * FROM [dbo].[EmploymentChecks]",
+                    sql: "SELECT TOP (@batchSize) * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
+                    param: parameters,
                     commandType: CommandType.Text);
 
                 return result.Select(x => new ApprenticeToVerifyDto(x.Id, x.AccountId, x.NationalInsuranceNumber, x.ULN, x.UKPRN, x.ApprenticeshipId, x.MinDate, x.MaxDate)).ToList();
@@ -47,11 +53,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", id);
-                parameters.Add("@result", result);
+                parameters.Add("@isEmployed", result);
 
                 await connection.OpenAsync();
                 await connection.ExecuteAsync(
-                    sql: "UPDATE dbo.EmploymentChecks SET Result = @result, LastUpdated = GETDATE() WHERE Id = @id",
+                    sql: "UPDATE dbo.EmploymentChecks SET IsEmployed = @isEmployed, LastUpdated = GETDATE(), HasBeenChecked = 1 WHERE Id = @id",
                     commandType: CommandType.Text,
                     param: parameters);
             }
