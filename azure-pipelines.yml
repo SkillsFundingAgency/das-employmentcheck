@@ -99,20 +99,20 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
 
-# - stage: Deploy_PP
-#   dependsOn: Build
-#   displayName: Deploy to PP
-#   condition: and(succeeded(), eq(variables.Deploy, 'true'))
-#   variables:
-#   - group: PreProd Management Resources
-#   - group: PreProd Shared Resources
-#   - group: PREPROD das-employmentcheck 
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       Environment: PP
-#       ServiceConnection: SFA-DIG-PreProd-ARM
-#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+- stage: Deploy_PP
+  dependsOn: Build
+  displayName: Deploy to PP
+  condition: and(succeeded(), eq(variables.Deploy, 'true'))
+  variables:
+  - group: PreProd Management Resources
+  - group: PreProd Shared Resources
+  - group: PREPROD das-employmentcheck 
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: PP
+      ServiceConnection: SFA-DIG-PreProd-ARM
+      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
 # - stage: Deploy_PROD
 #   dependsOn: Build
