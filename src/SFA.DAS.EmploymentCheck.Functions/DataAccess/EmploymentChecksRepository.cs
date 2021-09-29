@@ -27,13 +27,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
 
         public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
         {
-            await using (var connection = new SqlConnection(_connectionString) {  })
+            await using (var connection = await CreateConnection())
             {
-                if (_azureServiceTokenProvider != null)
-                {
-                    connection.AccessToken = await _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource);
-                }
-
                 var parameters = new DynamicParameters();
                 parameters.Add("@batchSize", _batchSize);
 
@@ -49,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
 
         public async Task SaveEmploymentCheckResult(long id, bool result)
         {
-            await using (var connection = new SqlConnection(_connectionString))
+            await using (var connection = await CreateConnection())
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", id);
@@ -61,6 +56,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
                     commandType: CommandType.Text,
                     param: parameters);
             }
+        }
+
+        private async Task<SqlConnection> CreateConnection()
+        {
+            var connection = new SqlConnection(_connectionString);
+            if (_azureServiceTokenProvider != null)
+            {
+                connection.AccessToken = await _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource);
+            }
+
+            return connection;
         }
     }
 }
