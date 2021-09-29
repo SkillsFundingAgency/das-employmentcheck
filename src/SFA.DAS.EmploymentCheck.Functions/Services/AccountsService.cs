@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
 
         public async Task<AccountDetailViewModel> GetAccountDetail(long accountId)
         {
-            return await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/{accountId}");
+            return await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId}");
         }
     }
 }
