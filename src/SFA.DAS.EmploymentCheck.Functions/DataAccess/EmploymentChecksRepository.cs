@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Models;
@@ -12,17 +13,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
 {
     public class EmploymentChecksRepository : IEmploymentChecksRepository
     {
+        private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString;
+        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
-        public EmploymentChecksRepository(ApplicationSettings applicationSettings)
+        public EmploymentChecksRepository(ApplicationSettings applicationSettings, AzureServiceTokenProvider azureServiceTokenProvider)
         {
             _connectionString = applicationSettings.DbConnectionString;
+            _azureServiceTokenProvider = azureServiceTokenProvider;
         }
 
         public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
         {
-            await using (var connection = new SqlConnection(_connectionString))
+            await using (var connection = new SqlConnection(_connectionString) {  })
             {
+                if (_azureServiceTokenProvider != null)
+                {
+                    connection.AccessToken = await _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource);
+                }
+
                 await connection.OpenAsync();
                 var result = await connection.QueryAsync<EmploymentCheckResult>(
                     sql: "SELECT * FROM [dbo].[EmploymentChecks]",

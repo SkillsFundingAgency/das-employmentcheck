@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
-            builder.Services.AddEmploymentCheckService();
+            builder.Services.AddEmploymentCheckService(config["EnvironmentName"]);
         }
     }
 }

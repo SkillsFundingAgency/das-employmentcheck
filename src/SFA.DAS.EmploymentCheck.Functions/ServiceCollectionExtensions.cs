@@ -1,5 +1,6 @@
 ﻿using System;
 using HMRC.ESFA.Levy.Api.Client;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,13 +19,18 @@ namespace SFA.DAS.EmploymentCheck.Functions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
             serviceCollection.AddHttpClient();
             serviceCollection.AddTransient<IAccountsApiClient, AccountsApiClient>();
             serviceCollection.AddTransient<IAccountsService, AccountsService>();
             serviceCollection.AddTransient<IHmrcService, HmrcService>();
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
+            if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
+            {
+                serviceCollection.AddSingleton(new AzureServiceTokenProvider());
+            }
+
             serviceCollection.AddTransient<IEmploymentChecksRepository, EmploymentChecksRepository>();
             serviceCollection.AddHmrcClient();
             serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
