@@ -38,6 +38,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Clients
 
             var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
 
+            response.EnsureSuccessStatusCode();
+
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<TResponse>(json);
         }
