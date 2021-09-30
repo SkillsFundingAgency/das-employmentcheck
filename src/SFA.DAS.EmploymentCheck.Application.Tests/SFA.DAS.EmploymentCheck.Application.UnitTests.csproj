@@ -118,10 +118,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\InitiateEmploymentCheckForChangedNationalInsuranceNumbersTests\InitiateEmploymentCheckForChangedNationalInsuranceNumbersTests.cs" />
-    <Compile Include="Commands\PerformEmploymentCheckTests\PerformEmploymentCheckTests.cs" />
-    <Compile Include="Commands\RequestEmploymentCheckForEmployerPayeSchemesTests\RequestEmploymentCheckForEmployerPayeSchemesTests.cs" />
-    <Compile Include="Gateways\HmrcGatewayTests\HmrcGatewayTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
