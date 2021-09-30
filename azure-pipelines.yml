@@ -114,20 +114,20 @@ stages:
       ServiceConnection: SFA-DIG-PreProd-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
-# - stage: Deploy_PROD
-#   dependsOn: Build
-#   displayName: Deploy to PROD
-#   condition: and(succeeded(), eq(variables.Deploy, 'true'))
-#   variables:
-#   - group: Prod Management Resources
-#   - group: Prod Shared Resources
-#   - group: PROD das-employmentcheck
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       Environment: PROD
-#       ServiceConnection: SFA-DIG-Prod-ARM
-#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+- stage: Deploy_PROD
+  dependsOn: Build
+  displayName: Deploy to PROD
+  condition: and(succeeded(), eq(variables.Deploy, 'true'))
+  variables:
+  - group: Prod Management Resources
+  - group: Prod Shared Resources
+  - group: PROD das-employmentcheck
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: PROD
+      ServiceConnection: SFA-DIG-Prod-ARM
+      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
 
 # - stage: Deploy_MO
 #   dependsOn: Build
