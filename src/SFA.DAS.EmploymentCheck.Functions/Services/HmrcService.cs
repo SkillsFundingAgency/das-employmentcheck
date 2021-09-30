@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
-using Polly;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services
