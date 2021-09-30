@@ -1,12 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.SubmissionEventCloudService", "SFA.DAS.SubmissionEventCloudService\SFA.DAS.SubmissionEventCloudService.ccproj", "{9984C087-A9D7-439F-B7A4-C38C6F972F0B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubmissionEventWorkerRole", "SubmissionEventWorkerRole\SubmissionEventWorkerRole.csproj", "{8B31EA73-E3B4-421E-9C0B-83F0ABF64F26}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Domain", "SFA.DAS.EmploymentCheck.Domain\SFA.DAS.EmploymentCheck.Domain.csproj", "{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B5324D91-FA6E-4538-86ED-92A14B602EA5}"
@@ -21,12 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Events", "SFA.DAS.EmploymentCheck.Events\SFA.DAS.EmploymentCheck.Events.csproj", "{053EE8CB-7302-40EB-A8B9-CEA6596DA2D9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "AzureConfiguration", "{36ABAEDC-AE91-4FEA-A987-7C093D14CBC9}"
-	ProjectSection(SolutionItems) = preProject
-		AzureTopicConfigurationStrucuture.json = AzureTopicConfigurationStrucuture.json
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.AcceptanceTests", "SFA.DAS.EmploymentCheck.AcceptanceTests\SFA.DAS.EmploymentCheck.AcceptanceTests.csproj", "{EC560BEB-68FC-43D2-A96A-97417CABE119}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions", "SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj", "{5E0EACCB-983C-4431-985B-97246E23BFDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,14 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9984C087-A9D7-439F-B7A4-C38C6F972F0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9984C087-A9D7-439F-B7A4-C38C6F972F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9984C087-A9D7-439F-B7A4-C38C6F972F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9984C087-A9D7-439F-B7A4-C38C6F972F0B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B31EA73-E3B4-421E-9C0B-83F0ABF64F26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B31EA73-E3B4-421E-9C0B-83F0ABF64F26}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B31EA73-E3B4-421E-9C0B-83F0ABF64F26}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B31EA73-E3B4-421E-9C0B-83F0ABF64F26}.Release|Any CPU.Build.0 = Release|Any CPU
 		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -72,6 +57,10 @@ Global
 		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -241,10 +241,6 @@
       <Project>{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}</Project>
       <Name>SFA.DAS.EmploymentCheck.Domain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SubmissionEventWorkerRole\SubmissionEventWorkerRole.csproj">
-      <Project>{8b31ea73-e3b4-421e-9c0b-83f0abf64f26}</Project>
-      <Name>SubmissionEventWorkerRole</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

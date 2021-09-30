@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 using BoDi;
-using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
+//using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Infrastructure;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.DependencyResolution;
 using SFA.DAS.NLog.Logger;
@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
         private IObjectContainer _objectContainer;
 
-        private WorkerRole sut;
+        //private WorkerRole sut;
         
         public Hooks(IObjectContainer objectContainer)
         {
@@ -32,10 +32,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
             EmploymentCheckRepository employmentCheckRepository = new EmploymentCheckRepository(config.Dbconnectionstring,_log);
 
-            sut = new WorkerRole();
-            sut.OnStart();
+            //sut = new WorkerRole();
+            //sut.OnStart();
 
-            _objectContainer.RegisterInstanceAs(sut);
+            //_objectContainer.RegisterInstanceAs(sut);
            
             _objectContainer.RegisterInstanceAs(employmentCheckRepository);
 
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [AfterScenario(Order = 1)]
         public void AfterScenario()
         {
-            sut?.OnStop();
+            //sut?.OnStop();
         }
     }
 }

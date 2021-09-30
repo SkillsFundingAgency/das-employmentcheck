@@ -17,7 +17,7 @@
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>False</SqlServerVerification>
@@ -69,6 +69,7 @@
     <Build Include="StoredProcedures\GetPreviousHandledSubmissionEvents.sql" />
     <Build Include="UserDefinedTypes\UlnTableType.sql" />
     <Build Include="StoredProcedures\StoreEmploymentCheckResult.sql" />
+    <Build Include="Tables\EmploymentChecks.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\LastProcessedEvent.sql" />

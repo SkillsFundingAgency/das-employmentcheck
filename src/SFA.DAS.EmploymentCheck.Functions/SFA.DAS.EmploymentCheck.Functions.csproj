@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Data\**" />
+    <EmbeddedResource Remove="Data\**" />
+    <None Remove="Data\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.4" />
+    <PackageReference Include="HMRC.ESFA.Levy.Api.Client" Version="2.0.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.18.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.5.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.19" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.13" />
+    <PackageReference Include="NLog" Version="4.7.11" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
+    <PackageReference Include="SFA.DAS.Account.Api.Types" Version="1.6.2978" />
+    <PackageReference Include="SFA.DAS.Api.Common" Version="1.0.13" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.62" />
+    <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
+    <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
+    <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+</Project>

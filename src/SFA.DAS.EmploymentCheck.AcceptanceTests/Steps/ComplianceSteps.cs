@@ -8,7 +8,7 @@ using BoDi;
 using SFA.DAS.ProviderEventsApiSubstitute.WebAPI;
 using SFA.DAS.AccountsApiSubstitute.WebAPI;
 using SFA.DAS.ApiSubstitute.Utilities;
-using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
+//using SFA.DAS.EmploymentCheck.SubmissionEventWorkerRole;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.HmrcApiSubstitute.WebAPI;
 using HMRC.ESFA.Levy.Api.Types;
@@ -147,8 +147,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
-            var sut = _objectContainer.Resolve<WorkerRole>();
-            Task.Run(() => sut.Run(), cancellationToken);
+            //var sut = _objectContainer.Resolve<WorkerRole>();
+            //Task.Run(() => sut.Run(), cancellationToken);
 
             await Policy
                     .HandleResult<long>(r => r != 1)
