@@ -3,21 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Domain", "SFA.DAS.EmploymentCheck.Domain\SFA.DAS.EmploymentCheck.Domain.csproj", "{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B5324D91-FA6E-4538-86ED-92A14B602EA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Application", "SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj", "{81703522-B65D-4343-A99D-A58A8F54E899}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Application.UnitTests", "SFA.DAS.EmploymentCheck.Application.Tests\SFA.DAS.EmploymentCheck.Application.UnitTests.csproj", "{8B4DE3A7-F476-4224-B17E-270D46B8097C}"
-EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.EmploymentCheck.Database", "SFA.DAS.EmploymentCheck.Database\SFA.DAS.EmploymentCheck.Database.sqlproj", "{8A55EB79-ED7B-47E9-A3EB-B5043371C356}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.DataAccess", "SFA.DAS.EmploymentCheck.DataAccess\SFA.DAS.EmploymentCheck.DataAccess.csproj", "{D087A675-AF54-45EB-91A3-55EFFEDA1881}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Events", "SFA.DAS.EmploymentCheck.Events\SFA.DAS.EmploymentCheck.Events.csproj", "{053EE8CB-7302-40EB-A8B9-CEA6596DA2D9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.AcceptanceTests", "SFA.DAS.EmploymentCheck.AcceptanceTests\SFA.DAS.EmploymentCheck.AcceptanceTests.csproj", "{EC560BEB-68FC-43D2-A96A-97417CABE119}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions", "SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj", "{5E0EACCB-983C-4431-985B-97246E23BFDB}"
 EndProject
@@ -27,36 +15,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71E7AE6C-B1CE-44F6-B0D2-CAD8D2AE7812}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81703522-B65D-4343-A99D-A58A8F54E899}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81703522-B65D-4343-A99D-A58A8F54E899}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81703522-B65D-4343-A99D-A58A8F54E899}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81703522-B65D-4343-A99D-A58A8F54E899}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B4DE3A7-F476-4224-B17E-270D46B8097C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B4DE3A7-F476-4224-B17E-270D46B8097C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B4DE3A7-F476-4224-B17E-270D46B8097C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B4DE3A7-F476-4224-B17E-270D46B8097C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8A55EB79-ED7B-47E9-A3EB-B5043371C356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8A55EB79-ED7B-47E9-A3EB-B5043371C356}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A55EB79-ED7B-47E9-A3EB-B5043371C356}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{8A55EB79-ED7B-47E9-A3EB-B5043371C356}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A55EB79-ED7B-47E9-A3EB-B5043371C356}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8A55EB79-ED7B-47E9-A3EB-B5043371C356}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D087A675-AF54-45EB-91A3-55EFFEDA1881}.Release|Any CPU.Build.0 = Release|Any CPU
-		{053EE8CB-7302-40EB-A8B9-CEA6596DA2D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{053EE8CB-7302-40EB-A8B9-CEA6596DA2D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{053EE8CB-7302-40EB-A8B9-CEA6596DA2D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{053EE8CB-7302-40EB-A8B9-CEA6596DA2D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC560BEB-68FC-43D2-A96A-97417CABE119}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -64,10 +28,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{8B4DE3A7-F476-4224-B17E-270D46B8097C} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
-		{EC560BEB-68FC-43D2-A96A-97417CABE119} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {281C331D-5A42-42E4-AA0A-E82FB88EA18C}
