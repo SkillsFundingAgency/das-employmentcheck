@@ -69,7 +69,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 var settings = s.GetService<IOptions<HmrcApiSettings>>().Value;
 
                 var clientBuilder = new HttpClientBuilder()
-                    .WithDefaultHeaders()
                     .WithLogging(s.GetService<ILoggerFactory>());
 
                 var httpClient = clientBuilder.Build();
