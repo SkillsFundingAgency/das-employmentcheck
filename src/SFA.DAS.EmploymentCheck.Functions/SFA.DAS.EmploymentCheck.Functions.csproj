@@ -10,7 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.4" />
-    <PackageReference Include="HMRC.ESFA.Levy.Api.Client" Version="2.0.0" />
+    <PackageReference Include="HMRC.ESFA.Levy.Api.Client" Version="2.0.2" />
+    <PackageReference Include="HMRC.ESFA.Levy.Api.Types" Version="2.0.2" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.18.0" />
