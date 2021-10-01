@@ -34,11 +34,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
             {
                 return false;
             }
-            catch (ApiHttpException e)
-            {
-                _logger.LogError(e, "Error calling HMRC : " + e.ResponseBody);
-                throw;
-            }
         }
     }
 }
