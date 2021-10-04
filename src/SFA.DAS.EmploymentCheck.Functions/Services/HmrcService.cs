@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
             try
             {
                 var response = await _apprenticeshipLevyService.GetEmploymentStatus(token.AccessCode, payeScheme,
-                    nationalInsuranceNumber, startDate, endDate);
+                    nationalInsuranceNumber.Trim(), startDate, endDate);
                 return response.Employed;
             }
             catch (ApiHttpException e) when (e.HttpCode == 404)
