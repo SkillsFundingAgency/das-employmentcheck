@@ -47,11 +47,11 @@ jobs:
   parameters:
     AzureSubscription: ${{ parameters.ServiceConnection }}
     ServerName: $(SharedSQLServerFQDN)
-    DatabaseName: $(DatabaseName)
+    DatabaseNameArmOutput: DatabaseName
     SqlUsername: $(SharedSQLServerUsername)
     SqlPassword: $(SharedSQLServerPassword)
     DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
     RunBlockOnPossibleDataLoss: ${{ parameters.RunBlockOnPossibleDataLoss }}
     Environment: ${{ parameters.Environment }}
-    pool: DAS - Continuous Deployment Agents
-    dependsOn: DeployFunctionApp
+    Pool: DAS - Continuous Deployment Agents
+    DependsOn: DeployFunctionApp
