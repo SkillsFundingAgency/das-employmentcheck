@@ -75,9 +75,6 @@
         },
         "logAnalyticsWorkspaceName": {
             "type": "string"
-        },
-        "databaseName": {
-            "type": "string"
         }
     },
     "variables": {
@@ -85,7 +82,8 @@
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
-        "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]"
+        "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
+        "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]"
     },
     "resources": [
         {
@@ -277,7 +275,7 @@
                 },
                 "parameters": {
                     "databaseName": {
-                        "value": "[parameters('databaseName')]"
+                        "value": "[variables('databaseName')]"
                     },
                     "sqlServerName": {
                         "value": "[parameters('sharedSQLServerName')]"
@@ -309,6 +307,10 @@
         "FunctionAppName": {
             "type": "string",
             "value": "[variables('functionAppName')]"
+        },
+        "DatabaseName": {
+            "type": "string",
+            "value": "[variables('databaseName')]"
         }
     }
 }
