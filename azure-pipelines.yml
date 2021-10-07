@@ -30,7 +30,8 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/0.4.8
+    ##TO DO: revert this to most recent tag
+    ref: refs/heads/DASD-9084-FixAppBuildSonarCloudCondition
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
