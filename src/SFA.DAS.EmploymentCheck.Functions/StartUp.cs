@@ -31,27 +31,39 @@ namespace SFA.DAS.EmploymentCheck.Functions
 #if DEBUG
             configBuilder.AddJsonFile("local.settings.json", optional: true);
 #endif
-            configBuilder.AddAzureTableStorage(options =>
-            {
-                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-                options.EnvironmentName = configuration["EnvironmentName"];
-                options.PreFixConfigurationKeys = false;
-            });
+            //configBuilder.AddAzureTableStorage(options =>
+            //{
+            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+            //    options.EnvironmentName = configuration["EnvironmentName"];
+            //    options.PreFixConfigurationKeys = false;
+            //});
 
             var config = configBuilder.Build();
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
 
             builder.Services.AddOptions();
 
+            // Mediatr configuration
             builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
 
+            // TODO: Learners API Configuration
+            builder.Services.Configure<LearnersApiConfiguration>(config.GetSection("LearnersApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<LearnersApiConfiguration>>().Value);
+
+            // Accounts API Configuration
             builder.Services.Configure<AccountsApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiConfiguration>>().Value);
+
+            // HMRC API Settings
             builder.Services.Configure<HmrcApiSettings>(config.GetSection("HmrcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiSettings>>().Value);
+
+            // Token Service API Configuration
             builder.Services.Configure<TokenServiceApiClientConfiguration>(config.GetSection("TokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value);
+
+            // Application Settings
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 

@@ -28,27 +28,58 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
 
         public async Task<Unit> Handle(CheckApprenticeCommand request, CancellationToken cancellationToken)
         {
+            var thisMethodName = "***** CheckApprenticeCommandHandler.Handle(CheckApprenticeCommand request, CancellationToken cancellationToken) *****";
+            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+
             try
             {
+                _logger.LogInformation($"{messagePrefix} Executing GetAccountPayeSchemes() for apprentice {request.Apprentice.ULN}, account {request.Apprentice.AccountId}.");
                 var payeSchemes = await GetAccountPayeSchemes(request.Apprentice.AccountId);
-                bool checkPassed = false;
-                foreach (var payeScheme in payeSchemes)
+
+                if(payeSchemes != null && payeSchemes.Count > 0)
                 {
-                    checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request.Apprentice.NationalInsuranceNumber, request.Apprentice.StartDate, request.Apprentice.EndDate);
-                    if (checkPassed)
+                    _logger.LogInformation($"{messagePrefix} GetAccountPayeSchemes() returned {payeSchemes.Count} PAYE schemes.");
+
+                    bool checkPassed = false;
+                    int i = 0;
+
+                    try
                     {
-                        break;
+                        foreach (var payeScheme in payeSchemes)
+                        {
+                            ++i;
+                            _logger.LogInformation($"{messagePrefix} Scheme {i} of {payeSchemes.Count} Executing HMRC API [IsNationalInsuranceNumberRelatedToPayeScheme] with Apprentice Id {request.Apprentice.Id}, PAYE Scheme {payeScheme}, StartDate {request.Apprentice.StartDate}, EndDate {request.Apprentice.EndDate}");
+
+                            checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request, request.Apprentice.StartDate, request.Apprentice.EndDate);
+                            _logger.LogInformation($"{messagePrefix} HMRC API [IsNationalInsuranceNumberRelatedToPayeScheme] returned {checkPassed}");
+
+                            if (checkPassed)
+                            {
+                                break;
+                            }
+                        }
+
+                        _logger.LogInformation($"{messagePrefix} Executing StoreEmploymentCheckResult().");
+                        await StoreEmploymentCheckResult(request.Apprentice, checkPassed);
+                        _logger.LogInformation($"{messagePrefix} Executing StoreEmploymentCheckResult() completed.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
                     }
                 }
-
-                await StoreEmploymentCheckResult(request.Apprentice, checkPassed);
-                return Unit.Value;
+                else
+                {
+                    _logger.LogInformation($"{messagePrefix} GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError(e, "Error handling CheckApprenticeCommand");
-                throw;
+                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
+
+            _logger.LogInformation($"{messagePrefix} Completed.");
+            return Unit.Value;
         }
 
         private async Task StoreEmploymentCheckResult(ApprenticeToVerifyDto apprentice, bool checkPassed)

@@ -4,23 +4,24 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Activities
 {
-    public class CheckApprentice
+    public class GetLearnersNationalInsuranceNumbers
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<CheckApprentice> _logger;
+        private readonly ILogger<GetLearnersNationalInsuranceNumbers> _logger;
 
-        public CheckApprentice(IMediator mediator, ILogger<CheckApprentice> logger)
+        public GetLearnersNationalInsuranceNumbers(
+            IMediator mediator,
+            ILogger<GetLearnersNationalInsuranceNumbers> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(CheckApprentice))]
+        [FunctionName(nameof(GetLearnersNationalInsuranceNumbers))]
         public async Task Verify([ActivityTrigger] ApprenticeToVerifyDto apprentice)
         {
             var thisMethodName = "*** CheckApprentice.Verify([ActivityTrigger] ApprenticeToVerifyDto apprentice) activity";
@@ -28,8 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
 
             try
             {
-                // Send MediatR request to get the apprentices for the employment check
-                await _mediator.Send(new CheckApprenticeCommand(apprentice));
             }
             catch (Exception ex)
             {
@@ -38,3 +37,4 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         }
     }
 }
+

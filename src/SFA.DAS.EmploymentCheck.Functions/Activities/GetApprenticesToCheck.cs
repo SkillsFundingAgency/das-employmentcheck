@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Azure.WebJobs;
@@ -25,10 +24,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         [FunctionName(nameof(GetApprenticesToCheck))]
         public async Task<List<ApprenticeToVerifyDto>> Get([ActivityTrigger] object input)
         {
-            _logger.LogInformation("Getting apprentices to check.");
-            var apprenticesToCheck = await _mediator.Send(new GetApprenticesToVerifyRequest());
-            var apprenticesToCheckCount = apprenticesToCheck.ApprenticesToVerify.Count;
-            _logger.LogInformation("{payableLegalEntitiesCount} apprentices to check.", apprenticesToCheckCount);
+            var thisMethodName = "***** GetApprenticesToCheck.Get([ActivityTrigger] object input) activity *****";
+            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+
+            GetApprenticesToVerifyResult apprenticesToCheck = null;
+            try
+            {
+                // Send MediatR request to get the apprentices for the employment check
+                apprenticesToCheck = await _mediator.Send(new GetApprenticesToVerifyRequest());
+
+                if(apprenticesToCheck != null && apprenticesToCheck != null && apprenticesToCheck.ApprenticesToVerify.Count > 0)
+                {
+                    _logger.LogInformation($"{messagePrefix} ***** MediatR request GetApprenticesToVerifyRequest() returned {apprenticesToCheck.ApprenticesToVerify.Count} apprentices. *****");
+                }
+                else
+                {
+                    _logger.LogInformation($"{messagePrefix} ***** MediatR request [GetApprenticesToVerifyRequest()] returned null or zero apprentices. *****");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"{messagePrefix} ***** Exception caught - {ex.Message}. {ex.StackTrace} *****");
+            }
 
             return apprenticesToCheck.ApprenticesToVerify;
         }

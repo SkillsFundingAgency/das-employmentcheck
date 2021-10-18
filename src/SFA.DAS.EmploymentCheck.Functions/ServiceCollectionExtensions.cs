@@ -11,6 +11,7 @@ using SFA.DAS.EmploymentCheck.Functions.Clients;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Services;
+using SFA.DAS.EmploymentCheck.Functions.Services.Fakes;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
@@ -23,15 +24,32 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             serviceCollection.AddHttpClient();
             serviceCollection.AddTransient<IAccountsApiClient, AccountsApiClient>();
+
+#if DEBUG
+            // For local development use the Stubs
+            serviceCollection.AddTransient<IAccountsService, AccountsServiceStub>();
+            serviceCollection.AddSingleton<IRandomNumberService, RandomNumberService>(); // used by the HrmcServiceStub
+            serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
+
+#else
             serviceCollection.AddTransient<IAccountsService, AccountsService>();
             serviceCollection.AddTransient<IHmrcService, HmrcService>();
+#endif
+
+
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton(new AzureServiceTokenProvider());
             }
 
+#if DEBUG
+            // For local development use the EmploymentChecksRepositoryStub
+            serviceCollection.AddTransient<IEmploymentChecksRepository, EmploymentChecksRepositoryStub>();
+#else
             serviceCollection.AddTransient<IEmploymentChecksRepository, EmploymentChecksRepository>();
+#endif
+
             serviceCollection.AddHmrcClient();
             serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
             {

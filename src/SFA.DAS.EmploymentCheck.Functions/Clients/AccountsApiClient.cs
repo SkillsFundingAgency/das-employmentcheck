@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
@@ -16,31 +17,52 @@ namespace SFA.DAS.EmploymentCheck.Functions.Clients
         private IWebHostEnvironment _hostingEnvironment;
         private AccountsApiConfiguration _configuration;
         private IAzureClientCredentialHelper _azureClientCredentialHelper;
+        private ILogger<IAccountsApiClient> _logger;
 
         public AccountsApiClient(
             IHttpClientFactory httpClientFactory,
             AccountsApiConfiguration apiConfiguration,
             IWebHostEnvironment hostingEnvironment,
-            IAzureClientCredentialHelper azureClientCredentialHelper)
+            IAzureClientCredentialHelper azureClientCredentialHelper,
+            ILogger<IAccountsApiClient> logger)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);
             _hostingEnvironment = hostingEnvironment;
             _configuration = apiConfiguration;
             _azureClientCredentialHelper = azureClientCredentialHelper;
+            _logger = logger;
         }
 
 
         public async Task<TResponse> Get<TResponse>(string url)
         {
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-            await AddAuthenticationHeader(httpRequestMessage);
+            var thisMethodName = "AccountsApiClient.Get<TResponse>(string url)";
+            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
-            var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+            _logger.LogInformation($"{messagePrefix} Started.");
 
-            response.EnsureSuccessStatusCode();
+            string json = string.Empty;
 
-            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            try
+            {
+                _logger.LogInformation($"{messagePrefix} Executing Http Get Request to {url}.");
+                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+                await AddAuthenticationHeader(httpRequestMessage);
+
+                var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                _logger.LogInformation($"{messagePrefix} Http Get Request returned {json}.");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            _logger.LogInformation($"{messagePrefix} Completed.");
             return JsonConvert.DeserializeObject<TResponse>(json);
         }
 

@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Models;
@@ -17,29 +19,61 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private ILogger<EmploymentChecksRepository> _logger;
 
-        public EmploymentChecksRepository(ApplicationSettings applicationSettings, AzureServiceTokenProvider azureServiceTokenProvider)
+        public EmploymentChecksRepository(
+            ApplicationSettings applicationSettings, 
+            AzureServiceTokenProvider azureServiceTokenProvider,
+            ILogger<EmploymentChecksRepository> logger)
         {
             _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
+            _logger = logger;
         }
 
         public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
         {
-            await using (var connection = await CreateConnection())
+            var thisMethodName = "EmploymentChecksRepository.EmploymentChecksRepository.GetApprenticesToCheck()";
+            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+
+            _logger.LogInformation($"{messagePrefix} Started.");
+
+            List<ApprenticeToVerifyDto> apprentices = null;
+
+            try
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("@batchSize", _batchSize);
+                _logger.LogInformation($"{messagePrefix} Executing database query [SELECT TOP({_batchSize}) * FROM[dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate].");
+                await using (var connection = await CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@batchSize", _batchSize);
 
-                await connection.OpenAsync();
-                var result = await connection.QueryAsync<EmploymentCheckResult>(
-                    sql: "SELECT TOP (@batchSize) * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
-                    param: parameters,
-                    commandType: CommandType.Text);
+                    await connection.OpenAsync();
+                    var result = await connection.QueryAsync<EmploymentCheckResult>(
+                        sql: "SELECT TOP (@batchSize) * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
+                        param: parameters,
+                        commandType: CommandType.Text);
 
-                return result.Select(x => new ApprenticeToVerifyDto(x.Id, x.AccountId, x.NationalInsuranceNumber, x.ULN, x.UKPRN, x.ApprenticeshipId, x.MinDate, x.MaxDate)).ToList();
+                    if(result != null && result.Any() )
+                    {
+                        _logger.LogInformation($"{messagePrefix} Database query returned {apprentices.Count} apprentices.");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"{messagePrefix} Database query returned null/zero apprentices.");
+                    }
+
+                    apprentices = result.Select(x => new ApprenticeToVerifyDto(x.Id, x.AccountId, x.NationalInsuranceNumber, x.ULN, x.UKPRN, x.ApprenticeshipId, x.MinDate, x.MaxDate)).ToList();
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            _logger.LogInformation($"{messagePrefix} Completed.");
+            return apprentices;
         }
 
         public async Task SaveEmploymentCheckResult(long id, bool result)

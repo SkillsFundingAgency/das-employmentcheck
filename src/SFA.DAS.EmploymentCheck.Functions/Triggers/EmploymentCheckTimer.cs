@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Triggers
         {
             log.LogInformation("Auto Triggering EmploymentCheckOrchestrator");
 
-            string instanceId = await starter.StartNewAsync(nameof(EmploymentCheckOrchestrator));
+            string instanceId = await starter.StartNewAsync(nameof(TestEmploymentCheckOrchestrator));
 
             log.LogInformation($"Auto Started EmploymentCheckOrchestrator with ID = '{instanceId}'.");
         }
