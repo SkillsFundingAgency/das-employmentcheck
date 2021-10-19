@@ -81,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
         {
             var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
 
-            Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for ULN: {uln}.");
+            Log.WriteLog(_logger, thisMethodName, $"Starting employment check save for ULN: {uln}.");
 
             var parameters = new DynamicParameters();
 
@@ -100,17 +100,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
                 commandType: CommandType.Text);
             if (exists != null)
             {
-                Log.WriteLog(_logger, thisMethodName, $"Deleting row for ULN: {uln} to allow saving new version.");
-                await connection.ExecuteAsync(
-                    "DELETE FROM [SavedEmploymentCheckResults] WHERE Id = @id",
+                Log.WriteLog(_logger, thisMethodName, $"Updating row for ULN: {uln}.");
+                return await connection.ExecuteAsync(
+                    "UPDATE [SavedEmploymentCheckResults] SET Id = @id, ULN = @ULN, Result = @result WHERE Id = @id",
                     parameters,
                     commandType: CommandType.Text);
             }
-
-            return await connection.ExecuteAsync(
-                sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, ULN, Result) VALUES (@id, @ULN, @result)",
-                param: parameters,
-                commandType: CommandType.Text);
+            else
+            {
+                Log.WriteLog(_logger, thisMethodName, $"Saving row for ULN: {uln}");
+                return await connection.ExecuteAsync(
+                    sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, ULN, Result) VALUES (@id, @ULN, @result)",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            }
         }
     }
 }
