@@ -94,6 +94,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
             return await Task.FromResult(0);
         }
 
+        public Task<int> SaveEmploymentCheckResult(long id, long uln, bool result)
+        {
+            //Required for stub
+            //TO DO Remove when stub is removed
+            throw new NotImplementedException();
+        }
+
         private async Task<SqlConnection> CreateConnection()
         {
             var connection = new SqlConnection(_connectionString);

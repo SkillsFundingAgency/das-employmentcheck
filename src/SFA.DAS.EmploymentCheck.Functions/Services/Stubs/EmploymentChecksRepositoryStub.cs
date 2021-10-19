@@ -55,8 +55,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
             return await Task.FromResult(learners);
         }
 
-        public async Task<int> SaveEmploymentCheckResult(long id, bool result)
+        public  async Task<int> SaveEmploymentCheckResult(long id, bool result)
         {
+            //Left in place since stub and true implementation use the same interface
             var thisMethodName = "***** FakeEmploymentChecksRepository.SaveEmploymentCheckResult() *****";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
@@ -72,6 +73,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
             await connection.OpenAsync();
             return await connection.ExecuteAsync(
                 sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, Result) VALUES (@id, @result)",
+                param: parameters,
+                commandType: CommandType.Text);
+        }
+
+        public async Task<int> SaveEmploymentCheckResult(long id, long uln, bool result)
+        {
+            var thisMethodName = "***** FakeEmploymentChecksRepository.SaveEmploymentCheckResult() *****";
+            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+
+            _logger.LogInformation($"{messagePrefix} ***** SaveEmploymentCheckResult() for ULN {uln}. *****");
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("id", id, DbType.Int64);
+            parameters.Add("ULN", uln, DbType.Int64);
+            parameters.Add("result", result, DbType.Boolean);
+
+            var connection = new SqlConnection(_connectionString);
+
+            await connection.OpenAsync();
+            return await connection.ExecuteAsync(
+                sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, ULN, Result) VALUES (@id, @ULN, @result)",
                 param: parameters,
                 commandType: CommandType.Text);
         }
