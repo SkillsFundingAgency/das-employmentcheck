@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
 {
     public class CheckApprenticeCommand : IRequest
     {

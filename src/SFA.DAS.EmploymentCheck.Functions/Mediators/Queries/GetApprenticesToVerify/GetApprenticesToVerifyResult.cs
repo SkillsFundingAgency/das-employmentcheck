@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
 {
     public class GetApprenticesToVerifyResult
     {

@@ -30,8 +30,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
 
         public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
         {
-            var thisMethodName = "***** FakeEmploymentChecksRepository.GetApprenticesToCheck() *****";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            //var thisMethodName = "***** EmploymentChecksRepositoryStub.GetApprenticesToCheck() *****";
+            //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             var learners = new List<ApprenticeToVerifyDto>();
             for (int i = 0; i < 1; i++)
@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
                 learners.Add(learner);
             }
 
-            _logger.LogInformation($"{messagePrefix} ***** GetApprenticesToCheck()] returned {learners.Count} apprentices. *****");
+            //_logger.LogInformation($"{messagePrefix} ***** GetApprenticesToCheck()] returned {learners.Count} apprentices. *****");
             return await Task.FromResult(learners);
         }
 

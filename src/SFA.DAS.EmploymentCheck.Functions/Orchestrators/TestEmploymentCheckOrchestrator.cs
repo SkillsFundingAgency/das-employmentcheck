@@ -21,8 +21,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
         [FunctionName(nameof(TestEmploymentCheckOrchestrator))]
         public async Task RunOrchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = "***** 1. EmploymentCheckOrchestrator.RunOrchestrator() *****";
+            var thisMethodName = "\n\n***** EmploymentCheckOrchestrator.RunOrchestrator() *****";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+
+            _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------ EmploymentCheckOrchestrator.RunOrchestrator() STARTED -------\n----------------------------------------------------------------------\n\n");
 
             try
             {
@@ -31,31 +33,36 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 
                 if (apprenticesToCheck != null && apprenticesToCheck.Count > 0)
                 {
-                    _logger.LogInformation($"{messagePrefix} ***** 1.1 GetApprenticesRequiringEmploymentStatusCheck(context)] returned {apprenticesToCheck.Count} apprenctices. *****");
+                    _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------ GetApprentices() returned {apprenticesToCheck.Count} apprenctice(s) -------\n----------------------------------------------------------------------\n\n");
 
                     // Iterate through the list of apprentices to call the HMRC Employment Check API
+                    int i = 0;
                     foreach (var apprentice in apprenticesToCheck)
                     {
+                        ++i;
                         try
                         {
                             // Call the HMRC Employment Check API to check this apprentice
+                            //_logger.LogInformation($"{messagePrefix} Checking learner {i} (ULN:{apprentice.ULN}) of {apprenticesToCheck.Count}");
                             await context.CallActivityAsync(nameof(CheckApprentice), apprentice);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogInformation($"{messagePrefix} ***** 1.2 Exception caught *****. {ex.Message}. {ex.StackTrace}");
+                            _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------  Exception caught: {ex.Message}. {ex.StackTrace} -------\n----------------------------------------------------------------------\n\n");
                         }
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"{messagePrefix} ***** 1.1 GetApprenticesToCheck() activity returned null/zero apprentices. *****");
+                    _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------  GetApprenticesToCheck() activity returned null/zero apprentices -------\n----------------------------------------------------------------------\n\n");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix} ***** 1. Exception caught. {ex.Message}. {ex.StackTrace} *****");
+                _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------  Exception caught: {ex.Message}. {ex.StackTrace} -------\n----------------------------------------------------------------------\n\n");
             }
+
+            _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------ EmploymentCheckOrchestrator.RunOrchestrator() COMPLETED -------\n----------------------------------------------------------------------\n\n");
         }
     }
 }

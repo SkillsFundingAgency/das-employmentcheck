@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetLearnersNationalInsuranceNumbers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Activities
 {
@@ -22,18 +24,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         }
 
         [FunctionName(nameof(GetLearnersNationalInsuranceNumbers))]
-        public async Task Verify([ActivityTrigger] ApprenticeToVerifyDto apprentice)
+        public async Task<List<LearnerNationalnsuranceNumberDto>> Get([ActivityTrigger] object input)
         {
-            var thisMethodName = "*** CheckApprentice.Verify([ActivityTrigger] ApprenticeToVerifyDto apprentice) activity";
+            var thisMethodName = "***** Activity: GetLearnersNationalInsuranceNumbers.Get()";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
+            GetLearnersNationalInsuranceNumbersResult learnerNationalnsuranceNumberResult = null;
             try
             {
+                // Send MediatR request to get the apprentices for the employment check
+                learnerNationalnsuranceNumberResult = await _mediator.Send(new GetLearnersNationalInsuranceNumbersRequest());
             }
             catch (Exception ex)
             {
                 _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
+
+            return learnerNationalnsuranceNumberResult.LearnerNationalnsuranceNumberDtos;
         }
     }
 }
