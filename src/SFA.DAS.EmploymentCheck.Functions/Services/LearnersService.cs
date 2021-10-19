@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services
 {

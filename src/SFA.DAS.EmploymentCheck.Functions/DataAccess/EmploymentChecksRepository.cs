@@ -8,7 +8,7 @@ using Dapper;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.DataAccess

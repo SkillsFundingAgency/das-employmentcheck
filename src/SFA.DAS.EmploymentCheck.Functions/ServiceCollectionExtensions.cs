@@ -11,7 +11,7 @@ using SFA.DAS.EmploymentCheck.Functions.Clients;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Services;
-using SFA.DAS.EmploymentCheck.Functions.Services.Fakes;
+using SFA.DAS.EmploymentCheck.Functions.Services.Stubs;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;

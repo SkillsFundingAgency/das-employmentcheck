@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.DataAccess;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Services;
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
                         foreach (var payeScheme in payeSchemes)
                         {
                             ++i;
-                            Log.WriteLog(_logger, thisMethodName, $"Checking scheme number [{i}] of [{payeSchemes.Count}] for scheme name: [{payeScheme}],  StartDate [{request.Apprentice.StartDate}], EndDate [{request.Apprentice.EndDate}]");
+                            Log.WriteLog(_logger, thisMethodName, $"Checking learner ULN: [{request.Apprentice.ULN}] is on PAYE scheme name [{payeScheme}] for the period [{request.Apprentice.StartDate}] to [{request.Apprentice.EndDate}] (scheme [{i}] of [{payeSchemes.Count}])");
 
                             checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request, request.Apprentice.StartDate, request.Apprentice.EndDate);
 

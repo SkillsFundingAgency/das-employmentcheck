@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Clients;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Services
+namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 {
     public class AccountsServiceStub : IAccountsService
     {

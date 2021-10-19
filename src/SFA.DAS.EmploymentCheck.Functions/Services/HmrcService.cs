@@ -4,7 +4,6 @@ using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
-using SFA.DAS.EmploymentCheck.Functions.Services.Fakes;
 using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services
