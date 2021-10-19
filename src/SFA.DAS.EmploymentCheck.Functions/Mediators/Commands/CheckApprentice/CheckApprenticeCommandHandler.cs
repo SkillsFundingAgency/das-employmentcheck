@@ -79,7 +79,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
 
         private async Task StoreEmploymentCheckResult(ApprenticeToVerifyDto apprentice, bool checkPassed)
         {
-            await _repository.SaveEmploymentCheckResult(apprentice.Id, checkPassed);
+            await _repository.SaveEmploymentCheckResult(apprentice.Id, apprentice.ULN, checkPassed);
         }
 
         private async Task<List<string>> GetAccountPayeSchemes(long accountId)
