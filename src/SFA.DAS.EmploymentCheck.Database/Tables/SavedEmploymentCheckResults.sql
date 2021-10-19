@@ -1,6 +1,5 @@
 ﻿CREATE TABLE [dbo].[SavedEmploymentCheckResults]
 (
-	[Id] INT NOT NULL PRIMARY KEY, 
-    [CheckId] BIGINT NOT NULL, 
+    [Id] BIGINT NOT NULL PRIMARY KEY, 
     [Result] BIT NOT NULL
 )

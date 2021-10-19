@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
             return await Task.FromResult(learners);
         }
 
-        public async Task SaveEmploymentCheckResult(long id, bool result)
+        public async Task<int> SaveEmploymentCheckResult(long id, bool result)
         {
             var thisMethodName = "***** FakeEmploymentChecksRepository.SaveEmploymentCheckResult() *****";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
@@ -70,10 +70,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
             var connection = new SqlConnection(_connectionString);
 
             await connection.OpenAsync();
-            await connection.ExecuteAsync(
-                sql: "[employer_account].[AddPayeToAccount]",
+            return await connection.ExecuteAsync(
+                sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, Result) VALUES (@id, @result)",
                 param: parameters,
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.Text);
         }
     }
 }

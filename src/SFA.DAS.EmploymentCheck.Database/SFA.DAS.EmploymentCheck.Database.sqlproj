@@ -70,7 +70,6 @@
     <Build Include="UserDefinedTypes\UlnTableType.sql" />
     <Build Include="StoredProcedures\StoreEmploymentCheckResult.sql" />
     <Build Include="Tables\EmploymentChecks.sql" />
-    <Build Include="StoredProcedures\SaveEmploymentCheckResult.sql" />
     <Build Include="Tables\SavedEmploymentCheckResults.sql" />
   </ItemGroup>
   <ItemGroup>
