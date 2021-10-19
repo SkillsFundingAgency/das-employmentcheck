@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Functions.Dtos
+﻿namespace SFA.DAS.EmploymentCheck.Functions.Models.Dtos
 {
     public class LearnerNationalnsuranceNumberDto
     {

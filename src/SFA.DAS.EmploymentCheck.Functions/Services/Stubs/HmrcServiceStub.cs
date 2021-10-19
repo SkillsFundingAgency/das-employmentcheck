@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
+namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 {
     public class HmrcServiceStub : IHmrcService
     {

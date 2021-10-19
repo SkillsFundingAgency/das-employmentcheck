@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.DataAccess;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,7 +11,7 @@ using Dapper;
 using Microsoft.IdentityModel.Protocols;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
+namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 {
     public class EmploymentChecksRepositoryStub : IEmploymentChecksRepository
     {

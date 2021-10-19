@@ -5,7 +5,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
@@ -27,7 +27,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 
             try
             {
-                // Get a list apprentices requiring and employment status check
+                /* New Code */
+                // Get list of Learners requiring an employment check
+                var learnersRequiringEmploymentCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
+
+                /* Original Code */
+                // Get a list apprentices requiring an employment check
                 var apprenticesToCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
 
                 if (apprenticesToCheck != null && apprenticesToCheck.Count > 0)

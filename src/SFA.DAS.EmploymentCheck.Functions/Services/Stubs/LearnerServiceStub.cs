@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Functions.Clients;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Services
+namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 {
     public class LearnerServiceStub : ILearnersService
     {

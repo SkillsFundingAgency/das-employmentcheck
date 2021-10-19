@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Activities
