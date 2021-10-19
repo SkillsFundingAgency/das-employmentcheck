@@ -11,17 +11,17 @@ using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Clients
 {
-    public class AccountsApiClient : IAccountsApiClient
+    public class LearnersApiClient : ILearnersApiClient
     {
         private HttpClient _httpClient;
         private IWebHostEnvironment _hostingEnvironment;
-        private AccountsApiConfiguration _configuration;
+        private LearnersApiConfiguration _configuration;
         private IAzureClientCredentialHelper _azureClientCredentialHelper;
         private ILogger<IAccountsApiClient> _logger;
 
-        public AccountsApiClient(
+        public LearnersApiClient(
             IHttpClientFactory httpClientFactory,
-            AccountsApiConfiguration apiConfiguration,
+            LearnersApiConfiguration apiConfiguration,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
             ILogger<IAccountsApiClient> logger)
@@ -37,8 +37,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Clients
 
         public async Task<TResponse> Get<TResponse>(string url)
         {
-            var thisMethodName = "Client: AccountsApiClient.Get()";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "Client: LearnersApiClient.Get()";
+            var messagePrefix = $"\n\n{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             //_logger.LogInformation($"{messagePrefix} Started.");
 

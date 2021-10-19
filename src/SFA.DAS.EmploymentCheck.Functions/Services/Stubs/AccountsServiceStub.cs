@@ -22,8 +22,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
 
         public async Task<AccountDetailViewModel> GetAccountDetail(long accountId)
         {
-            var thisMethodName = "***** AccountsService.GetAccountDetail(long accountId) *****";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            //var thisMethodName = "***** AccountsService.GetAccountDetail(long accountId) *****";
+            //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             var payeSchemesResourceViewModel = new ResourceViewModel();
             payeSchemesResourceViewModel.Id = "1";
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
                 PayeSchemes = new ResourceList(paySchemesResourceViewModelList)
             };
 
-            _logger.LogInformation($"{messagePrefix} ***** STUB Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {accountDetailViewModel.DasAccountName}.");
+            //_logger.LogInformation($"{messagePrefix} ***** STUB Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {accountDetailViewModel.DasAccountName}.");
             return await Task.FromResult(accountDetailViewModel);
         }
     }

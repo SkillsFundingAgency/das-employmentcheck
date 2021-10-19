@@ -1,4 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice;
+﻿using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using System;
 using System.Threading.Tasks;
 

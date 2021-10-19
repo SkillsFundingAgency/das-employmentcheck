@@ -26,11 +26,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
             AccountDetailViewModel account = null;
             try
             {
-                _logger.LogInformation($"{messagePrefix} Executing [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})].");
+                //_logger.LogInformation($"{messagePrefix} Executing [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})].");
 
                 account = await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId}");
 
-                _logger.LogInformation($"{messagePrefix} [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {account.DasAccountName}.");
+                //_logger.LogInformation($"{messagePrefix} [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {account.DasAccountName}.");
 
             }
             catch (Exception ex)

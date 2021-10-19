@@ -1,10 +1,10 @@
 ﻿namespace SFA.DAS.EmploymentCheck.Functions.Dtos
 {
-    public class LearnerNinoDto
+    public class LearnerNationalnsuranceNumberDto
     {
-        public LearnerNinoDto() { }
+        public LearnerNationalnsuranceNumberDto() { }
 
-        public LearnerNinoDto(
+        public LearnerNationalnsuranceNumberDto(
             long uln,
             string nationalInsuranceNumber)
         {

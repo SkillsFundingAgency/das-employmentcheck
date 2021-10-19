@@ -9,7 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Services;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
 {
     public class CheckApprenticeCommandHandler : IRequestHandler<CheckApprenticeCommand>
     {
@@ -28,17 +28,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
 
         public async Task<Unit> Handle(CheckApprenticeCommand request, CancellationToken cancellationToken)
         {
-            var thisMethodName = "***** CheckApprenticeCommandHandler.Handle(CheckApprenticeCommand request, CancellationToken cancellationToken) *****";
+            var thisMethodName = "***** Command: CheckApprenticeCommandHandler.Handle() *****";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             try
             {
-                _logger.LogInformation($"{messagePrefix} Executing GetAccountPayeSchemes() for apprentice {request.Apprentice.ULN}, account {request.Apprentice.AccountId}.");
+                //_logger.LogInformation($"{messagePrefix} Executing GetAccountPayeSchemes() for apprentice {request.Apprentice.ULN}, account {request.Apprentice.AccountId}.");
                 var payeSchemes = await GetAccountPayeSchemes(request.Apprentice.AccountId);
 
                 if(payeSchemes != null && payeSchemes.Count > 0)
                 {
-                    _logger.LogInformation($"{messagePrefix} GetAccountPayeSchemes() returned {payeSchemes.Count} PAYE schemes.");
+                    //_logger.LogInformation($"{messagePrefix} GetAccountPayeSchemes() returned {payeSchemes.Count} PAYE schemes.");
 
                     bool checkPassed = false;
                     int i = 0;
@@ -48,10 +48,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
                         foreach (var payeScheme in payeSchemes)
                         {
                             ++i;
-                            _logger.LogInformation($"{messagePrefix} Scheme {i} of {payeSchemes.Count} Executing HMRC API [IsNationalInsuranceNumberRelatedToPayeScheme] with Apprentice Id {request.Apprentice.Id}, PAYE Scheme {payeScheme}, StartDate {request.Apprentice.StartDate}, EndDate {request.Apprentice.EndDate}");
+                            _logger.LogInformation($"{messagePrefix} {payeSchemes.Count} scheme(s) found for learner (ULN: {request.Apprentice.ULN}). Checking scheme number {i} (name: {payeScheme}) for StartDate {request.Apprentice.StartDate} and EndDate {request.Apprentice.EndDate}");
 
                             checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request, request.Apprentice.StartDate, request.Apprentice.EndDate);
-                            _logger.LogInformation($"{messagePrefix} HMRC API [IsNationalInsuranceNumberRelatedToPayeScheme] returned {checkPassed}");
+                            //_logger.LogInformation($"{messagePrefix} HMRC API [IsNationalInsuranceNumberRelatedToPayeScheme] returned {checkPassed}");
 
                             if (checkPassed)
                             {
@@ -59,9 +59,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
                             }
                         }
 
-                        _logger.LogInformation($"{messagePrefix} Executing StoreEmploymentCheckResult().");
+                        _logger.LogInformation($"{messagePrefix} Saving learner (ULN: {request.Apprentice.ULN}) EmploymentStatus = {checkPassed}");
                         await StoreEmploymentCheckResult(request.Apprentice, checkPassed);
-                        _logger.LogInformation($"{messagePrefix} Executing StoreEmploymentCheckResult() completed.");
                     }
                     catch (Exception ex)
                     {
@@ -78,7 +77,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
                 _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            _logger.LogInformation($"{messagePrefix} Completed.");
+            //_logger.LogInformation($"{messagePrefix} Completed.");
             return Unit.Value;
         }
 

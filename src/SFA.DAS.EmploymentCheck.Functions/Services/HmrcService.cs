@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Services.Fakes;
 using SFA.DAS.TokenService.Api.Client;
 
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
             var thisMethodName = $"HmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payScheme {payeScheme}, [nationalInsuranceNumber for apprentice id {checkApprenticeCommand.Apprentice.Id}], startDate {startDate}, endDate {endDate})";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
-            _logger.LogInformation($"{messagePrefix} Started.");
+            //_logger.LogInformation($"{messagePrefix} Started.");
 
             var token = await _tokenService.GetPrivilegedAccessTokenAsync();
 
@@ -41,8 +41,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
                     endDate);
                 return response.Employed;
             }
-            catch (ApiHttpException e) when (e.HttpCode == 404)
+            catch (ApiHttpException ex) when (ex.HttpCode == 404)
             {
+                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
                 return false;
             }
         }

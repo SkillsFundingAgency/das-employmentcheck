@@ -6,7 +6,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
-using SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Activities
 {
@@ -15,7 +15,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         private readonly IMediator _mediator;
         private readonly ILogger<GetApprenticesToCheck> _logger;
 
-        public GetApprenticesToCheck(IMediator mediator, ILogger<GetApprenticesToCheck> logger)
+        public GetApprenticesToCheck(
+            IMediator mediator,
+            ILogger<GetApprenticesToCheck> logger)
         {
             _mediator = mediator;
             _logger = logger;
@@ -24,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         [FunctionName(nameof(GetApprenticesToCheck))]
         public async Task<List<ApprenticeToVerifyDto>> Get([ActivityTrigger] object input)
         {
-            var thisMethodName = "***** GetApprenticesToCheck.Get([ActivityTrigger] object input) activity *****";
+            var thisMethodName = "***** Activity: GetApprenticesToCheck.Get() *****";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             GetApprenticesToVerifyResult apprenticesToCheck = null;
@@ -33,14 +35,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
                 // Send MediatR request to get the apprentices for the employment check
                 apprenticesToCheck = await _mediator.Send(new GetApprenticesToVerifyRequest());
 
-                if(apprenticesToCheck != null && apprenticesToCheck != null && apprenticesToCheck.ApprenticesToVerify.Count > 0)
-                {
-                    _logger.LogInformation($"{messagePrefix} ***** MediatR request GetApprenticesToVerifyRequest() returned {apprenticesToCheck.ApprenticesToVerify.Count} apprentices. *****");
-                }
-                else
-                {
-                    _logger.LogInformation($"{messagePrefix} ***** MediatR request [GetApprenticesToVerifyRequest()] returned null or zero apprentices. *****");
-                }
+                //if(apprenticesToCheck != null && apprenticesToCheck != null && apprenticesToCheck.ApprenticesToVerify.Count > 0)
+                //{
+                //    _logger.LogInformation($"{messagePrefix} ***** MediatR request GetApprenticesToVerifyRequest() returned {apprenticesToCheck.ApprenticesToVerify.Count} apprentices. *****");
+                //}
+                //else
+                //{
+                //    _logger.LogInformation($"{messagePrefix} ***** MediatR request [GetApprenticesToVerifyRequest()] returned null or zero apprentices. *****");
+                //}
             }
             catch (Exception ex)
             {

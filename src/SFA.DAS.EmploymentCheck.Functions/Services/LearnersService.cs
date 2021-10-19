@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
             _logger = logger;
         }
 
-        public async Task<IList<LearnerNinoDto>> GetLearnersNationalInsuranceNumbers(LearnerNinoDto[] learnersNinosDto)
+        public async Task<LearnerNationalnsuranceNumberDto[]> GetLearnersNationalInsuranceNumbers(LearnerNationalnsuranceNumberDto[] learnersNinosDto)
         {
             var thisMethodName = $"LearnersService.GetLearnersNationalInsuranceNumbers(LearnerNinoDto[] learnersNinosDto)";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
@@ -29,9 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
                 _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            var result = new List<LearnerNinoDto>();
-
-            return await Task.FromResult(result);
+            return await Task.FromResult(learnersNinosDto);
         }
     }
 }

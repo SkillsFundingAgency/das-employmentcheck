@@ -7,7 +7,7 @@ using System.IO;
 using MediatR;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions

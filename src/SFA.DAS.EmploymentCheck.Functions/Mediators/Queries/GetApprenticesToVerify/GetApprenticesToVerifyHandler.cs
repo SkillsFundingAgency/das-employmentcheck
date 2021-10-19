@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
 {
     public class GetApprenticesToVerifyHandler : IRequestHandler<GetApprenticesToVerifyRequest, GetApprenticesToVerifyResult>
     {
@@ -34,16 +34,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Queries.GetApprenticesToVerify
                 // Call the data repository to get the apprentices to check
                 apprenticesToCheck = await _repository.GetApprenticesToCheck();
 
-                if(apprenticesToCheck != null && apprenticesToCheck.Count > 0)
+                if(apprenticesToCheck == null)
                 {
-                    _logger.LogInformation($"{messagePrefix} [_repository.GetApprenticesToCheck()] returned {apprenticesToCheck.Count} apprentices.");
+                    //_logger.LogInformation($"{messagePrefix} [_repository.GetApprenticesToCheck()] returned null/zero apprentices.");
+                    apprenticesToCheck = new List<ApprenticeToVerifyDto>(); // return empty list rather than null
                 }
-                else
-                {
-                    _logger.LogInformation($"{messagePrefix} [_repository.GetApprenticesToCheck()] returned null/zero apprentices.");
-                }
-
-
             }
             catch(Exception ex)
             {
