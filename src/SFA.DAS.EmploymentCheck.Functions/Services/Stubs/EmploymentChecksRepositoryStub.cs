@@ -3,8 +3,12 @@ using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
+using Microsoft.IdentityModel.Protocols;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
 {
@@ -12,6 +16,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
     {
         private IRandomNumberService _randomNumberService;
         private readonly ILogger<IEmploymentChecksRepository> _logger;
+
+        private readonly string _connectionString =
+            System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
 
         public EmploymentChecksRepositoryStub(
             IRandomNumberService randomNumberService,
@@ -48,9 +55,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
             return await Task.FromResult(learners);
         }
 
-        public Task SaveEmploymentCheckResult(long id, bool result)
+        public async Task SaveEmploymentCheckResult(long id, bool result)
         {
-            throw new NotImplementedException();
+            var thisMethodName = "***** FakeEmploymentChecksRepository.SaveEmploymentCheckResult() *****";
+            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+
+            _logger.LogInformation($"{messagePrefix} ***** SaveEmploymentCheckResult() for Id {id}. *****");
+
+            var parameters = new DynamicParameters();
+
+            parameters.Add("id", id, DbType.Int64);
+            parameters.Add("result", result, DbType.Boolean);
+
+            var connection = new SqlConnection(_connectionString);
+
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(
+                sql: "[employer_account].[AddPayeToAccount]",
+                param: parameters,
+                commandType: CommandType.StoredProcedure);
         }
     }
 }
