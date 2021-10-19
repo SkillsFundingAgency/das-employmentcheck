@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 {
@@ -21,10 +22,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
         [FunctionName(nameof(TestEmploymentCheckOrchestrator))]
         public async Task RunOrchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = "\n\n***** EmploymentCheckOrchestrator.RunOrchestrator() *****";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
-
-            _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------ EmploymentCheckOrchestrator.RunOrchestrator() STARTED -------\n----------------------------------------------------------------------\n\n");
+            var thisMethodName = "EmploymentCheckOrchestrator.RunOrchestrator()";
+            Log.WriteLog(_logger, thisMethodName, "Started");
 
             try
             {
@@ -33,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 
                 if (apprenticesToCheck != null && apprenticesToCheck.Count > 0)
                 {
-                    _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------ GetApprentices() returned {apprenticesToCheck.Count} apprenctice(s) -------\n----------------------------------------------------------------------\n\n");
+                    Log.WriteLog(_logger, thisMethodName, $"GetApprentices() returned {apprenticesToCheck.Count} apprenctice(s)");
 
                     // Iterate through the list of apprentices to call the HMRC Employment Check API
                     int i = 0;
@@ -43,26 +42,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
                         try
                         {
                             // Call the HMRC Employment Check API to check this apprentice
-                            //_logger.LogInformation($"{messagePrefix} Checking learner {i} (ULN:{apprentice.ULN}) of {apprenticesToCheck.Count}");
+                            Log.WriteLog(_logger, thisMethodName, $"Checking employment status of learner [{i}] (ULN:{apprentice.ULN}) of [{apprenticesToCheck.Count}]");
                             await context.CallActivityAsync(nameof(CheckApprentice), apprentice);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------  Exception caught: {ex.Message}. {ex.StackTrace} -------\n----------------------------------------------------------------------\n\n");
+                            _logger.LogInformation($"{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
                         }
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------  GetApprenticesToCheck() activity returned null/zero apprentices -------\n----------------------------------------------------------------------\n\n");
+                    Log.WriteLog(_logger, thisMethodName, $"GetApprenticesToCheck() activity returned null/zero apprentices");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------  Exception caught: {ex.Message}. {ex.StackTrace} -------\n----------------------------------------------------------------------\n\n");
+                _logger.LogInformation($"{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
 
-            _logger.LogInformation($"{messagePrefix}\n----------------------------------------------------------------------\n------ EmploymentCheckOrchestrator.RunOrchestrator() COMPLETED -------\n----------------------------------------------------------------------\n\n");
+            Log.WriteLog(_logger, thisMethodName, "COMPLETED");
         }
     }
 }
