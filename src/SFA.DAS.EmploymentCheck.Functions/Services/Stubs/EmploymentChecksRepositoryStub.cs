@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.IdentityModel.Protocols;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
 {
@@ -58,10 +59,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
         public  async Task<int> SaveEmploymentCheckResult(long id, bool result)
         {
             //Left in place since stub and true implementation use the same interface
-            var thisMethodName = "***** FakeEmploymentChecksRepository.SaveEmploymentCheckResult() *****";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
 
-            _logger.LogInformation($"{messagePrefix} ***** SaveEmploymentCheckResult() for Id {id}. *****");
+            Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for Id: {id}");
 
             var parameters = new DynamicParameters();
 
@@ -79,10 +79,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
 
         public async Task<int> SaveEmploymentCheckResult(long id, long uln, bool result)
         {
-            var thisMethodName = "***** FakeEmploymentChecksRepository.SaveEmploymentCheckResult() *****";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
 
-            _logger.LogInformation($"{messagePrefix} ***** SaveEmploymentCheckResult() for ULN {uln}. *****");
+            Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for ULN: {uln}.");
 
             var parameters = new DynamicParameters();
 
@@ -93,6 +92,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Fakes
             var connection = new SqlConnection(_connectionString);
 
             await connection.OpenAsync();
+
+            //checks if item is already saved and deletes it if exists, saves doing it manually when re-running
+            var exists = await connection.ExecuteScalarAsync(
+                "SELECT * FROM [SavedEmploymentCheckResults] WHERE Id = @id",
+                parameters,
+                commandType: CommandType.Text);
+            if (exists != null)
+            {
+                Log.WriteLog(_logger, thisMethodName, $"Deleting row for ULN: {uln} to allow saving new version.");
+                await connection.ExecuteAsync(
+                    "DELETE FROM [SavedEmploymentCheckResults] WHERE Id = @id",
+                    parameters,
+                    commandType: CommandType.Text);
+            }
+
             return await connection.ExecuteAsync(
                 sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, ULN, Result) VALUES (@id, @ULN, @result)",
                 param: parameters,
