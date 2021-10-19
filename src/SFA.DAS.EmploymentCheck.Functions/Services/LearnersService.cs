@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services
@@ -18,54 +20,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
 
         public async Task<LearnerNationalnsuranceNumberDto[]> GetLearnersNationalInsuranceNumbers(LearnerNationalnsuranceNumberDto[] learnersNinosDto)
         {
-            var thisMethodName = $"LearnersService.GetLearnersNationalInsuranceNumbers(LearnerNinoDto[] learnersNinosDto)";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = $"LearnersService.GetLearnersNationalInsuranceNumbers()";
 
+            // TODO: Implement API call
             try
             {
+                //account = await _learnersApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId}");
+                //Log.WriteLog(_logger, thisMethodName, $"Database query returned [0] learners.");
+                //_logger.LogInformation($"{messagePrefix} [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {account.DasAccountName}.");
+
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return await Task.FromResult(learnersNinosDto);
         }
+
+        public Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentCheck(SqlConnection sqlConnection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
-
-//public class AccountsService : IAccountsService
-//{
-//    private readonly IAccountsApiClient _accountsApiClient;
-//    private ILogger<AccountsService> _logger;
-
-//    public AccountsService(
-//        IAccountsApiClient accountsApiClient,
-//        ILogger<AccountsService> logger)
-//    {
-//        _accountsApiClient = accountsApiClient;
-//    }
-
-//    public async Task<AccountDetailViewModel> GetAccountDetail(long accountId)
-//    {
-//        var thisMethodName = "AccountsService.GetAccountDetail(long accountId)";
-//        var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
-
-//        AccountDetailViewModel account = null;
-//        try
-//        {
-//            _logger.LogInformation($"{messagePrefix} Executing [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})].");
-
-//            account = await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId}");
-
-//            _logger.LogInformation($"{messagePrefix} [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {account.DasAccountName}.");
-
-//        }
-//        catch (Exception ex)
-//        {
-//            _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-//        }
-
-//        return account;
-//    }
-//}

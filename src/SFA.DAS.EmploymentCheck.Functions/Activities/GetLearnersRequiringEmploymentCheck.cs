@@ -24,11 +24,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         }
 
         [FunctionName(nameof(GetLearnersRequiringEmploymentCheck))]
-        public async Task<List<LearnersRequiringEmploymentCheckDto>> Get([ActivityTrigger] object input)
+        public async Task<List<LearnerRequiringEmploymentCheckDto>> Get([ActivityTrigger] object input)
         {
             var thisMethodName = "Activity: GetLearnersRequiringEmploymentCheck.Get()";
 
             GetLearnersRequiringEmploymentCheckResult learnersRequiringEmploymentCheckResult = null;
+
             try
             {
                 // Send MediatR request to get the learners for the employment check

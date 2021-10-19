@@ -23,13 +23,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
         public async Task RunOrchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = "EmploymentCheckOrchestrator.RunOrchestrator()";
-            Log.WriteLog(_logger, thisMethodName, "Started");
+            Log.WriteLog(_logger, thisMethodName, "Started", context);
 
             try
             {
-                /* New Code */
+                /* Strategic Code */
                 // Get list of Learners requiring an employment check
-                var learnersRequiringEmploymentCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
+                //var learnersRequiringEmploymentCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersRequiringEmploymentCheck), null);
+
+                // Get learners National Insurance Numbers
+                //var learnersNationalInsuranceNumbers = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersNationalInsuranceNumbers), null);
+
+                // Get learner employer PAYE schemes
+                //var employerPayeSchemes = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetEmployerPayeSchemes), null);
+
+                // Check learner employment status
+                //var learnersEmploymentStatuses = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
+
+                // ------------------------------------------------------------------------------------------------------------------------------------------
 
                 /* Original Code */
                 // Get a list apprentices requiring an employment check
@@ -37,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 
                 if (apprenticesToCheck != null && apprenticesToCheck.Count > 0)
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"GetApprentices() returned {apprenticesToCheck.Count} apprenctice(s)");
+                    Log.WriteLog(_logger, thisMethodName, $"GetApprentices() returned {apprenticesToCheck.Count} apprenctice(s)", context);
 
                     // Iterate through the list of apprentices to call the HMRC Employment Check API
                     int i = 0;
@@ -47,26 +58,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
                         try
                         {
                             // Call the HMRC Employment Check API to check this apprentice
-                            Log.WriteLog(_logger, thisMethodName, $"Checking employment status of learner [{i}] (ULN:{apprentice.ULN}) of [{apprenticesToCheck.Count}]");
+                            Log.WriteLog(_logger, thisMethodName, $"Checking employment status of learner [{i}] (ULN:{apprentice.ULN}) of [{apprenticesToCheck.Count}]", context);
                             await context.CallActivityAsync(nameof(CheckApprentice), apprentice);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogInformation($"{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+                            _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
                         }
                     }
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"GetApprenticesToCheck() activity returned null/zero apprentices");
+                    Log.WriteLog(_logger, thisMethodName, $"GetApprenticesToCheck() activity returned null/zero apprentices", context);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
 
-            Log.WriteLog(_logger, thisMethodName, "COMPLETED");
+            Log.WriteLog(_logger, thisMethodName, "COMPLETED", context);
         }
     }
 }

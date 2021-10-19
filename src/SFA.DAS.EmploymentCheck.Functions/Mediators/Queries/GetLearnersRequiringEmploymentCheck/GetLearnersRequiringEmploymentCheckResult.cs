@@ -5,11 +5,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetLearnersRequiri
 {
     public class GetLearnersRequiringEmploymentCheckResult
     {
-        public GetLearnersRequiringEmploymentCheckResult(List<LearnersRequiringEmploymentCheckDto> learnersRequiringEmploymentCheckDtos)
+        public GetLearnersRequiringEmploymentCheckResult(List<LearnerRequiringEmploymentCheckDto> learnersRequiringEmploymentCheckDtos)
         {
             LearnersRequiringEmploymentCheckDtos = learnersRequiringEmploymentCheckDtos;
         }
 
-        public List<LearnersRequiringEmploymentCheckDto> LearnersRequiringEmploymentCheckDtos { get; }
+        public List<LearnerRequiringEmploymentCheckDto> LearnersRequiringEmploymentCheckDtos { get; }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Activities
 {
-    class GetEmployerPayeSchemeData
+    public class GetLearnersEmployerAccount
     {
     }
 }

@@ -56,12 +56,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             return await Task.FromResult(learners);
         }
 
-        public  async Task<int> SaveEmploymentCheckResult(long id, bool result)
+        public  async Task<int> SaveEmploymentCheckResult(
+            long id,
+            bool result)
         {
             //Left in place since stub and true implementation use the same interface
             var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
 
-            Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for Id: {id}");
+            Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for Id: [{id}]");
 
             var parameters = new DynamicParameters();
 
@@ -81,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
         {
             var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
 
-            Log.WriteLog(_logger, thisMethodName, $"Starting employment check save for ULN: {uln}.");
+            Log.WriteLog(_logger, thisMethodName, $"Starting employment check save for ULN: [{uln}].");
 
             var parameters = new DynamicParameters();
 
@@ -114,6 +116,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
                     param: parameters,
                     commandType: CommandType.Text);
             }
+        }
+
+        public Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection)
+        {
+            throw new NotImplementedException();
         }
     }
 }
