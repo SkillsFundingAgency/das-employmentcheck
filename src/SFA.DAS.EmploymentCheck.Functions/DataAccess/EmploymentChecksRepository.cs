@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Models;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
 {
@@ -32,9 +33,63 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
             _logger = logger;
         }
 
+        public async Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection)
+        {
+            var thisMethodName = "EmploymentChecksRepository.GetLearnersRequiringEmploymentChecks()";
+
+            List<LearnerRequiringEmploymentCheckDto> learnerRequiringEmploymentCheckDto = null;
+            try
+            {
+                if (sqlConnection != null)
+                {
+                    await using (sqlConnection)
+                    {
+
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@batchSize", _batchSize);
+
+                        await sqlConnection.OpenAsync();
+                        var result = await sqlConnection.QueryAsync<EmploymentCheckResult>(
+                            sql: "SELECT TOP (@batchSize) * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
+                            param: parameters,
+                            commandType: CommandType.Text);
+
+                        if (result != null && result.Any())
+                        {
+                            Log.WriteLog(_logger, thisMethodName, $"Database query returned {learnerRequiringEmploymentCheckDto.Count} learners.");
+                            learnerRequiringEmploymentCheckDto = result.Select(x => new LearnerRequiringEmploymentCheckDto(
+                                x.Id,
+                                x.ULN,
+                                x.AccountId,
+                                x.NationalInsuranceNumber,
+                                x.UKPRN,
+                                x.ApprenticeshipId,
+                                x.MinDate,
+                                x.MaxDate)).ToList();
+                        }
+                        else
+                        {
+                            Log.WriteLog(_logger, thisMethodName, $"Database query returned [0] learners.");
+                            learnerRequiringEmploymentCheckDto = new List<LearnerRequiringEmploymentCheckDto>(); // return an empty list rather than null
+                        }
+                    }
+                }
+                else
+                {
+                    Log.WriteLog(_logger, thisMethodName, "*** ERROR ****: sqlConnection string is NULL, no learners requiring employment check were retrieved.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            return learnerRequiringEmploymentCheckDto;
+        }
+
         public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
         {
-            var thisMethodName = "EmploymentChecksRepository.EmploymentChecksRepository.GetApprenticesToCheck()";
+            var thisMethodName = "EmploymentChecksRepository.GetApprenticesToCheck()";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             //_logger.LogInformation($"{messagePrefix} Started.");

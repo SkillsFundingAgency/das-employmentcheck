@@ -24,8 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
 
         public async Task<GetApprenticesToVerifyResult> Handle(GetApprenticesToVerifyRequest request, CancellationToken cancellationToken)
         {
-            var thisMethodName = "***** GetApprenticesToVerifyHandler.Handle() *****";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "GetApprenticesToVerifyHandler.Handle()";
 
             List<ApprenticeToVerifyDto> apprenticesToCheck = null;
 
@@ -42,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
             }
             catch(Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new GetApprenticesToVerifyResult(apprenticesToCheck);

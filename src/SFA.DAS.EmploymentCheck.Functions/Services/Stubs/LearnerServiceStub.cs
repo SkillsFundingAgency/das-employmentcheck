@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
@@ -13,6 +15,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             ILogger<ILearnersService> logger)
         {
             _logger = logger;
+        }
+
+        public Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentCheck(SqlConnection sqlConnection)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<LearnerNationalnsuranceNumberDto[]> GetLearnersNationalInsuranceNumbers(LearnerNationalnsuranceNumberDto[] learnersNinosDto)
@@ -30,6 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 
             return await Task.FromResult(learnersNinosDto);
         }
+
     }
 }
 
