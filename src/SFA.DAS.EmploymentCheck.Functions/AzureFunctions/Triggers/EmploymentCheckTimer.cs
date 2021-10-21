@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Triggers
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
     public class EmploymentCheckTimer
     {

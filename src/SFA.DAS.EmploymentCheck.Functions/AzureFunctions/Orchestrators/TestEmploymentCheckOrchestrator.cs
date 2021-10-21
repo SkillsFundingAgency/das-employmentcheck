@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class TestEmploymentCheckOrchestrator
     {
@@ -69,7 +69,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
                 //var learnersNationalInsuranceNumbers = context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersNationalInsuranceNumbers), learnersRequiringEmploymentCheck);
 
                 // Get learner employer PAYE schemes
-                //var employerPayeSchemes = context.CallActivityAsync<List<EmployerPayeSchemesDto>>(nameof(GetEmployerPayeSchemes), learnersRequiringEmploymentCheck);
+                var learnerRequiringEmploymentCheckDto = new List<LearnerRequiringEmploymentCheckDto>();
+                var employerPayeSchemes = context.CallActivityAsync<List<EmployerPayeSchemesDto>>(nameof(GetEmployerPayeSchemesActivity), learnerRequiringEmploymentCheckDto);
 
                 //await Task.WhenAll();
 

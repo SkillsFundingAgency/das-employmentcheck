@@ -8,22 +8,22 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetLearnersNationalInsuranceNumbers;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Activities
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class GetLearnersNationalInsuranceNumbers
+    public class GetLearnersNationalInsuranceNumbersActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetLearnersNationalInsuranceNumbers> _logger;
+        private readonly ILogger<GetLearnersNationalInsuranceNumbersActivity> _logger;
 
-        public GetLearnersNationalInsuranceNumbers(
+        public GetLearnersNationalInsuranceNumbersActivity(
             IMediator mediator,
-            ILogger<GetLearnersNationalInsuranceNumbers> logger)
+            ILogger<GetLearnersNationalInsuranceNumbersActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(GetLearnersNationalInsuranceNumbers))]
+        [FunctionName(nameof(GetLearnersNationalInsuranceNumbersActivity))]
         public async Task<List<LearnerNationalnsuranceNumberDto>> Get([ActivityTrigger] object input)
         {
             var thisMethodName = "***** Activity: GetLearnersNationalInsuranceNumbers.Get()";

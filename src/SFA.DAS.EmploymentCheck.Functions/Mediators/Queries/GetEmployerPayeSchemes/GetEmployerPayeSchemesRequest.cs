@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using System.Collections.Generic;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSchemes
@@ -6,12 +7,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
     public class GetEmployerPayeSchemesRequest
         : IRequest<GetEmployerPayeSchemesResult>
     {
-        public GetEmployerPayeSchemesRequest(IList<long> accountIds)
+        public GetEmployerPayeSchemesRequest(IList<EmployerPayeSchemesDto> employerPayeSchemesDtos)
         {
-            AccountIds = accountIds;
+            EmployerPayeSchemesDtos = employerPayeSchemesDtos;
         }
 
-        public IList<long> AccountIds { get; }
+        public IList<EmployerPayeSchemesDto> EmployerPayeSchemesDtos { get; }
     }
 }
 

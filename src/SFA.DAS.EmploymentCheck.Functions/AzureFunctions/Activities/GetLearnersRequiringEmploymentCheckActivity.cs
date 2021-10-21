@@ -8,22 +8,22 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetLearnersRequiringEmploymentCheck;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Activities
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class GetLearnersRequiringEmploymentCheck
+    public class GetLearnersRequiringEmploymentCheckActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetLearnersRequiringEmploymentCheck> _logger;
+        private readonly ILogger<GetLearnersRequiringEmploymentCheckActivity> _logger;
 
-        public GetLearnersRequiringEmploymentCheck(
+        public GetLearnersRequiringEmploymentCheckActivity(
             IMediator mediator,
-            ILogger<GetLearnersRequiringEmploymentCheck> logger)
+            ILogger<GetLearnersRequiringEmploymentCheckActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(GetLearnersRequiringEmploymentCheck))]
+        [FunctionName(nameof(GetLearnersRequiringEmploymentCheckActivity))]
         public async Task<List<LearnerRequiringEmploymentCheckDto>> Get([ActivityTrigger] object input)
         {
             var thisMethodName = "Activity: GetLearnersRequiringEmploymentCheck.Get()";
