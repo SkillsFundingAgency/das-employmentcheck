@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Activities
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class CheckApprentice
     {

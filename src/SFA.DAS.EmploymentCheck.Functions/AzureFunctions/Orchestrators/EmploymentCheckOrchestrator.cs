@@ -7,7 +7,7 @@
 //using SFA.DAS.EmploymentCheck.Functions.Activities;
 //using SFA.DAS.EmploymentCheck.Functions.Dtos;
 
-//namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
+//namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 //{
 //    public class EmploymentCheckOrchestrator
 //    {

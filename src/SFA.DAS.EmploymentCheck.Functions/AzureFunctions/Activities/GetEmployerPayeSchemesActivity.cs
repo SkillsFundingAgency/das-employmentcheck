@@ -8,34 +8,57 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSchemes;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using AgileObjects.AgileMapper;
+using AgileObjects.AgileMapper.Extensions;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Activities
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class GetEmployerPayeSchemes
+    public class GetEmployerPayeSchemesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetEmployerPayeSchemes> _logger;
+        private readonly ILogger<GetEmployerPayeSchemesActivity> _logger;
 
-        public GetEmployerPayeSchemes(
+        public GetEmployerPayeSchemesActivity(
             IMediator mediator,
-            ILogger<GetEmployerPayeSchemes> logger)
+            ILogger<GetEmployerPayeSchemesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(GetEmployerPayeSchemes))]
-        public async Task<IList<EmployerPayeSchemesDto>> Get([ActivityTrigger] IList<long> accountIds)
+        [FunctionName(nameof(Activities.GetEmployerPayeSchemesActivity))]
+        public async Task<IList<EmployerPayeSchemesDto>> Get([ActivityTrigger] IList<LearnerRequiringEmploymentCheckDto> learnerRequiringEmploymentCheckDtos)
         {
-            var thisMethodName = "Activity: GetEmployerPayeSchemes.Get()";
+            var thisMethodName = "GetEmployerPayeSchemesActivity.Get()";
+
+            IList<EmployerPayeSchemesDto> employerPayeSchemesDtos = null;
+            try
+            {
+                // map the list of learners input param to the required type for the employer paye scheme parameter
+                employerPayeSchemesDtos = learnerRequiringEmploymentCheckDtos.Map().ToANew<List<EmployerPayeSchemesDto>>();
+
+                // make the call to get the paye schemes
+                var result =  await GetEmployerPayeSchemes(employerPayeSchemesDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"{thisMethodName}\n\nException caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            return employerPayeSchemesDtos;
+        }
+
+        private async Task<IList<EmployerPayeSchemesDto>> GetEmployerPayeSchemes(IList<EmployerPayeSchemesDto> employerPayeSchemesDtos)
+        {
+            var thisMethodName = "GetEmployerPayeSchemesActivity.GetEmployerPayeSchemes()";
 
             GetEmployerPayeSchemesResult getEmployerPayeSchemesResult = null;
             try
             {
-                if (accountIds != null && accountIds.Count > 0)
+                if (employerPayeSchemesDtos != null && employerPayeSchemesDtos.Count > 0)
                 {
                     // Send MediatR request to get the employer paye schemes
-                    getEmployerPayeSchemesResult = await _mediator.Send(new GetEmployerPayeSchemesRequest(accountIds));
+                    getEmployerPayeSchemesResult = await _mediator.Send(new GetEmployerPayeSchemesRequest(employerPayeSchemesDtos));
 
                     if (getEmployerPayeSchemesResult != null
                         && getEmployerPayeSchemesResult.EmployerPayeSchemesDtos != null

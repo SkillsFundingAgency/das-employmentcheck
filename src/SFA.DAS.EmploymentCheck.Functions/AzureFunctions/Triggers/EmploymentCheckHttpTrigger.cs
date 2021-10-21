@@ -4,9 +4,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Triggers
+namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
     public static class EmploymentCheckHttpTrigger
     {

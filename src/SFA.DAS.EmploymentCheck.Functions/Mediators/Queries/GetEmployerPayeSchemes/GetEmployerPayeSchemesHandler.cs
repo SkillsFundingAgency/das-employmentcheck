@@ -28,7 +28,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
             _logger = logger;
         }
 
-
         public async Task<GetEmployerPayeSchemesResult> Handle(
             GetEmployerPayeSchemesRequest getEmployerPayeSchemesRequest,
             CancellationToken cancellationToken)
@@ -36,16 +35,34 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
             var thisMethodName = "GetEmployerPayeSchemesResult.Handle(): ";
 
             GetEmployerPayeSchemesResult getEmployerPayeSchemesResult = new GetEmployerPayeSchemesResult(new List<EmployerPayeSchemesDto>());
+            try
+            {
+                // call the application methods with the application types instead of the medaiatr request wrapper type
+                getEmployerPayeSchemesResult = await GetEmployerPayeSchemes(getEmployerPayeSchemesRequest.EmployerPayeSchemesDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"{thisMethodName}\n\nException caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            return getEmployerPayeSchemesResult;
+        }
+
+        private async Task<GetEmployerPayeSchemesResult> GetEmployerPayeSchemes(IList<EmployerPayeSchemesDto> employerPayeSchemesDtos)
+        {
+            var thisMethodName = "GetEmployerPayeSchemesHandler.GetEmployerPayeSchemes(): ";
+
+            GetEmployerPayeSchemesResult getEmployerPayeSchemesResult = new GetEmployerPayeSchemesResult(new List<EmployerPayeSchemesDto>());
 
             try
             {
-                if (getEmployerPayeSchemesRequest != null && getEmployerPayeSchemesRequest.AccountIds.Count > 0)
+                if (employerPayeSchemesDtos != null && employerPayeSchemesDtos.Count > 0)
                 {
-                    foreach(var accountId in getEmployerPayeSchemesRequest.AccountIds)
+                    foreach (var employerPayeSchemesDto in employerPayeSchemesDtos)
                     {
                         try
                         {
-                            var employerPayeSchemeDto = await GetEmployerPayeSchemes(accountId);
+                            var employerPayeSchemeDto = await GetAccountDetail(employerPayeSchemesDto);
                             if (employerPayeSchemeDto != null)
                             {
                                 getEmployerPayeSchemesResult.EmployerPayeSchemesDtos.Add(employerPayeSchemeDto);
@@ -53,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogInformation($"{thisMethodName} *** Exception caught - FAILED TO RETRIEVE PAYE SCHEMES FOR ACCOUNT ID {accountId} *** \n\n{ex.Message}. {ex.StackTrace}");
+                            _logger.LogInformation($"{thisMethodName} *** Exception caught - FAILED TO RETRIEVE PAYE SCHEMES FOR ACCOUNT ID {employerPayeSchemesDto.AccountId} *** \n\n{ex.Message}. {ex.StackTrace}");
                         }
                     }
                 }
@@ -75,32 +92,36 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
             return getEmployerPayeSchemesResult;
         }
 
-        private async Task<EmployerPayeSchemesDto> GetEmployerPayeSchemes(
-            long accountId)
+        private async Task<EmployerPayeSchemesDto> GetAccountDetail(
+            EmployerPayeSchemesDto employerPayeSchemesDto)
         {
-            var thisMethodName = "GetEmployerPayeSchemesResult.Handle(): ";
-
-            AccountDetailViewModel accountDetailViewModel = null;
-            EmployerPayeSchemesDto employerPayeSchemesDto = new EmployerPayeSchemesDto();
+            var thisMethodName = "GetEmployerPayeSchemesHandler.GetAccountDetail(): ";
 
             try
             {
-                accountDetailViewModel = await _accountsService.GetAccountDetail(accountId);
-                if(accountDetailViewModel!= null && accountDetailViewModel.PayeSchemes != null && accountDetailViewModel.PayeSchemes.Count > 0)
+                if(employerPayeSchemesDto != null)
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} paye schemes(s).");
+                    var accountDetailViewModel = await _accountsService.GetAccountDetail(employerPayeSchemesDto.AccountId);
 
-                    employerPayeSchemesDto.AccountId = accountId;
-                    employerPayeSchemesDto.PayeSchemes = accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList();
+                    if (accountDetailViewModel != null && accountDetailViewModel.PayeSchemes != null && accountDetailViewModel.PayeSchemes.Count > 0)
+                    {
+                        Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} paye schemes(s).");
+
+                        employerPayeSchemesDto.PayeSchemes = accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList();
+                    }
+                    else
+                    {
+                        Log.WriteLog(_logger, thisMethodName, $"RETURNED NULL/ZERO PAYE SCHEMES.");
+                    }
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"RETURNED NULL/ZERO PAYE SCHEMES.");
+                    Log.WriteLog(_logger, thisMethodName, $"*** EmployerPayeSchemeDto input parameter is null ***");
                 }
             }
             catch(Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName}\n\nException caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return employerPayeSchemesDto;

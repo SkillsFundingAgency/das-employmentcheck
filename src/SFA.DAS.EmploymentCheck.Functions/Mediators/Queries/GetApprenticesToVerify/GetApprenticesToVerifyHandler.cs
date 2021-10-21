@@ -35,9 +35,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
             try
             {
                 // Call the data repository to get the apprentices to check
-                var apprentices = await _repository
-                    .GetLearnersRequiringEmploymentChecks(new SqlConnection(_connectionString));
-                
+                var apprentices = await _repository.GetLearnersRequiringEmploymentChecks(new SqlConnection(_connectionString));
+
                 if(apprentices == null || apprentices.Count == 0)
                 {
                     //_logger.LogInformation($"{messagePrefix} [_repository.GetApprenticesToCheck()] returned null/zero apprentices.");
