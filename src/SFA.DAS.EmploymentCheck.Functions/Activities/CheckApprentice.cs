@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
 
             try
             {
-                // Send MediatR request to get the apprentices for the employment check
+                // Send MediatR request to check the apprentices employment status
                 await _mediator.Send(new CheckApprenticeCommand(apprentice));
             }
             catch (Exception ex)

@@ -27,22 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
 
             try
             {
-                /* Strategic Code */
-                // Get list of Learners requiring an employment check
-                //var learnersRequiringEmploymentCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersRequiringEmploymentCheck), null);
-
-                // Get learners National Insurance Numbers
-                //var learnersNationalInsuranceNumbers = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersNationalInsuranceNumbers), null);
-
-                // Get learner employer PAYE schemes
-                //var employerPayeSchemes = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetEmployerPayeSchemes), null);
-
-                // Check learner employment status
-                //var learnersEmploymentStatuses = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
-
-                // ------------------------------------------------------------------------------------------------------------------------------------------
-
-                /* Original Code */
+                 /* Original Code */
                 // Get a list apprentices requiring an employment check
                 var apprenticesToCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
 
@@ -71,6 +56,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Orchestrators
                 {
                     Log.WriteLog(_logger, thisMethodName, $"GetApprenticesToCheck() activity returned null/zero apprentices", context);
                 }
+
+                // ------------------------------------------------------------------------------------------------------------------------------------------
+
+                /* Strategic Code */
+                // Get Learners requiring an employment check
+                //var learnersRequiringEmploymentCheck = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersRequiringEmploymentCheck), null);
+
+                //var learnersRequiringEmploymentCheck = apprenticesToCheck;
+
+                // Get learners National Insurance Numbers
+                //var learnersNationalInsuranceNumbers = context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetLearnersNationalInsuranceNumbers), learnersRequiringEmploymentCheck);
+
+                // Get learner employer PAYE schemes
+                //var employerPayeSchemes = context.CallActivityAsync<List<EmployerPayeSchemesDto>>(nameof(GetEmployerPayeSchemes), learnersRequiringEmploymentCheck);
+
+                //await Task.WhenAll();
+
+                // Check learner employment status
+                //var learnersEmploymentStatuses = await context.CallActivityAsync<List<ApprenticeToVerifyDto>>(nameof(GetApprenticesToCheck), null);
+
+                // ------------------------------------------------------------------------------------------------------------------------------------------
             }
             catch (Exception ex)
             {

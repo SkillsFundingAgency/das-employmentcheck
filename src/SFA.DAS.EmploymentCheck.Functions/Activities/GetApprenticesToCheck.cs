@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Activities
         [FunctionName(nameof(GetApprenticesToCheck))]
         public async Task<List<ApprenticeToVerifyDto>> Get([ActivityTrigger] object input)
         {
-            var thisMethodName = "***** Activity: GetApprenticesToCheck.Get() *****";
+            var thisMethodName = "Activity: GetApprenticesToCheck.Get()";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             GetApprenticesToVerifyResult apprenticesToCheck = null;

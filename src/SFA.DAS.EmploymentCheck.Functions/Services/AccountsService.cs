@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Clients;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services
 {
@@ -20,25 +21,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services
 
         public async Task<AccountDetailViewModel> GetAccountDetail(long accountId)
         {
-            var thisMethodName = "AccountsService.GetAccountDetail(long accountId)";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "AccountsService.GetAccountDetail()";
 
-            AccountDetailViewModel account = null;
+            AccountDetailViewModel accountDetailViewModel = null;
             try
             {
-                //_logger.LogInformation($"{messagePrefix} Executing [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})].");
-
-                account = await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId}");
-
-                //_logger.LogInformation($"{messagePrefix} [_accountsApiClient.Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {account.DasAccountName}.");
-
+                accountDetailViewModel = await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId})");
+                if(accountDetailViewModel != null && accountDetailViewModel.PayeSchemes != null && accountDetailViewModel.PayeSchemes.Count > 0)
+                {
+                    Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes.");
+                }
+                {
+                    Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return account;
+            return accountDetailViewModel;
         }
     }
 }
