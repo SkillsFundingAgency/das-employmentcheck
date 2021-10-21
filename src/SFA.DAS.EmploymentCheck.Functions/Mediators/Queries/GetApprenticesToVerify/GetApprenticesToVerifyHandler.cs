@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -13,6 +15,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
     {
         private IEmploymentChecksRepository _repository;
         private ILogger<GetApprenticesToVerifyHandler> _logger;
+        private readonly string _connectionString =
+            System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
 
         public GetApprenticesToVerifyHandler(
             IEmploymentChecksRepository repository,
@@ -31,12 +35,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
             try
             {
                 // Call the data repository to get the apprentices to check
-                apprenticesToCheck = await _repository.GetApprenticesToCheck();
-
-                if(apprenticesToCheck == null)
+                var apprentices = await _repository
+                    .GetLearnersRequiringEmploymentChecks(new SqlConnection(_connectionString));
+                
+                if(apprentices == null || apprentices.Count == 0)
                 {
                     //_logger.LogInformation($"{messagePrefix} [_repository.GetApprenticesToCheck()] returned null/zero apprentices.");
                     apprenticesToCheck = new List<ApprenticeToVerifyDto>(); // return empty list rather than null
+                }
+                else
+                {
+                    apprenticesToCheck = (List<ApprenticeToVerifyDto>)apprentices
+                            .Select<LearnerRequiringEmploymentCheckDto, ApprenticeToVerifyDto>(x => x);
                 }
             }
             catch(Exception ex)

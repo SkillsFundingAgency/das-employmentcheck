@@ -120,14 +120,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             }
         }
 
-        public async Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection)
+        public async Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection connection)
         {
             var thisMethodName = "EmploymentChecksRepositoryStub.GetLearnersRequiringEmploymentChecks()";
             List<LearnerRequiringEmploymentCheckDto> learnersRequiringEmploymentCheckDto = null;
 
-            await sqlConnection.OpenAsync();
+            await connection.OpenAsync();
 
-            var result = await sqlConnection.QueryAsync<EmploymentCheckResult>(
+            var result = await connection.QueryAsync<EmploymentCheckResult>(
                 "SELECT TOP 5 * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
                 commandType: CommandType.Text);
 

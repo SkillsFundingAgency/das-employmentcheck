@@ -18,6 +18,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Models.Dtos
             EndDate = endDate;
         }
 
+        public static implicit operator ApprenticeToVerifyDto(LearnerRequiringEmploymentCheckDto source)
+        {
+            return new ApprenticeToVerifyDto
+            {
+                AccountId = source.AccountId,
+                ApprenticeshipId = source.ApprenticeshipId,
+                EndDate = source.EmploymentCheckInEffectiveDate,
+                Id = source.Id,
+                NationalInsuranceNumber = source.NationalInsuranceNumber,
+                StartDate = source.EmploymentCheckEffectiveDate,
+                UKPRN = source.UKPRN,
+                ULN = source.ULN
+            };
+        }
+
         public long Id { get; set; }
 
         public long AccountId { get; set; }
