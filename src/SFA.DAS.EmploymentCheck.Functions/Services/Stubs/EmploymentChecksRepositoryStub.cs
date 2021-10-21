@@ -35,23 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             long id,
             bool result)
         {
-            //Left in place since stub and true implementation use the same interface
-            var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
-
-            Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for Id: [{id}]");
-
-            var parameters = new DynamicParameters();
-
-            parameters.Add("id", id, DbType.Int64);
-            parameters.Add("result", result, DbType.Boolean);
-
-            var connection = new SqlConnection(_connectionString);
-
-            await connection.OpenAsync();
-            return await connection.ExecuteAsync(
-                sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, Result) VALUES (@id, @result)",
-                param: parameters,
-                commandType: CommandType.Text);
+            throw new NotImplementedException("METHOD NOT IN USE, USE OTHER METHOD SIGNATURE: SaveEmploymentCheckResult(long id, long uln, bool result)");
         }
 
         public async Task<int> SaveEmploymentCheckResult(long id, long uln, bool result)
@@ -63,34 +47,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             var parameters = new DynamicParameters();
 
             parameters.Add("id", id, DbType.Int64);
-            parameters.Add("ULN", uln, DbType.Int64);
             parameters.Add("result", result, DbType.Boolean);
+            parameters.Add("checked", true);
 
             var connection = new SqlConnection(_connectionString);
 
             await connection.OpenAsync();
 
-            //checks if item is already saved and updates it if exists, saves doing it manually when re-running
-            var exists = await connection.ExecuteScalarAsync(
-                "SELECT * FROM [SavedEmploymentCheckResults] WHERE Id = @id",
-                parameters,
-                commandType: CommandType.Text);
-            if (exists != null)
-            {
-                Log.WriteLog(_logger, thisMethodName, $"Updating row for ULN: {uln}.");
-                return await connection.ExecuteAsync(
-                    "UPDATE [SavedEmploymentCheckResults] SET Id = @id, ULN = @ULN, Result = @result WHERE Id = @id",
+            Log.WriteLog(_logger, thisMethodName, $"Updating row for ULN: {uln}.");
+            return await connection.ExecuteAsync(
+                "UPDATE [dbo].[EmploymentChecks] SET IsEmployed = @result, LastUpdated = GETDATE(), HasBeenChecked = @checked WHERE Id = @id",
                     parameters,
                     commandType: CommandType.Text);
-            }
-            else
-            {
-                Log.WriteLog(_logger, thisMethodName, $"Saving row for ULN: {uln}");
-                return await connection.ExecuteAsync(
-                    sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, ULN, Result) VALUES (@id, @ULN, @result)",
-                    param: parameters,
-                    commandType: CommandType.Text);
-            }
         }
 
         public async Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection)
