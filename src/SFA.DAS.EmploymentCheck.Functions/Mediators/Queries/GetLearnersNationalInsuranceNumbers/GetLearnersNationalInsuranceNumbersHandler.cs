@@ -33,8 +33,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetLearnersNationa
 
             try
             {
+                bool checkPassed = false;
+                int i = 0;
 
-               // TODO: Call the API
+                //checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request, request.Apprentice.StartDate, request.Apprentice.EndDate);
 
                 if (learnerNationalnsuranceNumberDto == null)
                 {

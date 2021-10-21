@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Clients;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 {
@@ -22,8 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 
         public async Task<AccountDetailViewModel> GetAccountDetail(long accountId)
         {
-            //var thisMethodName = "***** AccountsService.GetAccountDetail(long accountId) *****";
-            //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "STUB AccountsService.GetAccountDetail(): ";
 
             var payeSchemesResourceViewModel = new ResourceViewModel();
             payeSchemesResourceViewModel.Id = "1";
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
                 PayeSchemes = new ResourceList(paySchemesResourceViewModelList)
             };
 
-            //_logger.LogInformation($"{messagePrefix} ***** STUB Get<AccountDetailViewModel>($api/accounts/internal/{accountId})] returned {accountDetailViewModel.DasAccountName}.");
+            Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes.");
             return await Task.FromResult(accountDetailViewModel);
         }
     }
