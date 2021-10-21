@@ -45,8 +45,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
                 }
                 else
                 {
-                    apprenticesToCheck = (List<ApprenticeToVerifyDto>)apprentices
-                            .Select<LearnerRequiringEmploymentCheckDto, ApprenticeToVerifyDto>(x => x);
+                    apprenticesToCheck = apprentices
+                            .Select<LearnerRequiringEmploymentCheckDto, ApprenticeToVerifyDto>(x => x).ToList();
                 }
             }
             catch(Exception ex)
