@@ -35,22 +35,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             long id,
             bool result)
         {
-            //var thisMethodName = "EmploymentChecksRepositoryStub.SaveEmploymentCheckResult()";
-
-            //Log.WriteLog(_logger, thisMethodName, $"Saving employment check result for Id: [{id}]");
-
-            //var parameters = new DynamicParameters();
-
-            //parameters.Add("id", id, DbType.Int64);
-            //parameters.Add("result", result, DbType.Boolean);
-
-            //var connection = new SqlConnection(_connectionString);
-
-            //await connection.OpenAsync();
-            //return await connection.ExecuteAsync(
-            //    sql: "INSERT INTO [SavedEmploymentCheckResults] (Id, Result) VALUES (@id, @result)",
-            //    param: parameters,
-            //    commandType: CommandType.Text);
             throw new NotImplementedException("METHOD NOT IN USE, USE OTHER METHOD SIGNATURE: SaveEmploymentCheckResult(long id, long uln, bool result)");
         }
 
