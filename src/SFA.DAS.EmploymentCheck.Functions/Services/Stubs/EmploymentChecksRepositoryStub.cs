@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.IdentityModel.Protocols;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using SFA.DAS.EmploymentCheck.Functions.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 {
@@ -27,33 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
         {
             _randomNumberService = randomNumberService;
             _logger = logger;
-        }
-
-        public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
-        {
-            //var thisMethodName = "***** EmploymentChecksRepositoryStub.GetApprenticesToCheck() *****";
-            //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
-
-            var learners = new List<ApprenticeToVerifyDto>();
-            for (int i = 0; i < 1; i++)
-            {
-                var learner = new ApprenticeToVerifyDto()
-                {
-                    Id = i,
-                    AccountId = 1,
-                    NationalInsuranceNumber = "12345678",
-                    ULN = 100000001,
-                    UKPRN = 10000001,
-                    ApprenticeshipId = 10,
-                    StartDate = new DateTime(2021, 1, 1),
-                    EndDate = new DateTime(2021, 1, 1)
-                };
-
-                learners.Add(learner);
-            }
-
-            //_logger.LogInformation($"{messagePrefix} ***** GetApprenticesToCheck()] returned {learners.Count} apprentices. *****");
-            return await Task.FromResult(learners);
         }
 
         public  async Task<int> SaveEmploymentCheckResult(
@@ -95,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
 
             await connection.OpenAsync();
 
-            //checks if item is already saved and deletes it if exists, saves doing it manually when re-running
+            //checks if item is already saved and updates it if exists, saves doing it manually when re-running
             var exists = await connection.ExecuteScalarAsync(
                 "SELECT * FROM [SavedEmploymentCheckResults] WHERE Id = @id",
                 parameters,
@@ -118,9 +93,37 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             }
         }
 
-        public Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection)
+        public async Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection)
         {
-            throw new NotImplementedException();
+            var thisMethodName = "EmploymentChecksRepositoryStub.GetLearnersRequiringEmploymentChecks()";
+            List<LearnerRequiringEmploymentCheckDto> learnersRequiringEmploymentCheckDto = null;
+
+            await sqlConnection.OpenAsync();
+
+            var result = await sqlConnection.QueryAsync<EmploymentCheckResult>(
+                "SELECT TOP 5 * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
+                commandType: CommandType.Text);
+
+            if (result != null && result.Any())
+            {
+                learnersRequiringEmploymentCheckDto = result.Select(x => new LearnerRequiringEmploymentCheckDto(
+                    x.Id,
+                    x.ULN,
+                    x.AccountId,
+                    x.NationalInsuranceNumber,
+                    x.UKPRN,
+                    x.ApprenticeshipId,
+                    x.MinDate,
+                    x.MaxDate)).ToList();
+                Log.WriteLog(_logger, thisMethodName, $"Database query returned {learnersRequiringEmploymentCheckDto.Count} learners.");
+            }
+            else
+            {
+                Log.WriteLog(_logger, thisMethodName, $"Database query returned [0] learners.");
+                learnersRequiringEmploymentCheckDto = new List<LearnerRequiringEmploymentCheckDto>(); // return an empty list rather than null
+            }
+
+            return learnersRequiringEmploymentCheckDto;
         }
     }
 }

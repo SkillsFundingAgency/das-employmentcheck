@@ -9,8 +9,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
     {
         Task<List<LearnerRequiringEmploymentCheckDto>> GetLearnersRequiringEmploymentChecks(SqlConnection sqlConnection);
 
-        Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck();
-
         Task<int> SaveEmploymentCheckResult(long id, bool result);
 
         Task<int> SaveEmploymentCheckResult(long id, long uln, bool result);
