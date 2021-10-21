@@ -31,33 +31,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Services.Stubs
             _logger = logger;
         }
 
-        public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
-        {
-            //var thisMethodName = "***** EmploymentChecksRepositoryStub.GetApprenticesToCheck() *****";
-            //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
-
-            var learners = new List<ApprenticeToVerifyDto>();
-            for (int i = 0; i < 1; i++)
-            {
-                var learner = new ApprenticeToVerifyDto()
-                {
-                    Id = i,
-                    AccountId = 1,
-                    NationalInsuranceNumber = "12345678",
-                    ULN = 100000001,
-                    UKPRN = 10000001,
-                    ApprenticeshipId = 10,
-                    StartDate = new DateTime(2021, 1, 1),
-                    EndDate = new DateTime(2021, 1, 1)
-                };
-
-                learners.Add(learner);
-            }
-
-            //_logger.LogInformation($"{messagePrefix} ***** GetApprenticesToCheck()] returned {learners.Count} apprentices. *****");
-            return await Task.FromResult(learners);
-        }
-
         public  async Task<int> SaveEmploymentCheckResult(
             long id,
             bool result)

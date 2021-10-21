@@ -87,50 +87,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.DataAccess
             return learnerRequiringEmploymentCheckDto;
         }
 
-        public async Task<List<ApprenticeToVerifyDto>> GetApprenticesToCheck()
-        {
-            var thisMethodName = "EmploymentChecksRepository.GetApprenticesToCheck()";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
-
-            //_logger.LogInformation($"{messagePrefix} Started.");
-
-            List<ApprenticeToVerifyDto> apprentices = null;
-
-            try
-            {
-                //_logger.LogInformation($"{messagePrefix} Executing database query [SELECT TOP({_batchSize}) * FROM[dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate].");
-                await using (var connection = await CreateConnection())
-                {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@batchSize", _batchSize);
-
-                    await connection.OpenAsync();
-                    var result = await connection.QueryAsync<EmploymentCheckResult>(
-                        sql: "SELECT TOP (@batchSize) * FROM [dbo].[EmploymentChecks] WHERE HasBeenChecked = 0 ORDER BY CreatedDate",
-                        param: parameters,
-                        commandType: CommandType.Text);
-
-                    if(result != null && result.Any() )
-                    {
-                        _logger.LogInformation($"{messagePrefix} Database query returned {apprentices.Count} apprentices.");
-                        apprentices = result.Select(x => new ApprenticeToVerifyDto(x.Id, x.AccountId, x.NationalInsuranceNumber, x.ULN, x.UKPRN, x.ApprenticeshipId, x.MinDate, x.MaxDate)).ToList();
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"{messagePrefix} Database query returned null/zero apprentices.");
-                        apprentices = new List<ApprenticeToVerifyDto>(); // return an empty list rather than null
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-
-            //_logger.LogInformation($"{messagePrefix} Completed.");
-            return apprentices;
-        }
-
         public async Task<int> SaveEmploymentCheckResult(long id, bool result)
         {
             await using (var connection = await CreateConnection())
