@@ -14,20 +14,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Helpers
         {
             try
             {
-                // Context is only applicable if this is called from an Orchestration function
-                DateTime? currentUtcDateTime = null;
                 if (context != null && !context.IsReplaying)
                 {
-                    currentUtcDateTime = context.CurrentUtcDateTime;
-                }
-                else
-                {
-                    currentUtcDateTime = DateTime.UtcNow;
-                }
+                    var formattedMessage =
+                        "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n" +
+                        $"CUSTOM LOGGING: {context.CurrentUtcDateTime} { methodName}: {message}" +
+                        "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 
+                    logger.LogInformation(formattedMessage);
+                }
+            }
+            catch
+            {
+                // TODO: How to display exception if logger argument is null or context is null?
+                throw;
+            }
+        }
+
+        public static void WriteLog(
+            ILogger logger,
+            string methodName,
+            string message)
+        {
+            try
+            {
                 var formattedMessage =
                     "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n" +
-                    $"CUSTOM LOGGING: {currentUtcDateTime} { methodName}: {message}" +
+                    $"CUSTOM LOGGING: {DateTime.UtcNow} { methodName}: {message}" +
                     "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 
                 logger.LogInformation(formattedMessage);
@@ -39,5 +52,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Helpers
                 throw;
             }
         }
+
     }
 }

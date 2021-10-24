@@ -44,20 +44,24 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             builder.Services.AddOptions();
 
-            // Mediatr configuration
+            // MediatR configuration
             builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
 
-            // TODO: Learners API Configuration
-            builder.Services.Configure<LearnersApiConfiguration>(config.GetSection("LearnersApiSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<LearnersApiConfiguration>>().Value);
+            // EmploymentChecksDb Configuration
+            builder.Services.Configure<EmploymentCheckDbConfiguration>(config.GetSection("EmploymentCheckDbSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckDbConfiguration>>().Value);
+
+            // SubmitLearnerData API Configuration
+            builder.Services.Configure<SubmitLearnerDataApiConfiguration>(config.GetSection("SubmitLearnersDataApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<SubmitLearnerDataApiConfiguration>>().Value);
 
             // Accounts API Configuration
-            builder.Services.Configure<AccountsApiConfiguration>(config.GetSection("AccountsInnerApi"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiConfiguration>>().Value);
+            builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountApiConfiguration>>().Value);
 
             // HMRC API Settings
-            builder.Services.Configure<HmrcApiSettings>(config.GetSection("HmrcApiSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiSettings>>().Value);
+            builder.Services.Configure<HmrcApiConfiguration>(config.GetSection("HmrcApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiConfiguration>>().Value);
 
             // Token Service API Configuration
             builder.Services.Configure<TokenServiceApiClientConfiguration>(config.GetSection("TokenService"));

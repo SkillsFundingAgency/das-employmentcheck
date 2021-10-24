@@ -7,14 +7,19 @@ using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Clients;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.DataAccess;
 using SFA.DAS.EmploymentCheck.Functions.Services;
-using SFA.DAS.EmploymentCheck.Functions.Services.Stubs;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -23,32 +28,32 @@ namespace SFA.DAS.EmploymentCheck.Functions
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
             serviceCollection.AddHttpClient();
-            serviceCollection.AddTransient<IAccountsApiClient, AccountsApiClient>();
+            serviceCollection.AddTransient<IEmploymentCheckClient, EmploymentCheckClient>();
+            serviceCollection.AddTransient<IEmployerAccountClient, EmployerAccountClient>();
+            serviceCollection.AddTransient<ISubmitLearnerDataClient, SubmitLearnerDataClient>();
+            serviceCollection.AddTransient<IEmployerAccountApiClient, EmployerAccountApiClient>();
 
 #if DEBUG
             // For local development use the Stubs
-            serviceCollection.AddTransient<IAccountsService, AccountsServiceStub>();
+
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
+            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             serviceCollection.AddSingleton<IRandomNumberService, RandomNumberService>(); // used by the HrmcServiceStub
             serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
 #else
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
             serviceCollection.AddTransient<IAccountsService, AccountsService>();
             serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 #endif
-
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton(new AzureServiceTokenProvider());
             }
-
-#if DEBUG
-            // For local development use the EmploymentChecksRepositoryStub
-            serviceCollection.AddTransient<IEmploymentChecksRepository, EmploymentChecksRepositoryStub>();
-#else
-            serviceCollection.AddTransient<IEmploymentChecksRepository, EmploymentChecksRepository>();
-#endif
 
             serviceCollection.AddHmrcClient();
             serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
@@ -84,7 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             serviceCollection.AddTransient<IApprenticeshipLevyApiClient>(s =>
             {
-                var settings = s.GetService<IOptions<HmrcApiSettings>>().Value;
+                var settings = s.GetService<IOptions<HmrcApiConfiguration>>().Value;
 
                 var clientBuilder = new HttpClientBuilder()
                     .WithLogging(s.GetService<ILoggerFactory>());

@@ -5,40 +5,41 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprentices;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class GetApprenticesToCheck
+    public class GetApprenticesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetApprenticesToCheck> _logger;
+        private readonly ILogger<GetApprenticesActivity> _logger;
 
-        public GetApprenticesToCheck(
+        public GetApprenticesActivity(
             IMediator mediator,
-            ILogger<GetApprenticesToCheck> logger)
+            ILogger<GetApprenticesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(GetApprenticesToCheck))]
+        [FunctionName(nameof(GetApprenticesActivity))]
         public async Task<IList<Apprentice>> Get([ActivityTrigger] object input)
         {
-            var thisMethodName = "GetApprenticesToCheck.Get()";
+            var thisMethodName = "GetApprenticesActivity.Get()";
 
-            GetApprenticesToVerifyResult apprenticesToCheck = null;
+            GetApprenticesMediatorResult getApprenticesResult = null;
             try
             {
-                apprenticesToCheck = await _mediator.Send(new GetApprenticesToVerifyRequest());
+                getApprenticesResult = await _mediator.Send(new GetApprenticesMediatorRequest());
             }
             catch (Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return apprenticesToCheck.ApprenticesToVerify;
+            return getApprenticesResult.Apprentices;
         }
     }
 }
+

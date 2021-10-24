@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
 {
     public class GetApprenticesToVerifyResult
     {
-        public GetApprenticesToVerifyResult(List<ApprenticeToVerifyDto> apprenticesToVerify)
+        public GetApprenticesToVerifyResult(IList<Apprentice> apprenticesToVerify)
         {
             ApprenticesToVerify = apprenticesToVerify;
         }
 
-        public List<ApprenticeToVerifyDto> ApprenticesToVerify { get; }
+        public IList<Apprentice> ApprenticesToVerify { get; }
     }
 }

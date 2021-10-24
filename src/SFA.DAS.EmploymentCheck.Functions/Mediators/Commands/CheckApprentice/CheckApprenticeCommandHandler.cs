@@ -5,23 +5,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.DataAccess;
-using SFA.DAS.EmploymentCheck.Functions.Models.Dtos;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
-using SFA.DAS.EmploymentCheck.Functions.Services;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
 {
     public class CheckApprenticeCommandHandler : IRequestHandler<CheckApprenticeCommand>
     {
-        private readonly IEmploymentChecksRepository _repository;
-        private readonly IAccountsService _accountsService;
+        private readonly IEmploymentCheckService _employmentCheckService;
+        private readonly IEmployerAccountService _accountsService;
         private readonly IHmrcService _hmrcService;
         private readonly ILogger<CheckApprenticeCommandHandler> _logger;
 
-        public CheckApprenticeCommandHandler(IEmploymentChecksRepository repository, IAccountsService accountsService, IHmrcService hmrcService, ILogger<CheckApprenticeCommandHandler> logger)
+        public CheckApprenticeCommandHandler(
+            IEmploymentCheckService employmentCheckService,
+            IEmployerAccountService accountsService,
+            IHmrcService hmrcService,
+            ILogger<CheckApprenticeCommandHandler> logger)
         {
-            _repository = repository;
+            _employmentCheckService = employmentCheckService;
             _accountsService = accountsService;
             _hmrcService = hmrcService;
             _logger = logger;
@@ -77,14 +82,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
             return Unit.Value;
         }
 
-        private async Task StoreEmploymentCheckResult(ApprenticeToVerifyDto apprentice, bool checkPassed)
+        private async Task StoreEmploymentCheckResult(Apprentice apprentice, bool checkPassed)
         {
-            await _repository.SaveEmploymentCheckResult(apprentice.Id, apprentice.ULN, checkPassed);
+            await _employmentCheckService.SaveEmploymentCheckResult(apprentice.Id, apprentice.ULN, checkPassed);
         }
 
-        private async Task<List<string>> GetAccountPayeSchemes(long accountId)
+        private async Task<List<string>> GetAccountPayeSchemes(long employerAccountId)
         {
-            var accountDetail = await _accountsService.GetAccountDetail(accountId);
+            var accountDetail = await _accountsService.GetEmployerAccount(employerAccountId);
             return accountDetail.PayeSchemes.Select(x => x.Id).ToList();
         }
     }

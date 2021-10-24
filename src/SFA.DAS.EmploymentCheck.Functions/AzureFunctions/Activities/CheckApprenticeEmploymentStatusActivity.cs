@@ -9,31 +9,29 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class CheckApprentice
+    public class CheckApprenticeEmploymentStatusActivity
     {
         private readonly IMediator _mediator;
         private readonly ILogger<CheckApprentice> _logger;
 
-        public CheckApprentice(IMediator mediator, ILogger<CheckApprentice> logger)
+        public CheckApprenticeEmploymentStatusActivity(IMediator mediator, ILogger<CheckApprentice> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(CheckApprentice))]
-        public async Task Verify([ActivityTrigger] Apprentice apprentice)
+        [FunctionName(nameof(CheckApprenticeEmploymentStatusActivity))]
+        public async Task Verify([ActivityTrigger] object allLists)
         {
-            var thisMethodName = "CheckApprentice.Verify([ActivityTrigger] ApprenticeToVerifyDto apprentice) activity";
-            var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            var thisMethodName = "CheckApprenticeEmploymentStatusActivity.Verify()";
 
             try
             {
-                // Send MediatR request to check the apprentices employment status
-                await _mediator.Send(new CheckApprenticeCommand(apprentice));
+                // TODO: Implementation
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
     }
