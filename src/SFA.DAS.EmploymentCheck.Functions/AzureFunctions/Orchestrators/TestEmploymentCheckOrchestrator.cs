@@ -27,9 +27,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
             try
             {
-                // ------------------------------------------------------------------------------------------------------------------------------------------
-
-                /* Strategic Code */
                 var tasks = new List<Task>();
 
                 // Get the apprentices requiring an employment check
@@ -39,12 +36,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // Get the apprentices National Insurance Numbers
                 // Note: We don't need to await this call as once we have the list of apprentices for it's input it can run independently of anything else
                 // until we create the final data model to save to the db queue
-                var apprenticesNiNumbers = await context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprentices);
+                var apprenticesNiNumbers = /* await */ context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprentices);
 
                 // Get the apprentices employer PAYE schemes
                 // Note: We don't need to await this call as once we have the list of apprentices for it's input it can run independently of anything else
                 // until we create the final data model to save to the db queue
-                var employersPayeSchemes = await context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), apprentices);
+                var employersPayeSchemes = /* await */ context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), apprentices);
 
                 // Note: We need to wait for the NI numbers and PAYE schemes calls to finish before proceeding
                 await Task.WhenAll(tasks);
@@ -53,42 +50,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // Check learner employment status
                 var temp = new ApprenticeEmploymentParams();
                 temp.Apprentices = apprentices;
-                temp.ApprenticeNiNumbers = apprenticesNiNumbers;
-                temp.EmployerPayeSchemes = employersPayeSchemes;
+                // TODO: Get the value of the following without blocking the thread (maybe use ContinueWith delegate?)
+                //temp.ApprenticeNiNumbers = apprenticesNiNumbers;
+                //temp.EmployerPayeSchemes = employersPayeSchemes;
 
                 var learnersEmploymentStatuses = await context.CallActivityAsync<List<Apprentice>>(nameof(CheckApprenticeEmploymentStatusActivity), new { apprentices, apprenticesNiNumbers, employersPayeSchemes });
-
-                // ------------------------------------------------------------------------------------------------------------------------------------------
-
-                /* Original Code */
-                // Get a list apprentices requiring an employment check
-                //var apprenticesToCheck = await context.CallActivityAsync<List<Apprentice>>(nameof(GetApprenticesToCheck), null);
-
-                //if (apprenticesToCheck != null && apprenticesToCheck.Count > 0)
-                //{
-                //    Log.WriteLog(_logger, thisMethodName, $"GetApprentices() returned {apprenticesToCheck.Count} apprenctice(s)", context);
-
-                //    // Iterate through the list of apprentices to call the HMRC Employment Check API
-                //    int i = 0;
-                //    {
-                //        ++i;
-                //        try
-                //        {
-                //            // Call the HMRC Employment Check API to check this apprentice
-                //            Log.WriteLog(_logger, thisMethodName, $"Checking employment status of learner [{i}] (ULN:{apprentice.ULN}) of [{apprenticesToCheck.Count}]", context);
-                //            await context.CallActivityAsync(nameof(CheckApprentice), apprentice);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    Log.WriteLog(_logger, thisMethodName, $"GetApprenticesToCheck() activity returned null/zero apprentices", context);
-                //}
-
             }
             catch (Exception ex)
             {
