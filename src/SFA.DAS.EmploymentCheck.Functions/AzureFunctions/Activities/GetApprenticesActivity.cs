@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         {
             var thisMethodName = "GetApprenticesActivity.Get()";
 
-            GetApprenticesMediatorResult getApprenticesResult = null;
+            GetApprenticesMediatorResult getApprenticesResult;
             try
             {
                 getApprenticesResult = await _mediator.Send(new GetApprenticesMediatorRequest());
@@ -36,6 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             catch (Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                getApprenticesResult = new GetApprenticesMediatorResult(new List<Apprentice>()); //return an empty list instead of null
             }
 
             return getApprenticesResult.Apprentices;
