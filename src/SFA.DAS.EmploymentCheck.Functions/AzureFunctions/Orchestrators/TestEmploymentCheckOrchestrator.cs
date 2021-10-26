@@ -36,25 +36,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // Get the apprentices National Insurance Numbers
                 // Note: We don't need to await this call as once we have the list of apprentices for it's input it can run independently of anything else
                 // until we create the final data model to save to the db queue
-                var apprenticesNiNumbers = /* await */ context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprentices);
+                tasks.Add(context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprentices));
 
                 // Get the apprentices employer PAYE schemes
                 // Note: We don't need to await this call as once we have the list of apprentices for it's input it can run independently of anything else
                 // until we create the final data model to save to the db queue
-                var employersPayeSchemes = /* await */ context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), apprentices);
+                tasks.Add(context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), apprentices));
 
                 // Note: We need to wait for the NI numbers and PAYE schemes calls to finish before proceeding
-                await Task.WhenAll(tasks);
+                //await Task.WhenAll(tasks);
 
                 // TODO: Implement the employment check
                 // Check learner employment status
-                var temp = new ApprenticeEmploymentParams();
-                temp.Apprentices = apprentices;
                 // TODO: Get the value of the following without blocking the thread (maybe use ContinueWith delegate?)
                 //temp.ApprenticeNiNumbers = apprenticesNiNumbers;
                 //temp.EmployerPayeSchemes = employersPayeSchemes;
 
-                var learnersEmploymentStatuses = await context.CallActivityAsync<List<Apprentice>>(nameof(CheckApprenticeEmploymentStatusActivity), new { apprentices, apprenticesNiNumbers, employersPayeSchemes });
+  //              var learnersEmploymentStatuses = await context.CallActivityAsync<List<Apprentice>>(nameof(CheckApprenticeEmploymentStatusActivity), new { apprentices, apprenticesNiNumbers, employersPayeSchemes });
             }
             catch (Exception ex)
             {
