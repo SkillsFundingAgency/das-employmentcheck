@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
@@ -13,16 +14,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
     {
         private readonly Mock<HttpRequestMessage> _request;
         private readonly Mock<IDurableOrchestrationClient> _starter;
-        private readonly Mock<ILogger> _logger;
+        private readonly Mock<ILoggerAdapter> _logger;
 
         public WhenTriggeringHttpEmploymentCheck()
         {
             _request = new Mock<HttpRequestMessage>();
             _starter = new Mock<IDurableOrchestrationClient>();
-            _logger = new Mock<ILogger>();
+            _logger = new Mock<ILoggerAdapter>();
         }
 
-        [Fact (Skip = "Logger test helper not yet implemented")]
+        [Fact]
         public async void Then_The_Instance_Id_Is_Created()
         {
             //Arrange
@@ -39,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
 
             //Assert
             
-            //_logger.Verify(x => x.LogInformation($"Started orchestration with ID = '{instanceId}'."), Times.Once);
+            _logger.Verify(x => x.LogInformation($"Started orchestration with ID = '{instanceId}'."), Times.Once);
         }
 
         [Fact]
