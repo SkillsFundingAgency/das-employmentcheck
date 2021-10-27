@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
@@ -14,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentCheckOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
-            ILogger log)
+            ILoggerAdapter log)
         {
             log.LogInformation($"Triggering EmploymentCheckOrchestrator");
 

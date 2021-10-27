@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Services;
 
@@ -10,11 +11,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
     public class HmrcServiceStub : IHmrcService
     {
         private IRandomNumberService _randomNumberService;
-        private readonly ILogger<IApprenticeshipLevyApiClient> _logger;
+        private readonly ILoggerAdapter<IApprenticeshipLevyApiClient> _logger;
 
         public HmrcServiceStub(
             IRandomNumberService randomNumberService,
-            ILogger<IApprenticeshipLevyApiClient> logger)
+            ILoggerAdapter<IApprenticeshipLevyApiClient> logger)
         {
             _randomNumberService = randomNumberService;
             _logger = logger;

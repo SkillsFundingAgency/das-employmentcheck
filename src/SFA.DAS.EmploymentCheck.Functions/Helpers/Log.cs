@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Helpers
     public static class Log
     {
         public static void WriteLog(
-            ILogger logger,
+            ILoggerAdapter logger,
             string methodName,
             string message,
             IDurableOrchestrationContext context = null)
@@ -31,19 +31,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Helpers
             }
         }
 
-        public static void WriteLog(
-            ILogger logger,
+        public static void WriteLog<T>(
+            ILoggerAdapter<T> logger,
             string methodName,
-            string message)
+            string message,
+            IDurableOrchestrationContext context = null)
         {
             try
             {
-                var formattedMessage =
-                    "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n" +
-                    $"CUSTOM LOGGING: {DateTime.UtcNow} { methodName}: {message}" +
-                    "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
+                if (context != null && !context.IsReplaying)
+                {
+                    var formattedMessage =
+                        "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n" +
+                        $"CUSTOM LOGGING: {DateTime.UtcNow} {methodName}: {message}" +
+                        "\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 
-                logger.LogInformation(formattedMessage);
+                    logger.LogInformation(formattedMessage);
+                }
 
             }
             catch

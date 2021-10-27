@@ -18,13 +18,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
         private readonly IEmploymentCheckService _employmentCheckService;
         private readonly IEmployerAccountService _accountsService;
         private readonly IHmrcService _hmrcService;
-        private readonly ILogger<CheckApprenticeCommandHandler> _logger;
+        private readonly ILoggerAdapter<CheckApprenticeCommandHandler> _logger;
 
         public CheckApprenticeCommandHandler(
             IEmploymentCheckService employmentCheckService,
             IEmployerAccountService accountsService,
             IHmrcService hmrcService,
-            ILogger<CheckApprenticeCommandHandler> logger)
+            ILoggerAdapter<CheckApprenticeCommandHandler> logger)
         {
             _employmentCheckService = employmentCheckService;
             _accountsService = accountsService;

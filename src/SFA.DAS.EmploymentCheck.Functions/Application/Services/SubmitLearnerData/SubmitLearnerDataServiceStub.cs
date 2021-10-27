@@ -4,15 +4,16 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData
 {
     public class SubmitLearnerDataServiceStub : ISubmitLearnerDataService
     {
-        private readonly ILogger<ISubmitLearnerDataService> _logger;
+        private readonly ILoggerAdapter<ISubmitLearnerDataService> _logger;
 
         public SubmitLearnerDataServiceStub(
-            ILogger<ISubmitLearnerDataService> logger)
+            ILoggerAdapter<ISubmitLearnerDataService> logger)
         {
             _logger = logger;
         }
