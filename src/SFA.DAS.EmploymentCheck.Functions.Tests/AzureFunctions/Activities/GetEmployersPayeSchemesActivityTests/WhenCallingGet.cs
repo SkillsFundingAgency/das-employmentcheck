@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSchemes;
 using Xunit;
 
@@ -14,14 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILogger<GetEmployersPayeSchemesActivity>> _logger;
+        private readonly Mock<ILoggerAdapter<GetEmployersPayeSchemesActivity>> _logger;
         private readonly Apprentice _apprentice;
         private readonly IList<Apprentice> _apprentices;
         public WhenCallingGet()
         {
             _mediator = new Mock<IMediator>();
 
-            _logger = new Mock<ILogger<GetEmployersPayeSchemesActivity>>();
+            _logger = new Mock<ILoggerAdapter<GetEmployersPayeSchemesActivity>>();
 
             _apprentice = new Apprentice(1,
                 1000001,
@@ -58,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
         public void And_Throws_An_Expection_Then_Exception_Is_Handled()
         {
             //Arrange
-            var exception = new Exception();
+            var exception = new Exception("test message");
             var sut = new GetEmployersPayeSchemesActivity(_mediator.Object, _logger.Object);
 
             _mediator.Setup(x => x.Send(It.IsAny<GetEmployersPayeSchemesMediatorRequest>(), CancellationToken.None))
@@ -67,12 +68,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
             //Act
 
             var result = sut.Get(_apprentices).Result;
-            var loggerInvocations = _logger.Invocations.Count;
 
             //Assert
             Assert.Equal(new List<EmployerPayeSchemes>(), result);
-            Assert.Equal(1, loggerInvocations);
-
+            _logger.Verify(x =>
+                x.LogInformation(
+                    $"\n\nGetEmployersPayeSchemesActivity.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
         }
     }
 }

@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using Xunit;
 
@@ -14,13 +15,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.Chec
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILogger<CheckApprentice>> _logger;
+        private readonly Mock<ILoggerAdapter<CheckApprentice>> _logger;
 
         public WhenCallingGet()
         {
             _mediator = new Mock<IMediator>();
 
-            _logger = new Mock<ILogger<CheckApprentice>>();
+            _logger = new Mock<ILoggerAdapter<CheckApprentice>>();
         }
 
         [Fact (Skip = "Method not yet implemented")]
@@ -46,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.Chec
         public void And_Throws_An_Exception_Then_The_Exception_Is_Handled()
         {
             ////Arrange
-            //var exception = new Exception();
+            //var exception = new Exception("test message");
             //var sut = new CheckApprenticeEmploymentStatusActivity(_mediator.Object, _logger.Object);
 
             //_mediator.Setup(x => x.Send(It.IsAny<IRequest<CheckApprenticeCommand>>(), CancellationToken.None))
@@ -55,11 +56,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.Chec
             ////Act
 
             //var result = sut.Verify(new object()).Result;
-            //var loggerInvocations = _logger.Invocations.Count;
 
             ////Assert
             //Assert.Equal(new List<>, result);
-            //Assert.Equal(1, loggerInvocations);
+            //_logger.Verify(x =>
+            //    x.LogInformation(
+            //        $"\n\nCheckApprenticeEmploymentStatusActivity.Verify(): Exception caught - {exception.Message}. {exception.StackTrace}"));
         }
     }
 }

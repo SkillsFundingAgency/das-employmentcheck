@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprentices;
 using Xunit;
 
@@ -16,12 +17,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILogger<GetApprenticesActivity>> _logger;
+        private readonly Mock<ILoggerAdapter<GetApprenticesActivity>> _logger;
         private readonly Apprentice _apprentice;
         public WhenCallingGet()
         {
             _mediator = new Mock<IMediator>();
-            _logger = new Mock<ILogger<GetApprenticesActivity>>();
+            _logger = new Mock<ILoggerAdapter<GetApprenticesActivity>>();
             _apprentice = new Apprentice(1,
                 1000001, 
                 "1000001",
@@ -56,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
         public void And_Throws_An_Expection_Then_Exception_Is_Handled()
         {
             //Arrange
-            var exception = new Exception();
+            var exception = new Exception("test message");
             var sut = new GetApprenticesActivity(_mediator.Object, _logger.Object);
 
             _mediator.Setup(x => x.Send(It.IsAny<GetApprenticesMediatorRequest>(), CancellationToken.None))
@@ -65,11 +66,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
             //Act
 
             var result =  sut.Get(new object()).Result;
-            var loggerInvocations = _logger.Invocations.Count;
 
             //Assert
             Assert.Equal(new List<Apprentice>(), result);
-            Assert.Equal(1, loggerInvocations);
+            _logger.Verify(x =>
+                x.LogInformation(
+                    $"\n\nGetApprenticesActivity.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
 
         }
     }

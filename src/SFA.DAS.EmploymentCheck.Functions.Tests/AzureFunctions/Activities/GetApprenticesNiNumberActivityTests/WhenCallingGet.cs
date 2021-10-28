@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers;
 using Xunit;
 
@@ -15,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILogger<GetApprenticesNiNumberActivity>> _logger;
+        private readonly Mock<ILoggerAdapter<GetApprenticesNiNumberActivity>> _logger;
         private readonly Apprentice _apprentice;
         private readonly ApprenticeNiNumber _apprenticeNiNumber;
         private readonly IList<Apprentice> _apprentices;
@@ -23,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
         {
             _mediator = new Mock<IMediator>();
 
-            _logger = new Mock<ILogger<GetApprenticesNiNumberActivity>>();
+            _logger = new Mock<ILoggerAdapter<GetApprenticesNiNumberActivity>>();
 
             _apprentice = new Apprentice(1,
                 1000001,
@@ -63,7 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
         public void And_Throws_An_Expection_Then_Exception_Is_Handled()
         {
             //Arrange
-            var exception = new Exception();
+            var exception = new Exception("test message");
             var sut = new GetApprenticesNiNumberActivity(_mediator.Object, _logger.Object);
 
             _mediator.Setup(x => x.Send(It.IsAny<GetApprenticesNiNumberMediatorRequest>(), CancellationToken.None))
@@ -72,12 +73,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
             //Act
 
             var result = sut.Get(_apprentices).Result;
-            var loggerInvocations = _logger.Invocations.Count;
 
             //Assert
             Assert.Equal(new List<ApprenticeNiNumber>(), result);
-            Assert.Equal(1, loggerInvocations);
-
+            _logger.Verify(x =>
+                x.LogInformation(
+                    $"\n\nGetApprenticesNiNumbersActivity.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
         }
     }
 }
