@@ -71,7 +71,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                    //Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: GetAccountPayeSchemes() returned null/zero PAYE schemes.");
                 }
             }
             catch (Exception ex)
