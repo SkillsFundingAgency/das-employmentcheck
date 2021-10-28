@@ -19,11 +19,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
             GetEmployersPayeSchemesMediatorResult>
     {
         private readonly IEmployerAccountClient _employerAccountClient;
-        private ILogger<GetEmployerPayeSchemesMediatorHandler> _logger;
+        private ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler> _logger;
 
         public GetEmployerPayeSchemesMediatorHandler(
             IEmployerAccountClient employerAccountClient,
-            ILogger<GetEmployerPayeSchemesMediatorHandler> logger)
+            ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler> logger)
         {
             _employerAccountClient = employerAccountClient;
             _logger = logger;

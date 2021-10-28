@@ -15,11 +15,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         : ISubmitLearnerDataClient
     {
         private ISubmitLearnerDataService _submitLearnerDataService;
-        private ILogger<IEmploymentCheckClient> _logger;
+        private ILoggerAdapter<IEmploymentCheckClient> _logger;
 
         public SubmitLearnerDataClient(
             ISubmitLearnerDataService submitLearnerDataService,
-            ILogger<IEmploymentCheckClient> logger)
+            ILoggerAdapter<IEmploymentCheckClient> logger)
         {
             _submitLearnerDataService = submitLearnerDataService;
             _logger = logger;

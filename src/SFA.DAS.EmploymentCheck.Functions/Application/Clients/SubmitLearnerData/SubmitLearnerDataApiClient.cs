@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData
 {
@@ -18,14 +19,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         private IWebHostEnvironment _hostingEnvironment;
         private SubmitLearnerDataApiConfiguration _configuration;
         private IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private ILogger<IEmployerAccountApiClient> _logger;
+        private ILoggerAdapter<IEmployerAccountApiClient> _logger;
 
         public SubmitLearnerDataApiClient(
             IHttpClientFactory httpClientFactory,
             SubmitLearnerDataApiConfiguration apiConfiguration,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
-            ILogger<IEmployerAccountApiClient> logger)
+            ILoggerAdapter<IEmployerAccountApiClient> logger)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);

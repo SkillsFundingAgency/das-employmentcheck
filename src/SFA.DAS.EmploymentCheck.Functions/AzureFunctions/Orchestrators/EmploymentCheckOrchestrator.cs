@@ -11,9 +11,9 @@
 //{
 //    public class EmploymentCheckOrchestrator
 //    {
-//        private ILogger<EmploymentCheckOrchestrator> _logger;
+//        private ILoggerAdapter<EmploymentCheckOrchestrator> _logger;
 
-//        public EmploymentCheckOrchestrator(ILogger<EmploymentCheckOrchestrator> logger)
+//        public EmploymentCheckOrchestrator(ILoggerAdapter<EmploymentCheckOrchestrator> logger)
 //        {
 //            _logger = logger;
 //        }

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData
 {
     public class SubmitLearnerDataService : ISubmitLearnerDataService
     {
-        private readonly ILogger<SubmitLearnerDataService> _logger;
+        private readonly ILoggerAdapter<SubmitLearnerDataService> _logger;
 
         public SubmitLearnerDataService(
-            ILogger<SubmitLearnerDataService> logger)
+            ILoggerAdapter<SubmitLearnerDataService> logger)
         {
             _logger = logger;
         }

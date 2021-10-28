@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers
 {
@@ -15,11 +16,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
             GetApprenticesNiNumberMediatorResult>
     {
         private ISubmitLearnerDataClient _submitLearnerDataClient;
-        private ILogger<GetApprenticesNiNumbersMediatorHandler> _logger;
+        private ILoggerAdapter<GetApprenticesNiNumbersMediatorHandler> _logger;
 
         public GetApprenticesNiNumbersMediatorHandler(
             ISubmitLearnerDataClient submitLearnerDataClient,
-            ILogger<GetApprenticesNiNumbersMediatorHandler> logger)
+            ILoggerAdapter<GetApprenticesNiNumbersMediatorHandler> logger)
         {
             _submitLearnerDataClient = submitLearnerDataClient;
             _logger = logger;

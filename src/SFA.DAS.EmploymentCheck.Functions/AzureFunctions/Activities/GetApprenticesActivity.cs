@@ -7,17 +7,18 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprentices;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetApprenticesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetApprenticesActivity> _logger;
+        private readonly ILoggerAdapter<GetApprenticesActivity> _logger;
 
         public GetApprenticesActivity(
             IMediator mediator,
-            ILogger<GetApprenticesActivity> logger)
+            ILoggerAdapter<GetApprenticesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;

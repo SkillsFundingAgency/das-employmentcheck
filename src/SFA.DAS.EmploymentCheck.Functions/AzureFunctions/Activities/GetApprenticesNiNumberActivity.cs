@@ -8,17 +8,18 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using System.Linq;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetApprenticesNiNumberActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetApprenticesNiNumberActivity> _logger;
+        private readonly ILoggerAdapter<GetApprenticesNiNumberActivity> _logger;
 
         public GetApprenticesNiNumberActivity(
             IMediator mediator,
-            ILogger<GetApprenticesNiNumberActivity> logger)
+            ILoggerAdapter<GetApprenticesNiNumberActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
