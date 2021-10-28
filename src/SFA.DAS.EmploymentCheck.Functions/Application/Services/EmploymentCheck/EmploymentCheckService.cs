@@ -22,13 +22,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-        private ILogger<IEmploymentCheckService> _logger;
+        private ILoggerAdapter<IEmploymentCheckService> _logger;
 
         public EmploymentCheckService(
             ApplicationSettings applicationSettings,                            // TODO: Replace this generic application setting
             EmploymentCheckDbConfiguration employmentCheckDbConfiguration,      // TODO: With this specific employment check database configuration
             AzureServiceTokenProvider azureServiceTokenProvider,
-            ILogger<IEmploymentCheckService> logger)
+            ILoggerAdapter<IEmploymentCheckService> logger)
         {
             _connectionString = applicationSettings.DbConnectionString;
             _employmentCheckDbConfiguration = employmentCheckDbConfiguration;

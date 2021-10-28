@@ -17,11 +17,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprentices
             GetApprenticesMediatorResult>
     {
         private IEmploymentCheckClient _employmentCheckClient;
-        private ILogger<GetApprenticesMediatorHandler> _logger;
+        private ILoggerAdapter<GetApprenticesMediatorHandler> _logger;
 
         public GetApprenticesMediatorHandler(
             IEmploymentCheckClient employmentCheckClient,
-            ILogger<GetApprenticesMediatorHandler> logger)
+            ILoggerAdapter<GetApprenticesMediatorHandler> logger)
         {
             _employmentCheckClient = employmentCheckClient;
             _logger = logger;
