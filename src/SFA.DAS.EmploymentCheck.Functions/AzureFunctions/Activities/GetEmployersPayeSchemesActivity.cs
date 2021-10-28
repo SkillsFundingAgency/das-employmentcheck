@@ -39,6 +39,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             catch (Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+
+                getEmployerPayeSchemesResult =
+                    new GetEmployersPayeSchemesMediatorResult(new List<EmployerPayeSchemes>()); //returns new list instead of null
             }
 
             return getEmployerPayeSchemesResult.EmployersPayeSchemes;
