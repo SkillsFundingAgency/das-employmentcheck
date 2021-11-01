@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprentices
             GetApprenticesMediatorRequest request,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = "GetApprenticesMediatorHandler.Handle();";
+            var thisMethodName = "GetApprenticesMediatorHandler.Handle()";
 
             IList<Apprentice> apprentices = null;
             try
@@ -41,15 +41,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprentices
 
                 if (apprentices != null && apprentices.Count > 0)
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"returned {apprentices.Count} apprentice(s)");
+                    _logger.LogInformation($"{thisMethodName} returned {apprentices.Count} apprentice(s)");
+                    //Log.WriteLog(_logger, thisMethodName, $"returned {apprentices.Count} apprentice(s)");
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"returned null/zero apprentices.");
+                    _logger.LogInformation($"{thisMethodName} returned null/zero apprentices");
+                    //Log.WriteLog(_logger, thisMethodName, $"returned null/zero apprentices.");
                     apprentices = new List<Apprentice>(); // return empty list rather than null
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex)    
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
