@@ -19,6 +19,7 @@
   <ItemGroup>
     <Folder Include="AzureFunctions\Activities\GetApprenticesActivityTests\" />
     <Folder Include="Mediators\Queries\GetApprenticesToVerify\GetApprenticesToVerifyResultTests\" />
+    <Folder Include="Mediators\Queries\GetEmployerPayeSchemes\GetEmployersPayeSchemesMediatorRequestTests\" />
   </ItemGroup>
 
   <ItemGroup>
