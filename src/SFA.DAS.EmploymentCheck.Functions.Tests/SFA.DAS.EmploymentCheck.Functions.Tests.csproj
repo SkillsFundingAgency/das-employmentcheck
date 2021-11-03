@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Models\Domain\ApprenticeNiNumberTests\" />
     <Folder Include="AzureFunctions\Activities\GetApprenticesActivityTests\" />
   </ItemGroup>
 
