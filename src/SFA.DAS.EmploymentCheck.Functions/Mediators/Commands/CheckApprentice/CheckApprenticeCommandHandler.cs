@@ -42,7 +42,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
 
                 if(payeSchemes != null && payeSchemes.Count > 0)
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned [{payeSchemes.Count}] PAYE scheme(s) for learner ULN: [{request.Apprentice.ULN}]");
+                    _logger.LogInformation($"{thisMethodName} returned [{payeSchemes.Count}] PAYE scheme(s) for learner ULN: [{request.Apprentice.ULN}]");
+                    //Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned [{payeSchemes.Count}] PAYE scheme(s) for learner ULN: [{request.Apprentice.ULN}]");
                     bool checkPassed = false;
                     int i = 0;
 
@@ -51,7 +52,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
                         foreach (var payeScheme in payeSchemes)
                         {
                             ++i;
-                            Log.WriteLog(_logger, thisMethodName, $"Checking learner ULN: [{request.Apprentice.ULN}] is on PAYE scheme name [{payeScheme}] for the period [{request.Apprentice.StartDate}] to [{request.Apprentice.EndDate}] (scheme [{i}] of [{payeSchemes.Count}])");
+                            _logger.LogInformation($"{thisMethodName}: Checking learner ULN: [{request.Apprentice.ULN}] is on PAYE scheme name [{payeScheme}] for the period [{request.Apprentice.StartDate}] to [{request.Apprentice.EndDate}] (scheme [{i}] of [{payeSchemes.Count}])");
+                            //Log.WriteLog(_logger, thisMethodName, $"Checking learner ULN: [{request.Apprentice.ULN}] is on PAYE scheme name [{payeScheme}] for the period [{request.Apprentice.StartDate}] to [{request.Apprentice.EndDate}] (scheme [{i}] of [{payeSchemes.Count}])");
 
                             checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request, request.Apprentice.StartDate, request.Apprentice.EndDate);
 
@@ -61,7 +63,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
                             }
                         }
 
-                        Log.WriteLog(_logger, thisMethodName, $"Saving learner ULN: [{request.Apprentice.ULN}] Employed = [{checkPassed}]");
+                        _logger.LogInformation($"{thisMethodName}: Saving learner ULN: [{request.Apprentice.ULN}] Employed = [{checkPassed}]");
+                        //Log.WriteLog(_logger, thisMethodName, $"Saving learner ULN: [{request.Apprentice.ULN}] Employed = [{checkPassed}]");
                         await StoreEmploymentCheckResult(request.Apprentice, checkPassed);
                     }
                     catch (Exception ex)
@@ -71,7 +74,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                    //Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: GetAccountPayeSchemes() returned null/zero PAYE schemes.");
                 }
             }
             catch (Exception ex)
