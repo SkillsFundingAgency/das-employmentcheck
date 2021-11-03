@@ -60,6 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             catch(Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                return JsonConvert.DeserializeObject<TResponse>("");
             }
 
             //_logger.LogInformation($"{messagePrefix} Completed.");
