@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try
             {
-                if (apprentices != null)
+                if (apprentices != null && apprentices.Count != 0)
                 {
                     foreach (var apprentice in apprentices)
                     {
@@ -47,13 +47,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                         }
                         else
                         {
-                            Log.WriteLog(_logger, thisMethodName, "ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved.");
+                            _logger.LogInformation($"{thisMethodName}: ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved");
+                            //Log.WriteLog(_logger, thisMethodName, "ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved.");
                         }
                     }
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
+                    _logger.LogInformation($"{thisMethodName}: ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved");
+                    //Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
                 }
             }
             catch (Exception ex)
