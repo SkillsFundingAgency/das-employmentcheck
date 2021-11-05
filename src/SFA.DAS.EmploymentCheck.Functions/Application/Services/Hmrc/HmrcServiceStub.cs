@@ -10,14 +10,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public class HmrcServiceStub : IHmrcService
     {
-        private IRandomNumberService _randomNumberService;
+        //private IRandomNumberService _randomNumberService;
         private readonly ILoggerAdapter<IApprenticeshipLevyApiClient> _logger;
 
         public HmrcServiceStub(
-            IRandomNumberService randomNumberService,
+            //IRandomNumberService randomNumberService,
             ILoggerAdapter<IApprenticeshipLevyApiClient> logger)
         {
-            _randomNumberService = randomNumberService;
+            //_randomNumberService = randomNumberService;
             _logger = logger;
         }
 
@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             //var thisMethodName = $"HmrcServiceStub.IsNationalInsuranceNumberRelatedToPayeScheme()";
             //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
-            var employmentStatus = _randomNumberService.GetRandomBool();
+            var employmentStatus = Convert.ToBoolean(new Random().Next(0, 1));
 
             //_logger.LogInformation($"{messagePrefix} IsNationalInsuranceNumberRelatedToPayeScheme() returned {employmentStatus}");
 
