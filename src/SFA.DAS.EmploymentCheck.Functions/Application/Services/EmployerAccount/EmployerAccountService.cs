@@ -10,13 +10,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
     public class EmployerAccountService : IEmployerAccountService
     {
         private readonly IEmployerAccountApiClient _accountsApiClient;
-        private ILoggerAdapter<IEmployerAccountService> _logger;
+        private readonly ILoggerAdapter<IEmployerAccountService> _logger;
 
         public EmployerAccountService(
             IEmployerAccountApiClient accountsApiClient,
             ILoggerAdapter<IEmployerAccountService> logger)
         {
             _accountsApiClient = accountsApiClient;
+            _logger = logger;
         }
 
         public async Task<AccountDetailViewModel> GetEmployerAccount(long accountId)
@@ -29,10 +30,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 accountDetailViewModel = await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/internal/{accountId})");
                 if(accountDetailViewModel != null && accountDetailViewModel.PayeSchemes != null && accountDetailViewModel.PayeSchemes.Count > 0)
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes.");
+                    _logger.LogInformation($"{thisMethodName}: returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes");
+                    //Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes.");
                 }
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
+                    _logger.LogInformation($"{thisMethodName}: returned null/zero PAYE schemes");
+                    //Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
                 }
             }
             catch (Exception ex)
