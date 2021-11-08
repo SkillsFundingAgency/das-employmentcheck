@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
         }
 
         [Fact]
-        public async void And_No_Apprentices_Returned_From_The_EmploymentcheckClient_Then_Result_Is_Logged_And_An_Empty_List_Returned()
+        public async void And_No_Apprentices_Returned_From_The_EmploymentcheckClient_Then_An_Empty_List_Returned()
         {
             //Arrange
 
@@ -56,12 +56,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Assert
             
-            _logger.Verify(x => x.LogInformation("GetApprenticesMediatorHandler.Handle() returned null/zero apprentices"));
             result.Apprentices.Should().BeEquivalentTo(new List<Apprentice>());
         }
 
         [Fact]
-        public async void And_Null_Returned_From_The_EmploymentcheckClient_Then_Result_Is_Logged_And_An_Empty_List_Returned()
+        public async void And_Null_Returned_From_The_EmploymentcheckClient_Then_An_Empty_List_Returned()
         {
             //Arrange
 
@@ -75,36 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("GetApprenticesMediatorHandler.Handle() returned null/zero apprentices"));
             result.Apprentices.Should().BeEquivalentTo(new List<Apprentice>());
-        }
-
-        [Fact]
-        public async void And_Apprentices_Returned_From_The_EmploymentcheckClient_Then_Result_Is_Logged()
-        {
-            //Arrange
-
-            var apprentice = new Apprentice(1,
-                1,
-                "1000001",
-                1000001,
-                1000001,
-                1,
-                DateTime.Today.AddDays(-1),
-                DateTime.Today.AddDays(1));
-            var apprentices = new List<Apprentice> {apprentice};
-
-            _employmentCheckClient.Setup(x => x.GetApprentices()).ReturnsAsync(apprentices);
-
-            var sut = new GetApprenticesMediatorHandler(_employmentCheckClient.Object, _logger.Object);
-
-            //Act
-
-            await sut.Handle(new GetApprenticesMediatorRequest(), CancellationToken.None);
-
-            //Assert
-
-            _logger.Verify(x => x.LogInformation($"GetApprenticesMediatorHandler.Handle() returned {apprentices.Count} apprentice(s)"));
         }
 
         [Fact]
@@ -139,7 +109,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
         [Fact]
         public async void
-            And_The_EmploymentCheckClient_Throws_An_Exception_Then_It_It_Logged_And_An_Empty_List_Is_Returned()
+            And_The_EmploymentCheckClient_Throws_An_Exception_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -155,7 +125,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"\n\nGetApprenticesMediatorHandler.Handle(): Exception caught - {exception.Message}. {exception.StackTrace}"));
             result.Should().BeEquivalentTo(new GetApprenticesMediatorResult(null));
         }
     }

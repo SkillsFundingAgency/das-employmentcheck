@@ -36,11 +36,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
                 .Returns(response);
 
             //Act
-            await EmploymentCheckHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await EmploymentCheckHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
             
-            _logger.Verify(x => x.LogInformation($"Started orchestration with ID = '{instanceId}'."), Times.Once);
+            Assert.Equal(response, result);
         }
 
         [Fact]

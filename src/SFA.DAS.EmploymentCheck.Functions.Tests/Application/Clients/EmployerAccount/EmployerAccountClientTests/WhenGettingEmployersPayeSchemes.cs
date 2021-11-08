@@ -88,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
 
         [Fact]
         public async void
-            And_The_EmployerAccountsService_Returns_No_Paye_Schemes_Then_It_Is_Logged_And_An_Empty_List_Is_Returned()
+            And_The_EmployerAccountsService_Returns_No_Paye_Schemes_ThenAn_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -104,11 +104,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             //Assert
 
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-            _logger.Verify(x => x.LogInformation("GetApprenticesNiNumberClient.Get(): ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved"));
         }
 
         [Fact]
-        public async void And_No_Apprentices_Are_Passed_In_Then_It_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_No_Apprentices_Are_Passed_In_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -121,11 +120,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             //Assert
 
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-            _logger.Verify(x => x.LogInformation("GetApprenticesNiNumberClient.Get(): ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved"));
         }
 
         [Fact]
-        public async void And_Null_Is_Passed_In_Then_It_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_Null_Is_Passed_In_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -138,11 +136,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             //Assert
 
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-            _logger.Verify(x => x.LogInformation("GetApprenticesNiNumberClient.Get(): ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved"));
         }
 
         [Fact]
-        public async void And_An_Exception_Is_Thrown_Then_It_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_An_Exception_Is_Thrown_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -159,7 +156,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             //Assert
 
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-            _logger.Verify(x => x.LogInformation($"\n\nGetApprenticesNiNumberClient.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
         }
     }
 }

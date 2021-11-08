@@ -89,8 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         }
 
         [Fact]
-        public async void
-            And_The_ApprenticeshipLevyApiClient_Throws_An_ApiHttpException_Then_It_Is_Logged_And_Returns_False()
+        public async void And_The_ApprenticeshipLevyApiClient_Throws_An_ApiHttpException_Then_It_Returns_False()
         {
             //Arrange
 
@@ -108,7 +107,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"{ DateTime.UtcNow } UTC HmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payScheme paye, [nationalInsuranceNumber for apprentice id {_command.Apprentice.Id}], startDate {DateTime.Today.AddDays(-1)}, endDate {DateTime.Today.AddDays(1)}): Exception caught - {exception.Message}. {exception.StackTrace}"));
             Assert.False(result);
         }
     }

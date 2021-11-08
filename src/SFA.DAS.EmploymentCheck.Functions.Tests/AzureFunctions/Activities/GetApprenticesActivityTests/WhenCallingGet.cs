@@ -69,9 +69,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
 
             //Assert
             Assert.Equal(new List<Apprentice>(), result);
-            _logger.Verify(x =>
-                x.LogInformation(
-                    $"\n\nGetApprenticesActivity.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
 
         }
     }

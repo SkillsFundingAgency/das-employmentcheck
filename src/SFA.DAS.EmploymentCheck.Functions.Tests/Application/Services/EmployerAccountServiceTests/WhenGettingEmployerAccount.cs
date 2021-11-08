@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_An_Account_Then_It_Is_Logged_And_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_An_Account_Then_It_Is_Returned()
         {
             //Arrange
 
@@ -65,15 +65,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
             var result = await sut.GetEmployerAccount(_accountId);
 
             //Assert
-
-            _logger.Verify(x =>
-                x.LogInformation(
-                    $"AccountsService.GetAccountDetail(): returned {account.PayeSchemes.Count} PAYE schemes"));
+            
             Assert.Equal(account, result);
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_Null_Then_It_Is_Logged_And_Null_Is_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_Null_Then_Null_Is_Returned()
         {
             //Arrange
 
@@ -88,12 +85,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("AccountsService.GetAccountDetail(): returned null/zero PAYE schemes"));
             Assert.Null(result);
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_Null_PayeSchemes_Then_It_Is_Logged_And_AccountDetailViewModel_Is_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_Null_PayeSchemes_Then_AccountDetailViewModel_Is_Returned()
         {
             //Arrange
 
@@ -110,12 +106,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("AccountsService.GetAccountDetail(): returned null/zero PAYE schemes"));
             Assert.Equal(account, result);
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_Zero_PayeSchemes_Then_It_Is_Logged_And_AccountDetailViewModel_Is_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_Zero_PayeSchemes_Then_The_AccountDetailViewModel_Is_Returned()
         {
             //Arrange
 
@@ -132,13 +127,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("AccountsService.GetAccountDetail(): returned null/zero PAYE schemes"));
             Assert.Equal(account, result);
         }
 
         [Fact]
         public async void
-            And_The_EmployerAccountApiClient_Throws_An_Exception_Then_It_Is_Logged_And_Null_Is_Returned()
+            And_The_EmployerAccountApiClient_Throws_An_Exception_Then_Null_Is_Returned()
         {
             //Arrange
 
@@ -154,7 +148,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"AccountsService.GetAccountDetail()\n\n Exception caught - {exception.Message}. {exception.StackTrace}"));
             Assert.Null(result);
         }
     }

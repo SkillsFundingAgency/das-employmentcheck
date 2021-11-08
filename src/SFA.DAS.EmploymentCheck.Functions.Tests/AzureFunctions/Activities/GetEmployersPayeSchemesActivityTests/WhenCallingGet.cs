@@ -71,9 +71,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
 
             //Assert
             Assert.Equal(new List<EmployerPayeSchemes>(), result);
-            _logger.Verify(x =>
-                x.LogInformation(
-                    $"\n\nGetEmployersPayeSchemesActivity.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
         }
     }
 }
