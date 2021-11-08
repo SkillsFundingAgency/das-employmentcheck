@@ -20,12 +20,12 @@
 //        private readonly string _connectionString;
 //        private readonly int _batchSize;
 //        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-//        private ILogger<EmploymentChecksRepository> _logger;
+//        private ILoggerAdapter<EmploymentChecksRepository> _logger;
 
 //        public EmploymentChecksRepository(
 //            ApplicationSettings applicationSettings,
 //            AzureServiceTokenProvider azureServiceTokenProvider,
-//            ILogger<EmploymentChecksRepository> logger)
+//            ILoggerAdapter<EmploymentChecksRepository> logger)
 //        {
 //            _connectionString = applicationSettings.DbConnectionString;
 //            _azureServiceTokenProvider = azureServiceTokenProvider;

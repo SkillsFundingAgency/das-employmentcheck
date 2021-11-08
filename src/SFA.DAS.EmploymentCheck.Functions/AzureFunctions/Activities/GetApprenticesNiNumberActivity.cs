@@ -8,17 +8,18 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using System.Linq;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetApprenticesNiNumberActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetApprenticesNiNumberActivity> _logger;
+        private readonly ILoggerAdapter<GetApprenticesNiNumberActivity> _logger;
 
         public GetApprenticesNiNumberActivity(
             IMediator mediator,
-            ILogger<GetApprenticesNiNumberActivity> logger)
+            ILoggerAdapter<GetApprenticesNiNumberActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
@@ -29,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         {
             var thisMethodName = "GetApprenticesNiNumbersActivity.Get()";
 
-            GetApprenticesNiNumberMediatorResult getApprenticesNiNumberResult = null;
+            GetApprenticesNiNumberMediatorResult getApprenticesNiNumberResult;
             try
             {
                 getApprenticesNiNumberResult = await _mediator.Send(new GetApprenticesNiNumberMediatorRequest(apprentices));
@@ -37,6 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             catch (Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                getApprenticesNiNumberResult = new GetApprenticesNiNumberMediatorResult(new List<ApprenticeNiNumber>()); //returns empty list instead of null
             }
 
             return getApprenticesNiNumberResult.ApprenticesNiNumber;

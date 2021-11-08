@@ -19,11 +19,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
             GetEmployersPayeSchemesMediatorResult>
     {
         private readonly IEmployerAccountClient _employerAccountClient;
-        private ILogger<GetEmployerPayeSchemesMediatorHandler> _logger;
+        private ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler> _logger;
 
         public GetEmployerPayeSchemesMediatorHandler(
             IEmployerAccountClient employerAccountClient,
-            ILogger<GetEmployerPayeSchemesMediatorHandler> logger)
+            ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler> logger)
         {
             _employerAccountClient = employerAccountClient;
             _logger = logger;
@@ -46,17 +46,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
 
                     if (employersPayeSchemes != null && employersPayeSchemes.Count > 0)
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"returned {employersPayeSchemes.Count} PAYE scheme(s)");
+                        _logger.LogInformation($"{thisMethodName} returned {employersPayeSchemes.Count} PAYE scheme(s)");
+                        //Log.WriteLog(_logger, thisMethodName, $"returned {employersPayeSchemes.Count} PAYE scheme(s)");
                     }
                     else
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"returned null/zero PAYE schemes.");
+                        _logger.LogInformation($"{thisMethodName} returned null/zero PAYE schemes");
+                        //Log.WriteLog(_logger, thisMethodName, $"returned null/zero PAYE schemes.");
                         employersPayeSchemes = new List<EmployerPayeSchemes>(); // return empty list rather than null
                     }
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"ERROR - apprentices parameter is null, no employer PAYE schemes were retrieved.");
+                    _logger.LogInformation("ERROR - apprentices parameter is null, no employer PAYE schemes were retrieved");
+                    //Log.WriteLog(_logger, thisMethodName, $"ERROR - apprentices parameter is null, no employer PAYE schemes were retrieved.");
+                    employersPayeSchemes = new List<EmployerPayeSchemes>(); // return empty list rather than null
                 }
 
             }

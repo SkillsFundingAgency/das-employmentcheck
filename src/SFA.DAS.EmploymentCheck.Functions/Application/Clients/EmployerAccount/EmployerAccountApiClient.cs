@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 {
@@ -17,14 +18,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         private IWebHostEnvironment _hostingEnvironment;
         private EmployerAccountApiConfiguration _configuration;
         private IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private ILogger<IEmployerAccountApiClient> _logger;
+        private ILoggerAdapter<IEmployerAccountApiClient> _logger;
 
         public EmployerAccountApiClient(
             IHttpClientFactory httpClientFactory,
             EmployerAccountApiConfiguration apiConfiguration,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
-            ILogger<IEmployerAccountApiClient> logger)
+            ILoggerAdapter<IEmployerAccountApiClient> logger)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);
@@ -59,6 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             catch(Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                return JsonConvert.DeserializeObject<TResponse>("");
             }
 
             //_logger.LogInformation($"{messagePrefix} Completed.");

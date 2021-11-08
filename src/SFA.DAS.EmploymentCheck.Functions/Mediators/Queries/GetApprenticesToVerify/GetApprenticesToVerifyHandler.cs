@@ -15,13 +15,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
     public class GetApprenticesToVerifyHandler : IRequestHandler<GetApprenticesToVerifyRequest, GetApprenticesToVerifyResult>
     {
         private IEmploymentCheckService _employmentCheckService;
-        private ILogger<GetApprenticesToVerifyHandler> _logger;
+        private ILoggerAdapter<GetApprenticesToVerifyHandler> _logger;
         private readonly string _connectionString =
             System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
 
         public GetApprenticesToVerifyHandler(
             IEmploymentCheckService employmentCheckService,
-            ILogger<GetApprenticesToVerifyHandler> logger)
+            ILoggerAdapter<GetApprenticesToVerifyHandler> logger)
         {
             _employmentCheckService = employmentCheckService;
             _logger = logger;
@@ -42,11 +42,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
 
                 if (apprentices != null && apprentices.Count > 0)
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"returned {apprentices.Count} learner(s)");
+                    _logger.LogInformation($"{thisMethodName} returned {apprentices.Count} learner(s)");
+                    //Log.WriteLog(_logger, thisMethodName, $"returned {apprentices.Count} learner(s)");
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, $"returned null/zero learners.");
+                    _logger.LogInformation($"{thisMethodName} returned null/zero learners");
+                    //Log.WriteLog(_logger, thisMethodName, $"returned null/zero learners.");
                     apprentices = new List<Apprentice>(); // return empty list rather than null
                 }
             }

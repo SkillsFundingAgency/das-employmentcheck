@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Moq.AutoMock" Version="3.0.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Application\Models\Domain\ApprenticeNiNumberTests\" />
+    <Folder Include="AzureFunctions\Activities\GetApprenticesActivityTests\" />
+    <Folder Include="Mediators\Queries\GetApprenticesToVerify\GetApprenticesToVerifyResultTests\" />
+    <Folder Include="Mediators\Queries\GetEmployerPayeSchemes\GetEmployersPayeSchemesMediatorRequestTests\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
+  </ItemGroup>
+
+</Project>

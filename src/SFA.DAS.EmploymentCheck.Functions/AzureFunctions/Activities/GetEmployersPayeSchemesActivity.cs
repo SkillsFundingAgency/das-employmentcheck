@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using AgileObjects.AgileMapper;
 using AgileObjects.AgileMapper.Extensions;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSchemes;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
@@ -15,11 +16,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     public class GetEmployersPayeSchemesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<GetEmployersPayeSchemesActivity> _logger;
+        private readonly ILoggerAdapter<GetEmployersPayeSchemesActivity> _logger;
 
         public GetEmployersPayeSchemesActivity(
             IMediator mediator,
-            ILogger<GetEmployersPayeSchemesActivity> logger)
+            ILoggerAdapter<GetEmployersPayeSchemesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
@@ -38,6 +39,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             catch (Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+
+                getEmployerPayeSchemesResult =
+                    new GetEmployersPayeSchemesMediatorResult(new List<EmployerPayeSchemes>()); //returns new list instead of null
             }
 
             return getEmployerPayeSchemesResult.EmployersPayeSchemes;

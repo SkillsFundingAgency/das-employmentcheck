@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.TokenService.Api.Client;
 
@@ -11,10 +12,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
     public class HmrcService : IHmrcService
     {
         private IApprenticeshipLevyApiClient _apprenticeshipLevyService;
-        private readonly ILogger<HmrcService> _logger;
+        private readonly ILoggerAdapter<HmrcService> _logger;
         private ITokenServiceApiClient _tokenService;
 
-        public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILogger<HmrcService> logger)
+        public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILoggerAdapter<HmrcService> logger)
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;

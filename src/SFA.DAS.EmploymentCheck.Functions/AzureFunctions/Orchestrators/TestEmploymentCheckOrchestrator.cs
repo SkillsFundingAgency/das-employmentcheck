@@ -12,9 +12,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class TestEmploymentCheckOrchestrator
     {
-        private ILogger<TestEmploymentCheckOrchestrator> _logger;
+        private ILoggerAdapter<TestEmploymentCheckOrchestrator> _logger;
 
-        public TestEmploymentCheckOrchestrator(ILogger<TestEmploymentCheckOrchestrator> logger)
+        public TestEmploymentCheckOrchestrator(ILoggerAdapter<TestEmploymentCheckOrchestrator> logger)
         {
             _logger = logger;
         }
@@ -23,6 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         public async Task RunOrchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = "EmploymentCheckOrchestrator.RunOrchestrator()";
+            Log.WriteLog(_logger, thisMethodName, "Started", context);
             Log.WriteLog(_logger, thisMethodName, "Started", context);
 
             try

@@ -15,11 +15,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         : ISubmitLearnerDataClient
     {
         private ISubmitLearnerDataService _submitLearnerDataService;
-        private ILogger<IEmploymentCheckClient> _logger;
+        private ILoggerAdapter<IEmploymentCheckClient> _logger;
 
         public SubmitLearnerDataClient(
             ISubmitLearnerDataService submitLearnerDataService,
-            ILogger<IEmploymentCheckClient> logger)
+            ILoggerAdapter<IEmploymentCheckClient> logger)
         {
             _submitLearnerDataService = submitLearnerDataService;
             _logger = logger;
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         {
             var thisMethodName = "SubmitLearnerDataClient.GetApprenticesNiNumber()";
 
-            IList<ApprenticeNiNumber> ApprenticesNiNumber = null;
+            IList<ApprenticeNiNumber> ApprenticesNiNumber;
             try
             {
                 if (apprentices != null)
@@ -38,21 +38,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
                     ApprenticesNiNumber = await _submitLearnerDataService.GetApprenticesNiNumber(apprentices);
                     if (ApprenticesNiNumber != null && ApprenticesNiNumber.Count > 0)
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"returned [{ApprenticesNiNumber.Count}] apprentices NI Numbers.");
+                        _logger.LogInformation($"{thisMethodName}: returned [{ApprenticesNiNumber.Count}] apprentices NI Numbers");
+                        //Log.WriteLog(_logger, thisMethodName, $"returned [{ApprenticesNiNumber.Count}] apprentices NI Numbers.");
                     }
                     else
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"returned null/zero apprentices NI Numbers.");
+                        _logger.LogInformation($"{thisMethodName}: returned null/zero apprentices NI Numbers");
+                        //Log.WriteLog(_logger, thisMethodName, $"returned null/zero apprentices NI Numbers.");
+                        ApprenticesNiNumber = new List<ApprenticeNiNumber>();
                     }
                 }
                 else
                 {
-                    Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
+                    _logger.LogInformation("ERROR apprentices parameter is NULL, no employer PAYE schemes retrieved");
+                    //Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
+                    ApprenticesNiNumber = new List<ApprenticeNiNumber>();
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                ApprenticesNiNumber = new List<ApprenticeNiNumber>();
             }
 
             return ApprenticesNiNumber;

@@ -11,11 +11,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
     public class EmployerAccountServiceStub : IEmployerAccountService
     {
         private readonly IEmployerAccountApiClient _accountsApiClient;
-        private readonly ILogger<IEmployerAccountService> _logger;
+        private readonly ILoggerAdapter<IEmployerAccountService> _logger;
 
         public EmployerAccountServiceStub(
             IEmployerAccountApiClient accountsApiClient,
-            ILogger<IEmployerAccountService> logger)
+            ILoggerAdapter<IEmployerAccountService> logger)
         {
             _accountsApiClient = accountsApiClient;
             _logger = logger;

@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Services;
 
@@ -9,14 +10,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public class HmrcServiceStub : IHmrcService
     {
-        private IRandomNumberService _randomNumberService;
-        private readonly ILogger<IApprenticeshipLevyApiClient> _logger;
+        //private IRandomNumberService _randomNumberService;
+        private readonly ILoggerAdapter<IApprenticeshipLevyApiClient> _logger;
 
         public HmrcServiceStub(
-            IRandomNumberService randomNumberService,
-            ILogger<IApprenticeshipLevyApiClient> logger)
+            //IRandomNumberService randomNumberService,
+            ILoggerAdapter<IApprenticeshipLevyApiClient> logger)
         {
-            _randomNumberService = randomNumberService;
+            //_randomNumberService = randomNumberService;
             _logger = logger;
         }
 
@@ -25,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             //var thisMethodName = $"HmrcServiceStub.IsNationalInsuranceNumberRelatedToPayeScheme()";
             //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
-            var employmentStatus = _randomNumberService.GetRandomBool();
+            var employmentStatus = Convert.ToBoolean(new Random().Next(0, 1));
 
             //_logger.LogInformation($"{messagePrefix} IsNationalInsuranceNumberRelatedToPayeScheme() returned {employmentStatus}");
 
