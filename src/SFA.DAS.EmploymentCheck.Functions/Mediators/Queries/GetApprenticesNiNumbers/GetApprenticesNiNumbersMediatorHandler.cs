@@ -16,11 +16,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
             GetApprenticesNiNumberMediatorResult>
     {
         private ISubmitLearnerDataClient _submitLearnerDataClient;
-        private ILoggerAdapter<GetApprenticesNiNumbersMediatorHandler> _logger;
+        private ILogger<GetApprenticesNiNumbersMediatorHandler> _logger;
 
         public GetApprenticesNiNumbersMediatorHandler(
             ISubmitLearnerDataClient submitLearnerDataClient,
-            ILoggerAdapter<GetApprenticesNiNumbersMediatorHandler> logger)
+            ILogger<GetApprenticesNiNumbersMediatorHandler> logger)
         {
             _submitLearnerDataClient = submitLearnerDataClient;
             _logger = logger;

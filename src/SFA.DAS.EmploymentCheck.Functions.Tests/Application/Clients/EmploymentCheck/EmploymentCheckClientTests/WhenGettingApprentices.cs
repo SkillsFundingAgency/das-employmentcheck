@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -15,13 +16,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
     {
         private readonly Mock<EmploymentCheckDbConfiguration> _employmentCheckDbConfiguration;
         private readonly Mock<IEmploymentCheckService> _employmentCheckService;
-        private readonly Mock<ILoggerAdapter<IEmploymentCheckClient>> _logger;
+        private readonly Mock<ILogger<IEmploymentCheckClient>> _logger;
 
         public WhenGettingApprentices()
         {
             _employmentCheckDbConfiguration = new Mock<EmploymentCheckDbConfiguration>();
             _employmentCheckService = new Mock<IEmploymentCheckService>();
-            _logger = new Mock<ILoggerAdapter<IEmploymentCheckClient>>();
+            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
         }
 
         [Fact]

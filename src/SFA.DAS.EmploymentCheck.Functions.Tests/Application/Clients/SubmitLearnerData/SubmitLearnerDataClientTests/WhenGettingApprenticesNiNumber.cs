@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Dynamitey.DynamicObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
@@ -15,12 +16,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
     public class WhenGettingApprenticesNiNumber
     {
         private readonly Mock<ISubmitLearnerDataService> _submitLearnerDataService;
-        private readonly Mock<ILoggerAdapter<IEmploymentCheckClient>> _logger;
+        private readonly Mock<ILogger<IEmploymentCheckClient>> _logger;
 
         public WhenGettingApprenticesNiNumber()
         {
             _submitLearnerDataService = new Mock<ISubmitLearnerDataService>();
-            _logger = new Mock<ILoggerAdapter<IEmploymentCheckClient>>();
+            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
         }
 
         [Fact]

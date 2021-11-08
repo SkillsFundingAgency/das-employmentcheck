@@ -15,14 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILoggerAdapter<GetEmployersPayeSchemesActivity>> _logger;
+        private readonly Mock<ILogger<GetEmployersPayeSchemesActivity>> _logger;
         private readonly Apprentice _apprentice;
         private readonly IList<Apprentice> _apprentices;
         public WhenCallingGet()
         {
             _mediator = new Mock<IMediator>();
 
-            _logger = new Mock<ILoggerAdapter<GetEmployersPayeSchemesActivity>>();
+            _logger = new Mock<ILogger<GetEmployersPayeSchemesActivity>>();
 
             _apprentice = new Apprentice(1,
                 1000001,

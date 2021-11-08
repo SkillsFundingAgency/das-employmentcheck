@@ -10,10 +10,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
 {
     public class SubmitLearnerDataServiceStub : ISubmitLearnerDataService
     {
-        private readonly ILoggerAdapter<ISubmitLearnerDataService> _logger;
+        private readonly ILogger<ISubmitLearnerDataService> _logger;
 
         public SubmitLearnerDataServiceStub(
-            ILoggerAdapter<ISubmitLearnerDataService> logger)
+            ILogger<ISubmitLearnerDataService> logger)
         {
             _logger = logger;
         }

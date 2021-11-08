@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
@@ -12,13 +13,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
     public class WhenGettingEmployerAccount
     {
         private readonly Mock<IEmployerAccountApiClient> _accountsApiClient;
-        private readonly Mock<ILoggerAdapter<IEmployerAccountService>> _logger;
+        private readonly Mock<ILogger<IEmployerAccountService>> _logger;
         private readonly long _accountId;
 
         public WhenGettingEmployerAccount()
         {
             _accountsApiClient = new Mock<IEmployerAccountApiClient>();
-            _logger = new Mock<ILoggerAdapter<IEmployerAccountService>>();
+            _logger = new Mock<ILogger<IEmployerAccountService>>();
             _accountId = 1;
         }
 

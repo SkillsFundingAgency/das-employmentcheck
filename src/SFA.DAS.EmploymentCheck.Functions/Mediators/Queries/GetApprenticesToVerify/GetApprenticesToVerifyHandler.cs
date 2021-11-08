@@ -15,13 +15,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVe
     public class GetApprenticesToVerifyHandler : IRequestHandler<GetApprenticesToVerifyRequest, GetApprenticesToVerifyResult>
     {
         private IEmploymentCheckService _employmentCheckService;
-        private ILoggerAdapter<GetApprenticesToVerifyHandler> _logger;
+        private ILogger<GetApprenticesToVerifyHandler> _logger;
         private readonly string _connectionString =
             System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
 
         public GetApprenticesToVerifyHandler(
             IEmploymentCheckService employmentCheckService,
-            ILoggerAdapter<GetApprenticesToVerifyHandler> logger)
+            ILogger<GetApprenticesToVerifyHandler> logger)
         {
             _employmentCheckService = employmentCheckService;
             _logger = logger;

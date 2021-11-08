@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
@@ -15,13 +16,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
     public class WhenGettingEmployersPayeSchemes
     {
         private readonly Mock<IEmployerAccountService> _employerAccountService;
-        private readonly Mock<ILoggerAdapter<IEmploymentCheckClient>> _logger;
+        private readonly Mock<ILogger<IEmploymentCheckClient>> _logger;
         private readonly List<Apprentice> _apprentices;
 
         public WhenGettingEmployersPayeSchemes()
         {
             _employerAccountService = new Mock<IEmployerAccountService>();
-            _logger = new Mock<ILoggerAdapter<IEmploymentCheckClient>>();
+            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
 
             var apprentice = new Apprentice(
                 1,

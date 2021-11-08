@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Dynamitey.DynamicObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
@@ -15,12 +16,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
     public class WhenHandlingTheRequest
     {
         private readonly Mock<IEmploymentCheckService> _employmentCheckService;
-        private readonly Mock<ILoggerAdapter<GetApprenticesToVerifyHandler>> _logger;
+        private readonly Mock<ILogger<GetApprenticesToVerifyHandler>> _logger;
 
         public WhenHandlingTheRequest()
         {
             _employmentCheckService = new Mock<IEmploymentCheckService>();
-            _logger = new Mock<ILoggerAdapter<GetApprenticesToVerifyHandler>>();
+            _logger = new Mock<ILogger<GetApprenticesToVerifyHandler>>();
         }
 
         [Fact]

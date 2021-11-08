@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILoggerAdapter<GetApprenticesNiNumberActivity>> _logger;
+        private readonly Mock<ILogger<GetApprenticesNiNumberActivity>> _logger;
         private readonly Apprentice _apprentice;
         private readonly ApprenticeNiNumber _apprenticeNiNumber;
         private readonly IList<Apprentice> _apprentices;
@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
         {
             _mediator = new Mock<IMediator>();
 
-            _logger = new Mock<ILoggerAdapter<GetApprenticesNiNumberActivity>>();
+            _logger = new Mock<ILogger<GetApprenticesNiNumberActivity>>();
 
             _apprentice = new Apprentice(1,
                 1000001,

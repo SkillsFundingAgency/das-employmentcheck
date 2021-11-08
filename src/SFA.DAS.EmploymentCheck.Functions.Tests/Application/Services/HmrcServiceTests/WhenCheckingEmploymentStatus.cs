@@ -2,6 +2,7 @@
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
@@ -16,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
     public class WhenCheckingEmploymentStatus
     {
         private readonly Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private readonly Mock<ILoggerAdapter<HmrcService>> _logger;
+        private readonly Mock<ILogger<HmrcService>> _logger;
         private readonly Mock<ITokenServiceApiClient> _tokenService;
         private readonly PrivilegedAccessToken _token;
         private readonly Apprentice _apprentice;
@@ -25,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         public WhenCheckingEmploymentStatus()
         {
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _logger = new Mock<ILoggerAdapter<HmrcService>>();
+            _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             
             _token = new PrivilegedAccessToken();

@@ -10,7 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
     public class EmploymentCheckTimer
     {
         [FunctionName(nameof(EmploymentCheckTimer))]
-        public async Task Run([TimerTrigger("%EmploymentCheckTriggerTime%", RunOnStartup = false)]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient starter, ILoggerAdapter log)
+        public async Task Run([TimerTrigger("%EmploymentCheckTriggerTime%", RunOnStartup = false)]TimerInfo myTimer, [DurableClient] IDurableOrchestrationClient starter, ILogger log)
         {
             log.LogInformation("Auto Triggering EmploymentCheckOrchestrator");
 

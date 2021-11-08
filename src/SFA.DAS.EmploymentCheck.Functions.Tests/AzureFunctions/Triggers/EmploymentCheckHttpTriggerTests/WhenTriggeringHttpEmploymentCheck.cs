@@ -14,13 +14,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
     {
         private readonly Mock<HttpRequestMessage> _request;
         private readonly Mock<IDurableOrchestrationClient> _starter;
-        private readonly Mock<ILoggerAdapter> _logger;
+        private readonly Mock<ILogger> _logger;
 
         public WhenTriggeringHttpEmploymentCheck()
         {
             _request = new Mock<HttpRequestMessage>();
             _starter = new Mock<IDurableOrchestrationClient>();
-            _logger = new Mock<ILoggerAdapter>();
+            _logger = new Mock<ILogger>();
         }
 
         [Fact]

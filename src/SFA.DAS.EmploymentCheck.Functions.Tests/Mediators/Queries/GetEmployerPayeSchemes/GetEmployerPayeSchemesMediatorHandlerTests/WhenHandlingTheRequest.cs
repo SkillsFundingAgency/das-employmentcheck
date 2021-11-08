@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -14,12 +15,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
     public class WhenHandlingTheRequest
     {
         private readonly Mock<IEmployerAccountClient> _employerAccountClient;
-        private readonly Mock<ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler>> _logger;
+        private readonly Mock<ILogger<GetEmployerPayeSchemesMediatorHandler>> _logger;
 
         public WhenHandlingTheRequest()
         {
             _employerAccountClient = new Mock<IEmployerAccountClient>();
-            _logger = new Mock<ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler>>();
+            _logger = new Mock<ILogger<GetEmployerPayeSchemesMediatorHandler>>();
         }
 
         [Fact]

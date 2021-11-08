@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -14,12 +15,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
     public class WhenHandlingTheRequest
     {
         private readonly Mock<ISubmitLearnerDataClient> _submitLearnerDataClient;
-        private readonly Mock<ILoggerAdapter<GetApprenticesNiNumbersMediatorHandler>> _logger;
+        private readonly Mock<ILogger<GetApprenticesNiNumbersMediatorHandler>> _logger;
 
         public WhenHandlingTheRequest()
         {
             _submitLearnerDataClient = new Mock<ISubmitLearnerDataClient>();
-            _logger = new Mock<ILoggerAdapter<GetApprenticesNiNumbersMediatorHandler>>();
+            _logger = new Mock<ILogger<GetApprenticesNiNumbersMediatorHandler>>();
         }
 
         [Fact]

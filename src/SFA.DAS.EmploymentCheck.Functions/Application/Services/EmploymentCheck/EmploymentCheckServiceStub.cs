@@ -16,14 +16,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
     public class EmploymentCheckServiceStub : IEmploymentCheckService
     {
         private IRandomNumberService _randomNumberService;
-        private readonly ILoggerAdapter<IEmploymentCheckService> _logger;
+        private readonly ILogger<IEmploymentCheckService> _logger;
 
         private readonly string _connectionString =
             System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
 
         public EmploymentCheckServiceStub(
             IRandomNumberService randomNumberService,
-            ILoggerAdapter<IEmploymentCheckService> logger)
+            ILogger<IEmploymentCheckService> logger)
         {
             _randomNumberService = randomNumberService;
             _logger = logger;
