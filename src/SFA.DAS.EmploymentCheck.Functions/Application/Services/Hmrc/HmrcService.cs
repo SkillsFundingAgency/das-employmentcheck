@@ -12,10 +12,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
     public class HmrcService : IHmrcService
     {
         private IApprenticeshipLevyApiClient _apprenticeshipLevyService;
-        private readonly ILoggerAdapter<HmrcService> _logger;
+        private readonly ILogger<HmrcService> _logger;
         private ITokenServiceApiClient _tokenService;
 
-        public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILoggerAdapter<HmrcService> logger)
+        public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILogger<HmrcService> logger)
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;

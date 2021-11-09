@@ -14,11 +14,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     public class GetApprenticesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILoggerAdapter<GetApprenticesActivity> _logger;
+        private readonly ILogger<GetApprenticesActivity> _logger;
 
         public GetApprenticesActivity(
             IMediator mediator,
-            ILoggerAdapter<GetApprenticesActivity> logger)
+            ILogger<GetApprenticesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;

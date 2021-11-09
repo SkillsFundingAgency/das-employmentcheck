@@ -17,12 +17,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILoggerAdapter<GetApprenticesActivity>> _logger;
+        private readonly Mock<ILogger<GetApprenticesActivity>> _logger;
         private readonly Apprentice _apprentice;
         public WhenCallingGet()
         {
             _mediator = new Mock<IMediator>();
-            _logger = new Mock<ILoggerAdapter<GetApprenticesActivity>>();
+            _logger = new Mock<ILogger<GetApprenticesActivity>>();
             _apprentice = new Apprentice(1,
                 1000001, 
                 "1000001",
@@ -69,9 +69,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetA
 
             //Assert
             Assert.Equal(new List<Apprentice>(), result);
-            _logger.Verify(x =>
-                x.LogInformation(
-                    $"\n\nGetApprenticesActivity.Get(): Exception caught - {exception.Message}. {exception.StackTrace}"));
 
         }
     }

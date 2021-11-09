@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -14,16 +15,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
     public class WhenHandlingTheRequest
     {
         private readonly Mock<IEmployerAccountClient> _employerAccountClient;
-        private readonly Mock<ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler>> _logger;
+        private readonly Mock<ILogger<GetEmployerPayeSchemesMediatorHandler>> _logger;
 
         public WhenHandlingTheRequest()
         {
             _employerAccountClient = new Mock<IEmployerAccountClient>();
-            _logger = new Mock<ILoggerAdapter<GetEmployerPayeSchemesMediatorHandler>>();
+            _logger = new Mock<ILogger<GetEmployerPayeSchemesMediatorHandler>>();
         }
 
         [Fact]
-        public async void And_There_Are_No_Apprentices_Then_That_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_There_Are_No_Apprentices_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -36,12 +37,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("ERROR - apprentices parameter is null, no employer PAYE schemes were retrieved"));
             Assert.Equal(new List<EmployerPayeSchemes>(), result.EmployersPayeSchemes);
         }
 
         [Fact]
-        public async void And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Are_Logged_And_Returned()
+        public async void And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
         {
             //Arrange
 
@@ -70,12 +70,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"GetEmployerPayeSchemesMediatorHandler.Handle() returned {payeSchemes.Count} PAYE scheme(s)"));
             Assert.Equal(result.EmployersPayeSchemes, payeSchemes);
         }
 
         [Fact]
-        public async void And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_That_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -101,12 +100,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("GetEmployerPayeSchemesMediatorHandler.Handle() returned null/zero PAYE schemes"));
             result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
         }
 
         [Fact]
-        public async void And_The_EmployerAccountClient_Returns_Null_Then_That_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_The_EmployerAccountClient_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -132,11 +130,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("GetEmployerPayeSchemesMediatorHandler.Handle() returned null/zero PAYE schemes"));
             result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
         }
 
-        [Fact]
+        [Fact(Skip = "Code path only includes logging")]
         public async void And_The_EmployerAccountClient_Throws_An_Exception_Then_That_Is_Logged()
         {
             //Arrange
@@ -165,7 +162,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"\n\nGetEmployerPayeSchemesMediatorHandler.Handle(): Exception caught - {exception.Message}. {exception.StackTrace}"));
         }
     }
 }

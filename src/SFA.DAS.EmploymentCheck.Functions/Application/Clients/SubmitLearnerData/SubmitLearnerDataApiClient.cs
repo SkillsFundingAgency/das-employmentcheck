@@ -19,14 +19,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         private IWebHostEnvironment _hostingEnvironment;
         private SubmitLearnerDataApiConfiguration _configuration;
         private IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private ILoggerAdapter<IEmployerAccountApiClient> _logger;
+        private ILogger<IEmployerAccountApiClient> _logger;
 
         public SubmitLearnerDataApiClient(
             IHttpClientFactory httpClientFactory,
             SubmitLearnerDataApiConfiguration apiConfiguration,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
-            ILoggerAdapter<IEmployerAccountApiClient> logger)
+            ILogger<IEmployerAccountApiClient> logger)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);

@@ -13,9 +13,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     public class CheckApprentice
     {
         private readonly IMediator _mediator;
-        private readonly ILoggerAdapter<CheckApprentice> _logger;
+        private readonly ILogger<CheckApprentice> _logger;
 
-        public CheckApprentice(IMediator mediator, ILoggerAdapter<CheckApprentice> logger)
+        public CheckApprentice(IMediator mediator, ILogger<CheckApprentice> logger)
         {
             _mediator = mediator;
             _logger = logger;

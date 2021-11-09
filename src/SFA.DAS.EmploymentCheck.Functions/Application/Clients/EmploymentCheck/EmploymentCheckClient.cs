@@ -14,12 +14,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
     {
         private EmploymentCheckDbConfiguration _employmentCheckDbConfiguration;
         private IEmploymentCheckService _employmentCheckService;
-        private ILoggerAdapter<IEmploymentCheckClient> _logger;
+        private ILogger<IEmploymentCheckClient> _logger;
 
         public EmploymentCheckClient(
             EmploymentCheckDbConfiguration employmentCheckDbConfiguration,
             IEmploymentCheckService employmentCheckService,
-            ILoggerAdapter<IEmploymentCheckClient> logger)
+            ILogger<IEmploymentCheckClient> logger)
         {
             _employmentCheckDbConfiguration = employmentCheckDbConfiguration;
             _employmentCheckService = employmentCheckService;

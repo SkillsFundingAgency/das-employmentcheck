@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Dynamitey.DynamicObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
@@ -15,12 +16,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
     public class WhenGettingApprenticesNiNumber
     {
         private readonly Mock<ISubmitLearnerDataService> _submitLearnerDataService;
-        private readonly Mock<ILoggerAdapter<IEmploymentCheckClient>> _logger;
+        private readonly Mock<ILogger<IEmploymentCheckClient>> _logger;
 
         public WhenGettingApprenticesNiNumber()
         {
             _submitLearnerDataService = new Mock<ISubmitLearnerDataService>();
-            _logger = new Mock<ILoggerAdapter<IEmploymentCheckClient>>();
+            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
         }
 
         [Fact]
@@ -55,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
 
         [Fact]
         public async void
-            And_The_SubmitLearnerDataService_Returns_No_Ni_Numbers_Then_It_Is_Logged_And_Returns_An_Empty_List()
+            And_The_SubmitLearnerDataService_Returns_No_Ni_Numbers_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -81,12 +82,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("SubmitLearnerDataClient.GetApprenticesNiNumber(): returned null/zero apprentices NI Numbers"));
             result.Should().BeEquivalentTo(new List<ApprenticeNiNumber>());
         }
         [Fact]
         public async void
-            And_The_SubmitLearnerDataService_Returns_Null_Then_It_Is_Logged_And_Returns_An_Empty_List()
+            And_The_SubmitLearnerDataService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -112,13 +112,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("SubmitLearnerDataClient.GetApprenticesNiNumber(): returned null/zero apprentices NI Numbers"));
             result.Should().BeEquivalentTo(new List<ApprenticeNiNumber>());
         }
 
         [Fact]
         public async void
-            And_The_SubmitLearnerDataService_Returns_Ni_Numbers_Then_It_Is_Logged_And_They_Are_Returned()
+            And_The_SubmitLearnerDataService_Returns_Ni_Numbers_Then_They_Are_Returned()
         {
             //Arrange
 
@@ -147,12 +146,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"SubmitLearnerDataClient.GetApprenticesNiNumber(): returned [{niNumbers.Count}] apprentices NI Numbers"));
             Assert.Equal(niNumbers, result);
         }
 
         [Fact]
-        public async void And_No_Apprentices_Are_Passed_In_Then_It_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_No_Apprentices_Are_Passed_In_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -164,12 +162,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("ERROR apprentices parameter is NULL, no employer PAYE schemes retrieved"));
             result.Should().BeEquivalentTo(new List<ApprenticeNiNumber>());
         }
 
         [Fact]
-        public async void And_An_Exception_Is_Thrown_Then_It_Is_logged_And_An_Empty_List_Is_Returned()
+        public async void And_An_Exception_Is_Thrown_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -185,7 +182,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"\n\nSubmitLearnerDataClient.GetApprenticesNiNumber(): Exception caught - {exception.Message}. {exception.StackTrace}"));
             result.Should().BeEquivalentTo(new List<ApprenticeNiNumber>());
         }
     }

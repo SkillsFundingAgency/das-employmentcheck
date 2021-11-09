@@ -12,9 +12,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class TestEmploymentCheckOrchestrator
     {
-        private ILoggerAdapter<TestEmploymentCheckOrchestrator> _logger;
+        private ILogger<TestEmploymentCheckOrchestrator> _logger;
 
-        public TestEmploymentCheckOrchestrator(ILoggerAdapter<TestEmploymentCheckOrchestrator> logger)
+        public TestEmploymentCheckOrchestrator(ILogger<TestEmploymentCheckOrchestrator> logger)
         {
             _logger = logger;
         }

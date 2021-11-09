@@ -18,14 +18,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         private IWebHostEnvironment _hostingEnvironment;
         private EmployerAccountApiConfiguration _configuration;
         private IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private ILoggerAdapter<IEmployerAccountApiClient> _logger;
+        private ILogger<IEmployerAccountApiClient> _logger;
 
         public EmployerAccountApiClient(
             IHttpClientFactory httpClientFactory,
             EmployerAccountApiConfiguration apiConfiguration,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
-            ILoggerAdapter<IEmployerAccountApiClient> logger)
+            ILogger<IEmployerAccountApiClient> logger)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);

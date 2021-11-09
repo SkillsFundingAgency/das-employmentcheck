@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentCheckOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
-            ILoggerAdapter log)
+            ILogger log)
         {
             log.LogInformation($"Triggering EmploymentCheckOrchestrator");
 

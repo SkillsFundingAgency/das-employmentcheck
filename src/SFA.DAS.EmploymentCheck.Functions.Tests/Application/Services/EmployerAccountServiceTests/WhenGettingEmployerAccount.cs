@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
@@ -12,13 +13,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
     public class WhenGettingEmployerAccount
     {
         private readonly Mock<IEmployerAccountApiClient> _accountsApiClient;
-        private readonly Mock<ILoggerAdapter<IEmployerAccountService>> _logger;
+        private readonly Mock<ILogger<IEmployerAccountService>> _logger;
         private readonly long _accountId;
 
         public WhenGettingEmployerAccount()
         {
             _accountsApiClient = new Mock<IEmployerAccountApiClient>();
-            _logger = new Mock<ILoggerAdapter<IEmployerAccountService>>();
+            _logger = new Mock<ILogger<IEmployerAccountService>>();
             _accountId = 1;
         }
 
@@ -42,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_An_Account_Then_It_Is_Logged_And_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_An_Account_Then_It_Is_Returned()
         {
             //Arrange
 
@@ -64,15 +65,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
             var result = await sut.GetEmployerAccount(_accountId);
 
             //Assert
-
-            _logger.Verify(x =>
-                x.LogInformation(
-                    $"AccountsService.GetAccountDetail(): returned {account.PayeSchemes.Count} PAYE schemes"));
+            
             Assert.Equal(account, result);
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_Null_Then_It_Is_Logged_And_Null_Is_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_Null_Then_Null_Is_Returned()
         {
             //Arrange
 
@@ -87,12 +85,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("AccountsService.GetAccountDetail(): returned null/zero PAYE schemes"));
             Assert.Null(result);
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_Null_PayeSchemes_Then_It_Is_Logged_And_AccountDetailViewModel_Is_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_Null_PayeSchemes_Then_AccountDetailViewModel_Is_Returned()
         {
             //Arrange
 
@@ -109,12 +106,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("AccountsService.GetAccountDetail(): returned null/zero PAYE schemes"));
             Assert.Equal(account, result);
         }
 
         [Fact]
-        public async void And_The_EmployerAccountApiClient_Returns_Zero_PayeSchemes_Then_It_Is_Logged_And_AccountDetailViewModel_Is_Returned()
+        public async void And_The_EmployerAccountApiClient_Returns_Zero_PayeSchemes_Then_The_AccountDetailViewModel_Is_Returned()
         {
             //Arrange
 
@@ -131,13 +127,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("AccountsService.GetAccountDetail(): returned null/zero PAYE schemes"));
             Assert.Equal(account, result);
         }
 
         [Fact]
         public async void
-            And_The_EmployerAccountApiClient_Throws_An_Exception_Then_It_Is_Logged_And_Null_Is_Returned()
+            And_The_EmployerAccountApiClient_Throws_An_Exception_Then_Null_Is_Returned()
         {
             //Arrange
 
@@ -153,7 +148,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.EmployerA
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"AccountsService.GetAccountDetail()\n\n Exception caught - {exception.Message}. {exception.StackTrace}"));
             Assert.Null(result);
         }
     }

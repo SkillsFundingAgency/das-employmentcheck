@@ -9,10 +9,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 {
     public class SubmitLearnerDataService : ISubmitLearnerDataService
     {
-        private readonly ILoggerAdapter<SubmitLearnerDataService> _logger;
+        private readonly ILogger<SubmitLearnerDataService> _logger;
 
         public SubmitLearnerDataService(
-            ILoggerAdapter<SubmitLearnerDataService> logger)
+            ILogger<SubmitLearnerDataService> logger)
         {
             _logger = logger;
         }

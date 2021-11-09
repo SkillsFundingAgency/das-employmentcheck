@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -15,13 +16,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
     {
         private readonly Mock<EmploymentCheckDbConfiguration> _employmentCheckDbConfiguration;
         private readonly Mock<IEmploymentCheckService> _employmentCheckService;
-        private readonly Mock<ILoggerAdapter<IEmploymentCheckClient>> _logger;
+        private readonly Mock<ILogger<IEmploymentCheckClient>> _logger;
 
         public WhenGettingApprentices()
         {
             _employmentCheckDbConfiguration = new Mock<EmploymentCheckDbConfiguration>();
             _employmentCheckService = new Mock<IEmploymentCheckService>();
-            _logger = new Mock<ILoggerAdapter<IEmploymentCheckClient>>();
+            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
         }
 
         [Fact]
@@ -44,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
         }
 
         [Fact]
-        public async void And_No_Apprentices_Are_Returned_From_The_EmploymentCheckService_Then_That_Is_Logged_And_An_Empty_List_Returned()
+        public async void And_No_Apprentices_Are_Returned_From_The_EmploymentCheckService_Then_An_Empty_List_Returned()
         {
             //Arrange
 
@@ -59,12 +60,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("EmploymentCheckClient.GetApprentices(): returned null/zero apprentices"));
             result.Should().BeEquivalentTo(new List<Apprentice>());
         }
 
         [Fact]
-        public async void And_Null_Is_Returned_From_The_EmploymentCheckService_Then_That_Is_Logged_And_An_Empty_List_Returned()
+        public async void And_Null_Is_Returned_From_The_EmploymentCheckService_ThenAn_Empty_List_Returned()
         {
             //Arrange
 
@@ -79,12 +79,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("EmploymentCheckClient.GetApprentices(): returned null/zero apprentices"));
             result.Should().BeEquivalentTo(new List<Apprentice>());
         }
 
         [Fact]
-        public async void And_Apprentices_Are_Returned_From_The_EmploymentCheckService_Then_It_Is_Logged_And_The_Apprentices_Are_Returned()
+        public async void And_Apprentices_Are_Returned_From_The_EmploymentCheckService_Then_The_Apprentices_Are_Returned()
         {
             //Arrange
 
@@ -110,13 +109,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"EmploymentCheckClient.GetApprentices(): returned [{apprentices.Count}] apprentices"));
             Assert.Equal(apprentices, result);
         }
 
         [Fact]
-        public async void
-            And_The_EmploymentCheckClient_Throws_An_Exception_Then_It_Is_Logged_And_An_Empty_List_Is_Returned()
+        public async void And_The_EmploymentCheckClient_Throws_An_Exception_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -133,7 +130,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.Employment
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"\n\nEmploymentCheckClient.GetApprentices(): Exception caught - {exception.Message}. {exception.StackTrace}"));
             result.Should().BeEquivalentTo(new List<Apprentice>());
         }
 

@@ -2,6 +2,7 @@
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
@@ -16,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
     public class WhenCheckingEmploymentStatus
     {
         private readonly Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private readonly Mock<ILoggerAdapter<HmrcService>> _logger;
+        private readonly Mock<ILogger<HmrcService>> _logger;
         private readonly Mock<ITokenServiceApiClient> _tokenService;
         private readonly PrivilegedAccessToken _token;
         private readonly Apprentice _apprentice;
@@ -25,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         public WhenCheckingEmploymentStatus()
         {
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _logger = new Mock<ILoggerAdapter<HmrcService>>();
+            _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             
             _token = new PrivilegedAccessToken();
@@ -88,8 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         }
 
         [Fact]
-        public async void
-            And_The_ApprenticeshipLevyApiClient_Throws_An_ApiHttpException_Then_It_Is_Logged_And_Returns_False()
+        public async void And_The_ApprenticeshipLevyApiClient_Throws_An_ApiHttpException_Then_It_Returns_False()
         {
             //Arrange
 
@@ -107,7 +107,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"{ DateTime.UtcNow } UTC HmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payScheme paye, [nationalInsuranceNumber for apprentice id {_command.Apprentice.Id}], startDate {DateTime.Today.AddDays(-1)}, endDate {DateTime.Today.AddDays(1)}): Exception caught - {exception.Message}. {exception.StackTrace}"));
             Assert.False(result);
         }
     }
