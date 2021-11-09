@@ -11,11 +11,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
     public class HmrcServiceStub : IHmrcService
     {
         //private IRandomNumberService _randomNumberService;
-        private readonly ILoggerAdapter<IApprenticeshipLevyApiClient> _logger;
+        private readonly ILogger<IApprenticeshipLevyApiClient> _logger;
 
         public HmrcServiceStub(
             //IRandomNumberService randomNumberService,
-            ILoggerAdapter<IApprenticeshipLevyApiClient> logger)
+            ILogger<IApprenticeshipLevyApiClient> logger)
         {
             //_randomNumberService = randomNumberService;
             _logger = logger;

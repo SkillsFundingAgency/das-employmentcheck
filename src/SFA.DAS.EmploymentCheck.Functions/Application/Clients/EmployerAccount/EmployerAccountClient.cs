@@ -14,11 +14,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         : IEmployerAccountClient
     {
         private IEmployerAccountService _employerAccountService;
-        private ILoggerAdapter<IEmploymentCheckClient> _logger;
+        private ILogger<IEmploymentCheckClient> _logger;
 
         public EmployerAccountClient(
             IEmployerAccountService employerAccountService,
-            ILoggerAdapter<IEmploymentCheckClient> logger)
+            ILogger<IEmploymentCheckClient> logger)
         {
             _employerAccountService = employerAccountService;
             _logger = logger;

@@ -16,11 +16,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     public class GetEmployersPayeSchemesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILoggerAdapter<GetEmployersPayeSchemesActivity> _logger;
+        private readonly ILogger<GetEmployersPayeSchemesActivity> _logger;
 
         public GetEmployersPayeSchemesActivity(
             IMediator mediator,
-            ILoggerAdapter<GetEmployersPayeSchemesActivity> logger)
+            ILogger<GetEmployersPayeSchemesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Dynamitey.DynamicObjects;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
@@ -15,12 +16,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
     public class WhenHandlingTheRequest
     {
         private readonly Mock<IEmploymentCheckService> _employmentCheckService;
-        private readonly Mock<ILoggerAdapter<GetApprenticesToVerifyHandler>> _logger;
+        private readonly Mock<ILogger<GetApprenticesToVerifyHandler>> _logger;
 
         public WhenHandlingTheRequest()
         {
             _employmentCheckService = new Mock<IEmploymentCheckService>();
-            _logger = new Mock<ILoggerAdapter<GetApprenticesToVerifyHandler>>();
+            _logger = new Mock<ILogger<GetApprenticesToVerifyHandler>>();
         }
 
         [Fact]
@@ -42,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
         }
 
         [Fact]
-        public async void And_No_Apprentices_Returned_From_The_EmploymentcheckClient_Then_Result_Is_Logged_And_An_Empty_List_Returned()
+        public async void And_No_Apprentices_Returned_From_The_EmploymentcheckClient_Then_An_Empty_List_Returned()
         {
             //Arrange
 
@@ -56,12 +57,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("GetApprenticesToVerifyHandler.Handle() returned null/zero learners"));
             result.ApprenticesToVerify.Should().BeEquivalentTo(new List<Apprentice>());
         }
 
         [Fact]
-        public async void And_Null_Returned_From_The_EmploymentcheckClient_Then_Result_Is_Logged_And_An_Empty_List_Returned()
+        public async void And_Null_Returned_From_The_EmploymentcheckClient_Then_An_Empty_List_Returned()
         {
             //Arrange
 
@@ -75,37 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation("GetApprenticesToVerifyHandler.Handle() returned null/zero learners"));
             result.ApprenticesToVerify.Should().BeEquivalentTo(new List<Apprentice>());
-        }
-
-        [Fact]
-        public async void And_Apprentices_Returned_From_The_EmploymentcheckClient_Then_Result_Is_Logged()
-        {
-            //Arrange
-
-            var apprentice = new Apprentice(
-                1,
-                1,
-                "1000001",
-                1000001,
-                1000001,
-                1,
-                DateTime.Today.AddDays(-1),
-                DateTime.Today.AddDays(1));
-            var apprentices = new List<Apprentice> {apprentice};
-
-            _employmentCheckService.Setup(x => x.GetApprentices()).ReturnsAsync(apprentices);
-
-            var sut = new GetApprenticesToVerifyHandler(_employmentCheckService.Object, _logger.Object);
-
-            //Act
-
-            await sut.Handle(new GetApprenticesToVerifyRequest(), CancellationToken.None);
-
-            //Assert
-
-            _logger.Verify(x => x.LogInformation($"GetApprenticesToVerifyHandler.Handle() returned {apprentices.Count} learner(s)"));
         }
 
         [Fact]
@@ -139,7 +109,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
         [Fact]
         public async void
-            And_The_EmploymentCheckClient_Throws_An_Exception_Then_It_It_Logged_And_An_Empty_List_Is_Returned()
+            And_The_EmploymentCheckClient_Throws_An_Exception_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
 
@@ -151,11 +121,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Act
 
-            await sut.Handle(new GetApprenticesToVerifyRequest(), CancellationToken.None);
+            var result = await sut.Handle(new GetApprenticesToVerifyRequest(), CancellationToken.None);
 
             //Assert
 
-            _logger.Verify(x => x.LogInformation($"GetApprenticesToVerifyHandler.Handle()\n\n Exception caught - {exception.Message}. {exception.StackTrace}"));
+            result.Should().BeEquivalentTo(new GetApprenticesToVerifyResult(null));
         }
     }
 }

@@ -15,13 +15,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.Chec
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILoggerAdapter<CheckApprentice>> _logger;
+        private readonly Mock<ILogger<CheckApprentice>> _logger;
 
         public WhenCallingGet()
         {
             _mediator = new Mock<IMediator>();
 
-            _logger = new Mock<ILoggerAdapter<CheckApprentice>>();
+            _logger = new Mock<ILogger<CheckApprentice>>();
         }
 
         [Fact (Skip = "Method not yet implemented")]

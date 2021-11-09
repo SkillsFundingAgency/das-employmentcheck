@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Helpers
     public static class Log
     {
         public static void WriteLog(
-            ILoggerAdapter logger,
+            ILogger logger,
             string methodName,
             string message,
             IDurableOrchestrationContext context = null)
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Helpers
         }
 
         public static void WriteLog<T>(
-            ILoggerAdapter<T> logger,
+            ILogger<T> logger,
             string methodName,
             string message,
             IDurableOrchestrationContext context = null)
