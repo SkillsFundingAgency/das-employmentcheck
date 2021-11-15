@@ -38,7 +38,7 @@ jobs:
             ServerName: $(SharedSQLServerFQDN)
             SqlUsername: $(SharedSQLServerUsername)
             SqlPassword: $(SharedSQLServerPassword)
-            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.LevyTransferMatching.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
+            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
             DatabaseName: $(DatabaseName)
             OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
             Environment: ${{ parameters.Environment }}
