@@ -9,6 +9,8 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.EmploymentCheck.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions", "SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj", "{5E0EACCB-983C-4431-985B-97246E23BFDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.TestHarness", "SFA.DAS.EmploymentCheck.TestHarness\SFA.DAS.EmploymentCheck.TestHarness.csproj", "{041ACC7D-483B-4D59-AE01-A6770E72BA0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{041ACC7D-483B-4D59-AE01-A6770E72BA0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{041ACC7D-483B-4D59-AE01-A6770E72BA0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{041ACC7D-483B-4D59-AE01-A6770E72BA0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{041ACC7D-483B-4D59-AE01-A6770E72BA0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
