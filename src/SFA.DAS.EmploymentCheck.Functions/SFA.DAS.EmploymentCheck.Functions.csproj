@@ -40,7 +40,4 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Application\Clients\Hmrc\" />
-  </ItemGroup>
 </Project>

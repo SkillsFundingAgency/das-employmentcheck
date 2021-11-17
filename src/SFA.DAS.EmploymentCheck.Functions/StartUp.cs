@@ -7,7 +7,7 @@ using System.IO;
 using MediatR;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -45,7 +45,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
+            //builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetApprenticeEmploymentChecksQueryRequest).Assembly);
 
             // EmploymentChecksDb Configuration
             builder.Services.Configure<EmploymentCheckDbConfiguration>(config.GetSection("EmploymentCheckDbSettings"));

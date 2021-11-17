@@ -6,6 +6,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
 {
     public interface ISubmitLearnerDataClient
     {
-        Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Apprentice> apprentices);
+        Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<ApprenticeEmploymentCheckModel> apprentices);
     }
 }

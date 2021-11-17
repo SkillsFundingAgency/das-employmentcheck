@@ -15,6 +15,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
         : IRequestHandler<GetApprenticesNiNumberMediatorRequest,
             GetApprenticesNiNumberMediatorResult>
     {
+        private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesQueryHandler";
+
         private ISubmitLearnerDataClient _submitLearnerDataClient;
         private ILogger<GetApprenticesNiNumbersMediatorHandler> _logger;
 
@@ -30,13 +32,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
             GetApprenticesNiNumberMediatorRequest request,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = "GetApprenticesNiNumbersHandler.Handle(): ";
+            var thisMethodName = $"{ThisClassName}.Handle(): ";
 
             IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
-
             try
             {
-                apprenticeNiNumbers = await _submitLearnerDataClient.GetApprenticesNiNumber(request.Apprentices);
+                apprenticeNiNumbers = await _submitLearnerDataClient.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck);
 
                 if (apprenticeNiNumbers == null)
                 {
@@ -45,10 +46,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName}Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return await Task.FromResult(new GetApprenticesNiNumberMediatorResult(apprenticeNiNumbers));
+            return new GetApprenticesNiNumberMediatorResult(apprenticeNiNumbers);
         }
     }
 }

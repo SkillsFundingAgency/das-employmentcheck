@@ -1,36 +1,37 @@
 ﻿using HMRC.ESFA.Levy.Api.Client;
-using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
-using SFA.DAS.EmploymentCheck.Functions.Services;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public class HmrcServiceStub : IHmrcService
     {
-        //private IRandomNumberService _randomNumberService;
+        private const string ThisClassName = "\n\nHmrcServiceStub";
+        public const string ErrorMessagePrefix = "[*** ERROR ***]";
+
         private readonly ILogger<IApprenticeshipLevyApiClient> _logger;
 
         public HmrcServiceStub(
-            //IRandomNumberService randomNumberService,
             ILogger<IApprenticeshipLevyApiClient> logger)
         {
-            //_randomNumberService = randomNumberService;
             _logger = logger;
         }
 
-        public async Task<bool> IsNationalInsuranceNumberRelatedToPayeScheme(string payeScheme, CheckApprenticeCommand checkApprenticeCommand, DateTime startDate, DateTime endDate)
+        /// <summary>
+        /// Returns the employment status for the given apprentice NationalInsuranceNumber and PayeScheme between the given Start Date and End Date
+        /// </summary>
+        /// <param name="apprenticeEmploymentCheckMessageModel"></param>
+        /// <returns></returns>
+        public async Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
+            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
-            //var thisMethodName = $"HmrcServiceStub.IsNationalInsuranceNumberRelatedToPayeScheme()";
-            //var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
+            if(apprenticeEmploymentCheckMessageModel != null)
+            {
+                apprenticeEmploymentCheckMessageModel.IsEmployed = true;
+            }
 
-            var employmentStatus = Convert.ToBoolean(new Random().Next(0, 1));
-
-            //_logger.LogInformation($"{messagePrefix} IsNationalInsuranceNumberRelatedToPayeScheme() returned {employmentStatus}");
-
-            return await Task.FromResult(employmentStatus);
+            return await Task.FromResult(apprenticeEmploymentCheckMessageModel);
         }
     }
 }

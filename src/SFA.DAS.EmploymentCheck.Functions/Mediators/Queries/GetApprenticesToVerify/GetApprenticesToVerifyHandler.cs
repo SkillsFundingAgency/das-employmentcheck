@@ -1,63 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Data.SqlClient;
+//using System.Linq;
+//using System.Threading;
+//using System.Threading.Tasks;
+//using MediatR;
+//using Microsoft.Extensions.Logging;
+//using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+//using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
+//using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
-{
-    public class GetApprenticesToVerifyHandler : IRequestHandler<GetApprenticesToVerifyRequest, GetApprenticesToVerifyResult>
-    {
-        private IEmploymentCheckService _employmentCheckService;
-        private ILogger<GetApprenticesToVerifyHandler> _logger;
-        private readonly string _connectionString =
-            System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
+//namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
+//{
+//    public class GetApprenticesToVerifyHandler : IRequestHandler<GetApprenticesToVerifyRequest, GetApprenticesToVerifyResult>
+//    {
+//        private IEmploymentCheckService _employmentCheckService;
+//        private ILogger<GetApprenticesToVerifyHandler> _logger;
+//        private readonly string _connectionString =
+//            System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
 
-        public GetApprenticesToVerifyHandler(
-            IEmploymentCheckService employmentCheckService,
-            ILogger<GetApprenticesToVerifyHandler> logger)
-        {
-            _employmentCheckService = employmentCheckService;
-            _logger = logger;
-        }
+//        public GetApprenticesToVerifyHandler(
+//            IEmploymentCheckService employmentCheckService,
+//            ILogger<GetApprenticesToVerifyHandler> logger)
+//        {
+//            _employmentCheckService = employmentCheckService;
+//            _logger = logger;
+//        }
 
-        public async Task<GetApprenticesToVerifyResult> Handle(
-            GetApprenticesToVerifyRequest request,
-            CancellationToken cancellationToken)
-        {
-            var thisMethodName = "GetApprenticesToVerifyHandler.Handle()";
+//        public async Task<GetApprenticesToVerifyResult> Handle(
+//            GetApprenticesToVerifyRequest request,
+//            CancellationToken cancellationToken)
+//        {
+//            var thisMethodName = "GetApprenticesToVerifyHandler.Handle()";
 
-            IList<Apprentice> apprentices = null;
+//            IList<Apprentice> apprentices = null;
 
-            try
-            {
-                // Call the data repository to get the apprentices to check
-                apprentices = await _employmentCheckService.GetApprentices();
+//            try
+//            {
+//                // Call the data repository to get the apprentices to check
+//                apprentices = await _employmentCheckService.GetApprenticeEmploymentChecks();
 
-                if (apprentices != null && apprentices.Count > 0)
-                {
-                    _logger.LogInformation($"{thisMethodName} returned {apprentices.Count} learner(s)");
-                    //Log.WriteLog(_logger, thisMethodName, $"returned {apprentices.Count} learner(s)");
-                }
-                else
-                {
-                    _logger.LogInformation($"{thisMethodName} returned null/zero learners");
-                    //Log.WriteLog(_logger, thisMethodName, $"returned null/zero learners.");
-                    apprentices = new List<Apprentice>(); // return empty list rather than null
-                }
-            }
-            catch(Exception ex)
-            {
-                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
+//                if (apprentices != null && apprentices.Count > 0)
+//                {
+//                    _logger.LogInformation($"{thisMethodName} returned {apprentices.Count} learner(s)");
+//                    //Log.WriteLog(_logger, thisMethodName, $"returned {apprentices.Count} learner(s)");
+//                }
+//                else
+//                {
+//                    _logger.LogInformation($"{thisMethodName} returned null/zero learners");
+//                    //Log.WriteLog(_logger, thisMethodName, $"returned null/zero learners.");
+//                    apprentices = new List<Apprentice>(); // return empty list rather than null
+//                }
+//            }
+//            catch(Exception ex)
+//            {
+//                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
+//            }
 
-            return new GetApprenticesToVerifyResult(apprentices);
-        }
-    }
-}
+//            return new GetApprenticesToVerifyResult(apprentices);
+//        }
+//    }
+//}

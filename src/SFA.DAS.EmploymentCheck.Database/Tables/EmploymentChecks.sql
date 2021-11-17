@@ -5,14 +5,14 @@
     [UKPRN] BIGINT NULL,
     [ApprenticeshipId] BIGINT NULL,
     [AccountId] BIGINT NULL,
-    [NationalInsuranceNumber] NCHAR(9) NOT NULL,
+    [NationalInsuranceNumber] NCHAR(9) NULL,
     [MinDate] DATETIME NOT NULL,
     [MaxDate] DATETIME NOT NULL,
     [CheckType] NVARCHAR(20) NOT NULL,
     [IsEmployed] BIT NULL,
     [LastUpdated] DATETIME NULL,
     [CreatedDate] DATETIME NULL DEFAULT getdate(),
-    [HasBeenChecked] BIT NOT NULL DEFAULT 0, 
+    [HasBeenChecked] BIT NOT NULL DEFAULT 0,
     CONSTRAINT UC_EmploymentChecks UNIQUE (Accountid, uln, ukprn, apprenticeshipid, nationalinsurancenumber, checktype)
 )
 GO

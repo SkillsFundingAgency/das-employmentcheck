@@ -7,11 +7,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
     public class GetApprenticesNiNumberMediatorRequest
         : IRequest<GetApprenticesNiNumberMediatorResult>
     {
-        public GetApprenticesNiNumberMediatorRequest(IList<Apprentice> apprentices)
+        public GetApprenticesNiNumberMediatorRequest(
+            IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentCheck)
         {
-            Apprentices = apprentices;
+            ApprenticeEmploymentCheck = apprenticeEmploymentCheck;
         }
 
-        public IList<Apprentice> Apprentices { get; }
+        public IList<ApprenticeEmploymentCheckModel> ApprenticeEmploymentCheck { get; }
     }
 }

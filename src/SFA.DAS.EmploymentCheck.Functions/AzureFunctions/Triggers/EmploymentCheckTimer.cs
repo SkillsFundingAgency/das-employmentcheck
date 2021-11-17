@@ -14,7 +14,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         {
             log.LogInformation("Auto Triggering EmploymentCheckOrchestrator");
 
-            string instanceId = await starter.StartNewAsync(nameof(TestEmploymentCheckOrchestrator));
+            string instanceId = await starter.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator));
 
             log.LogInformation($"Auto Started EmploymentCheckOrchestrator with ID = '{instanceId}'.");
         }

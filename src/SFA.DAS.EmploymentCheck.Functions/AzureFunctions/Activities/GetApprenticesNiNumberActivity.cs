@@ -14,6 +14,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetApprenticesNiNumberActivity
     {
+        private const string ThisClassName = "\n\nGetApprenticesNiNumberActivity";
         private readonly IMediator _mediator;
         private readonly ILogger<GetApprenticesNiNumberActivity> _logger;
 
@@ -26,9 +27,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetApprenticesNiNumberActivity))]
-        public async Task<IList<ApprenticeNiNumber>> Get([ActivityTrigger] IList<Apprentice> apprentices)
+        public async Task<IList<ApprenticeNiNumber>> Get([ActivityTrigger] IList<ApprenticeEmploymentCheckModel> apprentices)
         {
-            var thisMethodName = "GetApprenticesNiNumbersActivity.Get()";
+            var thisMethodName = $"{ThisClassName}.Get()";
 
             GetApprenticesNiNumberMediatorResult getApprenticesNiNumberResult;
             try

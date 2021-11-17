@@ -7,12 +7,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
     public class GetEmployersPayeSchemesMediatorRequest
         : IRequest<GetEmployersPayeSchemesMediatorResult>
     {
-        public GetEmployersPayeSchemesMediatorRequest(IList<Apprentice> apprentices)
+        public GetEmployersPayeSchemesMediatorRequest(IList<ApprenticeEmploymentCheckModel> apprentices)
         {
             Apprentices = apprentices;
         }
 
-        public IList<Apprentice> Apprentices { get; }
+        public IList<ApprenticeEmploymentCheckModel> Apprentices { get; }
     }
 }
 

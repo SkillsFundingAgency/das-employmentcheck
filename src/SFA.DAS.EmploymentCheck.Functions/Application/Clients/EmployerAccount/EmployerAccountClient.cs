@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Apprentice> apprentices)
+            IList<ApprenticeEmploymentCheckModel> apprentices)
         {
             var thisMethodName = "GetApprenticesNiNumberClient.Get()";
 

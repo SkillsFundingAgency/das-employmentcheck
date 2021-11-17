@@ -1,8 +1,8 @@
-﻿using MediatR;
+﻿//using MediatR;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
-{
-    public class GetApprenticesToVerifyRequest : IRequest<GetApprenticesToVerifyResult>
-    {
-    }
-}
+//namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesToVerify
+//{
+//    public class GetApprenticesToVerifyRequest : IRequest<GetApprenticesToVerifyResult>
+//    {
+//    }
+//}
