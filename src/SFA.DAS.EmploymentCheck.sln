@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B5324D91-FA6E-4538-86ED-92A14B602EA5}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.EmploymentCheck.Database", "SFA.DAS.EmploymentCheck.Database\SFA.DAS.EmploymentCheck.Database.sqlproj", "{8A55EB79-ED7B-47E9-A3EB-B5043371C356}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions", "SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj", "{5E0EACCB-983C-4431-985B-97246E23BFDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{089285B3-A2A4-4F81-BECD-EC200F117E96}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,9 +27,16 @@ Global
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E0EACCB-983C-4431-985B-97246E23BFDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{089285B3-A2A4-4F81-BECD-EC200F117E96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{089285B3-A2A4-4F81-BECD-EC200F117E96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{089285B3-A2A4-4F81-BECD-EC200F117E96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{089285B3-A2A4-4F81-BECD-EC200F117E96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{089285B3-A2A4-4F81-BECD-EC200F117E96} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {281C331D-5A42-42E4-AA0A-E82FB88EA18C}

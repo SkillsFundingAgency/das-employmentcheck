@@ -26,6 +26,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Commands.CheckApprentice
             _logger = logger;
         }
 
+
+
+        public async Task CallHmrcService(CheckApprenticeCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+
+                var payeScheme = "1250L";
+                var checkPassed = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(payeScheme, request.Apprentice.NationalInsuranceNumber, request.Apprentice.StartDate, request.Apprentice.EndDate);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error handling CheckApprenticeCommand");
+                throw;
+            }
+        }
+
+
         public async Task<Unit> Handle(CheckApprenticeCommand request, CancellationToken cancellationToken)
         {
             try
