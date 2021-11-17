@@ -31,11 +31,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 if(accountDetailViewModel != null && accountDetailViewModel.PayeSchemes != null && accountDetailViewModel.PayeSchemes.Count > 0)
                 {
                     _logger.LogInformation($"{thisMethodName}: returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes");
-                    //Log.WriteLog(_logger, thisMethodName, $"returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes.");
                 }
                 {
                     _logger.LogInformation($"{thisMethodName}: returned null/zero PAYE schemes");
-                    //Log.WriteLog(_logger, thisMethodName, $"GetAccountPayeSchemes() returned null/zero PAYE schemes.");
                 }
             }
             catch (Exception ex)

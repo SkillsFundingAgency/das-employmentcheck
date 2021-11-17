@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity
                 // functions were running so this could be a new instance of the orchestrator which
-                // will run though the stored 'event sourcing' state from table storage
+                // will run though the table storage 'event sourcing' state.
                 context.ContinueAsNew(null);
             }
             catch (Exception ex)

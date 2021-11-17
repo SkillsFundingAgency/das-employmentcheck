@@ -292,29 +292,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
         public abstract Task SaveEmploymentCheckResult_Service(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);
-        //{
-        //    var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Service()";
-
-        //    try
-        //    {
-        //        apprenticeEmploymentCheckMessageModel = await GetApprenticeEmploymentCheckMessage_Base(
-        //            logger,
-        //            connectionString,
-        //            azureResource,
-        //            batchSize,
-        //            azureServiceTokenProvider);
-
-        //        if (apprenticeEmploymentCheckMessageModel == null)
-        //        {
-        //            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel value returned from the call to GetApprenticeEmploymentCheckMessage_Base() is null.");
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
-        //    }
-        //}
 
         public virtual async Task SaveEmploymentCheckResult_Base(
             ILogger logger,
@@ -370,15 +347,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
-
-
-        //public abstract Task<int> SaveEmploymentCheckResult(long id, bool result);
-        //public virtual Task<int> SaveEmploymentCheckResult(long id, long uln, bool result)
-        //{
-        //    //Required for stub
-        //    //TO DO Remove when stub is removed
-        //    throw new NotImplementedException();
-        //}
 
         public virtual async Task<IList<ApprenticeEmploymentCheckMessageModel>> CreateApprenticeEmploymentCheckMessages(ILogger logger, ApprenticeRelatedData apprenticeEmploymentData)
         {
@@ -613,120 +581,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
-
-        //public async virtual Task<int> SaveEmploymentCheckResults(
-        //    ILogger logger,
-        //    string connectionString,
-        //    string azureResource,
-        //    AzureServiceTokenProvider azureServiceTokenProvider,
-        //    IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentCheckModels)
-        //{
-        //    var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResults()";
-
-        //    try
-        //    {
-        //        if (apprenticeEmploymentCheckModels != null &&
-        //            apprenticeEmploymentCheckModels.Any())
-        //        {
-        //            await using (var sqlConnection = await CreateSqlConnection(
-        //                  logger,
-        //                  connectionString,
-        //                  azureResource,
-        //                  azureServiceTokenProvider))
-        //            {
-        //                if (sqlConnection != null)
-        //                {
-        //                    await sqlConnection.OpenAsync();
-
-        //                    foreach (var apprenticeEmploymentCheckModel in apprenticeEmploymentCheckModels)
-        //                    {
-        //                        var parameters = new DynamicParameters();
-        //                        //parameters.Add("@payeScheme", queueMessage.PayeScheme, DbType.String);
-        //                        //parameters.Add("@employmentCheckedDateTime", apprenticeEmploymentCheckModel. queueMessage.EmploymentCheckedDateTime, DbType.DateTime);
-        //                        parameters.Add("id", apprenticeEmploymentCheckModel.Id, DbType.Int64);
-        //                        parameters.Add("@isEmployed", apprenticeEmploymentCheckModel.IsEmployed, DbType.Boolean);
-
-        //                        logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: Updating apprentice employment check for ULN: {apprenticeEmploymentCheckModel.ULN}.");
-        //                        await sqlConnection.ExecuteAsync(
-        //                            "UPDATE [dbo].[EmploymentChecks] SET IsEmployed = @result, LastUpdated = GETDATE(), HasBeenChecked = @checked WHERE Id = @id",
-        //                                parameters,
-        //                                commandType: CommandType.Text);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Databasse failed.");
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: No apprentice employment checks supplied to store.");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
-        //    }
-
-        //    // TODO: Return the result of the ExecuteAsync() call
-        //    return await Task.FromResult(0);
-        //}
     }
 }
-
-//var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentCheckMessages()";
-
-//IList<ApprenticeEmploymentCheckMessageModel> apprenticeEmploymentCheckMessages = null;
-//try
-//{
-//    await using (var sqlConnection = await CreateSqlConnection(
-//          logger,
-//          connectionString,
-//          azureResource,
-//          azureServiceTokenProvider))
-//    {
-//        if (sqlConnection != null)
-//        {
-
-//            var parameters = new DynamicParameters();
-//            parameters.Add("@batchSize", batchSize);
-
-//            await sqlConnection.OpenAsync();
-//            var employmentCheckMessages = await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(
-//                sql: "SELECT TOP (@batchSize) MessageId, MessageCreatedDateTime, Uln, NationalInsuranceNumber, PayeScheme, StartDateTime, EndDateTime, EmploymentCheckedDateTime, IsEmployed, ReturnCode, ReturnMessage FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] WHERE EmploymentCheckedDateTime IS NOT NULL ORDER BY MessageCreatedDateTime",
-//                param: parameters,
-//                commandType: CommandType.Text);
-
-//            if (employmentCheckMessages != null && employmentCheckMessages.Any())
-//            {
-//                logger.LogInformation($"\n\n{DateTime.UtcNow} {thisMethodName}: Database query returned {employmentCheckMessages.Count()} apprentices.");
-//                apprenticeEmploymentCheckMessages = employmentCheckMessages.Select(m => new ApprenticeEmploymentCheckMessageModel(
-//                    m.MessageId,
-//                    m.MessageCreatedDateTime,
-//                    m.Uln,
-//                    m.NationalInsuranceNumber,
-//                    m.PayeScheme,
-//                    m.StartDateTime,
-//                    m.EndDateTime,
-//                    m.EmploymentCheckedDateTime,
-//                    m.IsEmployed,
-//                    m.ReturnCode,
-//                    m.ReturnMessage)).ToList();
-//            }
-//            else
-//            {
-//                logger.LogInformation($"\n\n{DateTime.UtcNow} {thisMethodName}: Database query returned[0] apprentices.");
-//                apprenticeEmploymentCheckMessages = new List<ApprenticeEmploymentCheckMessageModel>(); // return an empty list rather than null
-//            }
-//        }
-//        else
-//        {
-//            logger.LogInformation($"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Databasse failed.");
-//        }
-//    }
-//}
-//catch (Exception ex)
-//{
-//    logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-//}

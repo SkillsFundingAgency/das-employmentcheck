@@ -8,7 +8,6 @@ using NLog.Extensions.Logging;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Services;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
@@ -39,7 +38,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
-            serviceCollection.AddSingleton<IRandomNumberService, RandomNumberService>(); // used by the HrmcServiceStub
             serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
 #else

@@ -8,7 +8,6 @@ using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using System.Collections.Generic;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Services;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
