@@ -5,5 +5,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmplo
     public class GetApprenticeEmploymentChecksQueryRequest
         : IRequest<GetApprenticeEmploymentChecksQueryResult>
     {
+        public GetApprenticeEmploymentChecksQueryRequest(long employmentCheckLastGetId)
+        {
+            employmentCheckLastGetId = employmentCheckLastGetId;
+        }
+
+        public long employmentCheckLastGetId { get; }
     }
 }

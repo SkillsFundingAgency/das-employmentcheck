@@ -72,6 +72,7 @@
     <Build Include="Tables\EmploymentChecks.sql" />
     <Build Include="Tables\ExecutionTrace.sql" />
     <Build Include="Tables\ApprenticeEmploymentCheckMessageQueue.sql" />
+    <Build Include="Tables\EmploymentChecksControlTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\LastProcessedEvent.sql" />

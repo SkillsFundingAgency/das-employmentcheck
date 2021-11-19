@@ -19,6 +19,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -31,6 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountClient, EmployerAccountClient>();
             serviceCollection.AddTransient<ISubmitLearnerDataClient, SubmitLearnerDataClient>();
             serviceCollection.AddTransient<IEmployerAccountApiClient, EmployerAccountApiClient>();
+            serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
 
 #if DEBUG
             // For local development use the Stubs
