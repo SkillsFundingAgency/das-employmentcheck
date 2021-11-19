@@ -6,8 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using SFA.DAS.EmploymentCheck.TokenServiceStub.Http;
-using SFA.DAS.EmploymentCheck.TokenServiceStub.Services;
 using System.IO;
 
 namespace SFA.DAS.EmploymentCheck.TestHarness
@@ -42,11 +40,7 @@ namespace SFA.DAS.EmploymentCheck.TestHarness
         {
             var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
             Configuration.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
-            services.AddSingleton(authTokenServiceConfiguration);
-            services.AddSingleton<IHttpClientWrapper, HttpClientWrapper>();
-            services.AddSingleton<IOAuthTokenService, OAuthTokenService>();
-            services.AddSingleton<ITotpService, TotpService>();
-            services.AddSingleton<IHmrcAuthTokenBroker, HmrcAuthTokenBroker>();
+            services.AddTokenServiceStubServices(authTokenServiceConfiguration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
