@@ -1,8 +1,8 @@
 parameters:
-  - name: RunBlockOnPossibleDataLoss
-    displayName: Add /p:BlockOnPossibleDataLoss=false argument to DACPAC deployment
-    type: boolean
-    default: false
+- name: OverrideBlockOnPossibleDataLoss
+  displayName: Add /p:BlockOnPossibleDataLoss=false argument to DACPAC deployment
+  type: boolean
+  default: false
 
 trigger:
   batch: true
@@ -30,12 +30,12 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/0.4.0
+    ref: refs/tags/0.4.22
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
     name: SkillsFundingAgency/das-platform-automation
-    ref: refs/tags/4.5.0
+    ref: refs/tags/4.5.5
     endpoint: SkillsFundingAgency
   pipelines:
   - pipeline: das-employer-config
@@ -68,6 +68,7 @@ stages:
       Environment: AT
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 - stage: Deploy_TEST
   dependsOn: Build
@@ -83,6 +84,7 @@ stages:
       Environment: TEST
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 - stage: Deploy_TEST2
   dependsOn: Build
@@ -98,6 +100,7 @@ stages:
       Environment: TEST2
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 - stage: Deploy_PP
   dependsOn: Build
@@ -113,6 +116,7 @@ stages:
       Environment: PP
       ServiceConnection: SFA-DIG-PreProd-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 - stage: Deploy_PROD
   dependsOn: Build
@@ -128,6 +132,7 @@ stages:
       Environment: PROD
       ServiceConnection: SFA-DIG-Prod-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 # - stage: Deploy_MO
 #   dependsOn: Build
