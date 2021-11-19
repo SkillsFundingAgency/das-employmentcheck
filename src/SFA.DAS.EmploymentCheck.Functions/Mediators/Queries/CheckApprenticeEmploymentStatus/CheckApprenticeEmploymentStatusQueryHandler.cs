@@ -16,12 +16,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
     {
         private const string ThisClassName = "\n\nCheckApprenticeEmploymentStatusCommandHandler";
 
-        //private IEmploymentCheckClient _employmentCheckClient;
         private IHmrcClient _hmrcClient;
         private ILogger<CheckApprenticeEmploymentStatusQueryHandler> _logger;
 
         public CheckApprenticeEmploymentStatusQueryHandler(
-            //IEmploymentCheckClient employmentCheckClient,
             IHmrcClient hmrcClient,
             ILogger<CheckApprenticeEmploymentStatusQueryHandler> logger)
         {

@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// --------------------------------------------------------------------------------------------------
         /// </summary>
         /// <returns>Task<IList<ApprenticeEmploymentCheckModel>></returns>
-        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service()
+        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecks()";
 
@@ -66,6 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                       _connectionString,
                       AzureResource,
                       _batchSize,
+                      employmentCheckLastGetId,
                       _azureServiceTokenProvider);
             }
             catch (Exception ex)

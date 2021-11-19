@@ -39,7 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<ApprenticeEmploymentCheckModel>></returns>
-        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service()
+        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecksBatch_Service()";
 
@@ -51,6 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                       _connectionString,
                       AzureResource,
                       10, // _batchSize // TODO: Setup in config
+                      employmentCheckLastGetId,
                       _azureServiceTokenProvider);
 
                 if(apprenticeEmploymentChecks == null)

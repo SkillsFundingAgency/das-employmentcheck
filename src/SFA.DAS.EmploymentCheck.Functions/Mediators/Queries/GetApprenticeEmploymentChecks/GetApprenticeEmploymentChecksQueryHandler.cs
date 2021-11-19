@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmplo
             try
             {
                 // Call the application client to get the apprentices requiring an employment check
-                apprenticeEmploymentChecks = await _employmentCheckClient.GetApprenticeEmploymentChecksBatch_Client();
+                apprenticeEmploymentChecks = await _employmentCheckClient.GetApprenticeEmploymentChecksBatch_Client(request.employmentCheckLastGetId);
 
                 if (apprenticeEmploymentChecks != null &&
                     apprenticeEmploymentChecks.Count > 0)
