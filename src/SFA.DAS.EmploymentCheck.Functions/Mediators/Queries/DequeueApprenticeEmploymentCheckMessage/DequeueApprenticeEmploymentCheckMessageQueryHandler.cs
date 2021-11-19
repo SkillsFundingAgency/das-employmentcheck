@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeEmploymentCheckMessage
 {
@@ -17,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
         private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesQueryHandler";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
-        private IEmploymentCheckClient _employmentCheckClient;
+        private readonly IEmploymentCheckClient _employmentCheckClient;
         private ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> _logger;
 
         public DequeueApprenticeEmploymentCheckMessageQueryHandler(
@@ -42,12 +40,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
 
                 if(apprenticeEmploymentCheckMessage == null)
                 {
-
+                    
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{ThisClassName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{ThisClassName}:{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new DequeueApprenticeEmploymentCheckMessageQueryResult(apprenticeEmploymentCheckMessage);

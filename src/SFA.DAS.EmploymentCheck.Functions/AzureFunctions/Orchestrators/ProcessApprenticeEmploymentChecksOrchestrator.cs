@@ -35,8 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     public class ProcessApprenticeEmploymentChecksOrchestrator
     {
         private const string ThisClassName = "\n\nProcessApprenticeEmploymentChecksSubOrchestrator";
-
-        private ILogger<ProcessApprenticeEmploymentChecksOrchestrator> _logger;
+        private readonly ILogger<ProcessApprenticeEmploymentChecksOrchestrator> _logger;
 
         /// <summary>
         /// The ProcessApprenticeEmploymentChecksOrchestrator constructor, used to initialise the logging component.
@@ -65,10 +64,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"{thisMethodName}: Started.");
 
                 // Get the next message off the message queue
-                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
+                ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
 
                 // Do the employment status check on this batch of messages
-                var updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
+                ApprenticeEmploymentCheckMessageModel updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
                 // Save the employment status back to the database
                 await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), updatedApprenticeEmploymentCheckMessage);
