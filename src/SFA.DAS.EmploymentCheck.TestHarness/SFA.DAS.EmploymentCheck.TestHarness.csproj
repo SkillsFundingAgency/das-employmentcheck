@@ -14,5 +14,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj" />
+  </ItemGroup>
+
 
 </Project>

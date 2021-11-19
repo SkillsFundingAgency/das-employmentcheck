@@ -2,24 +2,28 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using System;
-using System.IO;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Http;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Services;
+using System.IO;
 
 namespace SFA.DAS.EmploymentCheck.TestHarness
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            var config = new ConfigurationBuilder()
+                .AddConfiguration(configuration)
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddEnvironmentVariables();
+                Configuration = config.Build();
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -31,6 +35,18 @@ namespace SFA.DAS.EmploymentCheck.TestHarness
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SFA.DAS.EmploymentCheck.TestHarness", Version = "v1" });
             });
 
+            RegisterTokenServiceStub(services);
+        }
+
+        private void RegisterTokenServiceStub(IServiceCollection services)
+        {
+            var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
+            Configuration.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
+            services.AddSingleton(authTokenServiceConfiguration);
+            services.AddSingleton<IHttpClientWrapper, HttpClientWrapper>();
+            services.AddSingleton<IOAuthTokenService, OAuthTokenService>();
+            services.AddSingleton<ITotpService, TotpService>();
+            services.AddSingleton<IHmrcAuthTokenBroker, HmrcAuthTokenBroker>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
