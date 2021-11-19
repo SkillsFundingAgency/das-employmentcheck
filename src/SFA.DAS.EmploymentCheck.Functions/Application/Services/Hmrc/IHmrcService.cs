@@ -7,6 +7,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public interface IHmrcService
     {
-        Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);
+        Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(ApprenticeEmploymentCheckMessageModel request);
     }
 }

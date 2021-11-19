@@ -20,12 +20,15 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
+        public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName,
+            HmrcAuthTokenServiceConfiguration authTokenServiceConfiguration)
         {
             serviceCollection.AddHttpClient();
             serviceCollection.AddTransient<IEmploymentCheckClient, EmploymentCheckClient>();
@@ -36,11 +39,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
 #if DEBUG
             // For local development use the Stubs
-
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+            serviceCollection.AddTokenServiceStubServices(authTokenServiceConfiguration);
+            //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
-            serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
+            //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
+            serviceCollection.AddTransient<IHmrcService, HmrcService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
 #else
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
@@ -57,13 +62,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
             }
 
             serviceCollection.AddHmrcClient();
-            serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
-            {
-                var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
-                return new TokenServiceApiClient(config);
-            });
+            //serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
+            //{
+            //    var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
+            //    return new TokenServiceApiClient(config);
+            //});
             return serviceCollection;
         }
+
 
         public static IServiceCollection AddNLog(this IServiceCollection serviceCollection)
         {

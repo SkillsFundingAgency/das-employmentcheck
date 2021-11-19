@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using SFA.DAS.TokenService.Api.Client;
+﻿using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.TokenServiceStub
 {
@@ -27,12 +22,6 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
                 AccessCode = token.AccessToken,
                 ExpiryTime = token.ExpiresAt
             };
-        }
-
-        public static void Initialise(IServiceCollection serviceCollection,
-            HmrcAuthTokenServiceConfiguration configuration)
-        {
-
         }
     }
 }

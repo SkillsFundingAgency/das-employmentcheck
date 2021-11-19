@@ -9,9 +9,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public class HmrcService : IHmrcService
     {
-        private IApprenticeshipLevyApiClient _apprenticeshipLevyService;
+        private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ILogger<HmrcService> _logger;
-        private ITokenServiceApiClient _tokenService;
+        private readonly ITokenServiceApiClient _tokenService;
 
         public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILogger<HmrcService> logger)
         {
@@ -20,9 +20,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             _logger = logger;
         }
 
-        public Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public async Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(ApprenticeEmploymentCheckMessageModel request)
         {
-            throw new NotImplementedException();
+            var token = await _tokenService.GetPrivilegedAccessTokenAsync();
+
+            var result = await _apprenticeshipLevyService.GetEmploymentStatus(
+                token.AccessCode,
+                request.PayeScheme,
+                request.NationalInsuranceNumber,
+                request.StartDateTime,
+                request.EndDateTime
+            );
+
+            request.IsEmployed = result.Employed;
+            request.EmploymentCheckedDateTime = DateTime.UtcNow;
+
+            return request;
         }
     }
 }

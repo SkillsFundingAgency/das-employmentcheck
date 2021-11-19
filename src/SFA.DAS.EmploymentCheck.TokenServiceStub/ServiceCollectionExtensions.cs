@@ -2,6 +2,7 @@
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Http;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Services;
+using SFA.DAS.TokenService.Api.Client;
 
 namespace SFA.DAS.EmploymentCheck.TokenServiceStub
 {
@@ -11,6 +12,7 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
             HmrcAuthTokenServiceConfiguration configuration)
         {
             services.AddSingleton(configuration);
+            services.AddSingleton<ITokenServiceApiClient, TokenServiceApiClientStub>();
             services.AddSingleton<IHttpClientWrapper, HttpClientWrapper>();
             services.AddSingleton<IOAuthTokenService, OAuthTokenService>();
             services.AddSingleton<ITotpService, TotpService>();
