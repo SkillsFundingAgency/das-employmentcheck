@@ -27,14 +27,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(GetApprenticeEmploymentChecksActivity))]
         public async Task<IList<ApprenticeEmploymentCheckModel>> Get(
-            [ActivityTrigger] object input)
+            [ActivityTrigger] long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.Get()";
 
             GetApprenticeEmploymentChecksQueryResult getApprenticesResult;
             try
             {
-                getApprenticesResult = await _mediator.Send(new GetApprenticeEmploymentChecksQueryRequest());
+                getApprenticesResult = await _mediator.Send(new GetApprenticeEmploymentChecksQueryRequest(employmentCheckLastGetId));
             }
             catch (Exception ex)
             {

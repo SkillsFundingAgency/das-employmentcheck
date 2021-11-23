@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,7 +41,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
 
                 if(apprenticeEmploymentCheckMessage == null)
                 {
-
+                    _logger.LogInformation($"{ThisClassName}: {ErrorMessagePrefix} The value returned from DequeueApprenticeEmploymentCheckMessage_Client() is null.");
+                    apprenticeEmploymentCheckMessage = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                 }
             }
             catch (Exception ex)

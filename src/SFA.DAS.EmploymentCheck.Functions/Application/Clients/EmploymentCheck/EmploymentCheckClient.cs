@@ -39,14 +39,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<ApprenticeEmploymentCheckModel>></returns>
-        public async Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Client()
+        public async Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Client(long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecksBatch_Client()";
 
             IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentChecks = null;
             try
             {
-                apprenticeEmploymentChecks = (IList<ApprenticeEmploymentCheckModel>)await _employmentCheckService.GetApprenticeEmploymentChecksBatch_Service();
+                apprenticeEmploymentChecks = (IList<ApprenticeEmploymentCheckModel>)await _employmentCheckService.GetApprenticeEmploymentChecksBatch_Service(employmentCheckLastGetId);
 
                 if (apprenticeEmploymentChecks == null)
                 {

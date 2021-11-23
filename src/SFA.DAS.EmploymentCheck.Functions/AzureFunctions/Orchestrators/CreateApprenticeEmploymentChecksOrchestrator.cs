@@ -66,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 // Get the apprentices requiring an employment check (we have to await this call as we can't do anything else until we have the list of apprentices)
-                var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), null);
+                var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
 
                 // Get the apprentices National Insurance Numbers
                 var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprenticeEmploymentChecks);

@@ -9,8 +9,11 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
+
 namespace SFA.DAS.EmploymentCheck.Functions
 {
     public class Startup : FunctionsStartup
@@ -54,7 +57,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckDbConfiguration>>().Value);
 
             // SubmitLearnerData API Configuration
-            builder.Services.Configure<SubmitLearnerDataApiConfiguration>(config.GetSection("SubmitLearnersDataApiSettings"));
+            builder.Services.Configure<SubmitLearnerDataApiConfiguration>(
+                config.GetSection("SubmitLearnersDataApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<SubmitLearnerDataApiConfiguration>>().Value);
 
             // Accounts API Configuration
@@ -81,7 +85,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>());
 
-            builder.Services.AddEmploymentCheckService(config["EnvironmentName"]);
+            var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
+            config.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
+            builder.Services.AddEmploymentCheckService(config["EnvironmentName"], authTokenServiceConfiguration);
+
         }
     }
 }

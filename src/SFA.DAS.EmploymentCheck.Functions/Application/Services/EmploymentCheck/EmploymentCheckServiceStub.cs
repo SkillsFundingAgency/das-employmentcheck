@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using Microsoft.Azure.Services.AppAuthentication;
@@ -39,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<ApprenticeEmploymentCheckModel>></returns>
-        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service()
+        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecksBatch_Service()";
 
@@ -51,6 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                       _connectionString,
                       AzureResource,
                       10, // _batchSize // TODO: Setup in config
+                      employmentCheckLastGetId,
                       _azureServiceTokenProvider);
 
                 if(apprenticeEmploymentChecks == null)
@@ -170,5 +172,53 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 AzureResource,
                 _azureServiceTokenProvider);
         }
+
+
+        public static ApprenticeEmploymentCheckMessageModel[] StubApprenticeEmploymentCheckMessageData => new []
+        {
+            new ApprenticeEmploymentCheckMessageModel()
+            {
+                PayeScheme = "123/AB12345",
+                NationalInsuranceNumber = "SC111111A",
+                StartDateTime = new DateTime(2010, 01, 01),
+                EndDateTime = new DateTime(2018, 01, 01)
+            },
+            new ApprenticeEmploymentCheckMessageModel()
+            {
+                PayeScheme = "840/MODES17",
+                NationalInsuranceNumber = "SC111111A",
+                StartDateTime = new DateTime(2010, 01, 01),
+                EndDateTime = new DateTime(2018, 01, 01)
+            },
+            new ApprenticeEmploymentCheckMessageModel()
+            {
+                PayeScheme = "840/MODES17",
+                NationalInsuranceNumber = "AA123456C",
+                StartDateTime = new DateTime(2010, 01, 01),
+                EndDateTime = new DateTime(2018, 01, 01)
+            },
+            new ApprenticeEmploymentCheckMessageModel()
+            {
+                PayeScheme = "111/AA00001",
+                NationalInsuranceNumber = "AA123456C",
+                StartDateTime = new DateTime(2010, 01, 01),
+                EndDateTime = new DateTime(2018, 01, 01)
+            },
+            new ApprenticeEmploymentCheckMessageModel()
+            {
+                PayeScheme = "840/HZ00064",
+                NationalInsuranceNumber = "AS960509A",
+                StartDateTime = new DateTime(2010, 01, 01),
+                EndDateTime = new DateTime(2018, 01, 01)
+            },
+            new ApprenticeEmploymentCheckMessageModel()
+            {
+                PayeScheme = "923/EZ00059",
+                NationalInsuranceNumber = "PR555555A",
+                StartDateTime = new DateTime(2010, 01, 01),
+                EndDateTime = new DateTime(2018, 01, 01)
+            },
+        };
+
     }
 }

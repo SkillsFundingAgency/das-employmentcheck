@@ -16,6 +16,7 @@
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.18.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.5.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.13" />
@@ -30,6 +31,9 @@
     <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
     <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
