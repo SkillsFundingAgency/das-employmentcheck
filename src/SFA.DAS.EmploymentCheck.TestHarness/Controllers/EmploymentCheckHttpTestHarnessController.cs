@@ -6,6 +6,7 @@ using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HMRC.ESFA.Levy.Api.Types.Exceptions;
 
 namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
 {
@@ -45,10 +46,19 @@ namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
 
             var accessCode = (await _authTokenBroker.GetTokenAsync()).AccessToken;
 
-            var response = await apprenticeshipLevyService.GetEmploymentStatus(accessCode, empRef,
-                nino, fromDate, toDate);
+            try
+            {
+                var response = await apprenticeshipLevyService.GetEmploymentStatus(accessCode, empRef,
+                    nino, fromDate, toDate);
 
-            return response;
+                return response;
+            }
+            catch (ApiHttpException e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         [HttpGet]

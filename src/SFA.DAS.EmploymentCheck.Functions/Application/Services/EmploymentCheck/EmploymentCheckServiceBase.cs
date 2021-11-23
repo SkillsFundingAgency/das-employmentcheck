@@ -388,6 +388,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 parameters.Add("id", apprenticeEmploymentCheckMessageModel.EmploymentCheckId, DbType.Int64);
                                 parameters.Add("messageId", apprenticeEmploymentCheckMessageModel.MessageId, DbType.Guid);
                                 parameters.Add("isEmployed", apprenticeEmploymentCheckMessageModel.IsEmployed, DbType.Boolean);
+                                parameters.Add("lastUpdated", apprenticeEmploymentCheckMessageModel.EmploymentCheckedDateTime, DbType.DateTime);
+                                parameters.Add("returnCode", apprenticeEmploymentCheckMessageModel.ReturnCode, DbType.String);
+                                parameters.Add("returnMessage", apprenticeEmploymentCheckMessageModel.ReturnMessage, DbType.String);
                                 parameters.Add("hasBeenChecked", true);
 
                                 await sqlConnection.OpenAsync();
@@ -399,7 +402,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     try
                                     {
                                         await sqlConnection.ExecuteAsync(
-                                            "UPDATE [dbo].[EmploymentChecks] SET IsEmployed = @isEmployed, LastUpdated = GETDATE(), HasBeenChecked = @hasBeenChecked WHERE Id = @id",
+                                            "UPDATE [dbo].[EmploymentChecks] SET " +
+                                            "IsEmployed = @isEmployed," +
+                                            "LastUpdated = @lastUpdated," +
+                                            "HasBeenChecked = @hasBeenChecked," +
+                                            "ReturnCode = @returnCode," +
+                                            "ReturnMessage = @returnMessage" +
+                                            " WHERE Id = @id",
                                                 parameters,
                                                 commandType: CommandType.Text,
                                                 transaction: transaction);
@@ -640,7 +649,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             parameters.Add("@uln", 1000000000 + i, DbType.Int64);
                             parameters.Add("@ukprn", 10000000 + i, DbType.Int64);
                             parameters.Add("@apprenticeshipId", i, DbType.Int64);
-                            parameters.Add("@accountId" + i, i, DbType.Int64);
+                            parameters.Add("@accountId", i, DbType.Int64);
                             parameters.Add("@minDateSeed", input.StartDateTime, DbType.DateTime);
                             parameters.Add("@maxDateSeed", input.EndDateTime, DbType.DateTime);
                             parameters.Add("@checkTypeSeed", "StartDate+60", DbType.String);

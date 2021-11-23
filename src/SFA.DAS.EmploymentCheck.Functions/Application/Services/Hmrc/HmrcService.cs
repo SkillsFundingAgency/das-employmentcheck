@@ -4,15 +4,17 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.Net;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public class HmrcService : IHmrcService
     {
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
-        private readonly ILogger<HmrcService> _logger;
         private readonly ITokenServiceApiClient _tokenService;
+        private readonly ILogger<HmrcService> _logger;
 
         public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILogger<HmrcService> logger)
         {
@@ -28,6 +30,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
             try
             {
+                request.EmploymentCheckedDateTime = DateTime.UtcNow;
+
                 var result = await _apprenticeshipLevyService.GetEmploymentStatus(
                     token.AccessCode,
                     request.PayeScheme,
@@ -37,12 +41,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 );
 
                 request.IsEmployed = result.Employed;
-                request.EmploymentCheckedDateTime = DateTime.UtcNow;
+                request.ReturnCode = "200 (OK)";
+                request.ReturnMessage = JsonConvert.SerializeObject(result, Formatting.Indented);
             }
-            catch (ApiHttpException e) when (e.HttpCode == 404)
+            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.NotFound)
             {
+                _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
                 request.IsEmployed = false;
-                request.EmploymentCheckedDateTime = DateTime.UtcNow;
+                request.ReturnCode = $"{e.HttpCode} (Not Found)";
+            }
+            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.TooManyRequests)
+            {
+                _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
+                request.ReturnCode = $"{e.HttpCode} (Too Many Requests)";
+            }
+            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.BadRequest)
+            {
+                _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
+                request.ReturnCode = $"{e.HttpCode} (Bad Request)";
             }
 
             return request;

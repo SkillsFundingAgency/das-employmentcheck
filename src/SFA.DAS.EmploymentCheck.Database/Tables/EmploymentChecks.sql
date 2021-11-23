@@ -13,6 +13,8 @@
     [LastUpdated] DATETIME NULL,
     [CreatedDate] DATETIME NULL DEFAULT getdate(),
     [HasBeenChecked] BIT NOT NULL DEFAULT 0,
+    [ReturnCode] VARCHAR(50) NULL,
+    [ReturnMessage] VARCHAR(MAX) NULL
     CONSTRAINT UC_EmploymentChecks UNIQUE (Accountid, uln, ukprn, apprenticeshipid, nationalinsurancenumber, checktype)
 )
 GO

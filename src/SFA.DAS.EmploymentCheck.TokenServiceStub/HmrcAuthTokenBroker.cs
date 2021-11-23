@@ -26,14 +26,10 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
             return _cachedAccessToken;
         }
 
-        private Task<OAuthAccessToken> InitialiseToken()
+        private async Task InitialiseToken()
         {
-            return GetTokenFromServiceAsync()
-                .ContinueWith((task) =>
-                {
-                    StartTokenBackgroundRefresh();
-                    return task.Result;
-                });
+            await GetTokenFromServiceAsync();
+            StartTokenBackgroundRefresh();
         }
 
         private void StartTokenBackgroundRefresh()
