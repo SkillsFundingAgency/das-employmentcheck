@@ -1,7 +1,7 @@
 parameters:  
   Environment:
   ServiceConnection:
-  RunBlockOnPossibleDataLoss: false
+  OverrideBlockOnPossibleDataLoss: false
   AppRoleAssignmentsServiceConnection: 
 
 jobs:
@@ -32,6 +32,16 @@ jobs:
             SourcePath: $(Pipeline.Workspace)/das-employer-config/Configuration/das-employmentcheck
             TargetFileName: '*.schema.json'
             TableName: Configuration
+        - template: azure-pipelines-templates/deploy/step/sql-dacpac-deploy.yml@das-platform-building-blocks
+          parameters:
+            AzureSubscription: ${{ parameters.ServiceConnection }}
+            ServerName: $(SharedSQLServerFQDN)
+            SqlUsername: $(SharedSQLServerUsername)
+            SqlPassword: $(SharedSQLServerPassword)
+            DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
+            DatabaseName: $(DatabaseName)
+            OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
+            Environment: ${{ parameters.Environment }}
         - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
@@ -43,15 +53,3 @@ jobs:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
             DeploymentPackagePath: $(Pipeline.Workspace)/EmploymentCheck/SFA.DAS.EmploymentCheck.Functions.zip
-- template: azure-pipelines-templates/deploy/job/sql-dacpac-deploy.yml@das-platform-building-blocks
-  parameters:
-    AzureSubscription: ${{ parameters.ServiceConnection }}
-    ServerName: $(SharedSQLServerFQDN)
-    DatabaseName: $(DatabaseName)
-    SqlUsername: $(SharedSQLServerUsername)
-    SqlPassword: $(SharedSQLServerPassword)
-    DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
-    RunBlockOnPossibleDataLoss: ${{ parameters.RunBlockOnPossibleDataLoss }}
-    Environment: ${{ parameters.Environment }}
-    pool: DAS - Continuous Deployment Agents
-    dependsOn: DeployFunctionApp

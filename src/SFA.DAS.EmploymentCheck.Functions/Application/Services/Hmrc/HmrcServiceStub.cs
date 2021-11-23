@@ -21,17 +21,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         /// <summary>
         /// Returns the employment status for the given apprentice NationalInsuranceNumber and PayeScheme between the given Start Date and End Date
         /// </summary>
-        /// <param name="apprenticeEmploymentCheckMessageModel"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         public async Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            ApprenticeEmploymentCheckMessageModel request)
         {
-            if(apprenticeEmploymentCheckMessageModel != null)
+            if(request != null)
             {
-                apprenticeEmploymentCheckMessageModel.IsEmployed = true;
+                request.IsEmployed = true;
             }
 
-            return await Task.FromResult(apprenticeEmploymentCheckMessageModel);
+            return await Task.FromResult(request);
         }
     }
 }

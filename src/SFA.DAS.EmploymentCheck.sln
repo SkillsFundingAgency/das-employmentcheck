@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Fun
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Functions.Tests", "SFA.DAS.EmploymentCheck.Functions.Tests\SFA.DAS.EmploymentCheck.Functions.Tests.csproj", "{FD29D029-6564-4EF6-880F-03D627CAA4DA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.TestHarness", "SFA.DAS.EmploymentCheck.TestHarness\SFA.DAS.EmploymentCheck.TestHarness.csproj", "{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.TokenServiceStub", "SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj", "{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,14 @@ Global
 		{FD29D029-6564-4EF6-880F-03D627CAA4DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD29D029-6564-4EF6-880F-03D627CAA4DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD29D029-6564-4EF6-880F-03D627CAA4DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
