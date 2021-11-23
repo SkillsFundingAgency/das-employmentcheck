@@ -533,7 +533,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 parameters.Add("@uln", apprenticeEmploymentCheckMessage.Uln, DbType.Int64);
                                 parameters.Add("@nationalInsuranceNumber", apprenticeEmploymentCheckMessage.NationalInsuranceNumber, DbType.String);
                                 parameters.Add("@payeScheme", apprenticeEmploymentCheckMessage.PayeScheme, DbType.String);
-                                parameters.Add("@startDateTime", apprenticeEmploymentCheckMessage.StartDateTime, DbType.Date);
+                                parameters.Add("@startDateTime", apprenticeEmploymentCheckMessage.StartDateTime, DbType.DateTime);
                                 parameters.Add("@endDateTime", apprenticeEmploymentCheckMessage.EndDateTime, DbType.DateTime);
                                 parameters.Add("@employmentCheckedDateTime", apprenticeEmploymentCheckMessage.EmploymentCheckedDateTime, DbType.DateTime);
                                 parameters.Add("@isEmployed", apprenticeEmploymentCheckMessage.IsEmployed ?? false, DbType.Boolean);
