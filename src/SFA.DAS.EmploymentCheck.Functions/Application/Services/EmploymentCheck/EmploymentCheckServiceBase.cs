@@ -611,6 +611,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
         public abstract Task SeedEmploymentCheckApprenticeDatabaseTableTestData();
 
+
         public virtual async Task SeedEmploymentCheckApprenticeDatabaseTableTestData(
             ILogger logger,
             string connectionString,
@@ -631,41 +632,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     {
                         await connection.OpenAsync();
 
-                        var ulnSeed = 1000000000;
-                        var ukprnSeed = 10000000;
-                        var nationalInsuranceNumberSeed = 100000000;
-                        DateTime minDateSeed = DateTime.Now.Date;
-                        DateTime maxDateSeed = DateTime.Now.AddDays(60);
-                        string checkTypeSeed = "StartDate+60";
-                        bool isEmployedSeed = false;
-                        DateTime createdDateSeed = DateTime.Now;
-                        bool hasBeenCheckedSeed = false;
-
-                        for (int i = 1; i <= 10; i++)
+                        var i = 0;
+                        foreach (var input in EmploymentCheckServiceStub.StubApprenticeEmploymentCheckMessageData)
                         {
+                            i++;
                             var parameters = new DynamicParameters();
-                            parameters.Add("@uln", ulnSeed + i, DbType.Int64);
-                            parameters.Add("@ukprn", ukprnSeed + i, DbType.Int64);
+                            parameters.Add("@uln", 1000000000 + i, DbType.Int64);
+                            parameters.Add("@ukprn", 10000000 + i, DbType.Int64);
                             parameters.Add("@apprenticeshipId", i, DbType.Int64);
-                            parameters.Add("@accountId", i, DbType.Int64);
-                            //parameters.Add("@nationalInsuranceNumber", (nationalInsuranceNumberSeed + i).ToString(), DbType.String);
-                            parameters.Add("@minDateSeed", minDateSeed, DbType.DateTime);
-                            parameters.Add("@maxDateSeed", maxDateSeed, DbType.DateTime);
-                            parameters.Add("@checkTypeSeed", checkTypeSeed, DbType.String);
-                            parameters.Add("@isEmployedSeed", isEmployedSeed, DbType.Boolean);
-                            parameters.Add("@createdDateSeed", createdDateSeed, DbType.DateTime);
-                            parameters.Add("@hasBeenCheckedSeed", hasBeenCheckedSeed, DbType.Boolean);
+                            parameters.Add("@accountId" + i, i, DbType.Int64);
+                            parameters.Add("@minDateSeed", input.StartDateTime, DbType.DateTime);
+                            parameters.Add("@maxDateSeed", input.EndDateTime, DbType.DateTime);
+                            parameters.Add("@checkTypeSeed", "StartDate+60", DbType.String);
+                            parameters.Add("@isEmployedSeed", false, DbType.Boolean);
+                            parameters.Add("@createdDateSeed", DateTime.Now, DbType.DateTime);
+                            parameters.Add("@hasBeenCheckedSeed", false, DbType.Boolean);
 
                             await connection.ExecuteAsync(
-                                //sql: "INSERT [dbo].[EmploymentChecks] (ULN, UKPRN, ApprenticeshipId, AccountId, NationalInsuranceNumber, MinDate, MaxDate, CheckType, IsEmployed, CreatedDate, HasBeenChecked) VALUES (@uln, @ukprn, @apprenticeshipId, @accountId, @nationalInsuranceNumber, @minDateSeed, @maxDateSeed, @checkTypeSeed, @isEmployedSeed, @createdDateSeed, @hasBeenCheckedSeed)",
-                                sql: "INSERT [dbo].[EmploymentChecks] (ULN, UKPRN, ApprenticeshipId, AccountId, MinDate, MaxDate, CheckType, IsEmployed, CreatedDate, HasBeenChecked) VALUES (@uln, @ukprn, @apprenticeshipId, @accountId, @minDateSeed, @maxDateSeed, @checkTypeSeed, @isEmployedSeed, @createdDateSeed, @hasBeenCheckedSeed)",
+                                "INSERT [dbo].[EmploymentChecks] (ULN, UKPRN, ApprenticeshipId, AccountId, MinDate, MaxDate, CheckType, IsEmployed, CreatedDate, HasBeenChecked) VALUES (@uln, @ukprn, @apprenticeshipId, @accountId, @minDateSeed, @maxDateSeed, @checkTypeSeed, @isEmployedSeed, @createdDateSeed, @hasBeenCheckedSeed)",
                                 commandType: CommandType.Text,
                                 param: parameters);
                         }
                     }
                     else
                     {
-                        logger.LogInformation($"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Databasse failed.");
+                        logger.LogInformation(
+                            $"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Databasse failed.");
                     }
                 }
             }

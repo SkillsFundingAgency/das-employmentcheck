@@ -145,6 +145,35 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return apprenticeEmploymentCheckMessageModel;
         }
 
+        public async override Task SaveEmploymentCheckResult_Service(
+            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        {
+            var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Service()";
+
+            try
+            {
+                if (apprenticeEmploymentCheckMessageModel != null)
+                {
+                    await SaveEmploymentCheckResult_Base(
+                        _logger,
+                        _connectionString,
+                        AzureResource,
+                        _azureServiceTokenProvider,
+                        apprenticeEmploymentCheckMessageModel);
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        $"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel input parameter is null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(
+                    $"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+        }
+
         public async override Task SeedEmploymentCheckApprenticeDatabaseTableTestData()
         {
             await SeedEmploymentCheckApprenticeDatabaseTableTestData(
@@ -154,9 +183,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 _azureServiceTokenProvider);
         }
 
-        public override Task SaveEmploymentCheckResult_Service(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
