@@ -46,6 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
             serviceCollection.AddTransient<IHmrcService, HmrcService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
 #endif
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();

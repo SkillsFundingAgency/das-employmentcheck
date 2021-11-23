@@ -6,6 +6,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 using MediatR;
 using Microsoft.Extensions.Options;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
 
@@ -71,6 +72,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // Application Settings
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
+
+            // DC OAuth Settings
+            builder.Services.Configure<DcOAuthSettings>(config.GetSection("DcOAuthSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcOAuthSettings>>());
+
+            //DC Api Settings
+            builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>());
 
             builder.Services.AddEmploymentCheckService(config["EnvironmentName"]);
         }
