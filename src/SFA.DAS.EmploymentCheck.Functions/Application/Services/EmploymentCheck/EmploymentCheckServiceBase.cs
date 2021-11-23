@@ -89,7 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     parameters.Add("@employmentCheckLastGetId", employmentCheckLastGetId);
 
                                     apprenticeEmploymentChecksResult = await sqlConnection.QueryAsync<ApprenticeEmploymentCheckModel>(
-                                        sql: "SELECT TOP (@batchSize) Id, ULN, UKPRN, ApprenticeshipId, AccountId, NationalInsuranceNumber, MinDate, MaxDate, CheckType, IsEmployed, LastUpdated, CreatedDate, HasBeenChecked FROM [dbo].[EmploymentChecks] WHERE Id > @employmentCheckLastGetId AND HasBeenChecked = 0 ORDER BY CreatedDate DESC",
+                                        sql: "SELECT TOP (@batchSize) Id, ULN, UKPRN, ApprenticeshipId, AccountId, MinDate, MaxDate, CheckType, IsEmployed, LastUpdated, CreatedDate, HasBeenChecked FROM [dbo].[EmploymentChecks] WHERE Id > @employmentCheckLastGetId AND HasBeenChecked = 0 ORDER BY CreatedDate DESC",
                                         param: parameters,
                                         commandType: CommandType.Text,
                                         transaction: transaction);
@@ -105,7 +105,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                             aec.UKPRN,
                                             aec.ApprenticeshipId,
                                             aec.AccountId,
-                                            aec.NationalInsuranceNumber,
+                                            "", // aec.NationalInsuranceNumber,
                                             aec.MinDate,
                                             aec.MaxDate,
                                             aec.CheckType,

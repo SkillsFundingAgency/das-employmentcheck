@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -67,6 +68,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                 // Get the apprentices requiring an employment check (we have to await this call as we can't do anything else until we have the list of apprentices)
                 var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
+                _logger.LogInformation($"\n\n{nameof(GetApprenticeEmploymentChecksActivity)} activity returned {apprenticeEmploymentChecks.Count} results");
+
+                if (!apprenticeEmploymentChecks.Any()) return;
 
                 // Get the apprentices National Insurance Numbers
                 var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprenticeEmploymentChecks);

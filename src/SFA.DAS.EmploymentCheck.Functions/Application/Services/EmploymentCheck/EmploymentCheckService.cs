@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
@@ -37,12 +38,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="logger"></param>
         public EmploymentCheckService(
             ApplicationSettings applicationSettings,                            // TODO: Replace this generic application setting
-            EmploymentCheckDbConfiguration employmentCheckDbConfiguration,      // TODO: With this specific employment check database configuration
+            IOptions<EmploymentCheckDbConfiguration> employmentCheckDbConfiguration,      // TODO: With this specific employment check database configuration
             AzureServiceTokenProvider azureServiceTokenProvider,
             ILogger<IEmploymentCheckService> logger)
         {
             _connectionString = applicationSettings.DbConnectionString;
-            _employmentCheckDbConfiguration = employmentCheckDbConfiguration;
+            _employmentCheckDbConfiguration = employmentCheckDbConfiguration.Value;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
             _logger = logger;
