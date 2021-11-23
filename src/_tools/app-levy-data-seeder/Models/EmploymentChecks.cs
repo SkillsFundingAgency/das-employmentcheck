@@ -16,8 +16,6 @@ namespace app_levy_data_seeder.Models
 
         public long AccountId { get; set; }
 
-        public string NationalInsuranceNumber { get; set; }
-
         public DateTime MinDate { get; set; }
 
         public DateTime MaxDate { get; set; }

@@ -42,23 +42,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
                 request.IsEmployed = result.Employed;
                 request.ReturnCode = "200 (OK)";
-                request.ReturnMessage = JsonConvert.SerializeObject(result, Formatting.Indented);
             }
             catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.NotFound)
             {
                 _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
                 request.IsEmployed = false;
                 request.ReturnCode = $"{e.HttpCode} (Not Found)";
+                request.ReturnMessage = e.ResourceUri;
+
             }
             catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.TooManyRequests)
             {
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
                 request.ReturnCode = $"{e.HttpCode} (Too Many Requests)";
+                request.ReturnMessage = e.ResourceUri;
             }
             catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.BadRequest)
             {
                 _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
                 request.ReturnCode = $"{e.HttpCode} (Bad Request)";
+                request.ReturnMessage = e.ResourceUri;
             }
 
             return request;

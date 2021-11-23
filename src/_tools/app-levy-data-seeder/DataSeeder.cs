@@ -84,9 +84,9 @@ namespace app_levy_data_seeder
                 var check = new EmploymentChecks
                 {
                     ULN = 1000000000 + i,
+                    ApprenticeshipId = 122 + i,
                     UKPRN = 10000000 + i,
                     AccountId = i,
-                    NationalInsuranceNumber = data.jsonBody.nino,
                     MinDate = data.jsonBody.fromDate,
                     MaxDate = data.jsonBody.toDate,
                     CheckType = "StartDate+60",
@@ -103,7 +103,7 @@ namespace app_levy_data_seeder
                     MessageCreatedDateTime = DateTime.Now,
                     EmploymentCheckId = checkId,
                     Uln = check.ULN,
-                    NationalInsuranceNumber = check.NationalInsuranceNumber,
+                    NationalInsuranceNumber = data.jsonBody.nino,
                     PayeScheme = data.jsonBody.empref.ToUpper(),
                     StartDateTime = check.MinDate,
                     EndDateTime = check.MaxDate
