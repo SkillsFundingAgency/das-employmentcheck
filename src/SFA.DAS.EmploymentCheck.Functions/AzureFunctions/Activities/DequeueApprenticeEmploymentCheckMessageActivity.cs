@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             {
                 // Send MediatR request to get the next message off the queue
                 var dequeueApprenticeEmploymentCheckMessageQueryRequestResult = await _mediator.Send(new DequeueApprenticeEmploymentCheckMessageQueryRequest());
-  
+
                 if (dequeueApprenticeEmploymentCheckMessageQueryRequestResult != null &&
                     dequeueApprenticeEmploymentCheckMessageQueryRequestResult.ApprenticeEmploymentCheckMessage != null)
                 {
