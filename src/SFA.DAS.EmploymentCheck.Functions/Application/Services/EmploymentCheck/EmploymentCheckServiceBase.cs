@@ -107,7 +107,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 if (employmentCheckLastGetIdResult != null &&
                     employmentCheckLastGetIdResult.Any())
                 {
-                    // A list was returned so get the item in the list which is the row from the control table which has a column holiday the Id of the highest Id retrieved in the previous batch
+                    // A list was returned so get the item in the list which is the row from the control table which has a column holding the Id of the highest Id retrieved in the previous batch
                     EmploymentCheckLastGetId = employmentCheckLastGetIdResult.FirstOrDefault();
                 }
             }
@@ -142,7 +142,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         "UKPRN," +
                         "ApprenticeshipId," +
                         "AccountId," +
-                        "NationalInsuranceNumber," +
                         "MinDate," +
                         "MaxDate," +
                         "CheckType," +
@@ -170,7 +169,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         aec.UKPRN,
                         aec.ApprenticeshipId,
                         aec.AccountId,
-                        aec.NationalInsuranceNumber,
                         aec.MinDate,
                         aec.MaxDate,
                         aec.CheckType,
@@ -380,13 +378,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentCheckMessage_Base()";
 
             ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            SqlConnection sqlConnection = null;
+
             try
             {
-                await using (var sqlConnection = await CreateSqlConnection(
-                      logger,
-                      connectionString,
-                      azureResource,
-                      azureServiceTokenProvider))
+                await using (sqlConnection = await CreateSqlConnection(
+                    logger,
+                    connectionString,
+                    azureResource,
+                    azureServiceTokenProvider))
                 {
                     if (sqlConnection != null)
                     {
@@ -398,40 +398,51 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         //       If there are going to be multiple instances of the code pulling the messages off the message queue
                         //       then we will need to make the select/delete of the message transactional to lock the row so that
                         //       other instances aren't pulling the same message
-                        apprenticeEmploymentCheckMessageModel = (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(
-                            sql:
-                            "SELECT TOP (1) " +
-                            "MessageId, " +
-                            "MessageCreatedDateTime, " +
-                            "EmploymentCheckId, " +
-                            "Uln, " +
-                            "NationalInsuranceNumber, " +
-                            "PayeScheme, " +
-                            "StartDateTime, " +
-                            "EndDateTime, " +
-                            "EmploymentCheckedDateTime, " +
-                            "IsEmployed, " +
-                            "ReturnCode, " +
-                            "ReturnMessage " +
-                            "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                            "ORDER BY MessageCreatedDateTime",
-                            param: parameters,
-                            commandType: CommandType.Text)).FirstOrDefault();
+                        apprenticeEmploymentCheckMessageModel =
+                            (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(
+                                sql:
+                                "SELECT TOP (1) " +
+                                "MessageId, " +
+                                "MessageCreatedDateTime, " +
+                                "EmploymentCheckId, " +
+                                "Uln, " +
+                                "NationalInsuranceNumber, " +
+                                "PayeScheme, " +
+                                "StartDateTime, " +
+                                "EndDateTime, " +
+                                "EmploymentCheckedDateTime, " +
+                                "IsEmployed, " +
+                                "ReturnCode, " +
+                                "ReturnMessage " +
+                                "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
+                                "ORDER BY MessageCreatedDateTime",
+                                param: parameters,
+                                commandType: CommandType.Text)).FirstOrDefault();
 
                         if (apprenticeEmploymentCheckMessageModel == null)
                         {
-                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel returned from the LINQ statement employmentCheckMessageModels.FirstOrDefault() is null.");
+                            logger.LogInformation(
+                                $"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel returned from the LINQ statement employmentCheckMessageModels.FirstOrDefault() is null.");
                         }
                     }
                     else
                     {
-                        logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The sqlConnection value returned from CreateSqlConnection() is null.");
+                        logger.LogInformation(
+                            $"{thisMethodName}: {ErrorMessagePrefix} The sqlConnection value returned from CreateSqlConnection() is null.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogInformation(
+                    $"{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+            finally
+            {
+                if (sqlConnection != null)
+                {
+                    sqlConnection.Close();
+                }
             }
 
             return apprenticeEmploymentCheckMessageModel;
@@ -460,9 +471,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     {
                         if (sqlConnection != null)
                         {
-                            await using (var transaction = sqlConnection.BeginTransaction())
+                            await sqlConnection.OpenAsync();
+
+                            var transaction = sqlConnection.BeginTransaction();
                             {
-                                await sqlConnection.OpenAsync();
 
                                 try
                                 {
