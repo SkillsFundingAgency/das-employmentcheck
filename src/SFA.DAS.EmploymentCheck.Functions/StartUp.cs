@@ -79,11 +79,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             // DC OAuth Settings
             builder.Services.Configure<DcOAuthSettings>(config.GetSection("DcOAuthSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcOAuthSettings>>());
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcOAuthSettings>>().Value);
 
             //DC Api Settings
             builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>());
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>().Value);
 
             var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
             config.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);

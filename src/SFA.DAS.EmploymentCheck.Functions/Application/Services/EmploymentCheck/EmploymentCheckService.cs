@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
     {
         private const string ThisClassName = "\n\nEmploymentCheckService";
 
-        private EmploymentCheckDbConfiguration _employmentCheckDbConfiguration;
+        private EmploymentCheckDbConfiguration _configuration;
         private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString;
         private readonly int _batchSize;
@@ -33,19 +33,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// ------------------------------------------------------------------------------------
         /// </summary>
         /// <param name="applicationSettings"></param>
-        /// <param name="employmentCheckDbConfiguration"></param>
+        /// <param name="config"></param>
         /// <param name="azureServiceTokenProvider"></param>
         /// <param name="logger"></param>
         public EmploymentCheckService(
-            ApplicationSettings applicationSettings,                            // TODO: Replace this generic application setting
             IOptions<EmploymentCheckDbConfiguration> employmentCheckDbConfiguration,      // TODO: With this specific employment check database configuration
             AzureServiceTokenProvider azureServiceTokenProvider,
             ILogger<IEmploymentCheckService> logger)
         {
-            _connectionString = applicationSettings.DbConnectionString;
-            _employmentCheckDbConfiguration = employmentCheckDbConfiguration.Value;
+            _configuration = employmentCheckDbConfiguration.Value;
             _azureServiceTokenProvider = azureServiceTokenProvider;
-            _batchSize = applicationSettings.BatchSize;
+            _connectionString = _configuration.ConnectionString;
+            _batchSize = _configuration.BatchSize;
             _logger = logger;
         }
 

@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData
@@ -23,15 +24,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
         public SubmitLearnerDataService(
             ILogger<SubmitLearnerDataService> logger,
             IDcTokenService dcTokenService, 
-            DcOAuthSettings dcOAuthSettings, 
-            IHttpClientFactory httpFactory, 
-            DcApiSettings dcApiSettings)
+            IOptions<DcOAuthSettings> dcOAuthSettings, 
+            IHttpClientFactory httpFactory,
+            IOptions<DcApiSettings> dcApiSettings)
         {
             _logger = logger;
             _dcTokenService = dcTokenService;
-            _dcOAuthSettings = dcOAuthSettings;
+            _dcOAuthSettings = dcOAuthSettings.Value;
             _httpFactory = httpFactory;
-            _dcApiSettings = dcApiSettings;
+            _dcApiSettings = dcApiSettings.Value;
         }
 
         public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<ApprenticeEmploymentCheckModel> apprentices)

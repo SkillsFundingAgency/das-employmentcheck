@@ -6,7 +6,6 @@
         public string LearnerApi { get; set; }
         public string LearnerNiAPi { get; set; }
         public int PageSize { get; set; }
-        public int Ukprn { get; set; }
         public int TaskSize { get; set; }
     }
 }
