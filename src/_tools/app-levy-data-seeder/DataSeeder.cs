@@ -41,14 +41,16 @@ namespace app_levy_data_seeder
            
             foreach (var foundDir in dirsInDir)
             {
-                var file = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First().GetDirectories()
-                    .First().GetFiles().First();
+                var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
+                    .GetDirectories()
+                    .First().GetFiles("*.json");
 
-                Console.WriteLine($"Found data file: {file.FullName}");
-
-                var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
-
-                SourceData.Add(data);
+                foreach (var file in files)
+                {
+                    Console.WriteLine($"Found data file: {file.FullName}");
+                    var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
+                    SourceData.Add(data);
+                }
             }
         }
 
