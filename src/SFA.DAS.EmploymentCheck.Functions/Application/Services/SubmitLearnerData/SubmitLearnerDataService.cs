@@ -82,31 +82,42 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             ApprenticeNiNumber checkedLearner = new ApprenticeNiNumber();
             using (HttpClient client = _httpFactory.CreateClient("LearnerNiApi"))
             {
+                client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                string url = _dcApiSettings.LearnerNiAPi + "?ulns=" + learner.ULN;
-                var response = await client.GetAsync(url);
-                if (response.IsSuccessStatusCode)
+                var url = _dcApiSettings.LearnerNiAPi + "?ulns=" + learner.ULN;
+
+                try
                 {
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    var response = await client.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
                     {
-                        var result = await response.Content.ReadAsStreamAsync();
-                        if (result.Length > 0)
+                        if (response.StatusCode == HttpStatusCode.OK)
                         {
-                            try
+                            var result = await response.Content.ReadAsStreamAsync();
+                            if (result.Length > 0)
                             {
-                                var checkedLearners = await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
-                                checkedLearner = checkedLearners.FirstOrDefault();
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                                try
+                                {
+                                    var checkedLearners =
+                                        await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
+                                    checkedLearner = checkedLearners.FirstOrDefault();
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogInformation(
+                                        $"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                                }
                             }
                         }
+                        else
+                        {
+                            checkedLearner.ULN = learner.ULN;
+                        }
                     }
-                    else
-                    {
-                        checkedLearner.ULN = learner.ULN;
-                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
                 }
             }
             return checkedLearner;
@@ -133,18 +144,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
                 if (counter == 10)
                 {
-                    try
-                    {
-                        var response = await Task.WhenAll(taskList);
-                        checkedLearners.AddRange(response);
+                    var response = await Task.WhenAll(taskList);
+                    checkedLearners.AddRange(response);
 
-                        taskList.Clear();
-                        counter = 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                    }
+                    taskList.Clear();
+                    counter = 0;
                 }
             }
 
