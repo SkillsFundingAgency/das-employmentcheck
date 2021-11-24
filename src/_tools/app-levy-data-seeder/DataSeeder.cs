@@ -54,6 +54,38 @@ namespace app_levy_data_seeder
             }
         }
 
+        private long[] Ulns =
+        {
+            9000000601,
+9000000903,
+9000001306,
+9000001403,
+9000001500,
+9000001802,
+9000002000,
+9000002108,
+9000002507,
+9000002809,
+9000002906,
+9000003007,
+9000003104,
+9000003201,
+9000003503,
+9000003708,
+9000004003,
+9000004100,
+9000004402,
+9000004607,
+9000004704,
+9000004801,
+9000005301,
+9000005409,
+9000005808,
+9000005905,
+9000006405,
+9000006502
+        };
+
         private static void ReadSettings()
         {
             var config = new ConfigurationBuilder()
@@ -85,7 +117,7 @@ namespace app_levy_data_seeder
 
                 var check = new EmploymentChecks
                 {
-                    ULN = 1000000000 + i,
+                    ULN = Ulns[i-1],
                     ApprenticeshipId = 122 + i,
                     UKPRN = 10000000 + i,
                     AccountId = i,
@@ -105,13 +137,15 @@ namespace app_levy_data_seeder
                     MessageCreatedDateTime = DateTime.Now,
                     EmploymentCheckId = checkId,
                     Uln = check.ULN,
-                    NationalInsuranceNumber = data.jsonBody.nino,
+                    NationalInsuranceNumber = "", //data.jsonBody.nino,
                     PayeScheme = data.jsonBody.empref.ToUpper(),
                     StartDateTime = check.MinDate,
                     EndDateTime = check.MaxDate
                 };
 
                 await _dataAccess.Insert(queue);
+
+                if (Ulns.Length == i) return;
             }
         }
 

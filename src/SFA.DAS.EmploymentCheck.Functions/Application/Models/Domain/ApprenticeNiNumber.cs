@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
+﻿using System.Text.Json.Serialization;
+
+namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 {
     public class ApprenticeNiNumber
     {
@@ -12,8 +14,10 @@
             NationalInsuranceNumber = nationalInsuranceNumber;
         }
 
+        [JsonPropertyName("uln")]
         public long ULN { get; set; }
 
+        [JsonPropertyName("niNumber")]
         public string NationalInsuranceNumber { get; set; }
     }
 }
