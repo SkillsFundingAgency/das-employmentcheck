@@ -12,7 +12,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             long ukprn,
             long apprenticeshipId,
             long accountId,
-            string nationalInsuranceNumber,
             DateTime minDate,
             DateTime maxDate,
             string checkType,
@@ -26,7 +25,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             UKPRN = ukprn;
             ApprenticeshipId = apprenticeshipId;
             AccountId = accountId;
-            NationalInsuranceNumber = nationalInsuranceNumber;
             MinDate = minDate;
             MaxDate = maxDate;
             CheckType = checkType;
