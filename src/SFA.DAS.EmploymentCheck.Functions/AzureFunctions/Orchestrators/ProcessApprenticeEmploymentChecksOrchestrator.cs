@@ -70,6 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (apprenticeEmploymentCheckMessage == null)
                 {
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
+                    return;
                 }
                 else
                 {

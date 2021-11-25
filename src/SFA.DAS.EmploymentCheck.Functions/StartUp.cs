@@ -51,10 +51,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             //builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetApprenticeEmploymentChecksQueryRequest).Assembly);
 
-            // EmploymentChecksDb Configuration
-            builder.Services.Configure<EmploymentCheckDbConfiguration>(config.GetSection("EmploymentCheckDbSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckDbConfiguration>>().Value);
-
             // SubmitLearnerData API Configuration
             builder.Services.Configure<SubmitLearnerDataApiConfiguration>(
                 config.GetSection("SubmitLearnersDataApiSettings"));
