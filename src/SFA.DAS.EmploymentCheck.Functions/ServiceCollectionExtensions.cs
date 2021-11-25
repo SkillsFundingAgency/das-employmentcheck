@@ -45,8 +45,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+            serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<IEmploymentCheckService, EmploymentCheckServiceStub>();
 #else
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
