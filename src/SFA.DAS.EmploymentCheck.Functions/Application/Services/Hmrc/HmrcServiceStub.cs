@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
@@ -29,6 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             if(request != null)
             {
                 request.IsEmployed = true;
+                request.EmploymentCheckedDateTime = DateTime.Now;
             }
 
             return await Task.FromResult(request);

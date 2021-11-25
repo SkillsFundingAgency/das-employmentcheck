@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Dapper;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;

@@ -66,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             HmrcApiRateLimiterOptions options)
         {
             var requests = new List<ApprenticeEmploymentCheckMessageModel>();
-            
+
             for (var i = 0; i < options.BatchSize; i++)
             {
                 requests.Add(
