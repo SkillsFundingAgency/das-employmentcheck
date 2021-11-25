@@ -3,13 +3,11 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.Retry;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
@@ -83,16 +81,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             );
         }
 
-
-        private async Task RetrieveAuthenticationToken()
-        {
-            _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
-        }
-
-        private AsyncRetryPolicy<HttpResponseMessage> AuthorisationEnsuringPolicy => Policy
-            .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
-            .RetryAsync(
-                retryCount: 1,
-                onRetryAsync: async (outcome, retryNumber, context) => await RetrieveAuthenticationToken());
+        private async Task RetrieveAuthenticationToken() => _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
     }
 }

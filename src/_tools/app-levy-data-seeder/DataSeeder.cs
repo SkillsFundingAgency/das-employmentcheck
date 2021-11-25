@@ -101,7 +101,7 @@ namespace app_levy_data_seeder
 
                 var queue = new ApprenticeEmploymentCheckMessageQueue
                 {
-                    MessageId = Guid.NewGuid(),
+                    MessageId =  Guid.NewGuid(),
                     MessageCreatedDateTime = DateTime.Now,
                     EmploymentCheckId = checkId,
                     Uln = check.ULN,
@@ -118,6 +118,7 @@ namespace app_levy_data_seeder
 
         private static async Task ClearData()
         {
+           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
            await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecksControlTable]");
