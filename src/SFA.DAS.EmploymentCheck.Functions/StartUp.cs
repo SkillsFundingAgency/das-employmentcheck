@@ -77,14 +77,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
-            var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
-            config.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
-            builder.Services.AddEmploymentCheckService(config["EnvironmentName"], authTokenServiceConfiguration);
-
             //DC Api Settings
             builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>().Value);
 
+            // Employment Check Configuration
             var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
             config.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
             builder.Services.AddEmploymentCheckService(config["EnvironmentName"], authTokenServiceConfiguration);
