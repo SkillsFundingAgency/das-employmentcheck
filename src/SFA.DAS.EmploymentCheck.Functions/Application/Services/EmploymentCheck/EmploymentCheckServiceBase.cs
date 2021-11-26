@@ -82,7 +82,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckModels;
@@ -113,7 +113,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
             }
 
             return EmploymentCheckLastGetId;
@@ -179,7 +179,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 }
                 else
                 {
-                    logger.LogInformation($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
+                    logger.LogError($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
                     apprenticeEmploymentCheckModels = new List<ApprenticeEmploymentCheckModel>(); // return an empty list rather than null
                 }
             }
@@ -237,7 +237,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
             }
 
             // Check the saved value matches the value we saved
@@ -305,7 +305,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -353,7 +353,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;
@@ -434,7 +434,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation(
+                logger.LogError(
                     $"{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
             finally
@@ -590,7 +590,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -641,7 +641,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return await Task.FromResult(apprenticeEmploymentCheckMessages);
@@ -704,7 +704,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -785,7 +785,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -830,7 +830,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return sqlConnection;

@@ -31,16 +31,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-#if DEBUG
             configBuilder.AddJsonFile("local.settings.json", optional: true);
-#endif
-            //configBuilder.AddAzureTableStorage(options =>
-            //{
-            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            //    options.EnvironmentName = configuration["EnvironmentName"];
-            //    options.PreFixConfigurationKeys = false;
-            //});
+
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
 
             var config = configBuilder.Build();
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
