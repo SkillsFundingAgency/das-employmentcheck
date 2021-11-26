@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
@@ -11,13 +13,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
     {
         private readonly IEmployerAccountApiClient _accountsApiClient;
         private readonly ILogger<IEmployerAccountService> _logger;
+        private readonly AccountsApiSettings _accountsApiSettings;
 
         public EmployerAccountService(
             IEmployerAccountApiClient accountsApiClient,
-            ILogger<IEmployerAccountService> logger)
+            ILogger<IEmployerAccountService> logger, IOptions<AccountsApiSettings> accountsApiSettings)
         {
             _accountsApiClient = accountsApiClient;
             _logger = logger;
+            _accountsApiSettings = accountsApiSettings.Value;
         }
 
         public async Task<AccountDetailViewModel> GetEmployerAccount(long accountId)
