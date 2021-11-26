@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
-using Microsoft.Azure.Services.AppAuthentication;
+﻿using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -18,8 +12,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         : EmploymentCheckServiceBase
     {
         private const string ThisClassName = "\n\nEmploymentCheckService";
-
-        private EmploymentCheckDbConfiguration _employmentCheckDbConfiguration;
         private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString;
         private readonly int _batchSize;
@@ -37,12 +29,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="logger"></param>
         public EmploymentCheckService(
             ApplicationSettings applicationSettings,                            // TODO: Replace this generic application setting
-            EmploymentCheckDbConfiguration employmentCheckDbConfiguration,      // TODO: With this specific employment check database configuration
             AzureServiceTokenProvider azureServiceTokenProvider,
             ILogger<IEmploymentCheckService> logger)
         {
             _connectionString = applicationSettings.DbConnectionString;
-            _employmentCheckDbConfiguration = employmentCheckDbConfiguration;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
             _logger = logger;

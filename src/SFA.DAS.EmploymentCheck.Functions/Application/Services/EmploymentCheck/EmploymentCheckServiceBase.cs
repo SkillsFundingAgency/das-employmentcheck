@@ -463,39 +463,47 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             {
                 if (apprenticeEmploymentCheckMessageModel != null)
                 {
-                    await using (var sqlConnection = await CreateSqlConnection(
-                        logger,
-                        connectionString,
-                        azureResource,
-                        azureServiceTokenProvider))
+                    var sqlConnection = await CreateSqlConnection(logger, connectionString, azureResource, azureServiceTokenProvider);
+                    if (sqlConnection == null)
                     {
-                        if (sqlConnection != null)
-                        {
-                            await sqlConnection.OpenAsync();
-
-                            var transaction = sqlConnection.BeginTransaction();
+                        logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} The sqlConnection value returned from CreateSqlConnection() is null.");
+                    }
+                    else
+                    {
+                            await using (sqlConnection)
                             {
+                            await sqlConnection.OpenAsync();
+                            var transaction = sqlConnection.BeginTransaction();
+                                var parameters = new DynamicParameters();
 
-                                try
+                                parameters.Add("id", apprenticeEmploymentCheckMessageModel.EmploymentCheckId, DbType.Int64);
+                                parameters.Add("messageId", apprenticeEmploymentCheckMessageModel.MessageId, DbType.Guid);
+                                parameters.Add("isEmployed", apprenticeEmploymentCheckMessageModel.IsEmployed, DbType.Boolean);
+                                parameters.Add("lastUpdated", apprenticeEmploymentCheckMessageModel.EmploymentCheckedDateTime, DbType.DateTime);
+                                parameters.Add("returnCode", apprenticeEmploymentCheckMessageModel.ReturnCode, DbType.String);
+                                parameters.Add("returnMessage", apprenticeEmploymentCheckMessageModel.ReturnMessage, DbType.String);
+                                parameters.Add("hasBeenChecked", true);
+
+                                await sqlConnection.OpenAsync();
+
+                                logger.LogInformation($"{thisMethodName}: Updating row for ULN: {apprenticeEmploymentCheckMessageModel.Uln}.");
                                 {
-                                    // -------------------------------------------------------------------
-                                    // Store the employment status
-                                    // -------------------------------------------------------------------
-                                    var employmentCheckParameters = new DynamicParameters();
-                                    employmentCheckParameters.Add("id", apprenticeEmploymentCheckMessageModel.EmploymentCheckId, DbType.Int64);
-                                    employmentCheckParameters.Add("messageId", apprenticeEmploymentCheckMessageModel.MessageId, DbType.Guid);
-                                    employmentCheckParameters.Add("isEmployed", apprenticeEmploymentCheckMessageModel.IsEmployed, DbType.Boolean);
-                                    employmentCheckParameters.Add("hasBeenChecked", true);
 
-                                    await sqlConnection.ExecuteAsync(
-                                        "UPDATE [dbo].[EmploymentChecks] " +
-                                        "SET IsEmployed = @isEmployed, " +
-                                        "LastUpdated = GETDATE(), " +
-                                        "HasBeenChecked = @hasBeenChecked " +
-                                        "WHERE Id = @id",
-                                            employmentCheckParameters,
-                                            commandType: CommandType.Text,
-                                            transaction: transaction);
+                                    try
+                                    {
+                                employmentCheckParameters.Add("returnMessage", apprenticeEmploymentCheckMessageModel.ReturnMessage, DbType.String);
+                             
+                                        await sqlConnection.ExecuteAsync(
+                                            "UPDATE [dbo].[EmploymentChecks] SET " +
+                                            "IsEmployed = @isEmployed," +
+                                            "LastUpdated = @lastUpdated," +
+                                            "HasBeenChecked = @hasBeenChecked," +
+                                            "ReturnCode = @returnCode," +
+                                            "ReturnMessage = @returnMessage" +
+                                            " WHERE Id = @id",
+                                                parameters,
+                                                commandType: CommandType.Text,
+                                                transaction: transaction);
 
                                     // -------------------------------------------------------------------
                                     // Archive a copy of the employment check message for auditing
@@ -562,30 +570,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     var messageParameters = new DynamicParameters();
                                     messageParameters.Add("messageId", apprenticeEmploymentCheckMessageModel.MessageId, DbType.Guid);
 
-                                    await sqlConnection.ExecuteAsync(
-                                        "DELETE [dbo].[ApprenticeEmploymentCheckMessageQueue] WHERE MessageId = @messageId",
-                                            messageParameters,
-                                            commandType: CommandType.Text,
-                                            transaction: transaction);
+                                        await sqlConnection.ExecuteAsync(
+                                            "DELETE [dbo].[ApprenticeEmploymentCheckMessageQueue] WHERE MessageId = @messageId",
+                                        messageParameters,
+                                        commandType: CommandType.Text,
+                                        transaction: transaction);
 
                                     // -------------------------------------------------------------------
                                     // Commit the transaction
                                     // -------------------------------------------------------------------
-                                    transaction.Commit();
-                                }
-                                catch (Exception ex)
-                                {
-                                    transaction.Rollback();
-                                    logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                                        transaction.Commit();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        transaction.Rollback();
+                                        logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                                    }
                                 }
                             }
                         }
-                        else
-                        {
-                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The sqlConnection value returned from CreateSqlConnection() is null.");
-                        }
-                    }
-                }
                 else
                 {
                     logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel input parameter is null.");
