@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             _logger = logger;
         }
 
-        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentChecks)
+        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<EmploymentCheckModel> apprenticeEmploymentChecks)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticesNiNumber()";
 
@@ -37,10 +37,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             return await Task.FromResult(apprenticesNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(ApprenticeEmploymentCheckModel apprenticeEmploymentCheck)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(EmploymentCheckModel apprenticeEmploymentCheck)
         {
-            var uln = apprenticeEmploymentCheck.ULN;
-            var niNumber = "NI" + apprenticeEmploymentCheck.ULN.ToString();
+            var uln = apprenticeEmploymentCheck.Uln;
+            var niNumber = "NI" + apprenticeEmploymentCheck.Uln.ToString();
 
             var apprenticeNiNumber = new ApprenticeNiNumber
             {
@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             return await Task.FromResult(apprenticeNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber2(ApprenticeEmploymentCheckModel apprenticeEmploymentCheck)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber2(EmploymentCheckModel apprenticeEmploymentCheck)
         {
             ApprenticeNiNumber apprenticeNiNumber;
 

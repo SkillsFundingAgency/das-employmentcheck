@@ -6,11 +6,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
     public class DequeueApprenticeEmploymentCheckMessageQueryResult
     {
         public DequeueApprenticeEmploymentCheckMessageQueryResult(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessage)
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessage)
         {
             ApprenticeEmploymentCheckMessage = apprenticeEmploymentCheckMessage;
         }
 
-        public ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessage { get; }
+        public EmploymentCheckMessageModel ApprenticeEmploymentCheckMessage { get; }
     }
 }

@@ -6,11 +6,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SaveApprenticeEmp
     public class SaveApprenticeEmploymentCheckResultCommand : IRequest
     {
         public SaveApprenticeEmploymentCheckResultCommand(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
             ApprenticeEmploymentCheckMessageModel = apprenticeEmploymentCheckMessageModel;
         }
 
-        public ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
+        public EmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
     }
 }

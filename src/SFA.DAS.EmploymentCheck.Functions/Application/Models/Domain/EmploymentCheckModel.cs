@@ -2,63 +2,57 @@
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 {
-    public class ApprenticeEmploymentCheckModel
+    public class EmploymentCheckModel
     {
-        public ApprenticeEmploymentCheckModel() { }
+        public EmploymentCheckModel() { }
 
-        public ApprenticeEmploymentCheckModel(
-            long id,
+        public EmploymentCheckModel(
+            long employmentCheckId,
+            long correlationId,
+            string checkType,
             long uln,
-            long ukprn,
             long apprenticeshipId,
             long accountId,
             DateTime minDate,
             DateTime maxDate,
-            string checkType,
             bool isEmployed,
             DateTime lastUpdated,
-            DateTime createdDate,
-            bool hasBeenChecked)
+            DateTime createdOn)
         {
-            Id = id;
-            ULN = uln;
-            UKPRN = ukprn;
+            EmploymentCheckId = employmentCheckId;
+            CorrelationId = correlationId;
+            CheckType = checkType;
+            Uln = uln;
             ApprenticeshipId = apprenticeshipId;
             AccountId = accountId;
             MinDate = minDate;
             MaxDate = maxDate;
-            CheckType = checkType;
             IsEmployed = isEmployed;
             LastUpdated = lastUpdated;
-            CreatedDate = createdDate;
-            HasBeenChecked = hasBeenChecked;
+            CreatedOn = createdOn;
         }
 
-        public long Id { get; set; }
+        public long EmploymentCheckId { get; set; }
 
-        public long ULN { get; set; }
+        public long CorrelationId { get; set; }
 
-        public long UKPRN { get; set; }
+        public string CheckType { get; set; }
+
+        public long Uln { get; set; }
 
         public long ApprenticeshipId { get; set; }
 
         public long AccountId { get; set; }
 
-        public string NationalInsuranceNumber { get; set; }
-
         public DateTime MinDate { get; set; }
 
         public DateTime MaxDate { get; set; }
-
-        public string CheckType { get; set; }
 
         public bool IsEmployed { get; set; }
 
         public DateTime LastUpdated { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-
-        public bool HasBeenChecked { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }
 

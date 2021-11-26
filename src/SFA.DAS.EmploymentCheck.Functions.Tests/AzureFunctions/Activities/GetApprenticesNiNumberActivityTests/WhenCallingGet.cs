@@ -17,9 +17,9 @@
 //    {
 //        private readonly Mock<IMediator> _mediator;
 //        private readonly Mock<ILogger<GetApprenticesNiNumberActivity>> _logger;
-//        private readonly ApprenticeEmploymentCheckModel _apprentice;
+//        private readonly EmploymentCheckModel _apprentice;
 //        private readonly ApprenticeNiNumber _apprenticeNiNumber;
-//        private readonly IList<ApprenticeEmploymentCheckModel> _apprentices;
+//        private readonly IList<EmploymentCheckModel> _apprentices;
 //        public WhenCallingGet()
 //        {
 //            _mediator = new Mock<IMediator>();
@@ -38,7 +38,7 @@
 //                1000001,
 //                "1000001");
 
-//            _apprentices = new List<ApprenticeEmploymentCheckModel> { _apprentice };
+//            _apprentices = new List<EmploymentCheckModel> { _apprentice };
 //        }
 
 //        [Fact]

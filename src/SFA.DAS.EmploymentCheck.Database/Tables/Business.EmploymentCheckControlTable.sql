@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[EmploymentChecksControlTable]
+﻿CREATE TABLE [Business].[EmploymentCheckControlTable]
 (
 	[RowId] BIGINT NOT NULL,
 	[EmploymentCheckLastGetId] BIGINT NOT NULL

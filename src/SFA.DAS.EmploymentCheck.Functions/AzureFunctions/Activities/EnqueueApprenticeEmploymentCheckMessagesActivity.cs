@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity))]
         public async Task<int> Enqueue(
-            [ActivityTrigger] ApprenticeRelatedData apprenticeEmploymentData)
+            [ActivityTrigger] EmploymentCheckData apprenticeEmploymentData)
         {
             var thisMethodName = "EnqueueApprenticesEmploymentCheckMessagesActivity.Enqueue()";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";

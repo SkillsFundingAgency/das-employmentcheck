@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
 
-            ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModelResult = null;
+            EmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModelResult = null;
             try
             {
                 if (request != null &&

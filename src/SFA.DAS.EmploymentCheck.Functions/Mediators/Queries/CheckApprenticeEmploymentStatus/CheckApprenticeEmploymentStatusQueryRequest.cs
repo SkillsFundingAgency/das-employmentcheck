@@ -7,11 +7,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
         : IRequest<CheckApprenticeEmploymentStatusQueryResult>
     {
         public CheckApprenticeEmploymentStatusQueryRequest(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
             ApprenticeEmploymentCheckMessageModel = apprenticeEmploymentCheckMessageModel;
         }
 
-        public ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
+        public EmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
     }
 }

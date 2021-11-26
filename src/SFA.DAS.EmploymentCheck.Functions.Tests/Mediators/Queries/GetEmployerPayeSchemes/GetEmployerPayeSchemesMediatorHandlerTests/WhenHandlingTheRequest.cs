@@ -32,7 +32,7 @@
 
 //            //Act
 
-//            var result = await sut.Handle(new GetEmployersPayeSchemesMediatorRequest(new List<ApprenticeEmploymentCheckModel>()),
+//            var result = await sut.Handle(new GetEmployersPayeSchemesMediatorRequest(new List<EmploymentCheckModel>()),
 //                CancellationToken.None);
 
 //            //Assert
@@ -54,7 +54,7 @@
 //                1,
 //                DateTime.Today.AddDays(-1),
 //                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheckModel> {apprentice};
+//            var apprentices = new List<EmploymentCheckModel> {apprentice};
 //            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
 
 //            var payeScheme = new EmployerPayeSchemes(1, new List<string> {"paye scheme"});
@@ -87,7 +87,7 @@
 //                1,
 //                DateTime.Today.AddDays(-1),
 //                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheckModel> { apprentice };
+//            var apprentices = new List<EmploymentCheckModel> { apprentice };
 //            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
 
 //            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.Apprentices)).ReturnsAsync(new List<EmployerPayeSchemes>());
@@ -117,7 +117,7 @@
 //                1,
 //                DateTime.Today.AddDays(-1),
 //                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheckModel> { apprentice };
+//            var apprentices = new List<EmploymentCheckModel> { apprentice };
 //            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
 
 //            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.Apprentices)).ReturnsAsync((List<EmployerPayeSchemes>)null);
@@ -147,7 +147,7 @@
 //                1,
 //                DateTime.Today.AddDays(-1),
 //                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheckModel> { apprentice };
+//            var apprentices = new List<EmploymentCheckModel> { apprentice };
 //            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
 
 //            var exception = new Exception("exception");

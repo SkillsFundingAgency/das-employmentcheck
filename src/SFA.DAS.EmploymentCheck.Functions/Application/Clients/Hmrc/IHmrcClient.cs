@@ -5,6 +5,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc
 {
     public interface IHmrcClient
     {
-        Task<ApprenticeEmploymentCheckMessageModel> CheckApprenticeEmploymentStatus_Client(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);
+        Task<EmploymentCheckMessageModel> CheckApprenticeEmploymentStatus_Client(EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);
     }
 }

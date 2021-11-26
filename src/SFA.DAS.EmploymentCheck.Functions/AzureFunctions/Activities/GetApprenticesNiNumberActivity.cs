@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetApprenticesNiNumberActivity))]
-        public async Task<IList<ApprenticeNiNumber>> Get([ActivityTrigger] IList<ApprenticeEmploymentCheckModel> apprentices)
+        public async Task<IList<ApprenticeNiNumber>> Get([ActivityTrigger] IList<EmploymentCheckModel> apprentices)
         {
             var thisMethodName = $"{ThisClassName}.Get()";
 

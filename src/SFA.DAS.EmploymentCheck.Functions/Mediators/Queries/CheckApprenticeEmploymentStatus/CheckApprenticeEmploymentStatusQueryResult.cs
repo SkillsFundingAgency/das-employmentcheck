@@ -4,11 +4,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
 {
     public class CheckApprenticeEmploymentStatusQueryResult
     {
-        public CheckApprenticeEmploymentStatusQueryResult(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public CheckApprenticeEmploymentStatusQueryResult(EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
             ApprenticeEmploymentCheckMessageModel = apprenticeEmploymentCheckMessageModel;
         }
 
-        public ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
+        public EmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
     }
 }

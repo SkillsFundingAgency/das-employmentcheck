@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessage = null;
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessage = null;
             try
             {
                 // Call the application client to get the apprentices employment check queue messages
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
                 if(apprenticeEmploymentCheckMessage == null)
                 {
                     _logger.LogInformation($"{ThisClassName}: {ErrorMessagePrefix} The value returned from DequeueApprenticeEmploymentCheckMessage_Client() is null.");
-                    apprenticeEmploymentCheckMessage = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
+                    apprenticeEmploymentCheckMessage = new EmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                 }
             }
             catch (Exception ex)

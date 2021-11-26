@@ -65,13 +65,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"{thisMethodName}: Started.");
 
                 // Get the next message off the message queue
-                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
+                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
 
-                // Do the employment status check on this message
-                var updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
+                // Run the employment status check on this message
+                if (apprenticeEmploymentCheckMessage.CorrelationId != 0)
+                {
+                    var updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
-                // Save the employment status back to the database
-                await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), updatedApprenticeEmploymentCheckMessage);
+                    // Save the employment status back to the database
+                    await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), updatedApprenticeEmploymentCheckMessage);
+                }
+
+                // TODO: Sleep for a while
+
 
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{thisMethodName}: Completed.");

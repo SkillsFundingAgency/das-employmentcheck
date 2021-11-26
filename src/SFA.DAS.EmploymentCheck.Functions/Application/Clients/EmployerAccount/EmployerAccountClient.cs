@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<ApprenticeEmploymentCheckModel> apprentices)
+            IList<EmploymentCheckModel> apprentices)
         {
             var thisMethodName = "GetApprenticesNiNumberClient.Get()";
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                 {
                     foreach (var apprentice in apprentices)
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{apprentice.AccountId}] (apprentice ULN [{apprentice.ULN}]).");
+                        Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{apprentice.AccountId}] (apprentice ULN [{apprentice.Uln}]).");
                         var accountDetailViewModel = await _employerAccountService.GetEmployerAccount(apprentice.AccountId);
 
                         if (accountDetailViewModel != null &&

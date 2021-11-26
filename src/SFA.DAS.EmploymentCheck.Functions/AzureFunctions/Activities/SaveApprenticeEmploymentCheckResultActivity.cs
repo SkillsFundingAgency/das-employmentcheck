@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(SaveApprenticeEmploymentCheckResultActivity))]
         public async Task SaveApprenticeEmploymentCheckResultActivityTask(
-            [ActivityTrigger] ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            [ActivityTrigger] EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{ThisClassName}.SaveApprenticeEmploymentCheckResultsActivityTask";
 

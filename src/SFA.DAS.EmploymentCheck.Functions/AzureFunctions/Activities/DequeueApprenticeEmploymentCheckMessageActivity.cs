@@ -26,12 +26,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(DequeueApprenticeEmploymentCheckMessageActivity))]
-        public async Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessageActivityTask(
+        public async Task<EmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessageActivityTask(
             [ActivityTrigger] object input)
         {
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessageActivityTask()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
             try
             {
                 // Send MediatR request to get the next message off the queue
@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The dequeueApprenticeEmploymentCheckMessageQueryRequestResult value returned from the call to DequeueApprenticeEmploymentCheckMessageQueryRequest() is null.");
-                    apprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
+                    apprenticeEmploymentCheckMessageModel = new EmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                 }
             }
             catch (Exception ex)

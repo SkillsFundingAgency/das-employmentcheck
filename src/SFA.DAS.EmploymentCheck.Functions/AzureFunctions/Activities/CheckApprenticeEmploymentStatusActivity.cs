@@ -26,12 +26,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(CheckApprenticeEmploymentStatusActivity))]
-        public async Task<ApprenticeEmploymentCheckMessageModel> CheckApprenticeEmploymentStatusActivityTask(
-            [ActivityTrigger] ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public async Task<EmploymentCheckMessageModel> CheckApprenticeEmploymentStatusActivityTask(
+            [ActivityTrigger] EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{ThisClassName}.CheckApprenticeEmploymentStatusActivityTask()";
 
-            ApprenticeEmploymentCheckMessageModel updatedApprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessageModel updatedApprenticeEmploymentCheckMessageModel = null;
             try
             {
                 if (apprenticeEmploymentCheckMessageModel != null)
@@ -47,13 +47,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                     else
                     {
                         _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The checkApprenticeEmploymentStatusQueryResult value returned from the call to CheckApprenticeEmploymentStatusQueryRequest() is null.");
-                        updatedApprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
+                        updatedApprenticeEmploymentCheckMessageModel = new EmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                     }
                 }
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The input parameter apprenticeEmploymentCheckMessageModel is null.");
-                    updatedApprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
+                    updatedApprenticeEmploymentCheckMessageModel = new EmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                 }
 
             }

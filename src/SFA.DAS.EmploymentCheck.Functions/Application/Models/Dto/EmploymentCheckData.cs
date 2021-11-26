@@ -2,21 +2,21 @@
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 {
-    public class ApprenticeRelatedData
+    public class EmploymentCheckData
     {
-        public ApprenticeRelatedData() { }
+        public EmploymentCheckData() { }
 
-        public ApprenticeRelatedData(
-            IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentChecks,
+        public EmploymentCheckData(
+            IList<EmploymentCheckModel> employmentChecks,
             IList<ApprenticeNiNumber> apprenticeNiNumbers,
             IList<EmployerPayeSchemes> employerPayeSchemes)
         {
-            ApprenticeEmploymentChecks = apprenticeEmploymentChecks;
+            EmploymentChecks = employmentChecks;
             ApprenticeNiNumbers = apprenticeNiNumbers;
             EmployerPayeSchemes = employerPayeSchemes;
         }
 
-        public IList<ApprenticeEmploymentCheckModel> ApprenticeEmploymentChecks { get; set;  }
+        public IList<EmploymentCheckModel> EmploymentChecks { get; set;  }
 
         public IList<ApprenticeNiNumber> ApprenticeNiNumbers { get; set; }
 

@@ -53,12 +53,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// --------------------------------------------------------------------------------------------------
         /// </summary>
-        /// <returns>Task<IList<ApprenticeEmploymentCheckModel>></returns>
-        public async override Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
+        /// <returns>Task<IList<EmploymentCheckModel>></returns>
+        public async override Task<IList<EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecks()";
 
-            IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<EmploymentCheckModel> apprenticeEmploymentChecks = null;
             try
             {
                 apprenticeEmploymentChecks = await GetApprenticeEmploymentChecks_Base(
@@ -84,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// </summary>
         /// <param name="apprenticeEmploymentData"></param>
         /// <returns>Task</returns>
-        public async override Task EnqueueApprenticeEmploymentCheckMessages_Service(ApprenticeRelatedData apprenticeEmploymentData)
+        public async override Task EnqueueApprenticeEmploymentCheckMessages_Service(EmploymentCheckData apprenticeEmploymentData)
         {
             // TODO: Add implementation for using Azure SqlDatabase
             var thisMethodName = $"{ThisClassName}.EnqueueApprenticeEmploymentCheckMessages_Service()";
@@ -117,12 +117,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// --------------------------------------------------------------------------------------------------------
         /// </summary>
         /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
-        public async override Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service()
+        public async override Task<EmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service()
         {
             // TODO: Add implementation for using Azure SqlDatabase
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessage_Service()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
             try
             {
                 apprenticeEmploymentCheckMessageModel = await DequeueApprenticeEmploymentCheckMessage_Base(
@@ -146,7 +146,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
         public async override Task SaveEmploymentCheckResult_Service(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Service()";
 

@@ -67,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 // Get the apprentices requiring an employment check (we have to await this call as we can't do anything else until we have the list of apprentices)
-                var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
+                var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<EmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
 
                 // If we got a batch of apprentices then lookup the Nino and Paye Schemes otherwise sleep for a while before repeating the execution
                 if (apprenticeEmploymentChecks.Count > 0)
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     await Task.WhenAll(getNationalInsuranceNumbersTask, getPayeSchemesTask);
 
                     // We now have all the data we need for the employment check so create a message on the message queue ready for the employment check orchestrator to process
-                    await context.CallActivityAsync<int>(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity), new ApprenticeRelatedData(apprenticeEmploymentChecks, getNationalInsuranceNumbersTask.Result, getPayeSchemesTask.Result));
+                    await context.CallActivityAsync<int>(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity), new EmploymentCheckData(apprenticeEmploymentChecks, getNationalInsuranceNumbersTask.Result, getPayeSchemesTask.Result));
                 }
                 else
                 {

@@ -20,7 +20,7 @@
 //        private readonly Mock<ILogger<HmrcService>> _logger;
 //        private readonly Mock<ITokenServiceApiClient> _tokenService;
 //        private readonly PrivilegedAccessToken _token;
-//        private readonly ApprenticeEmploymentCheckModel _apprentice;
+//        private readonly EmploymentCheckModel _apprentice;
 //        private readonly ProcessApprenticeEmploymentChecksCommand _command;
 
 //        public WhenCheckingEmploymentStatus()

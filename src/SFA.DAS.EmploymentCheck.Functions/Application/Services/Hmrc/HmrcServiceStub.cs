@@ -24,8 +24,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
-            ApprenticeEmploymentCheckMessageModel request)
+        public async Task<EmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
+            EmploymentCheckMessageModel request)
         {
             if(request != null)
             {

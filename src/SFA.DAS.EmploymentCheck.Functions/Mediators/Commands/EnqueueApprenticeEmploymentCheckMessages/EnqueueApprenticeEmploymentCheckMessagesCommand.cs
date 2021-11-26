@@ -7,11 +7,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
         : IRequest
     {
         public EnqueueApprenticeEmploymentCheckMessagesCommand(
-            ApprenticeRelatedData apprenticeRelatedData)
+            EmploymentCheckData apprenticeRelatedData)
         {
             ApprenticeRelatedData = apprenticeRelatedData;
         }
 
-        public ApprenticeRelatedData ApprenticeRelatedData { get; }
+        public EmploymentCheckData ApprenticeRelatedData { get; }
     }
 }
