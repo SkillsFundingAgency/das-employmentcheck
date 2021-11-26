@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             NationalInsuranceNumber = nationalInsuranceNumber;
             PayeScheme = payeScheme;
             MinDateTime = minDateTime;
-            MinDateTime = maxDateTime;
+            MaxDateTime = maxDateTime;
             IsEmployed = isEmployed;
             EmploymentCheckedDateTime = employmentCheckedDateTime;
             ResponseId = responseId;

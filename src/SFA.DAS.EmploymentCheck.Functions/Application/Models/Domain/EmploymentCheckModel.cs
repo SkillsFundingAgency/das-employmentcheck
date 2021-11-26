@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             long accountId,
             DateTime minDate,
             DateTime maxDate,
-            bool isEmployed,
+            bool? isEmployed,
             DateTime lastUpdated,
             DateTime createdOn)
         {
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 
         public DateTime MaxDate { get; set; }
 
-        public bool IsEmployed { get; set; }
+        public bool? IsEmployed { get; set; }
 
         public DateTime LastUpdated { get; set; }
 

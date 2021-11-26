@@ -37,26 +37,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             ResponseId = responeId;
             ResponseMessage = responseMessage;
             MessageCreatedDateTime = messageCreatedDateTime;
-            CreatedDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+            CreatedDateTime = DateTime.UtcNow;
         }
 
-        public EmploymentCheckMessageHistoryModel(EmploymentCheckMessageModel EmploymentCheckMessageModel)
+        public EmploymentCheckMessageHistoryModel(EmploymentCheckMessageModel employmentCheckMessageModel)
         {
-            MessageHistoryId = MessageHistoryId;
-            MessageId = EmploymentCheckMessageModel.MessageId;
-            EmploymentCheckId = EmploymentCheckMessageModel.EmploymentCheckId;
-            CorrelationId = EmploymentCheckMessageModel.CorrelationId;
-            Uln = EmploymentCheckMessageModel.Uln;
-            NationalInsuranceNumber = EmploymentCheckMessageModel.NationalInsuranceNumber;
-            PayeScheme = EmploymentCheckMessageModel.PayeScheme;
-            MinDateTime = EmploymentCheckMessageModel.MinDateTime;
-            MaxDateTime = EmploymentCheckMessageModel.MaxDateTime;
-            EmploymentCheckedDateTime = EmploymentCheckMessageModel.EmploymentCheckedDateTime;
-            IsEmployed = EmploymentCheckMessageModel.IsEmployed;
-            ResponseId = EmploymentCheckMessageModel.ResponseId;
-            ResponseMessage = EmploymentCheckMessageModel.ResponseMessage;
-            MessageCreatedDateTime = EmploymentCheckMessageModel.CreatedDateTime;
-            CreatedDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+            MessageId = employmentCheckMessageModel.MessageId;
+            EmploymentCheckId = employmentCheckMessageModel.EmploymentCheckId;
+            CorrelationId = employmentCheckMessageModel.CorrelationId;
+            Uln = employmentCheckMessageModel.Uln;
+            NationalInsuranceNumber = employmentCheckMessageModel.NationalInsuranceNumber;
+            PayeScheme = employmentCheckMessageModel.PayeScheme;
+            MinDateTime = employmentCheckMessageModel.MinDateTime;
+            MaxDateTime = employmentCheckMessageModel.MaxDateTime;
+            EmploymentCheckedDateTime = employmentCheckMessageModel.EmploymentCheckedDateTime;
+            IsEmployed = employmentCheckMessageModel.IsEmployed;
+            ResponseId = employmentCheckMessageModel.ResponseId;
+            ResponseMessage = employmentCheckMessageModel.ResponseMessage;
+            MessageCreatedDateTime = employmentCheckMessageModel.CreatedDateTime;
+            CreatedDateTime = DateTime.UtcNow;
         }
 
         // Message history properties
