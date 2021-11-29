@@ -10,7 +10,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         private const string RowKey = "HmrcApiRateLimiterOptions";
         private const string StorageTableName = "EmploymentCheckHmrcApiRateLimiterOptions";
 
-        private const int DefaultDelayInMs = 100;
+        private const int DefaultDelayInMs = 110;
+        private const int DefaultDelayAdjustmentIntervalInMs = 100;
         private readonly HmrcApiRateLimiterConfiguration _rateLimiterConfiguration;
         private CloudTable _table;
 
@@ -72,7 +73,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 RowKey = RowKey,
                 PartitionKey = _rateLimiterConfiguration.EnvironmentName,
                 DelayInMs = DefaultDelayInMs,
-                DelayAdjustmentIntervalInMs = DefaultDelayInMs,
+                DelayAdjustmentIntervalInMs = DefaultDelayAdjustmentIntervalInMs,
                 MinimumUpdatePeriodInDays = 0
             };
         }
