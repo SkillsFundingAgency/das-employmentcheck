@@ -31,8 +31,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            configBuilder.AddJsonFile("local.settings.json", optional: true);
-
             configBuilder.AddAzureTableStorage(options =>
             {
                 options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
@@ -40,6 +38,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 options.EnvironmentName = configuration["EnvironmentName"];
                 options.PreFixConfigurationKeys = false;
             });
+
+            configBuilder.AddJsonFile("local.settings.json", optional: true);
 
             var config = configBuilder.Build();
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));

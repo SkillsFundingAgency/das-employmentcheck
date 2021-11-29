@@ -36,7 +36,7 @@ namespace app_levy_data_seeder
 
         private static SqlConnection GetSqlConnection(string connectionString)
         {
-            return new SqlConnection() { ConnectionString = connectionString, AccessToken = connectionString.Contains("User ID=") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
+            return new SqlConnection() { ConnectionString = connectionString, AccessToken = connectionString.Contains("Integrated Security") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
         }
 
     }

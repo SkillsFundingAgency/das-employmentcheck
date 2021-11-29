@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Dynamitey.DynamicObjects;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -790,42 +791,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
         public virtual async Task<SqlConnection> CreateSqlConnection(
-        ILogger logger,
-        string connectionString,
-        string azureResource,
-        AzureServiceTokenProvider azureServiceTokenProvider)
+            ILogger logger,
+            string connectionString,
+            string azureResource,
+            AzureServiceTokenProvider azureServiceTokenProvider)
         {
             var thisMethodName = $"{ThisClassName}.CreateConnection()";
 
             SqlConnection sqlConnection = null;
             try
             {
-                if (!String.IsNullOrEmpty(connectionString))
+                if (string.IsNullOrEmpty(connectionString))
                 {
-                    if (!String.IsNullOrEmpty(azureResource))
+                    logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Missing SQL connection string for the Employment Check Database.");
+                    return null;
+                }
+
+                sqlConnection = new SqlConnection(connectionString);
+
+                if (azureServiceTokenProvider != null) // no token required for local db
+                {
+                    if (string.IsNullOrEmpty(azureResource))
                     {
-                        sqlConnection = new SqlConnection(connectionString);
-                        if (sqlConnection != null)
-                        {
-                            // no token for local db
-                            if (azureServiceTokenProvider != null)
-                            {
-                                sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(azureResource);
-                            }
-                            else
-                            {
-                                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Creation of SQL Connection for the Employment Check Databasse failed.");
-                            }
-                        }
-                        else
-                        {
-                            logger.LogInformation($"{thisMethodName}: Missing AzureResource string for the Employment Check Databasse.");
-                        }
+                        logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Missing AzureResource string for the Employment Check Database.");
+                        return null;
                     }
-                    else
-                    {
-                        logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Missing SQL connecton string for the Employment Check Databasse.");
-                    }
+
+                    sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(azureResource);
                 }
             }
             catch (Exception ex)
