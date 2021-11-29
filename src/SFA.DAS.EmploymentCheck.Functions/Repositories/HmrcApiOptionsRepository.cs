@@ -1,20 +1,22 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Extensions.Options;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Linq;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public class HmrcApiOptionsRepository : IHmrcApiOptionsRepository
     {
-        private const int DefaultDelayInMs = 1000; // 1 second
+        private const string RowKey = "HmrcApiRateLimiterOptions";
+        private const string StorageTableName = "EmploymentCheckHmrcApiRateLimiterOptions";
+
+        private const int DefaultDelayInMs = 100;
         private readonly HmrcApiRateLimiterConfiguration _rateLimiterConfiguration;
         private CloudTable _table;
 
-        public HmrcApiOptionsRepository(IOptions<HmrcApiRateLimiterConfiguration> options)
+        public HmrcApiOptionsRepository(HmrcApiRateLimiterConfiguration options)
         {
-            _rateLimiterConfiguration = options.Value;
+            _rateLimiterConfiguration = options;
             InitTableStorage();
         }
 
@@ -22,25 +24,30 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         {
             var storageAccount = CloudStorageAccount.Parse(_rateLimiterConfiguration.StorageAccountConnectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
-            _table = tableClient.GetTableReference(_rateLimiterConfiguration.StorageTableName);
+            _table = tableClient.GetTableReference(StorageTableName);
             _table.CreateIfNotExists();
         }
 
-        public int GetRequestDelayInMsSetting()
+        public void ReduceDelaySetting(int value)
         {
             var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
-                .SingleOrDefault(x => x.RowKey == HmrcApiRateLimiterConfiguration.ConfigSection);
-            
-            return record?.DelayInMs ?? DefaultDelayInMs;
-        }
-
-        public void UpdateRequestDelaySetting(int value)
-        {
-            var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
-                .Single(x => x.RowKey == HmrcApiRateLimiterConfiguration.ConfigSection);
+                .SingleOrDefault(x => x.RowKey == RowKey) ?? GetDefaultOptions();
 
             var timeSinceLastUpdate = DateTime.UtcNow - record.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromDays(_rateLimiterConfiguration.MinimumUpdatePeriodInDays)) return;
+            if (timeSinceLastUpdate < TimeSpan.FromDays(record.MinimumUpdatePeriodInDays)) return;
+
+            record.DelayInMs = value;
+            record.UpdateDateTime = DateTime.UtcNow;
+            record.PartitionKey = _rateLimiterConfiguration.EnvironmentName;
+
+            var operation = TableOperation.InsertOrReplace(record);
+            _table.Execute(operation);
+        }
+
+        public void IncreaseDelaySetting(int value)
+        {
+            var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
+                .SingleOrDefault(x => x.RowKey == RowKey) ?? GetDefaultOptions();
 
             record.DelayInMs = value;
             record.UpdateDateTime = DateTime.UtcNow;
@@ -53,11 +60,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         public HmrcApiRateLimiterOptions GetHmrcRateLimiterOptions()
         {
             var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
-                .Single(x => x.RowKey == HmrcApiRateLimiterConfiguration.ConfigSection);
+                .SingleOrDefault(x => x.RowKey == RowKey);
 
-            return record;
+            return record ?? GetDefaultOptions();
         }
 
-
+        private HmrcApiRateLimiterOptions GetDefaultOptions()
+        {
+            return new HmrcApiRateLimiterOptions
+            {
+                RowKey = RowKey,
+                PartitionKey = _rateLimiterConfiguration.EnvironmentName,
+                DelayInMs = DefaultDelayInMs,
+                DelayAdjustmentIntervalInMs = DefaultDelayInMs,
+                MinimumUpdatePeriodInDays = 0
+            };
+        }
     }
 }

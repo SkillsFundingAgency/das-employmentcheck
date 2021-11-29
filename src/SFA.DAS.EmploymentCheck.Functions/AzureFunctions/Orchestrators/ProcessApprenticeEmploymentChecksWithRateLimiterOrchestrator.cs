@@ -6,8 +6,6 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -27,10 +25,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         }
 
         [FunctionName(nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator))]
-        public async Task ProcessApprenticeEmploymentChecksSubOrchestratorTask(
-            [OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task ProcessApprenticeEmploymentChecksSubOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"\n\n{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)}.{nameof(ProcessApprenticeEmploymentChecksSubOrchestratorTask)}()";
+            var thisMethodName = $"{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)}.ProcessApprenticeEmploymentChecksSubOrchestratorTask()";
 
             try
             {
@@ -39,83 +36,61 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                 var options = _optionsRepository.GetHmrcRateLimiterOptions();
 
-                var apprenticeEmploymentCheckMessages = await GetNextMessagesOffTheQueue(context, options);
+                // Get the next message off the message queue
+                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
 
-                var results = await DoEmploymentStatusChecks(context, apprenticeEmploymentCheckMessages);
+                if (apprenticeEmploymentCheckMessage == null)
+                {
+                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
+                    return;
+                }
 
-                AdjustRequestDelay(results, options);
+                // Do the employment status check on this message
+                var result = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(
+                    nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
-                await SaveResults(context, results);
+                AdjustRequestDelayIfRequired(result, options);
+
+                // Save the employment status back to the database
+                await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
 
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{thisMethodName}: Completed.");
+
+                if (!context.IsReplaying)
+                    _logger.LogInformation($"{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)}: Completed.");
+
 
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity
                 // functions were running so this could be a new instance of the orchestrator which
                 // will run though the table storage 'event sourcing' state.
+                await Task.Delay(TimeSpan.FromMilliseconds(options.DelayInMs));
                 context.ContinueAsNew(null);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
         }
 
-        private static async Task<IList<ApprenticeEmploymentCheckMessageModel>> GetNextMessagesOffTheQueue(IDurableOrchestrationContext context,
-            HmrcApiRateLimiterOptions options)
+        private void AdjustRequestDelayIfRequired(ApprenticeEmploymentCheckMessageModel result, HmrcApiRateLimiterOptions options)
         {
-            var requests = new List<ApprenticeEmploymentCheckMessageModel>();
-
-            for (var i = 0; i < options.BatchSize; i++)
-            {
-                requests.Add(
-                    await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(
-                        nameof(DequeueApprenticeEmploymentCheckMessageActivity), null)
-                );
-            }
-
-            return requests;
-        }
-
-        private static async Task<IList<ApprenticeEmploymentCheckMessageModel>> DoEmploymentStatusChecks(IDurableOrchestrationContext context,
-            IEnumerable<ApprenticeEmploymentCheckMessageModel> apprenticeEmploymentCheckMessages)
-        {
-            var results = new List<ApprenticeEmploymentCheckMessageModel>();
-
-            foreach (var message in apprenticeEmploymentCheckMessages)
-            {
-                results.Add(
-                    await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(
-                        nameof(CheckApprenticeEmploymentStatusActivity), message));
-            }
-
-            return results;
-        }
-
-        private void AdjustRequestDelay(IEnumerable<ApprenticeEmploymentCheckMessageModel> results, HmrcApiRateLimiterOptions options)
-        {
-            var tooManyRequests = results.Any(r => string.Equals(r.ReturnCode, HttpStatusCode.TooManyRequests.ToString(),
-                StringComparison.InvariantCultureIgnoreCase));
+            var tooManyRequests = string.Equals(result.ReturnCode, HttpStatusCode.TooManyRequests.ToString(),
+                StringComparison.InvariantCultureIgnoreCase);
 
             if (tooManyRequests)
             {
                 options.DelayInMs += options.DelayAdjustmentIntervalInMs;
+                _optionsRepository.IncreaseDelaySetting(options.DelayInMs);
             }
             else if (options.DelayInMs > options.DelayAdjustmentIntervalInMs)
             {
                 options.DelayInMs -= options.DelayAdjustmentIntervalInMs;
+                _optionsRepository.ReduceDelaySetting(options.DelayInMs);
             }
 
-            _optionsRepository.UpdateRequestDelaySetting(options.DelayInMs);
         }
 
-        private static async Task SaveResults(IDurableOrchestrationContext context, IEnumerable<ApprenticeEmploymentCheckMessageModel> results)
-        {
-            foreach (var result in results)
-            {
-                await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
-            }
-        }
     }
 }
