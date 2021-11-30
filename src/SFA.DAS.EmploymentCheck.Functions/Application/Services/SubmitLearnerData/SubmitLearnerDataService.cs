@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<ApprenticeEmploymentCheckModel> apprentices)
         {
-            var thisMethodName = "SubmitLearnerDataService.GetApprenticeNiNumbers()";
+            const string thisMethodName = "SubmitLearnerDataService.GetApprenticeNiNumbers()";
 
             IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
             try
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return await Task.FromResult(apprenticeNiNumbers);
@@ -77,10 +77,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         private async Task<ApprenticeNiNumber> SendIndividualRequest(ApprenticeEmploymentCheckModel learner, AuthResult token)
         {
-            var thisMethodName = "SubmitLearnerDataService.SendIndividualRequest()";
+            const string thisMethodName = "SubmitLearnerDataService.SendIndividualRequest()";
 
-            ApprenticeNiNumber checkedLearner = new ApprenticeNiNumber();
-            using (HttpClient client = _httpFactory.CreateClient("LearnerNiApi"))
+            var checkedLearner = new ApprenticeNiNumber();
+            using (var client = _httpFactory.CreateClient("LearnerNiApi"))
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
@@ -98,14 +98,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                             {
                                 try
                                 {
-                                    var checkedLearners =
-                                        await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
+                                    var checkedLearners = await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
                                     checkedLearner = checkedLearners.FirstOrDefault();
                                 }
                                 catch (Exception ex)
                                 {
-                                    _logger.LogInformation(
-                                        $"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                                    _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
                                 }
                             }
                         }
@@ -117,7 +115,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                    _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
                 }
             }
             return checkedLearner;
