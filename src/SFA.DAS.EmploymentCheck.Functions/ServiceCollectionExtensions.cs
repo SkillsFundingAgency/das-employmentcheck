@@ -1,6 +1,7 @@
 ﻿using System;
 using HMRC.ESFA.Levy.Api.Client;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,6 +21,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 
@@ -27,8 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName,
-            HmrcAuthTokenServiceConfiguration authTokenServiceConfiguration)
+        public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
             serviceCollection.AddHttpClient();
             serviceCollection.AddTransient<IEmploymentCheckClient, EmploymentCheckClient>();
@@ -37,24 +38,35 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountApiClient, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
 
-#if DEBUG
+            // #if DEBUG
             // For local development use the Stubs
-            serviceCollection.AddTokenServiceStubServices(authTokenServiceConfiguration);
+
+            serviceCollection.AddTokenServiceStubServices();
             //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-           // serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
-            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
+            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
-#else
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
-            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
-#endif
+
+
+            serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
+            {
+                var hmrcApiRateLimiterConfiguration = new HmrcApiRateLimiterConfiguration
+                {
+                    EnvironmentName = Environment.GetEnvironmentVariable("EnvironmentName"),
+                    StorageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                };
+                return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration);
+            });
+
+            serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+//#else
+//            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+//            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
+//            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
+//            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+//            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+//#endif
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))

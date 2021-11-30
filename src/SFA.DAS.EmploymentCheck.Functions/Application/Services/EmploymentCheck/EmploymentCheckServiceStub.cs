@@ -18,8 +18,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         : EmploymentCheckServiceBase
     {
         private const string ThisClassName = "\n\nEmploymentCheckServiceStub";
-
-        private EmploymentCheckDbConfiguration _employmentCheckDbConfiguration;
         private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString = System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString"); // TODO: move to config
         private readonly int _batchSize;

@@ -2,6 +2,7 @@
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Http;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
 {
@@ -10,22 +11,22 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
         private readonly IHttpClientWrapper _httpClient;
         private readonly HmrcAuthTokenServiceConfiguration _configuration;
 
-        public OAuthTokenService(IHttpClientWrapper httpClient, HmrcAuthTokenServiceConfiguration configuration)
+        public OAuthTokenService(IHttpClientWrapper httpClient, IOptions<HmrcAuthTokenServiceConfiguration> configuration)
         {
             _httpClient = httpClient;
-            _configuration = configuration;
+            _configuration = configuration.Value;
         }
 
         public async Task<OAuthAccessToken> GetAccessToken(string oneTimePassword)
         {
             var request = new OAuthTokenRequest
             {
-                ClientId = _configuration.TokenClientId,
-                ClientSecret = $"{oneTimePassword}{_configuration.TokenSecret}",
+                ClientId = _configuration.ClientId,
+                ClientSecret = $"{oneTimePassword}{_configuration.ClientSecret}",
                 GrantType = "client_credentials",
                 Scopes = "read:apprenticeship-levy"
             };
-            var hmrcToken = await _httpClient.Post<OAuthTokenResponse>(_configuration.TokenUri, request);
+            var hmrcToken = await _httpClient.Post<OAuthTokenResponse>(_configuration.TokenUrl, request);
 
             return new OAuthAccessToken
             {

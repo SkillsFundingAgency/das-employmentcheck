@@ -11,10 +11,9 @@ namespace app_levy_data_seeder
 {
     public class DataSeeder
     {
-        private static string _dataFolderPath;
-
         public IList<InputData> SourceData = new List<InputData>();
         private static DataAccess _dataAccess;
+        private static Options _options;
 
         public DataSeeder()
         {
@@ -36,55 +35,26 @@ namespace app_levy_data_seeder
 
         public void ReadSourceData()
         {
-            var hdDirectoryInWhichToSearch = new DirectoryInfo(_dataFolderPath);
+            var hdDirectoryInWhichToSearch = new DirectoryInfo(_options.DataFolderLocation);
             var dirsInDir = hdDirectoryInWhichToSearch.GetDirectories("*-employed-*");
-           
-            foreach (var foundDir in dirsInDir)
-            {
-                var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
-                    .GetDirectories()
-                    .First().GetFiles("*.json");
 
-                foreach (var file in files)
+            for (var i = 0; i < _options.DataSets; i++)
+            {
+                foreach (var foundDir in dirsInDir)
                 {
-                    Console.WriteLine($"Found data file: {file.FullName}");
-                    var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
-                    SourceData.Add(data);
+                    var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
+                        .GetDirectories()
+                        .First().GetFiles("*.json");
+
+                    foreach (var file in files)
+                    {
+                        Console.WriteLine($"Found data file: {file.FullName}");
+                        var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
+                        SourceData.Add(data);
+                    }
                 }
             }
         }
-
-        private long[] Ulns =
-        {
-            9000000601,
-9000000903,
-9000001306,
-9000001403,
-9000001500,
-9000001802,
-9000002000,
-9000002108,
-9000002507,
-9000002809,
-9000002906,
-9000003007,
-9000003104,
-9000003201,
-9000003503,
-9000003708,
-9000004003,
-9000004100,
-9000004402,
-9000004607,
-9000004704,
-9000004801,
-9000005301,
-9000005409,
-9000005808,
-9000005905,
-9000006405,
-9000006502
-        };
 
         private static void ReadSettings()
         {
@@ -92,19 +62,23 @@ namespace app_levy_data_seeder
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json", optional: false).Build();
 
-            var connectionString = config["EmploymentChecksConnectionString"];
-            Console.WriteLine($"Using database connection string: {connectionString}");
-            _dataAccess = new DataAccess(connectionString);
+            _options = new Options();
+            config.Bind(_options);
 
-            _dataFolderPath = config["DataFolderLocation"];
-            if (!Directory.Exists(_dataFolderPath)) throw new Exception($"Cannot find data folder here: {_dataFolderPath}");
-            Console.WriteLine($"Using data folder: {_dataFolderPath}");
+            Console.WriteLine($"Using database connection string: {_options.EmploymentChecksConnectionString}");
+            _dataAccess = new DataAccess(_options.EmploymentChecksConnectionString);
+
+            if (!Directory.Exists(_options.DataFolderLocation)) throw new Exception($"Cannot find data folder here: {_options.DataFolderLocation}");
+            Console.WriteLine($"Using data folder: {_options.DataFolderLocation}");
+
+            Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
+            Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");
         }
 
 
         public  async Task SeedData()
         {
-            await ClearData();
+            if (_options.ClearExistingData) await ClearData();
             await InsertData();
         }
 
@@ -117,7 +91,7 @@ namespace app_levy_data_seeder
 
                 var check = new EmploymentChecks
                 {
-                    ULN = Ulns[i-1],
+                    ULN = 1000000000 + i,
                     ApprenticeshipId = 122 + i,
                     UKPRN = 10000000 + i,
                     AccountId = i,
@@ -133,25 +107,24 @@ namespace app_levy_data_seeder
 
                 var queue = new ApprenticeEmploymentCheckMessageQueue
                 {
-                    MessageId = Guid.NewGuid(),
+                    MessageId =  Guid.NewGuid(),
                     MessageCreatedDateTime = DateTime.Now,
                     EmploymentCheckId = checkId,
                     Uln = check.ULN,
-                    NationalInsuranceNumber = "", //data.jsonBody.nino,
+                    NationalInsuranceNumber = data.jsonBody.nino,
                     PayeScheme = data.jsonBody.empref.ToUpper(),
                     StartDateTime = check.MinDate,
                     EndDateTime = check.MaxDate
                 };
 
                 await _dataAccess.Insert(queue);
-
-                if (Ulns.Length == i) return;
             }
         }
 
 
         private static async Task ClearData()
         {
+           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
            await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecksControlTable]");

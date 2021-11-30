@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Dapper;
-using Microsoft.Azure.Services.AppAuthentication;
+﻿using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -19,8 +12,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         : EmploymentCheckServiceBase
     {
         private const string ThisClassName = "\n\nEmploymentCheckService";
-
-        private EmploymentCheckDbConfiguration _configuration;
         private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString;
         private readonly int _batchSize;
@@ -33,18 +24,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// ------------------------------------------------------------------------------------
         /// </summary>
         /// <param name="applicationSettings"></param>
-        /// <param name="config"></param>
+        /// <param name="employmentCheckDbConfiguration"></param>
         /// <param name="azureServiceTokenProvider"></param>
         /// <param name="logger"></param>
         public EmploymentCheckService(
-            IOptions<EmploymentCheckDbConfiguration> employmentCheckDbConfiguration,      // TODO: With this specific employment check database configuration
+            ApplicationSettings applicationSettings,                            // TODO: Replace this generic application setting
             AzureServiceTokenProvider azureServiceTokenProvider,
             ILogger<IEmploymentCheckService> logger)
         {
-            _configuration = employmentCheckDbConfiguration.Value;
+            _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
-            _connectionString = _configuration.ConnectionString;
-            _batchSize = _configuration.BatchSize;
+            _batchSize = applicationSettings.BatchSize;
             _logger = logger;
         }
 
@@ -119,7 +109,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
         public async override Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service()
         {
-            // TODO: Add implementation for using Azure SqlDatabase
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessage_Service()";
 
             ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
@@ -139,7 +128,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;
