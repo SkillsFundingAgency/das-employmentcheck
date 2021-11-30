@@ -12,7 +12,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     public class DequeueApprenticeEmploymentCheckMessageActivity
     {
         private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesActivity";
-        public const string ErrorMessagePrefix = "[*** ERROR ***]";
 
         private readonly IMediator _mediator;
         private readonly ILogger<DequeueApprenticeEmploymentCheckMessageActivity> _logger;
@@ -49,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;

@@ -13,6 +13,6 @@
     [EmploymentCheckedDateTime] DATETIME NULL,
     [IsEmployed] BIT NULL,
     [ReturnCode] VARCHAR(50) NULL,
-    [ReturnMessage] VARCHAR(500) NULL
+    [ReturnMessage] VARCHAR(MAX) NULL
 )
 GO

@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{ThisClassName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{ThisClassName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new DequeueApprenticeEmploymentCheckMessageQueryResult(apprenticeEmploymentCheckMessage);
