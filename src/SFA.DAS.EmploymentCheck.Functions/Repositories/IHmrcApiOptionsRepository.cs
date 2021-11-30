@@ -1,11 +1,12 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Configuration;
+﻿using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IHmrcApiOptionsRepository
     {
-        void ReduceDelaySetting(int value);
-        void IncreaseDelaySetting(int value);
-        HmrcApiRateLimiterOptions GetHmrcRateLimiterOptions();
+        Task ReduceDelaySetting(int value);
+        Task IncreaseDelaySetting(int value);
+        Task<HmrcApiRateLimiterOptions> GetHmrcRateLimiterOptions();
     }
 }

@@ -1,7 +1,9 @@
-﻿using Microsoft.Azure.Cosmos.Table;
+﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
@@ -10,7 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         private const string RowKey = "HmrcApiRateLimiterOptions";
         private const string StorageTableName = "EmploymentCheckHmrcApiRateLimiterOptions";
 
-        private const int DefaultDelayInMs = 110;
+        private const int DefaultDelayInMs = 1000;
         private const int DefaultDelayAdjustmentIntervalInMs = 100;
         private readonly HmrcApiRateLimiterConfiguration _rateLimiterConfiguration;
         private CloudTable _table;
@@ -26,13 +28,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             var storageAccount = CloudStorageAccount.Parse(_rateLimiterConfiguration.StorageAccountConnectionString);
             var tableClient = storageAccount.CreateCloudTableClient();
             _table = tableClient.GetTableReference(StorageTableName);
-            _table.CreateIfNotExists();
+            _table.CreateIfNotExistsAsync().ConfigureAwait(false);
         }
 
-        public void ReduceDelaySetting(int value)
+
+        public async Task ReduceDelaySetting(int value)
         {
-            var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
-                .SingleOrDefault(x => x.RowKey == RowKey) ?? GetDefaultOptions();
+            var record = await GetHmrcRateLimiterOptions();
+
+            //var query =  TableOperation.Retrieve<HmrcApiRateLimiterOptions>
+            //    (_rateLimiterConfiguration.EnvironmentName, RowKey);
+
+            //var retrieveOperation = new TableQuery<HmrcApiRateLimiterOptions>();
+            //TableOperation.Retrieve<HmrcApiRateLimiterOptions>("Skype", "skypeid");
+
+            //var record = await _table.ExecuteAsync<HmrcApiRateLimiterOptions>(TableOperation.Retrieve("",""));
+
+           // var record = await _table.ExecuteQuerySegmentedAsync(retrieveOperation, null).Result;
+
+
+            //var record = _table.ExecuteAsync(new TableQuery<HmrcApiRateLimiterOptions>())
+            //    .SingleOrDefault(x => x.RowKey == RowKey) ?? GetDefaultOptions();
+
 
             var timeSinceLastUpdate = DateTime.UtcNow - record.UpdateDateTime;
             if (timeSinceLastUpdate < TimeSpan.FromDays(record.MinimumUpdatePeriodInDays)) return;
@@ -42,28 +59,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             record.PartitionKey = _rateLimiterConfiguration.EnvironmentName;
 
             var operation = TableOperation.InsertOrReplace(record);
-            _table.Execute(operation);
+            await _table.ExecuteAsync(operation);
         }
 
-        public void IncreaseDelaySetting(int value)
+        public async Task<HmrcApiRateLimiterOptions> GetHmrcRateLimiterOptions()
         {
-            var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
-                .SingleOrDefault(x => x.RowKey == RowKey) ?? GetDefaultOptions();
+            var query = new TableQuery<HmrcApiRateLimiterOptions>();
+            var queryResult = await _table.ExecuteQuerySegmentedAsync(query, null);
+            var record = queryResult.Results.SingleOrDefault(
+                r => r.RowKey == RowKey && r.PartitionKey == _rateLimiterConfiguration.EnvironmentName);
+            
+            return record ?? GetDefaultOptions();
+        }
 
+        public async Task IncreaseDelaySetting(int value)
+        {
+            var record = await GetHmrcRateLimiterOptions() ?? GetDefaultOptions();
             record.DelayInMs = value;
             record.UpdateDateTime = DateTime.UtcNow;
             record.PartitionKey = _rateLimiterConfiguration.EnvironmentName;
 
             var operation = TableOperation.InsertOrReplace(record);
-            _table.Execute(operation);
-        }
-
-        public HmrcApiRateLimiterOptions GetHmrcRateLimiterOptions()
-        {
-            var record = _table.ExecuteQuery(new TableQuery<HmrcApiRateLimiterOptions>())
-                .SingleOrDefault(x => x.RowKey == RowKey);
-
-            return record ?? GetDefaultOptions();
+            await _table.ExecuteAsync(operation);
         }
 
         private HmrcApiRateLimiterOptions GetDefaultOptions()
