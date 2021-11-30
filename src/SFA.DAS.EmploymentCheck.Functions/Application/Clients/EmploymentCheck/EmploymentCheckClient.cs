@@ -1,8 +1,6 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,7 +13,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         private const string ThisClassName = "\n\nEmploymentCheckClient";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
-        private EmploymentCheckDbConfiguration _employmentCheckDbConfiguration;
         private IEmploymentCheckService _employmentCheckService;
         private ILogger<IEmploymentCheckClient> _logger;
 
@@ -26,11 +23,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         /// <param name="employmentCheckService"></param>
         /// <param name="logger"></param>
         public EmploymentCheckClient(
-            EmploymentCheckDbConfiguration employmentCheckDbConfiguration,
             IEmploymentCheckService employmentCheckService,
             ILogger<IEmploymentCheckClient> logger)
         {
-            _employmentCheckDbConfiguration = employmentCheckDbConfiguration;
             _employmentCheckService = employmentCheckService;
             _logger = logger;
         }

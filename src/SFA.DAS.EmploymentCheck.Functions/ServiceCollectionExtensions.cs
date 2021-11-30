@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountApiClient, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
 
-#if DEBUG
+// #if DEBUG
             // For local development use the Stubs
             serviceCollection.AddTokenServiceStubServices(authTokenServiceConfiguration);
             //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
@@ -45,15 +45,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-#else
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
-            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-#endif
+            serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+//#else
+//            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+//            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
+//            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
+//            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+//            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+//#endif
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))

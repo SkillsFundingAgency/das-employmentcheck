@@ -79,8 +79,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // TODO: Sleep for a while
 
 
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"{thisMethodName}: Completed.");
+                    if (!context.IsReplaying)
+                        _logger.LogInformation($"{thisMethodName}: Completed.");
+                }
 
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity

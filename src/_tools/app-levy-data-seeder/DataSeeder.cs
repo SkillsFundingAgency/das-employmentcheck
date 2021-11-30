@@ -41,14 +41,16 @@ namespace app_levy_data_seeder
            
             foreach (var foundDir in dirsInDir)
             {
-                var file = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First().GetDirectories()
-                    .First().GetFiles().First();
+                var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
+                    .GetDirectories()
+                    .First().GetFiles("*.json");
 
-                Console.WriteLine($"Found data file: {file.FullName}");
-
-                var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
-
-                SourceData.Add(data);
+                foreach (var file in files)
+                {
+                    Console.WriteLine($"Found data file: {file.FullName}");
+                    var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
+                    SourceData.Add(data);
+                }
             }
         }
 
@@ -99,7 +101,7 @@ namespace app_levy_data_seeder
 
                 var queue = new ApprenticeEmploymentCheckMessageQueue
                 {
-                    MessageId = Guid.NewGuid(),
+                    MessageId =  Guid.NewGuid(),
                     MessageCreatedDateTime = DateTime.Now,
                     EmploymentCheckId = checkId,
                     Uln = check.ULN,
@@ -116,6 +118,7 @@ namespace app_levy_data_seeder
 
         private static async Task ClearData()
         {
+           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
            await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecksControlTable]");

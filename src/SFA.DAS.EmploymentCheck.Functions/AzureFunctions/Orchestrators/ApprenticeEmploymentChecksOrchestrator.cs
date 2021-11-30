@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 await context.CallSubOrchestratorAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), 0);
 
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                //await context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksOrchestrator), 0);
+                await context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksOrchestrator), 0);
 
                 //var createApprenticeEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), 0);
                 //var processApprenticeEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksOrchestrator), 0);

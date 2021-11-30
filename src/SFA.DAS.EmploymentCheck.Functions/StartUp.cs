@@ -31,16 +31,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-#if DEBUG
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
+
             configBuilder.AddJsonFile("local.settings.json", optional: true);
-#endif
-            //configBuilder.AddAzureTableStorage(options =>
-            //{
-            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            //    options.EnvironmentName = configuration["EnvironmentName"];
-            //    options.PreFixConfigurationKeys = false;
-            //});
 
             var config = configBuilder.Build();
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
@@ -50,10 +49,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // MediatR configuration
             //builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetApprenticeEmploymentChecksQueryRequest).Assembly);
-
-            // EmploymentChecksDb Configuration
-            builder.Services.Configure<EmploymentCheckDbConfiguration>(config.GetSection("EmploymentCheckDbSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckDbConfiguration>>().Value);
 
             // SubmitLearnerData API Configuration
             builder.Services.Configure<SubmitLearnerDataApiConfiguration>(
