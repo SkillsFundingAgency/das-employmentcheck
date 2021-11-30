@@ -1,14 +1,14 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus
 {
     public class CheckApprenticeEmploymentStatusQueryResult
     {
-        public CheckApprenticeEmploymentStatusQueryResult(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public CheckApprenticeEmploymentStatusQueryResult(EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             ApprenticeEmploymentCheckMessageModel = apprenticeEmploymentCheckMessageModel;
         }
 
-        public ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
+        public EmploymentCheckMessage ApprenticeEmploymentCheckMessageModel { get; }
     }
 }

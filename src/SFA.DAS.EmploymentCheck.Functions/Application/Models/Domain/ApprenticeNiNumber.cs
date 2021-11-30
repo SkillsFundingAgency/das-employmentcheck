@@ -8,11 +8,11 @@
             long uln,
             string nationalInsuranceNumber)
         {
-            ULN = uln;
+            Uln = uln;
             NationalInsuranceNumber = nationalInsuranceNumber;
         }
 
-        public long ULN { get; set; }
+        public long Uln { get; set; }
 
         public string NationalInsuranceNumber { get; set; }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus
 {
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
 
-            ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModelResult = null;
+            EmploymentCheckMessage ApprenticeEmploymentCheckMessageModelResult = null;
             try
             {
                 if (request != null &&

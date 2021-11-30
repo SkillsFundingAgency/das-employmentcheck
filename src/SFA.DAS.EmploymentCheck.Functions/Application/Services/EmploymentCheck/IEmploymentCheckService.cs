@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -12,15 +12,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <summary>
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database.
         /// </summary>
-        /// <returns>IList<ApprenticeEmploymentCheckModel></returns>
-        Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId);
+        /// <returns>IList<EmploymentCheckModel></returns>
+        Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId);
 
         /// <summary>
         /// Adds an apprentice data message representing each apprentice in the ApprenticeEmploymentChecksBatch to the HMRC API message queue.
         /// </summary>
-        /// <param name="apprenticeEmploymentData"></param>
+        /// <param name="employmentCheckData"></param>
         /// <returns>Task</returns>
-        Task EnqueueApprenticeEmploymentCheckMessages_Service(ApprenticeRelatedData apprenticeEmploymentData);
+        Task EnqueueApprenticeEmploymentCheckMessages_Service(EmploymentCheckData employmentCheckData);
 
         /// <summary>
         /// Adds an apprentice data message representing each apprentice in the ApprenticeEmploymentChecksBatch to the HMRC API message queue.
@@ -29,20 +29,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="connectionString"></param>
         /// <param name="azureResource"></param>
         /// <param name="azureServiceTokenProvider"></param>
-        /// <param name="apprenticeEmploymentData"></param>
+        /// <param name="employmentCheckData"></param>
         /// <returns>Task</returns>
         Task EnqueueApprenticeEmploymentCheckMessages_Service(
                     ILogger logger,
                     string connectionString,
                     string azureResource,
                     AzureServiceTokenProvider azureServiceTokenProvider,
-                    ApprenticeRelatedData apprenticeEmploymentData);
+                    EmploymentCheckData employmentCheckData);
 
         /// <summary>
         /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API.
         /// </summary>
         /// <returns></returns>
-        Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service();
+        Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Service();
 
         /// <summary>
         /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API.
@@ -53,21 +53,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="azureResource"></param>
         /// <param name="azureServiceTokenProvider"></param>
         /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
-        Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Base(
+        Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Base(
                     ILogger logger,
                     string connectionString,
                     int batchSize,
                     string azureResource,
                     AzureServiceTokenProvider azureServiceTokenProvider);
 
-        Task SaveEmploymentCheckResult_Service(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);
-
-        //Task<int> SaveEmploymentCheckResults(
-        //    ILogger logger,
-        //    string connectionString,
-        //    string azureResource,
-        //    AzureServiceTokenProvider azureServiceTokenProvider,
-        //    IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentCheckModels);
+        Task SaveEmploymentCheckResult_Service(EmploymentCheckMessage employmentCheckMessage);
 
         Task SeedEmploymentCheckApprenticeDatabaseTableTestData();
 

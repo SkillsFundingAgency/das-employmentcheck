@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
 using System.Threading;
@@ -67,9 +67,64 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.LogError($"\n\n{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
         }
 
+        private static async Task<IList<EmploymentCheckMessage>> GetNextMessagesOffTheQueue(IDurableOrchestrationContext context,
+            HmrcApiRateLimiterOptions options)
+        {
+            var requests = new List<EmploymentCheckMessage>();
+
+            for (var i = 0; i < options.BatchSize; i++)
+            {
+                requests.Add(
+                    await context.CallActivityAsync<EmploymentCheckMessage>(
+                        nameof(DequeueApprenticeEmploymentCheckMessageActivity), null)
+                );
+            }
+
+            return requests;
+        }
+
+        private static async Task<IList<EmploymentCheckMessage>> DoEmploymentStatusChecks(IDurableOrchestrationContext context,
+            IEnumerable<EmploymentCheckMessage> apprenticeEmploymentCheckMessages)
+        {
+            var results = new List<EmploymentCheckMessage>();
+
+            foreach (var message in apprenticeEmploymentCheckMessages)
+            {
+                results.Add(
+                    await context.CallActivityAsync<EmploymentCheckMessage>(
+                        nameof(CheckApprenticeEmploymentStatusActivity), message));
+            }
+
+            return results;
+        }
+
+        private void AdjustRequestDelay(IEnumerable<EmploymentCheckMessage> results, HmrcApiRateLimiterOptions options)
+        {
+            var tooManyRequests = results.Any(r => string.Equals(r.ResponseId.ToString(), HttpStatusCode.TooManyRequests.ToString(),
+                StringComparison.InvariantCultureIgnoreCase));
+
+            if (tooManyRequests)
+            {
+                options.DelayInMs += options.DelayAdjustmentIntervalInMs;
+            }
+            else if (options.DelayInMs > options.DelayAdjustmentIntervalInMs)
+            {
+                options.DelayInMs -= options.DelayAdjustmentIntervalInMs;
+            }
+
+            _optionsRepository.UpdateRequestDelaySetting(options.DelayInMs);
+        }
+
+        private static async Task SaveResults(IDurableOrchestrationContext context, IEnumerable<EmploymentCheckMessage> results)
+        {
+            foreach (var result in results)
+            {
+                await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
+            }
+        }
     }
 }

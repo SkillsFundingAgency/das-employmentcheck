@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 {
@@ -22,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 
         public async Task<AccountDetailViewModel> GetEmployerAccount(long accountId)
         {
-            var thisMethodName = "AccountsService.GetAccountDetail()";
+            var thisMethodName = "AccountsService.GetEmployerAccount()";
 
             AccountDetailViewModel accountDetailViewModel = null;
             try
@@ -38,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return accountDetailViewModel;

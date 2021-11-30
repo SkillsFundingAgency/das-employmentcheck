@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(Activities.GetEmployersPayeSchemesActivity))]
-        public async Task<IList<EmployerPayeSchemes>> Get([ActivityTrigger] IList<ApprenticeEmploymentCheckModel> apprentices)
+        public async Task<IList<EmployerPayeSchemes>> Get([ActivityTrigger] IList<Application.Models.Domain.EmploymentCheckModel> apprentices)
         {
             var thisMethodName = $"{ThisClassName}.Get()";
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
 
                 getEmployerPayeSchemesResult =
                     new GetEmployersPayeSchemesMediatorResult(new List<EmployerPayeSchemes>()); //returns new list instead of null

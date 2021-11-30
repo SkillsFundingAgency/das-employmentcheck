@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System;
 using System.Collections.Generic;
@@ -21,18 +21,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             _logger = logger;
         }
 
-        public async Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Client(long employmentCheckLastGetId)
+        /// <summary>
+        /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
+        /// </summary>
+        /// <returns>Task<IList<EmploymentCheckModel>></returns>
+        public async Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Client(long employmentCheckLastGetId)
         {
             var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.GetApprenticeEmploymentChecksBatch_Client()";
 
-            IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks = null;
             try
             {
-                apprenticeEmploymentChecks = await _employmentCheckService.GetApprenticeEmploymentChecksBatch_Service(employmentCheckLastGetId);
+                apprenticeEmploymentChecks = (IList<Models.Domain.EmploymentCheckModel>)await _employmentCheckService.GetApprenticeEmploymentChecksBatch_Service(employmentCheckLastGetId);
+
+                if (apprenticeEmploymentChecks == null)
+                {
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentChecks value returned from the  GetApprenticeEmploymentChecksBatch_Service() service returned null.");
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
             return apprenticeEmploymentChecks;
@@ -41,17 +50,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         /// <summary>
         /// Adds an apprentice data message representing each apprentice in the ApprenticeEmploymentChecksBatch to the HMRC API message queue
         /// </summary>
-        /// <param name="apprenticeEmploymentData"></param>
+        /// <param name="employmentCheckData"></param>
         /// <returns></returns>
-        public async Task EnqueueApprenticeEmploymentCheckMessages_Client(ApprenticeRelatedData apprenticeEmploymentData)
+        public async Task EnqueueApprenticeEmploymentCheckMessages_Client(EmploymentCheckData employmentCheckData)
         {
             var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.EnqueueApprenticeEmploymentCheckMessages_Client()";
 
             try
             {
-                if (apprenticeEmploymentData != null)
+                if (employmentCheckData != null)
                 {
-                    await _employmentCheckService.EnqueueApprenticeEmploymentCheckMessages_Service(apprenticeEmploymentData);
+                    await _employmentCheckService.EnqueueApprenticeEmploymentCheckMessages_Service(employmentCheckData);
                 }
                 else
                 {
@@ -68,11 +77,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API
         /// </summary>
         /// <returns>ApprenticeEmploymentCheckMessageModel</returns>
-        public async Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Client()
+        public async Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Client()
         {
             var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.DequeueApprenticeEmploymentCheckMessage_Client()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessage = null;
+            EmploymentCheckMessage apprenticeEmploymentCheckMessage = null;
             try
             {
                 apprenticeEmploymentCheckMessage = await _employmentCheckService.DequeueApprenticeEmploymentCheckMessage_Service();
@@ -90,15 +99,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             return apprenticeEmploymentCheckMessage;
         }
 
-        public async Task SaveApprenticeEmploymentCheckResult_Client(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public async Task SaveApprenticeEmploymentCheckResult_Client(EmploymentCheckMessage employmentCheckMessage)
         {
             var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.SaveApprenticeEmploymentCheckResult_Client()";
 
             try
             {
-                if (apprenticeEmploymentCheckMessageModel != null)
+                if (employmentCheckMessage != null)
                 {
-                    await _employmentCheckService.SaveEmploymentCheckResult_Service(apprenticeEmploymentCheckMessageModel);
+                    await _employmentCheckService.SaveEmploymentCheckResult_Service(employmentCheckMessage);
                 }
                 else
                 {

@@ -6,6 +6,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 {
     public interface IEmployerAccountClient
     {
-        Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(IList<ApprenticeEmploymentCheckModel> apprentices);
+        Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(IList<Models.Domain.EmploymentCheckModel> apprentices);
     }
 }

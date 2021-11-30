@@ -16,8 +16,8 @@
 //    {
 //        private readonly Mock<IMediator> _mediator;
 //        private readonly Mock<ILogger<GetEmployersPayeSchemesActivity>> _logger;
-//        private readonly ApprenticeEmploymentCheckModel _apprentice;
-//        private readonly IList<ApprenticeEmploymentCheckModel> _apprentices;
+//        private readonly EmploymentCheckModel _apprentice;
+//        private readonly IList<EmploymentCheckModel> _apprentices;
 //        public WhenCallingGet()
 //        {
 //            _mediator = new Mock<IMediator>();
@@ -33,7 +33,7 @@
 //                DateTime.Today,
 //                DateTime.Today.AddDays(1));
 
-//            _apprentices = new List<ApprenticeEmploymentCheckModel> { _apprentice };
+//            _apprentices = new List<EmploymentCheckModel> { _apprentice };
 //        }
 
 //        [Fact]

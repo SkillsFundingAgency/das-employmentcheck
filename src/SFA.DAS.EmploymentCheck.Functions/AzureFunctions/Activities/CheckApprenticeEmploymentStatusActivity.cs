@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
@@ -26,12 +26,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(CheckApprenticeEmploymentStatusActivity))]
-        public async Task<ApprenticeEmploymentCheckMessageModel> CheckApprenticeEmploymentStatusActivityTask(
-            [ActivityTrigger] ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public async Task<EmploymentCheckMessage> CheckApprenticeEmploymentStatusActivityTask(
+            [ActivityTrigger] EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{ThisClassName}.CheckApprenticeEmploymentStatusActivityTask()";
 
-            ApprenticeEmploymentCheckMessageModel updatedApprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessage updatedApprenticeEmploymentCheckMessageModel = null;
             try
             {
                 if (apprenticeEmploymentCheckMessageModel != null)
@@ -47,13 +47,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                     else
                     {
                         _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The checkApprenticeEmploymentStatusQueryResult value returned from the call to CheckApprenticeEmploymentStatusQueryRequest() is null.");
-                        updatedApprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
+                        updatedApprenticeEmploymentCheckMessageModel = new EmploymentCheckMessage(); // create a blank message for the Mediator result wrapper
                     }
                 }
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The input parameter apprenticeEmploymentCheckMessageModel is null.");
-                    updatedApprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
+                    updatedApprenticeEmploymentCheckMessageModel = new EmploymentCheckMessage(); // create a blank message for the Mediator result wrapper
                 }
 
             }

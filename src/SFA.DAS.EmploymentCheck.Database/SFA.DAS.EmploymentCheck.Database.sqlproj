@@ -69,11 +69,15 @@
     <Build Include="StoredProcedures\GetPreviousHandledSubmissionEvents.sql" />
     <Build Include="UserDefinedTypes\UlnTableType.sql" />
     <Build Include="StoredProcedures\StoreEmploymentCheckResult.sql" />
-    <Build Include="Tables\EmploymentChecks.sql" />
-    <Build Include="Tables\ExecutionTrace.sql" />
-    <Build Include="Tables\ApprenticeEmploymentCheckMessageQueue.sql" />
-    <Build Include="Tables\EmploymentChecksControlTable.sql" />
-    <Build Include="Tables\ApprenticeEmploymentCheckMessageQueueHistory.sql" />
+    <Build Include="Tables\Business.EmploymentCheckControlTable.sql" />
+    <Build Include="Tables\Business.EmploymentCheck.sql" />
+    <Build Include="Tables\Cache.EmploymentCheckMessageQueue.sql" />
+    <Build Include="Tables\Cache.EmploymentCheckMessageQueueHistory.sql" />
+    <Build Include="Tables\Cache.AccountsResponse.sql" />
+    <Build Include="Tables\Cache.RefErrorType.sql" />
+    <Build Include="Tables\Cache.DataCollecrionsResponse.sql" />
+    <Build Include="Tables\Cache.EmploymentCheckCacheRequest.sql" />
+    <Build Include="Tables\Cache.EmploymentCheckCacheResponse.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\LastProcessedEvent.sql" />

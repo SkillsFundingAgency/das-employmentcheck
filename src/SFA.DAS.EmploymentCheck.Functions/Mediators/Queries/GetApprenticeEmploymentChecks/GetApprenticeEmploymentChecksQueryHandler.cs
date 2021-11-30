@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmplo
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
 
-            IList<ApprenticeEmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<Application.Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks = null;
             try
             {
                 // Call the application client to get the apprentices requiring an employment check
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmplo
                 else
                 {
                     _logger.LogInformation($"{thisMethodName} returned null/zero apprentices");
-                    apprenticeEmploymentChecks = new List<ApprenticeEmploymentCheckModel>(); // return empty list rather than null
+                    apprenticeEmploymentChecks = new List<Application.Models.Domain.EmploymentCheckModel>(); // return empty list rather than null
                 }
             }
             catch (Exception ex)

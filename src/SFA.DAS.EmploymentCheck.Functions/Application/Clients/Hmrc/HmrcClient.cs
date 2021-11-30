@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using System;
 using System.Threading.Tasks;
@@ -18,19 +18,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc
             _logger = logger;
         }
 
-        public async Task<ApprenticeEmploymentCheckMessageModel> CheckApprenticeEmploymentStatus_Client(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        /// <summary>
+        /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
+        /// </summary>
+        /// <returns>Task<IList<EmploymentCheckModel>></returns>
+        public async Task<EmploymentCheckMessage> CheckApprenticeEmploymentStatus_Client(
+            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{nameof(HmrcClient)}.CheckApprenticeEmploymentStatus_Client()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModelResult = null;
+            EmploymentCheckMessage employmentCheckMessageResult = null;
             try
             {
                 if (apprenticeEmploymentCheckMessageModel != null)
                 {
-                    apprenticeEmploymentCheckMessageModelResult = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(apprenticeEmploymentCheckMessageModel);
+                    employmentCheckMessageResult = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(apprenticeEmploymentCheckMessageModel);
 
-                    if (apprenticeEmploymentCheckMessageModelResult == null)
+                    if (employmentCheckMessageResult == null)
                     {
                         _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModelResult value returned from the IsNationalInsuranceNumberRelatedToPayeScheme() call returned null.");
                     }
@@ -45,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return apprenticeEmploymentCheckMessageModelResult;
+            return employmentCheckMessageResult;
         }
     }
 }

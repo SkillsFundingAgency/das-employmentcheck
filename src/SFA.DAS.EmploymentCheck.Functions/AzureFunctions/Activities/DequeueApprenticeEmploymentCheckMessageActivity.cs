@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeEmploymentCheckMessage;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
@@ -25,12 +25,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(DequeueApprenticeEmploymentCheckMessageActivity))]
-        public async Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessageActivityTask(
+        public async Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessageActivityTask(
             [ActivityTrigger] object input)
         {
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessageActivityTask()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel = null;
             try
             {
                 // Send MediatR request to get the next message off the queue
@@ -43,7 +43,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: The dequeueApprenticeEmploymentCheckMessageQueryRequestResult value returned from the call to DequeueApprenticeEmploymentCheckMessageQueryRequest() is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The dequeueApprenticeEmploymentCheckMessageQueryRequestResult value returned from the call to DequeueApprenticeEmploymentCheckMessageQueryRequest() is null.");
+                    apprenticeEmploymentCheckMessageModel = new EmploymentCheckMessage(); // create a blank message for the Mediator result wrapper
                 }
             }
             catch (Exception ex)

@@ -1,16 +1,16 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SaveApprenticeEmploymentCheckResult
 {
     public class SaveApprenticeEmploymentCheckResultCommand : IRequest
     {
         public SaveApprenticeEmploymentCheckResultCommand(
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             ApprenticeEmploymentCheckMessageModel = apprenticeEmploymentCheckMessageModel;
         }
 
-        public ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
+        public EmploymentCheckMessage ApprenticeEmploymentCheckMessageModel { get; }
     }
 }

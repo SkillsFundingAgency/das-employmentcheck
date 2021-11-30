@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessage = null;
+            EmploymentCheckMessage apprenticeEmploymentCheckMessage = null;
             try
             {
                 // Call the application client to get the apprentices employment check queue messages
@@ -40,7 +41,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
 
                 if(apprenticeEmploymentCheckMessage == null)
                 {
-                    _logger.LogInformation($"{ThisClassName}: The value returned from DequeueApprenticeEmploymentCheckMessage_Client() is null.");
+                    _logger.LogInformation($"{ThisClassName}: {ErrorMessagePrefix} The value returned from DequeueApprenticeEmploymentCheckMessage_Client() is null.");
+                    apprenticeEmploymentCheckMessage = new EmploymentCheckMessage(); // create a blank message for the Mediator result wrapper
                 }
             }
             catch (Exception ex)
