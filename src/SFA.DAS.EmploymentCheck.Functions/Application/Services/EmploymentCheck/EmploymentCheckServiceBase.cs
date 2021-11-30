@@ -378,7 +378,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentCheckMessage_Base()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            ApprenticeEmploymentCheckMessageModel model = null;
             SqlConnection sqlConnection = null;
 
             try
@@ -391,36 +391,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     if (sqlConnection != null)
                     {
-                        var parameters = new DynamicParameters();
-                        parameters.Add("@batchSize", batchSize);
-
                         await sqlConnection.OpenAsync();
+
                         // TODO: The expectation is that there is only one instance of this code getting the message from the database.
                         //       If there are going to be multiple instances of the code pulling the messages off the message queue
                         //       then we will need to make the select/delete of the message transactional to lock the row so that
                         //       other instances aren't pulling the same message
-                        apprenticeEmploymentCheckMessageModel =
-                            (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(
-                                sql:
-                                "SELECT TOP (1) " +
-                                "MessageId, " +
-                                "MessageCreatedDateTime, " +
-                                "EmploymentCheckId, " +
-                                "Uln, " +
-                                "NationalInsuranceNumber, " +
-                                "PayeScheme, " +
-                                "StartDateTime, " +
-                                "EndDateTime, " +
-                                "EmploymentCheckedDateTime, " +
-                                "IsEmployed, " +
-                                "ReturnCode, " +
-                                "ReturnMessage " +
-                                "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                "ORDER BY MessageCreatedDateTime",
-                                param: parameters,
-                                commandType: CommandType.Text)).FirstOrDefault();
 
-                        if (apprenticeEmploymentCheckMessageModel == null)
+                        const string sql = "SELECT TOP (1) " +
+                                           "MessageId, " +
+                                           "MessageCreatedDateTime, " +
+                                           "EmploymentCheckId, " +
+                                           "Uln, " +
+                                           "NationalInsuranceNumber, " +
+                                           "PayeScheme, " +
+                                           "StartDateTime, " +
+                                           "EndDateTime, " +
+                                           "EmploymentCheckedDateTime, " +
+                                           "IsEmployed, " +
+                                           "ReturnCode, " +
+                                           "ReturnMessage " +
+                                           "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
+                                           "ORDER BY MessageCreatedDateTime";
+
+                        model = (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(sql, commandType: CommandType.Text)).FirstOrDefault();
+
+                        if (model == null)
                         {
                             logger.LogInformation(
                                 $"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel returned from the LINQ statement employmentCheckMessageModels.FirstOrDefault() is null.");
@@ -446,7 +442,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 }
             }
 
-            return apprenticeEmploymentCheckMessageModel;
+            return model;
         }
 
         public abstract Task SaveEmploymentCheckResult_Service(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);

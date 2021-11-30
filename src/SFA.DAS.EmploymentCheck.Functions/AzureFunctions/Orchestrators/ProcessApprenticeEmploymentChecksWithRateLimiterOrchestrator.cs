@@ -3,10 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,14 +12,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     public class ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator
     {
         private readonly ILogger<ProcessApprenticeEmploymentChecksOrchestrator> _logger;
-        private readonly IHmrcApiOptionsRepository _optionsRepository;
 
         public ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator(
-            ILogger<ProcessApprenticeEmploymentChecksOrchestrator> logger,
-            IHmrcApiOptionsRepository optionsRepository)
+            ILogger<ProcessApprenticeEmploymentChecksOrchestrator> logger)
         {
             _logger = logger;
-            _optionsRepository = optionsRepository;
         }
 
         [FunctionName(nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator))]
@@ -42,6 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (apprenticeEmploymentCheckMessage == null)
                 {
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
+                   
                     return;
                 }
 
