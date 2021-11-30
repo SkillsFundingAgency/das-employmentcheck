@@ -6,6 +6,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 using MediatR;
 using Microsoft.Extensions.Options;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
@@ -51,10 +52,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             //builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetApprenticeEmploymentChecksQueryRequest).Assembly);
 
-            // EmploymentChecksDb Configuration
-            builder.Services.Configure<EmploymentCheckDbConfiguration>(config.GetSection("EmploymentCheckDbSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckDbConfiguration>>().Value);
-
             // SubmitLearnerData API Configuration
             builder.Services.Configure<SubmitLearnerDataApiConfiguration>(
                 config.GetSection("SubmitLearnersDataApiSettings"));
@@ -75,6 +72,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // Application Settings
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
+
+            //Accounts API Settings
+            builder.Services.Configure<AccountsApiSettings>(config.GetSection("AccountsApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiSettings>>().Value);
 
             var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
             config.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);

@@ -9,11 +9,15 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.EmploymentCheck.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions", "SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj", "{5E0EACCB-983C-4431-985B-97246E23BFDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Functions.Tests", "SFA.DAS.EmploymentCheck.Functions.Tests\SFA.DAS.EmploymentCheck.Functions.Tests.csproj", "{FD29D029-6564-4EF6-880F-03D627CAA4DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.Tests", "SFA.DAS.EmploymentCheck.Functions.Tests\SFA.DAS.EmploymentCheck.Functions.Tests.csproj", "{FD29D029-6564-4EF6-880F-03D627CAA4DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.TestHarness", "SFA.DAS.EmploymentCheck.TestHarness\SFA.DAS.EmploymentCheck.TestHarness.csproj", "{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.TokenServiceStub", "SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj", "{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.TokenServiceStub", "SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj", "{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "app-levy-data-seeder", "_tools\app-levy-data-seeder\app-levy-data-seeder.csproj", "{5F33BECB-431F-46BE-98F2-26113FA12898}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,12 +47,17 @@ Global
 		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F33BECB-431F-46BE-98F2-26113FA12898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F33BECB-431F-46BE-98F2-26113FA12898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F33BECB-431F-46BE-98F2-26113FA12898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F33BECB-431F-46BE-98F2-26113FA12898}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FD29D029-6564-4EF6-880F-03D627CAA4DA} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{5F33BECB-431F-46BE-98F2-26113FA12898} = {5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {281C331D-5A42-42E4-AA0A-E82FB88EA18C}

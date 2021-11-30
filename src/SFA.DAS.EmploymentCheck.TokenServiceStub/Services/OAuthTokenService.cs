@@ -20,12 +20,12 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
         {
             var request = new OAuthTokenRequest
             {
-                ClientId = _configuration.TokenClientId,
-                ClientSecret = $"{oneTimePassword}{_configuration.TokenSecret}",
+                ClientId = _configuration.ClientId,
+                ClientSecret = $"{oneTimePassword}{_configuration.ClientSecret}",
                 GrantType = "client_credentials",
                 Scopes = "read:apprenticeship-levy"
             };
-            var hmrcToken = await _httpClient.Post<OAuthTokenResponse>(_configuration.TokenUri, request);
+            var hmrcToken = await _httpClient.Post<OAuthTokenResponse>(_configuration.TokenUrl, request);
 
             return new OAuthAccessToken
             {
