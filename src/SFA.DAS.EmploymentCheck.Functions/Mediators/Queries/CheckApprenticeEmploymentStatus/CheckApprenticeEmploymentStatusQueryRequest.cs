@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus
 {
@@ -7,11 +7,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
         : IRequest<CheckApprenticeEmploymentStatusQueryResult>
     {
         public CheckApprenticeEmploymentStatusQueryRequest(
-            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             ApprenticeEmploymentCheckMessageModel = apprenticeEmploymentCheckMessageModel;
         }
 
-        public EmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModel { get; }
+        public EmploymentCheckMessage ApprenticeEmploymentCheckMessageModel { get; }
     }
 }

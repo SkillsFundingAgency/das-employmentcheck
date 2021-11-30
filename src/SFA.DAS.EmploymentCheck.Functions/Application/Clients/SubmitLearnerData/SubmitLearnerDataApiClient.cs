@@ -9,11 +9,11 @@ using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData
 {
-    public class SubmitLearnerDataApiClient : ISubmitLearnerDataApiClient
+    public class SubmitLearnerDataApiClient
+        : ISubmitLearnerDataApiClient
     {
         private HttpClient _httpClient;
         private IWebHostEnvironment _hostingEnvironment;
@@ -41,13 +41,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         {
             var thisMethodName = "SubmitLearnerDataApiClient.Get()";
 
-            //_logger.LogInformation($"{thisMethodName} Started.");
-
             string json = string.Empty;
 
             try
             {
-                //_logger.LogInformation($"{thisMethodName} Executing Http Get Request to {url}.");
                 var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
                 await AddAuthenticationHeader(httpRequestMessage);
 
@@ -56,23 +53,30 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
                 response.EnsureSuccessStatusCode();
 
                 json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                //_logger.LogInformation($"{thisMethodName} Http Get Request returned {json}.");
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            //_logger.LogInformation($"{thisMethodName} Completed.");
             return JsonConvert.DeserializeObject<TResponse>(json);
         }
 
         private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
+            var thisMethodName = "SubmitLearnerDataApiClient.AddAuthenticationHeader()";
+
+            try
             {
-                var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
-                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
+                {
+                    var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
+                    httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
     }

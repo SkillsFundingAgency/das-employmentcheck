@@ -69,7 +69,6 @@
     <Build Include="StoredProcedures\GetPreviousHandledSubmissionEvents.sql" />
     <Build Include="UserDefinedTypes\UlnTableType.sql" />
     <Build Include="StoredProcedures\StoreEmploymentCheckResult.sql" />
-    <Build Include="Tables\ExecutionTrace.sql" />
     <Build Include="Tables\Business.EmploymentCheckControlTable.sql" />
     <Build Include="Tables\Business.EmploymentCheck.sql" />
     <Build Include="Tables\Cache.EmploymentCheckMessageQueue.sql" />

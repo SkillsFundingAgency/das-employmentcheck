@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetApprenticeEmploymentChecksActivity))]
-        public async Task<IList<EmploymentCheckModel>> Get(
+        public async Task<IList<Application.Models.Domain.EmploymentCheckModel>> Get(
             [ActivityTrigger] long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.Get()";
@@ -38,8 +38,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                getApprenticesResult = new GetApprenticeEmploymentChecksQueryResult(new List<EmploymentCheckModel>()); //return an empty list instead of null
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                getApprenticesResult = new GetApprenticeEmploymentChecksQueryResult(new List<Application.Models.Domain.EmploymentCheckModel>()); //return an empty list instead of null
             }
 
             return getApprenticesResult.ApprenticeEmploymentChecks;

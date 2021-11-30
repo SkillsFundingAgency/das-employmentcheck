@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -33,11 +33,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async override Task<IList<EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
+        public async override Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecksBatch_Service()";
 
-            IList<EmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks = null;
             try
             {
                 apprenticeEmploymentChecks = await GetApprenticeEmploymentChecks_Base(
@@ -56,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentChecks;
@@ -90,7 +90,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -98,11 +98,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API
         /// </summary>
         /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
-        public async override Task<EmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service()
+        public async override Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Service()
         {
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessage_Service()";
 
-            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel = null;
             try
             {
                 apprenticeEmploymentCheckMessageModel = await DequeueApprenticeEmploymentCheckMessage_Base(
@@ -119,13 +119,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;
         }
 
-        public async override Task SaveEmploymentCheckResult_Service(EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public async override Task SaveEmploymentCheckResult_Service(EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Service()";
 
@@ -147,7 +147,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -167,44 +167,44 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
 
-        public static EmploymentCheckMessageModel[] StubApprenticeEmploymentCheckMessageData => new []
+        public static EmploymentCheckMessage[] StubApprenticeEmploymentCheckMessageData => new []
         {
-            new EmploymentCheckMessageModel()
+            new EmploymentCheckMessage()
             {
                 PayeScheme = "123/AB12345",
                 NationalInsuranceNumber = "SC111111A",
                 MinDateTime = new DateTime(2010, 01, 01),
                 MaxDateTime = new DateTime(2018, 01, 01)
             },
-            new EmploymentCheckMessageModel()
+            new EmploymentCheckMessage()
             {
                 PayeScheme = "840/MODES17",
                 NationalInsuranceNumber = "SC111111A",
                 MinDateTime = new DateTime(2010, 01, 01),
                 MaxDateTime = new DateTime(2018, 01, 01)
             },
-            new EmploymentCheckMessageModel()
+            new EmploymentCheckMessage()
             {
                 PayeScheme = "840/MODES17",
                 NationalInsuranceNumber = "AA123456C",
                 MinDateTime = new DateTime(2010, 01, 01),
                 MaxDateTime = new DateTime(2018, 01, 01)
             },
-            new EmploymentCheckMessageModel()
+            new EmploymentCheckMessage()
             {
                 PayeScheme = "111/AA00001",
                 NationalInsuranceNumber = "AA123456C",
                 MinDateTime = new DateTime(2010, 01, 01),
                 MaxDateTime = new DateTime(2018, 01, 01)
             },
-            new EmploymentCheckMessageModel()
+            new EmploymentCheckMessage()
             {
                 PayeScheme = "840/HZ00064",
                 NationalInsuranceNumber = "AS960509A",
                 MinDateTime = new DateTime(2010, 01, 01),
                 MaxDateTime = new DateTime(2018, 01, 01)
             },
-            new EmploymentCheckMessageModel()
+            new EmploymentCheckMessage()
             {
                 PayeScheme = "923/EZ00059",
                 NationalInsuranceNumber = "PR555555A",

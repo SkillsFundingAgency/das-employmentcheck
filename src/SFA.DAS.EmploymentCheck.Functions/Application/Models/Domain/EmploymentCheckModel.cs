@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
         public EmploymentCheckModel() { }
 
         public EmploymentCheckModel(
-            long employmentCheckId,
+            long id,
             long correlationId,
             string checkType,
             long uln,
@@ -15,11 +15,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             long accountId,
             DateTime minDate,
             DateTime maxDate,
-            bool? isEmployed,
+            bool? employed,
             DateTime lastUpdated,
             DateTime createdOn)
         {
-            EmploymentCheckId = employmentCheckId;
+            Id = id;
             CorrelationId = correlationId;
             CheckType = checkType;
             Uln = uln;
@@ -27,12 +27,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             AccountId = accountId;
             MinDate = minDate;
             MaxDate = maxDate;
-            IsEmployed = isEmployed;
+            Employed = employed;
             LastUpdated = lastUpdated;
             CreatedOn = createdOn;
         }
 
-        public long EmploymentCheckId { get; set; }
+        public long Id { get; set; }
 
         public long CorrelationId { get; set; }
 
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 
         public DateTime MaxDate { get; set; }
 
-        public bool? IsEmployed { get; set; }
+        public bool? Employed { get; set; }
 
         public DateTime LastUpdated { get; set; }
 

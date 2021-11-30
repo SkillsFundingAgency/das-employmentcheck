@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -19,9 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private ILogger<IEmploymentCheckService> _logger;
 
         /// <summary>
-        /// ------------------------------------------------------------------------------------
         /// The production implementation of the methods definined in the EmploymentCheckService
-        /// ------------------------------------------------------------------------------------
         /// </summary>
         /// <param name="applicationSettings"></param>
         /// <param name="employmentCheckDbConfiguration"></param>
@@ -39,16 +37,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
         /// <summary>
-        /// --------------------------------------------------------------------------------------------------
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
-        /// --------------------------------------------------------------------------------------------------
         /// </summary>
         /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async override Task<IList<EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
+        public async override Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
         {
-            var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecks()";
+            var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecksBatch_Service()";
 
-            IList<EmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks = null;
             try
             {
                 apprenticeEmploymentChecks = await GetApprenticeEmploymentChecks_Base(
@@ -61,34 +57,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentChecks;
         }
 
         /// <summary>
-        /// ---------------------------------------------------------------------------------------------------------------------------------
         /// Adds an apprentice data message representing each apprentice in the ApprenticeEmploymentChecksBatch to the HMRC API message queue
-        /// ---------------------------------------------------------------------------------------------------------------------------------
         /// </summary>
-        /// <param name="apprenticeEmploymentData"></param>
+        /// <param name="employmentCheckData"></param>
         /// <returns>Task</returns>
-        public async override Task EnqueueApprenticeEmploymentCheckMessages_Service(EmploymentCheckData apprenticeEmploymentData)
+        public async override Task EnqueueApprenticeEmploymentCheckMessages_Service(EmploymentCheckData employmentCheckData)
         {
             // TODO: Add implementation for using Azure SqlDatabase
             var thisMethodName = $"{ThisClassName}.EnqueueApprenticeEmploymentCheckMessages_Service()";
 
             try
             {
-                if (apprenticeEmploymentData != null)
+                if (employmentCheckData != null)
                 {
                     await EnqueueApprenticeEmploymentCheckMessages_Service(
                         _logger,
                         _connectionString,
                         AzureResource,
                         _azureServiceTokenProvider,
-                        apprenticeEmploymentData);
+                        employmentCheckData);
                 }
                 else
                 {
@@ -97,22 +91,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
         /// <summary>
-        /// --------------------------------------------------------------------------------------------------------
         /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API
-        /// --------------------------------------------------------------------------------------------------------
         /// </summary>
         /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
-        public async override Task<EmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service()
+        public async override Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Service()
         {
             // TODO: Add implementation for using Azure SqlDatabase
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessage_Service()";
 
-            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel = null;
             try
             {
                 apprenticeEmploymentCheckMessageModel = await DequeueApprenticeEmploymentCheckMessage_Base(
@@ -129,49 +121,55 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;
         }
 
         public async override Task SaveEmploymentCheckResult_Service(
-            EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            EmploymentCheckMessage employmentCheckMessage)
         {
             var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Service()";
 
             try
             {
-                if (apprenticeEmploymentCheckMessageModel != null)
+                if (employmentCheckMessage != null)
                 {
                     await SaveEmploymentCheckResult_Base(
                         _logger,
                         _connectionString,
                         AzureResource,
                         _azureServiceTokenProvider,
-                        apprenticeEmploymentCheckMessageModel);
+                        employmentCheckMessage);
                 }
                 else
                 {
-                    _logger.LogInformation(
-                        $"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel input parameter is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel input parameter is null.");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(
-                    $"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
         public async override Task SeedEmploymentCheckApprenticeDatabaseTableTestData()
         {
-            await SeedEmploymentCheckApprenticeDatabaseTableTestData(
-                _logger,
-                _connectionString,
-                AzureResource,
-                _azureServiceTokenProvider);
-        }
+            var thisMethodName = $"{ThisClassName}.SeedEmploymentCheckApprenticeDatabaseTableTestData()";
 
+            try
+            {
+                await SeedEmploymentCheckApprenticeDatabaseTableTestData(
+                    _logger,
+                    _connectionString,
+                    AzureResource,
+                    _azureServiceTokenProvider);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+        }
     }
 }

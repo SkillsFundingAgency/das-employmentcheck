@@ -3,7 +3,7 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
@@ -30,30 +30,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             _cachedToken = null;
         }
 
-        public async Task<EmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
-            EmploymentCheckMessageModel request)
+        public async Task<EmploymentCheckMessage> IsNationalInsuranceNumberRelatedToPayeScheme(
+            EmploymentCheckMessage request)
         {
-            if (_cachedToken == null) await RetrieveAuthenticationToken();
+            var thisMethodName = $"{ThisClassName}.StoreApprenticeEmploymentCheckMessage()";
 
             try
             {
+                if (_cachedToken == null)
+                    await RetrieveAuthenticationToken();
+
                 var policy = Policy
                     .Handle<UnauthorizedAccessException>()
                     .RetryAsync(
                         retryCount: 1,
                         onRetryAsync: async (outcome, retryNumber, context) => await RetrieveAuthenticationToken());
 
-                request.EmploymentCheckedDateTime = DateTime.UtcNow;
+                request.LastEmploymentCheck = DateTime.UtcNow;
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
-                request.IsEmployed = result.Employed;
+                request.Employed = result.Employed;
                 request.ResponseId = 200;
                 request.ResponseMessage = "OK";
             }
             catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.NotFound)
             {
                 _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
-                request.IsEmployed = false;
+                request.Employed = false;
                 request.ResponseId = (short) e.HttpCode; // storing as a short in the db to save space as the highest code is only 3 digits
                 request.ResponseMessage = $"(Not Found ){e.ResourceUri}";
 
@@ -71,33 +74,60 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 request.ResponseMessage = $"(Bad Request) {e.ResourceUri}";
             }
 
+            catch (ApiHttpException e)
+            {
+                _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
+                request.ResponseId = (short)e.HttpCode;
+                request.ResponseMessage = $"{e.HttpCode} ({e.ResourceUri})";
+            }
+
             catch (Exception ex)
             {
                 // All exceptions must be caught and handled because the orchestrator call to the Activity function that is running this method will 'hang' if an exception is not caught and handled.
                 _logger.LogError($"{ thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-            catch (ApiHttpException e)
-            {
-                _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-                request.ReturnCode = $"{e.HttpCode} ({e.ResourceUri})";
-                request.ReturnMessage = e.ResourceUri;
             }
 
             return request;
 
         }
 
-        private async Task<EmploymentStatus> GetEmploymentStatus(ApprenticeEmploymentCheckMessageModel request)
+        private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckMessage request)
         {
-            return await _apprenticeshipLevyService.GetEmploymentStatus(
-                _cachedToken.AccessCode,
-                request.PayeScheme,
-                request.NationalInsuranceNumber,
-                request.StartDateTime,
-                request.EndDateTime
-            );
+            var thisMethodName = $"{ThisClassName}.GetEmploymentStatus()";
+
+            EmploymentStatus employmentStatus = null;
+            try
+            {
+                employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
+                    _cachedToken.AccessCode,
+                    request.PayeScheme,
+                    request.NationalInsuranceNumber,
+                    request.MinDateTime,
+                    request.MaxDateTime
+                );
+            }
+            catch (Exception ex)
+            {
+                // All exceptions must be caught and handled because the orchestrator call to the Activity function that is running this method will 'hang' if an exception is not caught and handled.
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            return employmentStatus;
         }
 
-        private async Task RetrieveAuthenticationToken() => _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
+        private async Task RetrieveAuthenticationToken()
+        {
+            var thisMethodName = $"{ThisClassName}.RetrieveAuthenticationToken()";
+
+            try
+            {
+                _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
+            }
+            catch (Exception ex)
+            {
+                // All exceptions must be caught and handled because the orchestrator call to the Activity function that is running this method will 'hang' if an exception is not caught and handled.
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+        }
     }
 }

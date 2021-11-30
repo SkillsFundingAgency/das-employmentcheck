@@ -11,21 +11,21 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class ApprenticeEmploymentCheckSeedDatabaseTestDataActivity
+    public class SeedEmploymentCheckTestDataActivity
     {
         private const string ThisClassName = "\n\nEmploymentCheckServiceBase";
         IEmploymentCheckService _employmentCheckService;
-        private readonly ILogger<ApprenticeEmploymentCheckSeedDatabaseTestDataActivity> _logger;
+        private readonly ILogger<SeedEmploymentCheckTestDataActivity> _logger;
 
-        public ApprenticeEmploymentCheckSeedDatabaseTestDataActivity(
+        public SeedEmploymentCheckTestDataActivity(
             IEmploymentCheckService employmentCheckService,
-            ILogger<ApprenticeEmploymentCheckSeedDatabaseTestDataActivity> logger)
+            ILogger<SeedEmploymentCheckTestDataActivity> logger)
         {
             _employmentCheckService = employmentCheckService;
             _logger = logger;
         }
 
-        [FunctionName(nameof(ApprenticeEmploymentCheckSeedDatabaseTestDataActivity))]
+        [FunctionName(nameof(SeedEmploymentCheckTestDataActivity))]
         public async Task<int> EmploymentCheckApprenticesSeedDatabaseTestDataActivityTask(
             [ActivityTrigger] int input)
         {
@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{messagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return await Task.FromResult(0);

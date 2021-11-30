@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 {
@@ -39,14 +38,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         public async Task<TResponse> Get<TResponse>(string url)
         {
             var thisMethodName = "EmployerAccountApiClient.Get()";
-
-            //_logger.LogInformation($"{messagePrefix} Started.");
-
             string json = string.Empty;
 
             try
             {
-                //_logger.LogInformation($"{messagePrefix} Executing Http Get Request to {url}.");
                 var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
                 await AddAuthenticationHeader(httpRequestMessage);
 
@@ -55,24 +50,31 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                 response.EnsureSuccessStatusCode();
 
                 json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                //_logger.LogInformation($"{messagePrefix} Http Get Request returned {json}.");
             }
             catch(Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                return JsonConvert.DeserializeObject<TResponse>("");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                json = string.Empty;
             }
 
-            //_logger.LogInformation($"{messagePrefix} Completed.");
             return JsonConvert.DeserializeObject<TResponse>(json);
         }
 
         private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
+            var thisMethodName = "EmployerAccountApiClient.AddAuthenticationHeader()";
+
+            try
             {
-                var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
-                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
+                {
+                    var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
+                    httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
     }

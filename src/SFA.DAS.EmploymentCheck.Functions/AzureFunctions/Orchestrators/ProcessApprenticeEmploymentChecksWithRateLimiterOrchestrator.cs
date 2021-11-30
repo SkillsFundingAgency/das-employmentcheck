@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -62,15 +62,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
         }
 
-        private static async Task<IList<EmploymentCheckMessageModel>> GetNextMessagesOffTheQueue(IDurableOrchestrationContext context,
+        private static async Task<IList<EmploymentCheckMessage>> GetNextMessagesOffTheQueue(IDurableOrchestrationContext context,
             HmrcApiRateLimiterOptions options)
         {
-            var requests = new List<EmploymentCheckMessageModel>();
+            var requests = new List<EmploymentCheckMessage>();
 
             for (var i = 0; i < options.BatchSize; i++)
             {
                 requests.Add(
-                    await context.CallActivityAsync<EmploymentCheckMessageModel>(
+                    await context.CallActivityAsync<EmploymentCheckMessage>(
                         nameof(DequeueApprenticeEmploymentCheckMessageActivity), null)
                 );
             }
@@ -78,22 +78,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             return requests;
         }
 
-        private static async Task<IList<EmploymentCheckMessageModel>> DoEmploymentStatusChecks(IDurableOrchestrationContext context,
-            IEnumerable<EmploymentCheckMessageModel> apprenticeEmploymentCheckMessages)
+        private static async Task<IList<EmploymentCheckMessage>> DoEmploymentStatusChecks(IDurableOrchestrationContext context,
+            IEnumerable<EmploymentCheckMessage> apprenticeEmploymentCheckMessages)
         {
-            var results = new List<EmploymentCheckMessageModel>();
+            var results = new List<EmploymentCheckMessage>();
 
             foreach (var message in apprenticeEmploymentCheckMessages)
             {
                 results.Add(
-                    await context.CallActivityAsync<EmploymentCheckMessageModel>(
+                    await context.CallActivityAsync<EmploymentCheckMessage>(
                         nameof(CheckApprenticeEmploymentStatusActivity), message));
             }
 
             return results;
         }
 
-        private void AdjustRequestDelay(IEnumerable<EmploymentCheckMessageModel> results, HmrcApiRateLimiterOptions options)
+        private void AdjustRequestDelay(IEnumerable<EmploymentCheckMessage> results, HmrcApiRateLimiterOptions options)
         {
             var tooManyRequests = results.Any(r => string.Equals(r.ResponseId.ToString(), HttpStatusCode.TooManyRequests.ToString(),
                 StringComparison.InvariantCultureIgnoreCase));
@@ -110,7 +110,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             _optionsRepository.UpdateRequestDelaySetting(options.DelayInMs);
         }
 
-        private static async Task SaveResults(IDurableOrchestrationContext context, IEnumerable<EmploymentCheckMessageModel> results)
+        private static async Task SaveResults(IDurableOrchestrationContext context, IEnumerable<EmploymentCheckMessage> results)
         {
             foreach (var result in results)
             {

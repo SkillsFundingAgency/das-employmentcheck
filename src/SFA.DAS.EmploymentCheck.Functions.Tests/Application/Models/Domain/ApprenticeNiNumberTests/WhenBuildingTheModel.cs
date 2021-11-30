@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Models.Domain.Appr
 
             //Assert
             
-            Assert.Equal(uln, result.ULN);
+            Assert.Equal(uln, result.Uln);
             Assert.Equal(niNumber, result.NationalInsuranceNumber);
         }
     }

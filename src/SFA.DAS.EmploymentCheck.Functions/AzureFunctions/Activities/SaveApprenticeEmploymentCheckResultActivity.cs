@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SaveApprenticeEmploymentCheckResult;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(SaveApprenticeEmploymentCheckResultActivity))]
         public async Task SaveApprenticeEmploymentCheckResultActivityTask(
-            [ActivityTrigger] EmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            [ActivityTrigger] EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
         {
             var thisMethodName = $"{ThisClassName}.SaveApprenticeEmploymentCheckResultsActivityTask";
 
@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
     }

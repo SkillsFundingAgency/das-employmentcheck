@@ -17,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             _logger = logger;
         }
 
-        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<EmploymentCheckModel> apprentices)
+        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Models.Domain.EmploymentCheckModel> apprentices)
         {
             var thisMethodName = $"SubmitLearnerDataService.GetApprenticeNiNumbers()";
 

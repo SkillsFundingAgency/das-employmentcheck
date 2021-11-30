@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
 {

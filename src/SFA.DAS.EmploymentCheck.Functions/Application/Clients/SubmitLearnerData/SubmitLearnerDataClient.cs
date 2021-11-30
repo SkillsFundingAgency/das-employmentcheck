@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         }
 
         public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(
-            IList<EmploymentCheckModel> apprentices)
+            IList<Models.Domain.EmploymentCheckModel> apprentices)
         {
             var thisMethodName = "SubmitLearnerDataClient.GetApprenticesNiNumber()";
 
@@ -39,25 +39,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
                     if (ApprenticesNiNumber != null && ApprenticesNiNumber.Count > 0)
                     {
                         _logger.LogInformation($"{thisMethodName}: returned [{ApprenticesNiNumber.Count}] apprentices NI Numbers");
-                        //Log.WriteLog(_logger, thisMethodName, $"returned [{ApprenticesNiNumber.Count}] apprentices NI Numbers.");
                     }
                     else
                     {
                         _logger.LogInformation($"{thisMethodName}: returned null/zero apprentices NI Numbers");
-                        //Log.WriteLog(_logger, thisMethodName, $"returned null/zero apprentices NI Numbers.");
                         ApprenticesNiNumber = new List<ApprenticeNiNumber>();
                     }
                 }
                 else
                 {
                     _logger.LogInformation("ERROR apprentices parameter is NULL, no employer PAYE schemes retrieved");
-                    //Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
                     ApprenticesNiNumber = new List<ApprenticeNiNumber>();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
                 ApprenticesNiNumber = new List<ApprenticeNiNumber>();
             }
 

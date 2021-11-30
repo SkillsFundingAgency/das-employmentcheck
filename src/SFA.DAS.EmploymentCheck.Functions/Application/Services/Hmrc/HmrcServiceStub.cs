@@ -1,8 +1,8 @@
 ﻿using HMRC.ESFA.Levy.Api.Client;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using System;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
@@ -24,13 +24,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<EmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
-            EmploymentCheckMessageModel request)
+        public async Task<EmploymentCheckMessage> IsNationalInsuranceNumberRelatedToPayeScheme(
+            EmploymentCheckMessage request)
         {
             if(request != null)
             {
-                request.IsEmployed = true;
-                request.EmploymentCheckedDateTime = DateTime.Now;
+                request.Employed = true;
+                request.LastEmploymentCheck = DateTime.Now;
             }
 
             return await Task.FromResult(request);

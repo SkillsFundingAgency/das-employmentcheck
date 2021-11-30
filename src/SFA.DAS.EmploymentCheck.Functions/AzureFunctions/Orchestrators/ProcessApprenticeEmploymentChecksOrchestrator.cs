@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -65,12 +66,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"{thisMethodName}: Started.");
 
                 // Get the next message off the message queue
-                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
+                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessage>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
 
                 // Run the employment status check on this message
                 if (apprenticeEmploymentCheckMessage.CorrelationId != 0)
                 {
-                    var updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
+                    var updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessage>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
                     // Save the employment status back to the database
                     await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), updatedApprenticeEmploymentCheckMessage);
@@ -79,9 +80,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // TODO: Sleep for a while
 
 
-                    if (!context.IsReplaying)
-                        _logger.LogInformation($"{thisMethodName}: Completed.");
-                }
+                if (!context.IsReplaying)
+                    _logger.LogInformation($"{thisMethodName}: Completed.");
 
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity
@@ -91,7 +91,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
         }
     }

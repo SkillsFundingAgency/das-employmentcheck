@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetApprenticesNiNumberActivity))]
-        public async Task<IList<ApprenticeNiNumber>> Get([ActivityTrigger] IList<EmploymentCheckModel> apprentices)
+        public async Task<IList<ApprenticeNiNumber>> Get([ActivityTrigger] IList<Application.Models.Domain.EmploymentCheckModel> apprentices)
         {
             var thisMethodName = $"{ThisClassName}.Get()";
 
@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
                 getApprenticesNiNumberResult = new GetApprenticesNiNumberMediatorResult(new List<ApprenticeNiNumber>()); //returns empty list instead of null
             }
 

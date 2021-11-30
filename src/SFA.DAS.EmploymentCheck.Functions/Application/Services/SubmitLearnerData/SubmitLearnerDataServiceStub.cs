@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -18,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             _logger = logger;
         }
 
-        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<EmploymentCheckModel> apprenticeEmploymentChecks)
+        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticesNiNumber()";
 
@@ -37,21 +36,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             return await Task.FromResult(apprenticesNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(EmploymentCheckModel apprenticeEmploymentCheck)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(Models.Domain.EmploymentCheckModel apprenticeEmploymentCheck)
         {
             var uln = apprenticeEmploymentCheck.Uln;
             var niNumber = "NI" + apprenticeEmploymentCheck.Uln.ToString();
 
             var apprenticeNiNumber = new ApprenticeNiNumber
             {
-                ULN = uln,
+                Uln = uln,
                 NationalInsuranceNumber = niNumber
             };
 
             return await Task.FromResult(apprenticeNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber2(EmploymentCheckModel apprenticeEmploymentCheck)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber2(Models.Domain.EmploymentCheckModel apprenticeEmploymentCheck)
         {
             ApprenticeNiNumber apprenticeNiNumber;
 
@@ -60,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 1:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 1000000001,
+                        Uln = 1000000001,
                         NationalInsuranceNumber = "NI1000000001"
                     };
                     break;
@@ -68,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 2:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 2000000002,
+                        Uln = 2000000002,
                         NationalInsuranceNumber = "NI2000000002"
                     };
                     break;
@@ -76,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 3:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 3000000003,
+                        Uln = 3000000003,
                         NationalInsuranceNumber = "NI3000000003"
                     };
                     break;
@@ -84,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 4:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 4000000004,
+                        Uln = 4000000004,
                         NationalInsuranceNumber = "NI4000000004"
                     };
                     break;
@@ -92,7 +91,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 5:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 5000000005,
+                        Uln = 5000000005,
                         NationalInsuranceNumber = "NI5000000005"
                     };
                     break;
@@ -100,7 +99,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 6:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 6000000006,
+                        Uln = 6000000006,
                         NationalInsuranceNumber = "NI6000000006"
                     };
                     break;
@@ -108,7 +107,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 7:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 7000000007,
+                        Uln = 7000000007,
                         NationalInsuranceNumber = "NI7000000007"
                     };
                     break;
@@ -116,7 +115,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 8:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 8000000008,
+                        Uln = 8000000008,
                         NationalInsuranceNumber = "NI8000000008"
                     };
                     break;
@@ -124,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 case 9:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 9000000009,
+                        Uln = 9000000009,
                         NationalInsuranceNumber = "NI9000000009"
                     };
                     break;
@@ -132,7 +131,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
                 default:
                     apprenticeNiNumber = new ApprenticeNiNumber
                     {
-                        ULN = 1000000001,
+                        Uln = 1000000001,
                         NationalInsuranceNumber = "NI1000000001"
                     };
                     break;

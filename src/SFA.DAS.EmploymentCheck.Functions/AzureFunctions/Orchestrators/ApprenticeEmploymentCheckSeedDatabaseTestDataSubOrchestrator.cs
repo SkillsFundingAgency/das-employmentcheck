@@ -32,14 +32,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Orchestrator Started.");
 
-                await context.CallActivityAsync(nameof(ApprenticeEmploymentCheckSeedDatabaseTestDataActivity), 0);
+                await context.CallActivityAsync(nameof(SeedEmploymentCheckTestDataActivity), 0);
 
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Orchestrator Completed.");
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
 
         }

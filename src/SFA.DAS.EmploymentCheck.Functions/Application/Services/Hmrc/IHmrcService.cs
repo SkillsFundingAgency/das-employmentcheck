@@ -1,5 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +6,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public interface IHmrcService
     {
-        Task<EmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckMessageModel request);
+        Task<EmploymentCheckMessage> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckMessage request);
     }
 }

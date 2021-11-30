@@ -5,11 +5,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmplo
 {
     public class GetApprenticeEmploymentChecksQueryResult
     {
-        public GetApprenticeEmploymentChecksQueryResult(IList<EmploymentCheckModel> apprenticeEmploymentChecks)
+        public GetApprenticeEmploymentChecksQueryResult(IList<Application.Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks)
         {
             ApprenticeEmploymentChecks = apprenticeEmploymentChecks;
         }
 
-        public IList<EmploymentCheckModel> ApprenticeEmploymentChecks { get; }
+        public IList<Application.Models.Domain.EmploymentCheckModel> ApprenticeEmploymentChecks { get; }
     }
 }

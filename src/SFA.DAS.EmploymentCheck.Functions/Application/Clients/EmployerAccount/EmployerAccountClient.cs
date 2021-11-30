@@ -25,9 +25,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<EmploymentCheckModel> apprentices)
+            IList<Models.Domain.EmploymentCheckModel> apprentices)
         {
-            var thisMethodName = "GetApprenticesNiNumberClient.Get()";
+            var thisMethodName = "GetApprenticesNiNumberClient.GetEmployersPayeSchemes()";
 
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try
@@ -48,19 +48,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                         else
                         {
                             _logger.LogInformation($"{thisMethodName}: ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved");
-                            //Log.WriteLog(_logger, thisMethodName, "ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved.");
                         }
                     }
                 }
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved");
-                    //Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return employerPayeSchemes;
