@@ -617,6 +617,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         // Get the employer paye schemes for this apprentices
                         var employerPayeSchemes = apprenticeEmploymentData.EmployerPayeSchemes.Where(ps => ps.EmployerAccountId == apprentice.AccountId).FirstOrDefault();
 
+                        if (employerPayeSchemes == null)
+                        {
+                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} employerPayeSchemes is null.");
+                            return apprenticeEmploymentCheckMessages;
+                        }
+
                         // Create the individual message combinations for each paye scheme
                         foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                         {
