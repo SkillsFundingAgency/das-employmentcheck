@@ -4,35 +4,35 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.EnqueueEmploymentCheckMessages;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class EnqueueApprenticeEmploymentCheckMessagesActivity
+    public class EnqueueEmploymentCheckMessagesActivity
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<EnqueueApprenticeEmploymentCheckMessagesActivity> _logger;
+        private readonly ILogger<EnqueueEmploymentCheckMessagesActivity> _logger;
 
-        public EnqueueApprenticeEmploymentCheckMessagesActivity(
+        public EnqueueEmploymentCheckMessagesActivity(
             IMediator mediator,
-            ILogger<EnqueueApprenticeEmploymentCheckMessagesActivity> logger)
+            ILogger<EnqueueEmploymentCheckMessagesActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
-        [FunctionName(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity))]
+        [FunctionName(nameof(EnqueueEmploymentCheckMessagesActivity))]
         public async Task<int> Enqueue(
             [ActivityTrigger] EmploymentCheckData apprenticeEmploymentData)
         {
-            var thisMethodName = "EnqueueApprenticesEmploymentCheckMessagesActivity.Enqueue()";
+            var thisMethodName = "EnqueueEmploymentCheckMessagesActivity.Enqueue()";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             try
             {
                 // Send MediatR request to enqueue the apprentices employment check messages
-                await _mediator.Send(new EnqueueApprenticeEmploymentCheckMessagesCommand(apprenticeEmploymentData));
+                await _mediator.Send(new EnqueueEmploymentCheckMessagesCommand(apprenticeEmploymentData));
             }
             catch (Exception ex)
             {

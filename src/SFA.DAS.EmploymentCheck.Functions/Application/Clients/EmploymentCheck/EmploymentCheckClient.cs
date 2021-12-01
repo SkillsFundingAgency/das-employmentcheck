@@ -22,21 +22,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         }
 
         /// <summary>
-        /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
+        /// Gets a batch of the employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Client(long employmentCheckLastGetId)
+        public async Task<IList<Models.Domain.EmploymentCheckModel>> GetEmploymentChecksBatch_Client(long employmentCheckLastHighestBatchId)
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.GetApprenticeEmploymentChecksBatch_Client()";
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.GetEmploymentChecksBatch_Client()";
 
-            IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<Models.Domain.EmploymentCheckModel> employmentCheckModels = null;
             try
             {
-                apprenticeEmploymentChecks = (IList<Models.Domain.EmploymentCheckModel>)await _employmentCheckService.GetApprenticeEmploymentChecksBatch_Service(employmentCheckLastGetId);
+                employmentCheckModels = (IList<Models.Domain.EmploymentCheckModel>)await _employmentCheckService.GetEmploymentChecksBatch_Service(employmentCheckLastHighestBatchId);
 
-                if (apprenticeEmploymentChecks == null)
+                if (employmentCheckModels == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentChecks value returned from the  GetApprenticeEmploymentChecksBatch_Service() service returned null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckModels value returned from the GetEmploymentChecksBatch_Service() service returned null.");
                 }
             }
             catch (Exception ex)
@@ -44,23 +44,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return apprenticeEmploymentChecks;
+            return employmentCheckModels;
         }
 
         /// <summary>
-        /// Adds an apprentice data message representing each apprentice in the ApprenticeEmploymentChecksBatch to the HMRC API message queue
+        /// Adds an employment check message to the HMRC API message queue
         /// </summary>
         /// <param name="employmentCheckData"></param>
         /// <returns></returns>
-        public async Task EnqueueApprenticeEmploymentCheckMessages_Client(EmploymentCheckData employmentCheckData)
+        public async Task EnqueueEmploymentCheckMessages_Client(EmploymentCheckData employmentCheckData)
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.EnqueueApprenticeEmploymentCheckMessages_Client()";
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.EnqueueEmploymentCheckMessages_Client()";
 
             try
             {
                 if (employmentCheckData != null)
                 {
-                    await _employmentCheckService.EnqueueApprenticeEmploymentCheckMessages_Service(employmentCheckData);
+                    await _employmentCheckService.EnqueueEmploymentCheckMessages_Service(employmentCheckData);
                 }
                 else
                 {
@@ -74,21 +74,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         }
 
         /// <summary>
-        /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API
+        /// Gets an employment check message from the HMRC API message queue
         /// </summary>
-        /// <returns>ApprenticeEmploymentCheckMessageModel</returns>
-        public async Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Client()
+        /// <returns>EmploymentCheckMessage</returns>
+        public async Task<EmploymentCheckMessage> DequeueEmploymentCheckMessage_Client()
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.DequeueApprenticeEmploymentCheckMessage_Client()";
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.DequeueEmploymentCheckMessage_Client()";
 
-            EmploymentCheckMessage apprenticeEmploymentCheckMessage = null;
+            EmploymentCheckMessage employmentCheckMessage = null;
             try
             {
-                apprenticeEmploymentCheckMessage = await _employmentCheckService.DequeueApprenticeEmploymentCheckMessage_Service();
+                employmentCheckMessage = await _employmentCheckService.DequeueEmploymentCheckMessage_Service();
 
-                if(apprenticeEmploymentCheckMessage == null)
+                if(employmentCheckMessage == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: The apprenticeEmploymentCheckMessage value returned from the call to DequeueApprenticeEmploymentCheckMessage_Service() is null.");
+                    _logger.LogInformation($"{thisMethodName}: The employmentCheckMessage value returned from the call to DequeueEmploymentCheckMessage_Service() is null.");
                 }
             }
             catch (Exception ex)
@@ -96,12 +96,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
                 _logger.LogError($"\n\n{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return apprenticeEmploymentCheckMessage;
+            return employmentCheckMessage;
         }
 
-        public async Task SaveApprenticeEmploymentCheckResult_Client(EmploymentCheckMessage employmentCheckMessage)
+        public async Task SaveEmploymentCheckResult_Client(EmploymentCheckMessage employmentCheckMessage)
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.SaveApprenticeEmploymentCheckResult_Client()";
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.SaveEmploymentCheckResult_Client()";
 
             try
             {
@@ -111,7 +111,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
                 }
                 else
                 {
-                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The apprenticeEmploymentCheckMessageModel input parameter is null.");
+                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The employmentCheckMessage input parameter is null.");
                 }
             }
             catch (Exception ex)

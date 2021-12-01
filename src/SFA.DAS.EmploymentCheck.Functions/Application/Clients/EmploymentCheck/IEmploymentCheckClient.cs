@@ -6,12 +6,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
     public interface IEmploymentCheckClient
     {
-        Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Client(long employmentCheckLastGetId);
+        Task<IList<Models.Domain.EmploymentCheckModel>> GetEmploymentChecksBatch_Client(long employmentCheckLastHighestBatchId);
 
-        Task EnqueueApprenticeEmploymentCheckMessages_Client(EmploymentCheckData apprenticeEmploymentData);
+        Task EnqueueEmploymentCheckMessages_Client(EmploymentCheckData employmentCheckData);
 
-        Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Client();
+        Task<EmploymentCheckMessage> DequeueEmploymentCheckMessage_Client();
 
-        Task SaveApprenticeEmploymentCheckResult_Client(EmploymentCheckMessage apprenticeEmploymentCheckMessageModel);
+        Task SaveEmploymentCheckResult_Client(EmploymentCheckMessage employmentCheckMessage);
     }
 }

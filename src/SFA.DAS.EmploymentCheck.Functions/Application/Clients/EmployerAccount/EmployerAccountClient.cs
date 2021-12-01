@@ -25,25 +25,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Models.Domain.EmploymentCheckModel> apprentices)
+            IList<Models.Domain.EmploymentCheckModel> employmentCheckModels)
         {
-            var thisMethodName = "GetApprenticesNiNumberClient.GetEmployersPayeSchemes()";
+            var thisMethodName = "EmployerAccountClient.GetEmployersPayeSchemes()";
 
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try
             {
-                if (apprentices != null && apprentices.Count != 0)
+                if (employmentCheckModels != null && employmentCheckModels.Count != 0)
                 {
-                    foreach (var apprentice in apprentices)
+                    foreach (var employmentCheckModel in employmentCheckModels)
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{apprentice.AccountId}] (apprentice ULN [{apprentice.Uln}]).");
-                        var accountDetailViewModel = await _employerAccountService.GetEmployerAccount(apprentice.AccountId);
+                        Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{employmentCheckModel.AccountId}] (apprentice ULN [{employmentCheckModel.Uln}]).");
+                        var accountDetailViewModel = await _employerAccountService.GetEmployerAccount(employmentCheckModel.AccountId);
 
                         if (accountDetailViewModel != null &&
                             accountDetailViewModel.PayeSchemes != null &&
                             accountDetailViewModel.PayeSchemes.Count > 0)
                         {
-                            employerPayeSchemes.Add(new EmployerPayeSchemes(apprentice.AccountId, accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList()));
+                            employerPayeSchemes.Add(new EmployerPayeSchemes(employmentCheckModel.AccountId, accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList()));
                         }
                         else
                         {
@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved");
+                    _logger.LogInformation($"{thisMethodName}: ERROR: the employmentCheckModels input parameter is NULL, no employer PAYE schemes retrieved");
                 }
             }
             catch (Exception ex)

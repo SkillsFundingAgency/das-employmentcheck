@@ -7,28 +7,28 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeEmploymentCheckMessage
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueEmploymentCheckMessage
 {
-    public class DequeueApprenticeEmploymentCheckMessageQueryHandler
-        : IRequestHandler<DequeueApprenticeEmploymentCheckMessageQueryRequest,
-            DequeueApprenticeEmploymentCheckMessageQueryResult>
+    public class DequeueEmploymentCheckMessageQueryHandler
+        : IRequestHandler<DequeueEmploymentCheckMessageQueryRequest,
+            DequeueEmploymentCheckMessageQueryResult>
     {
         private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesQueryHandler";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
         private IEmploymentCheckClient _employmentCheckClient;
-        private ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> _logger;
+        private ILogger<DequeueEmploymentCheckMessageQueryHandler> _logger;
 
-        public DequeueApprenticeEmploymentCheckMessageQueryHandler(
+        public DequeueEmploymentCheckMessageQueryHandler(
             IEmploymentCheckClient employmentCheckClient,
-            ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> logger)
+            ILogger<DequeueEmploymentCheckMessageQueryHandler> logger)
         {
             _employmentCheckClient = employmentCheckClient;
             _logger = logger;
         }
 
-        public async Task<DequeueApprenticeEmploymentCheckMessageQueryResult> Handle(
-            DequeueApprenticeEmploymentCheckMessageQueryRequest request,
+        public async Task<DequeueEmploymentCheckMessageQueryResult> Handle(
+            DequeueEmploymentCheckMessageQueryRequest request,
             CancellationToken cancellationToken)
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
             try
             {
                 // Call the application client to get the apprentices employment check queue messages
-                apprenticeEmploymentCheckMessage = await _employmentCheckClient.DequeueApprenticeEmploymentCheckMessage_Client();
+                apprenticeEmploymentCheckMessage = await _employmentCheckClient.DequeueEmploymentCheckMessage_Client();
 
                 if(apprenticeEmploymentCheckMessage == null)
                 {
@@ -50,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
                 _logger.LogError($"{ThisClassName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return new DequeueApprenticeEmploymentCheckMessageQueryResult(apprenticeEmploymentCheckMessage);
+            return new DequeueEmploymentCheckMessageQueryResult(apprenticeEmploymentCheckMessage);
         }
     }
 }

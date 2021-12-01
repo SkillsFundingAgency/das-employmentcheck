@@ -1,12 +1,12 @@
 ﻿using MediatR;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.EnqueueEmploymentCheckMessages
 {
-    public class EnqueueApprenticeEmploymentCheckMessagesCommand
+    public class EnqueueEmploymentCheckMessagesCommand
         : IRequest
     {
-        public EnqueueApprenticeEmploymentCheckMessagesCommand(
+        public EnqueueEmploymentCheckMessagesCommand(
             EmploymentCheckData apprenticeRelatedData)
         {
             ApprenticeRelatedData = apprenticeRelatedData;

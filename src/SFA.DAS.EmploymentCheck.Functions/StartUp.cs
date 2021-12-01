@@ -6,10 +6,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
 using System.IO;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecks;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -47,8 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            //builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetApprenticeEmploymentChecksQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetEmploymentChecksQueryRequest).Assembly);
 
             // SubmitLearnerData API Configuration
             builder.Services.Configure<SubmitLearnerDataApiConfiguration>(

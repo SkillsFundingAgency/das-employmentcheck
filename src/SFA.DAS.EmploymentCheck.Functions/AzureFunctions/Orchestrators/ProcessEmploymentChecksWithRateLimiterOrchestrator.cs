@@ -31,17 +31,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"{thisMethodName}: Started.");
 
                 // Get the next message off the message queue
-                var employmentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessage>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
+                var employmentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessage>(nameof(DequeueEmploymentCheckMessageActivity), null);
 
                 if (employmentCheckMessage.Id != 0)
                 {
                     // Do the employment status check on this message
                     var result = await context.CallActivityAsync<EmploymentCheckMessage>(
-                        nameof(CheckApprenticeEmploymentStatusActivity), employmentCheckMessage);
+                        nameof(CheckEmploymentStatusActivity), employmentCheckMessage);
 
 
                     // Save the employment status back to the database
-                    await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
+                    await context.CallActivityAsync(nameof(SaveEmploymentCheckResultActivity), result);
 
                     // Execute RateLimiter
                     var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 }
                 else
                 {
-                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
+                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
 
                     // No data found so sleep for 10 seconds then execute the orchestrator again
                     DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));

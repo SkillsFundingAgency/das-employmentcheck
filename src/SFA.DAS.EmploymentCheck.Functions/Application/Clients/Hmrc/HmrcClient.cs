@@ -19,29 +19,30 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc
         }
 
         /// <summary>
-        /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
+        /// Sends the employmentCheckMessage to the HMRC API
         /// </summary>
         /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async Task<EmploymentCheckMessage> CheckApprenticeEmploymentStatus_Client(
-            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
+        public async Task<EmploymentCheckMessage> CheckEmploymentStatus_Client(
+            EmploymentCheckMessage employmentCheckMessage)
         {
-            var thisMethodName = $"{nameof(HmrcClient)}.CheckApprenticeEmploymentStatus_Client()";
+            var thisMethodName = $"{nameof(HmrcClient)}.CheckEmploymentStatus_Client()";
 
             EmploymentCheckMessage employmentCheckMessageResult = null;
             try
             {
-                if (apprenticeEmploymentCheckMessageModel != null)
+                if (employmentCheckMessage != null &&
+                    employmentCheckMessage.Id > 0)
                 {
-                    employmentCheckMessageResult = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(apprenticeEmploymentCheckMessageModel);
+                    employmentCheckMessageResult = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(employmentCheckMessage);
 
                     if (employmentCheckMessageResult == null)
                     {
-                        _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModelResult value returned from the IsNationalInsuranceNumberRelatedToPayeScheme() call returned null.");
+                        _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckMessageResult value returned from the IsNationalInsuranceNumberRelatedToPayeScheme() call returned null.");
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModelResult input parameter is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckMessageResult input parameter is null.");
                 }
             }
             catch (Exception ex)

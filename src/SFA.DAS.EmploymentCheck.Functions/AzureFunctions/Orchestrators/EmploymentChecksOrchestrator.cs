@@ -64,10 +64,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
 #if DEBUG
-                await context.CallSubOrchestratorAsync(nameof(SeedEmploymentCheckTestDataOrchestrator), 0);
+                //await context.CallSubOrchestratorAsync(nameof(SeedEmploymentCheckTestDataOrchestrator), 0);
 #endif
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                //await context.CallSubOrchestratorAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), 0);
+                await context.CallSubOrchestratorAsync(nameof(GetEmploymentChecksOrchestrator), 0);
 
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
                 //await context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksOrchestrator), 0);

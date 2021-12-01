@@ -35,24 +35,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async override Task<IList<Models.Domain.EmploymentCheckModel>> GetApprenticeEmploymentChecksBatch_Service(long employmentCheckLastGetId)
+        public async override Task<IList<Models.Domain.EmploymentCheckModel>> GetEmploymentChecksBatch_Service(long employmentCheckLastHighestBatchId)
         {
-            var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentChecksBatch_Service()";
+            var thisMethodName = $"{ThisClassName}.GetEmploymentChecksBatch_Service()";
 
-            IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks = null;
+            IList<Models.Domain.EmploymentCheckModel> employmentCheckModels = null;
             try
             {
-                apprenticeEmploymentChecks = await GetApprenticeEmploymentChecks_Base(
+                employmentCheckModels = await GetEmploymentChecks_Base(
                       _logger,
                       _connectionString,
                       AzureResource,
                       10, // _batchSize // TODO: Setup in config
-                      employmentCheckLastGetId,
+                      employmentCheckLastHighestBatchId,
                       _azureServiceTokenProvider);
 
-                if(apprenticeEmploymentChecks == null)
+                if(employmentCheckModels == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentChecks return parameter from the base class service call to GetApprenticeEmploymentCheck returned null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckModels return parameter from the base class service call to GetEmploymentChecks_Base returned null.");
 
                 }
             }
@@ -61,33 +61,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return apprenticeEmploymentChecks;
+            return employmentCheckModels;
         }
 
         /// <summary>
-        /// Adds an apprentice data message representing each apprentice in the ApprenticeEmploymentChecksBatch to the HMRC API message queue
+        /// Adds an employment check message to the HMRC API message queue
         /// </summary>
-        /// <param name="apprenticeEmploymentData"></param>
+        /// <param name="employmentCheckData"></param>
         /// <returns>Task</returns>
-        public async override Task EnqueueApprenticeEmploymentCheckMessages_Service(EmploymentCheckData apprenticeEmploymentData)
+        public async override Task EnqueueEmploymentCheckMessages_Service(EmploymentCheckData employmentCheckData)
         {
-            var thisMethodName = $"{ThisClassName}.EnqueueApprenticeEmploymentCheckMessages_Service()";
+            var thisMethodName = $"{ThisClassName}.EnqueueEmploymentCheckMessages_Service()";
 
             try
             {
-                if (apprenticeEmploymentData != null)
+                if (employmentCheckData != null)
                 {
-                    await EnqueueApprenticeEmploymentCheckMessages_Service(
+                    await EnqueueEmploymentCheckMessages_Service(
                         _logger,
                         _connectionString,
                         AzureResource,
                         _azureServiceTokenProvider,
-                        apprenticeEmploymentData);
+                        employmentCheckData);
 
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentChecks return value from the base class service call to GetApprenticeEmploymentCheck returned null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckData input parameter is null.");
                 }
             }
             catch (Exception ex)
@@ -97,26 +97,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
         /// <summary>
-        /// Gets an apprentice data message from the HMRC API message queue to pass to the HMRC employment check API
+        /// Gets an employment check message from the HMRC API message queue
         /// </summary>
-        /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
-        public async override Task<EmploymentCheckMessage> DequeueApprenticeEmploymentCheckMessage_Service()
+        /// <returns>Task<EmploymentCheckMessage></returns>
+        public async override Task<EmploymentCheckMessage> DequeueEmploymentCheckMessage_Service()
         {
-            var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessage_Service()";
+            var thisMethodName = $"{ThisClassName}.DequeueEmploymentCheckMessage_Service()";
 
-            EmploymentCheckMessage apprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessage employmentCheckMessage = null;
             try
             {
-                apprenticeEmploymentCheckMessageModel = await DequeueApprenticeEmploymentCheckMessage_Base(
+                employmentCheckMessage = await DequeueEmploymentCheckMessage_Base(
                     _logger,
                     _connectionString,
                     _batchSize,
                     AzureResource,
                     _azureServiceTokenProvider);
 
-                if (apprenticeEmploymentCheckMessageModel == null)
+                if (employmentCheckMessage == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel value returned from the call to DequeueApprenticeEmploymentCheckMessage_Base() is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckMessage value returned from the call to DequeueEmploymentCheckMessage_Base() is null.");
                 }
             }
             catch (Exception ex)
@@ -124,27 +124,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return apprenticeEmploymentCheckMessageModel;
+            return employmentCheckMessage;
         }
 
-        public async override Task SaveEmploymentCheckResult_Service(EmploymentCheckMessage apprenticeEmploymentCheckMessageModel)
+        public async override Task SaveEmploymentCheckResult_Service(EmploymentCheckMessage employmentCheckMessage)
         {
             var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Service()";
 
             try
             {
-                if (apprenticeEmploymentCheckMessageModel != null)
+                if (employmentCheckMessage != null)
                 {
                     await SaveEmploymentCheckResult_Base(
                          _logger,
                          _connectionString,
                          AzureResource,
                          _azureServiceTokenProvider,
-                         apprenticeEmploymentCheckMessageModel);
+                         employmentCheckMessage);
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel input parameter is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckMessage input parameter is null.");
                 }
             }
             catch (Exception ex)
@@ -159,9 +159,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// ----------------------------------
         /// </summary>
         /// <returns></returns>
-        public async override Task SeedEmploymentCheckApprenticeDatabaseTableTestData()
+        public async override Task SeedEmploymentCheckDatabaseTableTestData()
         {
-            await SeedEmploymentCheckApprenticeDatabaseTableTestData(
+            await SeedEmploymentCheckDatabaseTableTestData(
                 _logger,
                 _connectionString,
                 AzureResource,
@@ -169,7 +169,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
 
-        public static EmploymentCheckMessage[] StubApprenticeEmploymentCheckMessageData => new []
+        public static EmploymentCheckMessage[] StubEmploymentCheckMessageData => new []
         {
             new EmploymentCheckMessage()
             {

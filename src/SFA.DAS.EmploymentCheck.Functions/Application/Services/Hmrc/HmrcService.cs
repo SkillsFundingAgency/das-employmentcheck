@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         public async Task<EmploymentCheckMessage> IsNationalInsuranceNumberRelatedToPayeScheme(
             EmploymentCheckMessage request)
         {
-            var thisMethodName = $"{ThisClassName}.StoreApprenticeEmploymentCheckMessage()";
+            var thisMethodName = $"{ThisClassName}.IsNationalInsuranceNumberRelatedToPayeScheme()";
 
             try
             {

@@ -17,17 +17,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             _logger = logger;
         }
 
-        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecks)
+        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Models.Domain.EmploymentCheckModel> employmentCheckModels)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticesNiNumber()";
 
             List<ApprenticeNiNumber> apprenticesNiNumber = new List<ApprenticeNiNumber>();
-            if (apprenticeEmploymentChecks != null &&
-                apprenticeEmploymentChecks.Count > 0)
+            if (employmentCheckModels != null &&
+                employmentCheckModels.Count > 0)
             {
-                foreach(var apprenticeEmploymentCheck in apprenticeEmploymentChecks)
+                foreach(var employmentCheckModel in employmentCheckModels)
                 {
-                    var apprenticeNiNumber = await FindApprenticeNiNumber(apprenticeEmploymentCheck);
+                    var apprenticeNiNumber = await FindApprenticeNiNumber(employmentCheckModel);
                     apprenticesNiNumber.Add(apprenticeNiNumber);
                 }
             }
@@ -36,10 +36,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             return await Task.FromResult(apprenticesNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(Models.Domain.EmploymentCheckModel apprenticeEmploymentCheck)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(Models.Domain.EmploymentCheckModel employmentCheckModel)
         {
-            var uln = apprenticeEmploymentCheck.Uln;
-            var niNumber = "NI" + apprenticeEmploymentCheck.Uln.ToString();
+            var uln = employmentCheckModel.Uln;
+            var niNumber = "NI" + employmentCheckModel.Uln.ToString();
 
             var apprenticeNiNumber = new ApprenticeNiNumber
             {
@@ -50,11 +50,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             return await Task.FromResult(apprenticeNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber2(Models.Domain.EmploymentCheckModel apprenticeEmploymentCheck)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber2(Models.Domain.EmploymentCheckModel employmentCheckModel)
         {
             ApprenticeNiNumber apprenticeNiNumber;
 
-            switch (apprenticeEmploymentCheck.ApprenticeshipId)
+            switch (employmentCheckModel.ApprenticeshipId)
             {
                 case 1:
                     apprenticeNiNumber = new ApprenticeNiNumber

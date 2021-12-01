@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using System.Collections.Generic;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
@@ -26,15 +25,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(SeedEmploymentCheckTestDataActivity))]
-        public async Task<int> EmploymentCheckApprenticesSeedDatabaseTestDataActivityTask(
+        public async Task<int> SeedEmploymentCheckTestDataActivityTask(
             [ActivityTrigger] int input)
         {
-            var thisMethodName = $"\n\n{ThisClassName}.EmploymentCheckApprenticesSeedDatabaseTestDataActivityTask()";
+            var thisMethodName = $"\n\n{ThisClassName}.SeedEmploymentCheckTestDataActivityTask()";
             var messagePrefix = $"{ DateTime.UtcNow } UTC { thisMethodName}:";
 
             try
             {
-                await _employmentCheckService.SeedEmploymentCheckApprenticeDatabaseTableTestData();
+                await _employmentCheckService.SeedEmploymentCheckDatabaseTableTestData();
             }
             catch (Exception ex)
             {
