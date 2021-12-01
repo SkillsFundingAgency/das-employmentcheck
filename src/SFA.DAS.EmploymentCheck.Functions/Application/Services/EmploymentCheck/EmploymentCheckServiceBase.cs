@@ -127,8 +127,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         {
             var thisMethodName = $"{ThisClassName}.GetEmploymentCheckBatch()";
 
-            IEnumerable<Models.Domain.EmploymentCheckModel> apprenticeEmploymentChecksResult = null;
-            IList<Models.Domain.EmploymentCheckModel> EmploymentCheckModels = null;
+            IEnumerable<Models.Domain.EmploymentCheckModel> employmentChecksResult = null;
+            IList<Models.Domain.EmploymentCheckModel> employmentCheckModels = null;
             try
             {
                 var parameters = new DynamicParameters();
@@ -136,7 +136,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 parameters.Add("@employmentCheckLastGetId", employmentCheckLastGetId);
 
                 // Get the next batch (or first batch if no previous batch) where the Id is greater than the stored EmploymentCheckLastGetId
-                apprenticeEmploymentChecksResult = await sqlConnection.QueryAsync<EmploymentCheckModel>(
+                employmentChecksResult = await sqlConnection.QueryAsync<EmploymentCheckModel>(
                 sql: "SELECT TOP (@batchSize) " +
                 "Id, " +
                 "CorrelationId, " +
@@ -156,13 +156,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 commandType: CommandType.Text);
 
                 // Check we got some results
-                if (apprenticeEmploymentChecksResult != null &&
-                    apprenticeEmploymentChecksResult.Any())
+                if (employmentChecksResult != null &&
+                    employmentChecksResult.Any())
                 {
-                    logger.LogInformation($"\n\n{DateTime.UtcNow} {thisMethodName}: Database query returned [{apprenticeEmploymentChecksResult.Count()}] apprentices requiring employment check.");
+                    logger.LogInformation($"\n\n{DateTime.UtcNow} {thisMethodName}: Database query returned [{employmentChecksResult.Count()}] apprentices requiring employment check.");
 
                     // ... and return the results
-                    EmploymentCheckModels = apprenticeEmploymentChecksResult.Select(aec => new EmploymentCheckModel(
+                    employmentCheckModels = employmentChecksResult.Select(aec => new EmploymentCheckModel(
                         aec.Id,
                         aec.CorrelationId,
                         aec.CheckType,
@@ -178,7 +178,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 else
                 {
                     logger.LogError($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
-                    apprenticeEmploymentCheckModels = new List<ApprenticeEmploymentCheckModel>(); // return an empty list rather than null
+                    employmentCheckModels = new List<EmploymentCheckModel>(); // return an empty list rather than null
                 }
             }
             catch (Exception ex)
@@ -186,7 +186,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
             }
 
-            return EmploymentCheckModels;
+            return employmentCheckModels;
         }
 
         private async Task<long> SaveEmploymentCheckLastHighestBatchId(
@@ -595,27 +595,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     // e.g. if an apprentices employer has 900 paye schemes then we need to create 900 messages for the given Uln and National Insurance Number
                     // Note: Once we get a 'hit' for a given Nino, PayeScheme, StartDate, EndDate from the HMRC API we could discard the remaining messages without calling the API if necessary
                     // (at this point we don't know if we need to check all the payeschemes for a given apprentice just to ensure there's no match on multiple schemes)
-                    foreach (var apprentice in employmentCheckData.EmploymentChecks)
+                    foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
                     {
-                        var apprenticeEmploymentCheckMessage = new EmploymentCheckMessage();
+                        var employmentCheckMessage = new EmploymentCheckMessage();
 
                         // Get the National Insurance Number for this apprentice
-                        var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.Where(ninumber => ninumber.Uln == apprentice.Uln).FirstOrDefault().NationalInsuranceNumber;
+                        var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.Where(ninumber => ninumber.Uln == employmentCheck.Uln).FirstOrDefault().NationalInsuranceNumber;
 
                         // Get the employer paye schemes for this apprentices
-                        var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.Where(ps => ps.EmployerAccountId == apprentice.AccountId).FirstOrDefault();
+                        var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.Where(ps => ps.EmployerAccountId == employmentCheck.AccountId).FirstOrDefault();
 
                         // Create the individual message combinations for each paye scheme
                         foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                         {
-                            apprenticeEmploymentCheckMessage.EmploymentCheckId = apprentice.Id;
-                            apprenticeEmploymentCheckMessage.Uln = apprentice.Uln;
-                            apprenticeEmploymentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
-                            apprenticeEmploymentCheckMessage.MinDateTime = apprentice.MinDate;
-                            apprenticeEmploymentCheckMessage.MaxDateTime = apprentice.MinDate;
-                            apprenticeEmploymentCheckMessage.PayeScheme = payeScheme;
+                            employmentCheckMessage.EmploymentCheckId = employmentCheck.Id;
+                            employmentCheckMessage.Uln = employmentCheck.Uln;
+                            employmentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
+                            employmentCheckMessage.MinDateTime = employmentCheck.MinDate;
+                            employmentCheckMessage.MaxDateTime = employmentCheck.MinDate;
+                            employmentCheckMessage.PayeScheme = payeScheme;
 
-                            employmentCheckMessages.Add(apprenticeEmploymentCheckMessage);
+                            employmentCheckMessages.Add(employmentCheckMessage);
                         }
                     }
                 }

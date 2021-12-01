@@ -23,8 +23,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         public SubmitLearnerDataService(
             ILogger<SubmitLearnerDataService> logger,
-            IDcTokenService dcTokenService, 
-            IOptions<DcOAuthSettings> dcOAuthSettings, 
+            IDcTokenService dcTokenService,
+            IOptions<DcOAuthSettings> dcOAuthSettings,
             IHttpClientFactory httpFactory,
             IOptions<DcApiSettings> dcApiSettings)
         {
@@ -75,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             return result;
         }
 
-        private async Task<ApprenticeNiNumber> SendIndividualRequest(ApprenticeEmploymentCheckModel learner, AuthResult token)
+        private async Task<ApprenticeNiNumber> SendIndividualRequest(EmploymentCheckModel learner, AuthResult token)
         {
             const string thisMethodName = "SubmitLearnerDataService.SendIndividualRequest()";
 
@@ -84,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                var url = _dcApiSettings.LearnerNiAPi + "?ulns=" + learner.ULN;
+                var url = _dcApiSettings.LearnerNiAPi + "?ulns=" + learner.Uln;
 
                 try
                 {
@@ -109,7 +109,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                         }
                         else
                         {
-                            checkedLearner.ULN = learner.ULN;
+                            checkedLearner.Uln = learner.Uln;
                         }
                     }
                 }
@@ -121,7 +121,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             return checkedLearner;
         }
 
-        private async Task<List<ApprenticeNiNumber>> GetNiNumbers(IList<ApprenticeEmploymentCheckModel> learners, AuthResult token)
+        private async Task<List<ApprenticeNiNumber>> GetNiNumbers(IList<EmploymentCheckModel> learners, AuthResult token)
         {
             var thisMethodName = "SubmitLearnerDataService.GetNiNumbers()";
 

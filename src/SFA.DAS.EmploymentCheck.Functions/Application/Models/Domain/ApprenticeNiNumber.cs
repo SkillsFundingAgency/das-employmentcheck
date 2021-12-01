@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
         }
 
         [JsonPropertyName("uln")]
-        public long ULN { get; set; }
+        public long Uln { get; set; }
 
         [JsonPropertyName("niNumber")]
         public string NationalInsuranceNumber { get; set; }

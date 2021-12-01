@@ -5,20 +5,21 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
-    public static class CreateApprenticeEmploymentChecksHttpTrigger
+    public static class EmploymentChecksHttpTrigger
     {
-        [FunctionName("CreateApprenticeEmploymentChecksHttpTrigger")]
+        [FunctionName("EmploymentChecksHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/CreateApprenticeEmploymentChecksOrchestrator")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
-            log.LogInformation("Triggering CreateApprenticeEmploymentChecksOrchestrator");
+            log.LogInformation($"Triggering EmploymentChecksOrchestrator");
 
-            string instanceId = await starter.StartNewAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), null);
+            string instanceId = await starter.StartNewAsync(nameof(EmploymentChecksOrchestrator), null);
 
             log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 

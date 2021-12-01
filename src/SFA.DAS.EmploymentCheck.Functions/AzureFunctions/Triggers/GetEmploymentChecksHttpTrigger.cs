@@ -8,17 +8,17 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
-    public static class ApprenticeEmploymentCheckSeedDatabaseTestDataHttpTrigger
+    public static class GetEmploymentChecksOrchestratorTrigger
     {
-        [FunctionName("ApprenticeEmploymentCheckSeedDatabaseTestDataHttpTrigger")]
+        [FunctionName("GetEmploymentChecksOrchestratorHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/GetEmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
-            log.LogInformation("Triggering ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator");
+            log.LogInformation("Triggering GetEmploymentChecksOrchestrator");
 
-            string instanceId = await starter.StartNewAsync(nameof(ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator), null);
+            string instanceId = await starter.StartNewAsync(nameof(GetEmploymentChecksOrchestrator), null);
 
             log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 

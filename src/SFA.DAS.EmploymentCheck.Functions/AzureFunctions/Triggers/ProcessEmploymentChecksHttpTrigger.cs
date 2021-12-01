@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
-    public static class ProcessApprenticeEmploymentChecksHttpTrigger
+    public static class ProcessEmploymentChecksHttpTrigger
     {
         [FunctionName("ProcessApprenticeEmploymentChecksHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
