@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Dynamitey.DynamicObjects;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
@@ -82,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckModels;
@@ -113,7 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
             }
 
             return EmploymentCheckLastGetId;
@@ -179,7 +180,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 }
                 else
                 {
-                    logger.LogInformation($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
+                    logger.LogError($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
                     apprenticeEmploymentCheckModels = new List<ApprenticeEmploymentCheckModel>(); // return an empty list rather than null
                 }
             }
@@ -237,7 +238,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
             }
 
             // Check the saved value matches the value we saved
@@ -305,7 +306,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -353,7 +354,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;
@@ -377,7 +378,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentCheckMessage_Base()";
 
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
+            ApprenticeEmploymentCheckMessageModel model = null;
             SqlConnection sqlConnection = null;
 
             try
@@ -390,36 +391,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     if (sqlConnection != null)
                     {
-                        var parameters = new DynamicParameters();
-                        parameters.Add("@batchSize", batchSize);
-
                         await sqlConnection.OpenAsync();
+
                         // TODO: The expectation is that there is only one instance of this code getting the message from the database.
                         //       If there are going to be multiple instances of the code pulling the messages off the message queue
                         //       then we will need to make the select/delete of the message transactional to lock the row so that
                         //       other instances aren't pulling the same message
-                        apprenticeEmploymentCheckMessageModel =
-                            (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(
-                                sql:
-                                "SELECT TOP (1) " +
-                                "MessageId, " +
-                                "MessageCreatedDateTime, " +
-                                "EmploymentCheckId, " +
-                                "Uln, " +
-                                "NationalInsuranceNumber, " +
-                                "PayeScheme, " +
-                                "StartDateTime, " +
-                                "EndDateTime, " +
-                                "EmploymentCheckedDateTime, " +
-                                "IsEmployed, " +
-                                "ReturnCode, " +
-                                "ReturnMessage " +
-                                "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                "ORDER BY MessageCreatedDateTime",
-                                param: parameters,
-                                commandType: CommandType.Text)).FirstOrDefault();
 
-                        if (apprenticeEmploymentCheckMessageModel == null)
+                        const string sql = "SELECT TOP (1) " +
+                                           "MessageId, " +
+                                           "MessageCreatedDateTime, " +
+                                           "EmploymentCheckId, " +
+                                           "Uln, " +
+                                           "NationalInsuranceNumber, " +
+                                           "PayeScheme, " +
+                                           "StartDateTime, " +
+                                           "EndDateTime, " +
+                                           "EmploymentCheckedDateTime, " +
+                                           "IsEmployed, " +
+                                           "ReturnCode, " +
+                                           "ReturnMessage " +
+                                           "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
+                                           "ORDER BY MessageCreatedDateTime";
+
+                        model = (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(sql, commandType: CommandType.Text)).FirstOrDefault();
+
+                        if (model == null)
                         {
                             logger.LogInformation(
                                 $"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel returned from the LINQ statement employmentCheckMessageModels.FirstOrDefault() is null.");
@@ -434,7 +431,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation(
+                logger.LogError(
                     $"{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
             finally
@@ -445,7 +442,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 }
             }
 
-            return apprenticeEmploymentCheckMessageModel;
+            return model;
         }
 
         public abstract Task SaveEmploymentCheckResult_Service(ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel);
@@ -622,7 +619,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -673,7 +670,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return await Task.FromResult(apprenticeEmploymentCheckMessages);
@@ -736,7 +733,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
@@ -817,52 +814,43 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
 
         public virtual async Task<SqlConnection> CreateSqlConnection(
-        ILogger logger,
-        string connectionString,
-        string azureResource,
-        AzureServiceTokenProvider azureServiceTokenProvider)
+            ILogger logger,
+            string connectionString,
+            string azureResource,
+            AzureServiceTokenProvider azureServiceTokenProvider)
         {
             var thisMethodName = $"{ThisClassName}.CreateConnection()";
 
             SqlConnection sqlConnection = null;
             try
             {
-                if (!String.IsNullOrEmpty(connectionString))
+                if (string.IsNullOrEmpty(connectionString))
                 {
-                    if (!String.IsNullOrEmpty(azureResource))
+                    logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Missing SQL connection string for the Employment Check Database.");
+                    return null;
+                }
+
+                sqlConnection = new SqlConnection(connectionString);
+
+                if (azureServiceTokenProvider != null) // no token required for local db
+                {
+                    if (string.IsNullOrEmpty(azureResource))
                     {
-                        sqlConnection = new SqlConnection(connectionString);
-                        if (sqlConnection != null)
-                        {
-                            // no token for local db
-                            if (azureServiceTokenProvider != null)
-                            {
-                                sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(azureResource);
-                            }
-                            else
-                            {
-                                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Creation of SQL Connection for the Employment Check Databasse failed.");
-                            }
-                        }
-                        else
-                        {
-                            logger.LogInformation($"{thisMethodName}: Missing AzureResource string for the Employment Check Databasse.");
-                        }
+                        logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Missing AzureResource string for the Employment Check Database.");
+                        return null;
                     }
-                    else
-                    {
-                        logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Missing SQL connecton string for the Employment Check Databasse.");
-                    }
+
+                    sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(azureResource);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return sqlConnection;

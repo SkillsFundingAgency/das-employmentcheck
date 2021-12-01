@@ -11,10 +11,9 @@ namespace app_levy_data_seeder
 {
     public class DataSeeder
     {
-        private static string _dataFolderPath;
-
         public IList<InputData> SourceData = new List<InputData>();
         private static DataAccess _dataAccess;
+        private static Options _options;
 
         public DataSeeder()
         {
@@ -36,20 +35,23 @@ namespace app_levy_data_seeder
 
         public void ReadSourceData()
         {
-            var hdDirectoryInWhichToSearch = new DirectoryInfo(_dataFolderPath);
+            var hdDirectoryInWhichToSearch = new DirectoryInfo(_options.DataFolderLocation);
             var dirsInDir = hdDirectoryInWhichToSearch.GetDirectories("*-employed-*");
-           
-            foreach (var foundDir in dirsInDir)
-            {
-                var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
-                    .GetDirectories()
-                    .First().GetFiles("*.json");
 
-                foreach (var file in files)
+            for (var i = 0; i < _options.DataSets; i++)
+            {
+                foreach (var foundDir in dirsInDir)
                 {
-                    Console.WriteLine($"Found data file: {file.FullName}");
-                    var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
-                    SourceData.Add(data);
+                    var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
+                        .GetDirectories()
+                        .First().GetFiles("*.json");
+
+                    foreach (var file in files)
+                    {
+                        Console.WriteLine($"Found data file: {file.FullName}");
+                        var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
+                        SourceData.Add(data);
+                    }
                 }
             }
         }
@@ -60,19 +62,23 @@ namespace app_levy_data_seeder
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json", optional: false).Build();
 
-            var connectionString = config["EmploymentChecksConnectionString"];
-            Console.WriteLine($"Using database connection string: {connectionString}");
-            _dataAccess = new DataAccess(connectionString);
+            _options = new Options();
+            config.Bind(_options);
 
-            _dataFolderPath = config["DataFolderLocation"];
-            if (!Directory.Exists(_dataFolderPath)) throw new Exception($"Cannot find data folder here: {_dataFolderPath}");
-            Console.WriteLine($"Using data folder: {_dataFolderPath}");
+            Console.WriteLine($"Using database connection string: {_options.EmploymentChecksConnectionString}");
+            _dataAccess = new DataAccess(_options.EmploymentChecksConnectionString);
+
+            if (!Directory.Exists(_options.DataFolderLocation)) throw new Exception($"Cannot find data folder here: {_options.DataFolderLocation}");
+            Console.WriteLine($"Using data folder: {_options.DataFolderLocation}");
+
+            Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
+            Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");
         }
 
 
         public  async Task SeedData()
         {
-            await ClearData();
+            if (_options.ClearExistingData) await ClearData();
             await InsertData();
         }
 

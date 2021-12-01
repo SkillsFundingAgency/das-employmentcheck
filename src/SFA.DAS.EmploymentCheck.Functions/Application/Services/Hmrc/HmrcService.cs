@@ -61,8 +61,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.BadRequest)
             {
-                _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
+                _logger.LogError($"HMRC API returned {e.HttpCode} (Bad Request)");
                 request.ReturnCode = $"{e.HttpCode} (Bad Request)";
+                request.ReturnMessage = e.ResourceUri;
+            }
+            catch (ApiHttpException e)
+            {
+                _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
+                request.ReturnCode = $"{e.HttpCode} ({e.ResourceUri})";
                 request.ReturnMessage = e.ResourceUri;
             }
 

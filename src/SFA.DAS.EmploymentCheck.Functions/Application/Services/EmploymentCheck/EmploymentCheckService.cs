@@ -109,7 +109,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <returns>Task<ApprenticeEmploymentCheckMessageModel></returns>
         public async override Task<ApprenticeEmploymentCheckMessageModel> DequeueApprenticeEmploymentCheckMessage_Service()
         {
-            // TODO: Add implementation for using Azure SqlDatabase
             var thisMethodName = $"{ThisClassName}.DequeueApprenticeEmploymentCheckMessage_Service()";
 
             ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel = null;
@@ -129,7 +128,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckMessageModel;

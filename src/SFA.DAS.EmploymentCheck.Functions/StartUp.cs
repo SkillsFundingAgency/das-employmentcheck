@@ -1,16 +1,15 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using MediatR;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SFA.DAS.Configuration.AzureTableStorage;
-using System.IO;
-using MediatR;
 using Microsoft.Extensions.Options;
+using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
-using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -32,16 +31,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-#if DEBUG
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
+
             configBuilder.AddJsonFile("local.settings.json", optional: true);
-#endif
-            //configBuilder.AddAzureTableStorage(options =>
-            //{
-            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            //    options.EnvironmentName = configuration["EnvironmentName"];
-            //    options.PreFixConfigurationKeys = false;
-            //});
 
             var config = configBuilder.Build();
             builder.Services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
@@ -77,9 +75,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<AccountsApiSettings>(config.GetSection("AccountsApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AccountsApiSettings>>().Value);
 
-            var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
-            config.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
-            builder.Services.AddEmploymentCheckService(config["EnvironmentName"], authTokenServiceConfiguration);
+            // HmrcAuthTokenService Settings
+            builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
+
+            builder.Services.AddEmploymentCheckService(config["EnvironmentName"]);
 
         }
     }

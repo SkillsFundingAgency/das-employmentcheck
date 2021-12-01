@@ -38,9 +38,7 @@ namespace SFA.DAS.EmploymentCheck.TestHarness
 
         private void RegisterTokenServiceStub(IServiceCollection services)
         {
-            var authTokenServiceConfiguration = new HmrcAuthTokenServiceConfiguration();
-            Configuration.GetSection("HmrcAuthTokenService").Bind(authTokenServiceConfiguration);
-            services.AddTokenServiceStubServices(authTokenServiceConfiguration);
+            services.AddTokenServiceStubServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
