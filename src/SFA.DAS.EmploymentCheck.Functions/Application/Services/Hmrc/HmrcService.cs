@@ -68,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             catch (ApiHttpException e)
             {
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-                request.ReturnCode = $"{e.HttpCode} ({e.ResourceUri})";
+                request.ReturnCode = $"{e.HttpCode} ({(HttpStatusCode)e.HttpCode})";
                 request.ReturnMessage = e.ResourceUri;
             }
 
