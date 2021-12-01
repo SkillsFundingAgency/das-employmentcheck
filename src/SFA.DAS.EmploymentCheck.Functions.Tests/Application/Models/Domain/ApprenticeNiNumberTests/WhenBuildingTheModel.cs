@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Models.Domain.Appr
             var result = new ApprenticeNiNumber(uln, niNumber);
 
             //Assert
-            
+
             Assert.Equal(uln, result.Uln);
             Assert.Equal(niNumber, result.NationalInsuranceNumber);
         }

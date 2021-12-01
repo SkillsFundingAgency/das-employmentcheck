@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         }
 
         [FunctionName(nameof(ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator))]
-        public async Task EmploymentCheckApprenticesDatabaseSeedDataSubOrchestratorTask(
+        public async Task SeedEmploymentCheckTestDataSubOrchestratorTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = $"{ThisClassName}.ApprenticeEmploymentChecksSeedDatabaseSubOrchestrator()";

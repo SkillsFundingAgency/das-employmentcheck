@@ -399,27 +399,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         //       If there are going to be multiple instances of the code pulling the messages off the message queue
                         //       then we will need to make the select/delete of the message transactional to lock the row so that
                         //       other instances aren't pulling the same message
-                        employmentCheckMessage =
-                            (await sqlConnection.QueryAsync<EmploymentCheckMessage>(
-                                sql:
-                                "SELECT TOP (1) " +
-                                "Id, " +
-                                "EmploymentCheckId, " +
-                                "CorrelationId, " +
-                                "Uln, " +
-                                "NationalInsuranceNumber, " +
-                                "PayeScheme, " +
-                                "MinDateTime, " +
-                                "MaxDateTime, " +
-                                "LastEmploymentCheck, " +
-                                "Employed, " +
-                                "ResponseId, " +
-                                "ResponseMessage, " +
-                                "CreatedOn " +
-                                "FROM [Cache].[EmploymentCheckMessageQueue] " +
-                                "ORDER BY Id",
-                                param: parameters,
-                                commandType: CommandType.Text)).FirstOrDefault();
+
+                        const string sql = "SELECT TOP (1) " +
+                                           "MessageId, " +
+                                           "MessageCreatedDateTime, " +
+                                           "EmploymentCheckId, " +
+                                           "Uln, " +
+                                           "NationalInsuranceNumber, " +
+                                           "PayeScheme, " +
+                                           "StartDateTime, " +
+                                           "EndDateTime, " +
+                                           "EmploymentCheckedDateTime, " +
+                                           "IsEmployed, " +
+                                           "ReturnCode, " +
+                                           "ReturnMessage " +
+                                           "FROM [Cache].[EmploymentCheckMessageQueue] " +
+                                           "ORDER BY Id";
+
+                        employmentCheckMessage = (await sqlConnection.QueryAsync<EmploymentCheckMessage>(sql, commandType: CommandType.Text)).FirstOrDefault();
 
                         if (employmentCheckMessage == null)
                         {

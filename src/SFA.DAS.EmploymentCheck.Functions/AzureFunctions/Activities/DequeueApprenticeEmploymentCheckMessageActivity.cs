@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The dequeueApprenticeEmploymentCheckMessageQueryRequestResult value returned from the call to DequeueApprenticeEmploymentCheckMessageQueryRequest() is null.");
+                    _logger.LogInformation($"{thisMethodName}: The dequeueApprenticeEmploymentCheckMessageQueryRequestResult value returned from the call to DequeueApprenticeEmploymentCheckMessageQueryRequest() is null.");
                     apprenticeEmploymentCheckMessageModel = new EmploymentCheckMessage(); // create a blank message for the Mediator result wrapper
                 }
             }

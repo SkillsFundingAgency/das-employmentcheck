@@ -68,20 +68,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // Get the next message off the message queue
                 var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessage>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
 
-                // Run the employment status check on this message
-                if (apprenticeEmploymentCheckMessage.CorrelationId != 0)
+                if (apprenticeEmploymentCheckMessage == null)
                 {
-                    var updatedApprenticeEmploymentCheckMessage = await context.CallActivityAsync<EmploymentCheckMessage>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
+                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
+                    return;
+                }
+                else
+                {
+                    // Do the employment status check on this message
+                    var updatedApprenticeEmploymentCheckMessage =
+                        await context.CallActivityAsync<EmploymentCheckMessage>(
+                            nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
                     // Save the employment status back to the database
-                    await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), updatedApprenticeEmploymentCheckMessage);
+                    await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity),
+                        updatedApprenticeEmploymentCheckMessage);
+
+                    if (!context.IsReplaying)
+                        _logger.LogInformation($"{thisMethodName}: Completed.");
                 }
-
-                // TODO: Sleep for a while
-
-
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"{thisMethodName}: Completed.");
 
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity

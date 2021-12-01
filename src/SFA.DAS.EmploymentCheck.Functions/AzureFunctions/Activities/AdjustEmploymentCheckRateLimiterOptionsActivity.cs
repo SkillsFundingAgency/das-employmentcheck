@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Net;
@@ -23,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity))]
-        public async Task<TimeSpan> AdjustEmploymentCheckRateLimiterOptionsActivityTask([ActivityTrigger] ApprenticeEmploymentCheckMessageModel input)
+        public async Task<TimeSpan> AdjustEmploymentCheckRateLimiterOptionsActivityTask([ActivityTrigger] EmploymentCheckMessage input)
         {
             var thisMethodName = $"{nameof(AdjustEmploymentCheckRateLimiterOptionsActivity)}.AdjustEmploymentCheckRateLimiterOptionsActivity()";
 
@@ -31,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             {
                 var options = await _optionsRepository.GetHmrcRateLimiterOptions();
 
-                var tooManyRequests = string.Equals(input.ReturnCode, HttpStatusCode.TooManyRequests.ToString(),
+                var tooManyRequests = string.Equals(input.ResponseId.ToString(), HttpStatusCode.TooManyRequests.ToString(),
                     StringComparison.InvariantCultureIgnoreCase);
 
                 if (tooManyRequests)
