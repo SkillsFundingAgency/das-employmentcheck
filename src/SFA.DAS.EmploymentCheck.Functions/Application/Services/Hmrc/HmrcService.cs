@@ -77,14 +77,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             catch (ApiHttpException e)
             {
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-                request.ResponseId = (short)e.HttpCode;
-                request.ResponseMessage = $"{e.HttpCode} ({e.ResourceUri})";
-            }
-
-            catch (Exception ex)
-            {
-                // All exceptions must be caught and handled because the orchestrator call to the Activity function that is running this method will 'hang' if an exception is not caught and handled.
-                _logger.LogError($"{ thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                request.ReturnCode = $"{e.HttpCode} ({(HttpStatusCode)e.HttpCode})";
+                request.ReturnMessage = e.ResourceUri;
             }
 
             return request;

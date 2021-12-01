@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers
 {
@@ -17,8 +15,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
     {
         private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesQueryHandler";
 
-        private ISubmitLearnerDataClient _submitLearnerDataClient;
-        private ILogger<GetApprenticesNiNumbersMediatorHandler> _logger;
+        private readonly ISubmitLearnerDataClient _submitLearnerDataClient;
+        private readonly ILogger<GetApprenticesNiNumbersMediatorHandler> _logger;
 
         public GetApprenticesNiNumbersMediatorHandler(
             ISubmitLearnerDataClient submitLearnerDataClient,
@@ -37,12 +35,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
             IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
             try
             {
-                apprenticeNiNumbers = await _submitLearnerDataClient.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck);
-
-                if (apprenticeNiNumbers == null)
-                {
-                    apprenticeNiNumbers = new List<ApprenticeNiNumber>(); // return empty list rather than null
-                }
+                apprenticeNiNumbers = await _submitLearnerDataClient.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck) ??
+                                      new List<ApprenticeNiNumber>();
             }
             catch (Exception ex)
             {

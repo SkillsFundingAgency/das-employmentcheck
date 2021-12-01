@@ -1,29 +1,25 @@
-﻿using System;
-using HMRC.ESFA.Levy.Api.Client;
+﻿using HMRC.ESFA.Levy.Api.Client;
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.Http;
-using SFA.DAS.TokenService.Api.Client;
-using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using SFA.DAS.EmploymentCheck.TokenServiceStub;
-using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
+using SFA.DAS.Http;
+using SFA.DAS.TokenService.Api.Client;
+using System;
+using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -41,11 +37,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // #if DEBUG
             // For local development use the Stubs
 
-            serviceCollection.AddTokenServiceStubServices();
-            //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
-            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
+           // serviceCollection.AddTokenServiceStubServices();
+           // //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+           // serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+           // serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
+           //// serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
 
 
@@ -60,13 +56,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             });
 
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
-//#else
-//            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-//            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
-//            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
-//            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-//            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-//#endif
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
+            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
+            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
@@ -75,11 +70,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
             }
 
             serviceCollection.AddHmrcClient();
-            //serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
-            //{
-            //    var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
-            //    return new TokenServiceApiClient(config);
-            //});
+            if (environmentName == "PROD")
+            {
+                serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
+                {
+                    var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
+                    return new TokenServiceApiClient(config);
+                });
+            }
+
             return serviceCollection;
         }
 
