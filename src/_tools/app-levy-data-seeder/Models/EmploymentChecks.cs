@@ -10,6 +10,8 @@ namespace app_levy_data_seeder.Models
 
         public long ULN { get; set; }
 
+        public string NationalInsuranceNumber { get; set; }
+
         public long UKPRN { get; set; }
 
         public long ApprenticeshipId { get; set; }

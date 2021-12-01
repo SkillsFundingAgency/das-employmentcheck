@@ -14,6 +14,7 @@ namespace app_levy_data_seeder
         public IList<InputData> SourceData = new List<InputData>();
         private static DataAccess _dataAccess;
         private static Options _options;
+        private string[] _accounts;
 
         public DataSeeder()
         {
@@ -54,6 +55,13 @@ namespace app_levy_data_seeder
                     }
                 }
             }
+
+            var accountsFile = hdDirectoryInWhichToSearch + "\\accounts.txt";
+            if (File.Exists(accountsFile))
+            {
+                Console.WriteLine($"Found accounts list file: {accountsFile}");
+                _accounts = File.ReadAllLines(accountsFile);
+            } 
         }
 
         private static void ReadSettings()
@@ -94,15 +102,17 @@ namespace app_levy_data_seeder
                     ULN = 1000000000 + i,
                     ApprenticeshipId = 122 + i,
                     UKPRN = 10000000 + i,
-                    AccountId = i,
+                    NationalInsuranceNumber = data.jsonBody.nino,
+                    AccountId = Convert.ToInt32(_accounts[i % _accounts.Length]),
                     MinDate = data.jsonBody.fromDate,
                     MaxDate = data.jsonBody.toDate,
                     CheckType = "StartDate+60",
                     IsEmployed = null,
                     HasBeenChecked = false,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = DateTime.Now,
+                    LastUpdated = DateTime.Now
                 };
-
+                
                 var checkId = await _dataAccess.Insert(check);
 
                 if (_options.SeedEmploymentChecksOnly) continue;
