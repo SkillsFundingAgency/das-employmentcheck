@@ -610,7 +610,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         {
                             employmentCheckMessage.EmploymentCheckId = employmentCheck.Id;
                             employmentCheckMessage.Uln = employmentCheck.Uln;
-                            employmentCheckMessage.F = nationalInsuranceNumber;
+                            employmentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
                             employmentCheckMessage.MinDateTime = employmentCheck.MinDate;
                             employmentCheckMessage.MaxDateTime = employmentCheck.MinDate;
                             employmentCheckMessage.PayeScheme = payeScheme;
