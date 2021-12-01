@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
             var instanceId = "test";
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator), null))
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
                 .ReturnsAsync(instanceId);
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, instanceId, false))
                 .Returns(response);
@@ -49,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
             //Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator), null))
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
                 .ReturnsAsync("");
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, It.IsAny<string>(), false))
                 .Returns(response);

@@ -31,18 +31,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     /// <summary>
     /// The top-level orchestrator to check the employment status of apprentices.
     /// </summary>
-    public class ApprenticeEmploymentChecksOrchestrator
+    public class EmploymentChecksOrchestrator
     {
-        private const string ThisClassName = "\n\nApprenticeEmploymentChecksOrchestrator";
+        private const string ThisClassName = "\n\nEmploymentChecksOrchestrator";
 
-        private ILogger<ApprenticeEmploymentChecksOrchestrator> _logger;
+        private ILogger<EmploymentChecksOrchestrator> _logger;
 
         /// <summary>
         /// The ApprenticeEmploymentChecksOrchestrator orchestrator constructor, used to initialise the logging component.
         /// </summary>
         /// <param name="logger"></param>
-        public ApprenticeEmploymentChecksOrchestrator(
-            ILogger<ApprenticeEmploymentChecksOrchestrator> logger)
+        public EmploymentChecksOrchestrator(
+            ILogger<EmploymentChecksOrchestrator> logger)
         {
             _logger = logger;
         }
@@ -52,8 +52,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         /// </summary>
         /// <param name="context"></param>
         /// <returns>Task</returns>
-        [FunctionName(nameof(ApprenticeEmploymentChecksOrchestrator))]
-        public async Task ApprenticeEmploymentChecksOrchestratorTask(
+        [FunctionName(nameof(EmploymentChecksOrchestrator))]
+        public async Task EmploymentChecksOrchestratorTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = $"{ThisClassName}.ApprenticeEmploymentChecksOrchestrator()";
@@ -64,13 +64,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
 #if DEBUG
-                //await context.CallSubOrchestratorAsync(nameof(ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator), 0);
+                await context.CallSubOrchestratorAsync(nameof(SeedEmploymentCheckTestDataOrchestrator), 0);
 #endif
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                await context.CallSubOrchestratorAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), 0);
+                //await context.CallSubOrchestratorAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), 0);
 
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                await context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator), 0);
+                //await context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksOrchestrator), 0);
 
                 //var createApprenticeEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(CreateApprenticeEmploymentChecksOrchestrator), 0);
                 //var processApprenticeEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessApprenticeEmploymentChecksOrchestrator), 0);

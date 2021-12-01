@@ -35,18 +35,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     /// <summary>
     /// The orchestrator that gets the apprentices that require an employment check.
     /// </summary>
-    public class CreateApprenticeEmploymentChecksOrchestrator
+    public class GetEmploymentChecksOrchestrator
     {
-        private const string ThisClassName = "\n\nCreateApprenticeEmploymentChecksOrchestrator";
+        private const string ThisClassName = "\n\nGetEmploymentChecksOrchestrator";
 
-        private ILogger<CreateApprenticeEmploymentChecksOrchestrator> _logger;
+        private ILogger<GetEmploymentChecksOrchestrator> _logger;
 
         /// <summary>
         /// The CreateApprenticeEmploymentChecksOrchestrator constructor, used to initialise the logging component.
         /// </summary>
         /// <param name="logger"></param>
-        public CreateApprenticeEmploymentChecksOrchestrator(
-            ILogger<CreateApprenticeEmploymentChecksOrchestrator> logger)
+        public GetEmploymentChecksOrchestrator(
+            ILogger<GetEmploymentChecksOrchestrator> logger)
         {
             _logger = logger;
         }
@@ -56,11 +56,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         /// </summary>
         /// <param name="context"></param>
         /// <returns>Task</returns>
-        [FunctionName(nameof(CreateApprenticeEmploymentChecksOrchestrator))]
-        public async Task CreateApprenticeEmploymentChecksSubOrchestratorTask(
+        [FunctionName(nameof(GetEmploymentChecksOrchestrator))]
+        public async Task GetEmploymentChecksOrchestratorTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{ThisClassName}.CreateApprenticeEmploymentChecksSubOrchestratorTask()";
+            var thisMethodName = $"{ThisClassName}.GetEmploymentChecksOrchestratorTask()";
 
             try
             {
@@ -68,22 +68,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 // Get the apprentices requiring an employment check (we have to await this call as we can't do anything else until we have the list of apprentices)
-                var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<EmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
+                var employmentChecks = await context.CallActivityAsync<IList<EmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
 
                 // If we got a batch of apprentices then lookup the Nino and Paye Schemes otherwise sleep for a while before repeating the execution
-                if (apprenticeEmploymentChecks.Count > 0)
+                if (employmentChecks.Count > 0)
                 {
                     // Get the apprentices National Insurance Numbers
-                    var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprenticeEmploymentChecks);
+                    var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), employmentChecks);
 
                     // Get the apprentices employer PAYE schemes
-                    var getPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), apprenticeEmploymentChecks);
+                    var getPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), employmentChecks);
 
                     // Wait for the NI numbers and PAYE schemes calls to finish before proceeding to add the data to the db message queue
                     await Task.WhenAll(getNationalInsuranceNumbersTask, getPayeSchemesTask);
 
                     // We now have all the data we need for the employment check so create a message on the message queue ready for the employment check orchestrator to process
-                    await context.CallActivityAsync<int>(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity), new EmploymentCheckData(apprenticeEmploymentChecks, getNationalInsuranceNumbersTask.Result, getPayeSchemesTask.Result));
+                    await context.CallActivityAsync<int>(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity), new EmploymentCheckData(employmentChecks, getNationalInsuranceNumbersTask.Result, getPayeSchemesTask.Result));
                 }
                 else
                 {

@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
             var sut = new Functions.AzureFunctions.Triggers.EmploymentCheckTimer();
             var instanceId = "test";
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator), null))
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
                 .ReturnsAsync(instanceId);
 
             //Act

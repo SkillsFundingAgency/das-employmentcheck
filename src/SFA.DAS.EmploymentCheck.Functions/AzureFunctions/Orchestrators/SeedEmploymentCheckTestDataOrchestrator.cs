@@ -10,22 +10,22 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
-    public class ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator
+    public class SeedEmploymentCheckTestDataOrchestrator
     {
-        private const string ThisClassName = "\n\nApprenticeEmploymentChecksSeedDatabaseSubOrchestrator";
-        private ILogger<ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator> _logger;
+        private const string ThisClassName = "\n\nSeedEmploymentCheckTestDataOrchestrator";
+        private ILogger<SeedEmploymentCheckTestDataOrchestrator> _logger;
 
-        public ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator(
-            ILogger<ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator> logger)
+        public SeedEmploymentCheckTestDataOrchestrator(
+            ILogger<SeedEmploymentCheckTestDataOrchestrator> logger)
         {
             _logger = logger;
         }
 
-        [FunctionName(nameof(ApprenticeEmploymentCheckSeedDatabaseTestDataSubOrchestrator))]
-        public async Task SeedEmploymentCheckTestDataSubOrchestratorTask(
+        [FunctionName(nameof(SeedEmploymentCheckTestDataOrchestrator))]
+        public async Task SeedEmploymentCheckTestDataOrchestratorTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{ThisClassName}.ApprenticeEmploymentChecksSeedDatabaseSubOrchestrator()";
+            var thisMethodName = $"{ThisClassName}.SeedEmploymentCheckTestDataOrchestratorTask()";
 
             try
             {
