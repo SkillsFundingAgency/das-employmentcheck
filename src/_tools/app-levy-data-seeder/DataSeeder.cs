@@ -73,8 +73,8 @@ namespace app_levy_data_seeder
 
             Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
             Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");
+            Console.WriteLine($"Seeding [dbo].[EmploymentChecks] table only: {_options.SeedEmploymentChecksOnly}");
         }
-
 
         public  async Task SeedData()
         {
@@ -105,6 +105,8 @@ namespace app_levy_data_seeder
 
                 var checkId = await _dataAccess.Insert(check);
 
+                if (_options.SeedEmploymentChecksOnly) continue;
+                
                 var queue = new ApprenticeEmploymentCheckMessageQueue
                 {
                     MessageId =  Guid.NewGuid(),
