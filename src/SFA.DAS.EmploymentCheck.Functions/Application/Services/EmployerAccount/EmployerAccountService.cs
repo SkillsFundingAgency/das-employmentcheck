@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             AccountDetailViewModel accountDetailViewModel = null;
             try
             {
-                accountDetailViewModel = await _accountsApiClient.Get<AccountDetailViewModel>($"{_accountsApiSettings.BaseUrl}api/accounts/internal/{accountId})");
+                accountDetailViewModel = await _accountsApiClient.Get<AccountDetailViewModel>($"{_accountsApiSettings.BaseUrl}api/accounts/{accountId}/payeschemes)");
                 if(accountDetailViewModel != null && accountDetailViewModel.PayeSchemes != null && accountDetailViewModel.PayeSchemes.Count > 0)
                 {
                     _logger.LogInformation($"{thisMethodName}: returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes");
