@@ -4,7 +4,7 @@
     [MessageCreatedDateTime] DATETIME NOT NULL,
     [EmploymentCheckId] BIGINT NOT NULL,
     [Uln] BIGINT NOT NULL,
-    [NationalInsuranceNumber] VARCHAR(9) NOT NULL,
+    [NationalInsuranceNumber] VARCHAR(20) NOT NULL,
     [PayeScheme] VARCHAR(255) NOT NULL,
     [StartDateTime] DATETIME NOT NULL,
     [EndDateTime] DATETIME NOT NULL,

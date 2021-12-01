@@ -2,7 +2,7 @@
 (
     [Id] BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     [ULN] BIGINT NOT NULL,
-    [NationalInsuranceNumber] VARCHAR(9),
+    [NationalInsuranceNumber] VARCHAR(20),
     [UKPRN] BIGINT NULL,
     [ApprenticeshipId] BIGINT NULL,
     [AccountId] BIGINT NULL,
