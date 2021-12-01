@@ -7,8 +7,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using System.Linq;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {

@@ -180,7 +180,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 }
                 else
                 {
-                    logger.LogError($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
+                    logger.LogInformation($"{thisMethodName}: Database query returned [0] apprentices requiring employment check.");
                     apprenticeEmploymentCheckModels = new List<ApprenticeEmploymentCheckModel>(); // return an empty list rather than null
                 }
             }

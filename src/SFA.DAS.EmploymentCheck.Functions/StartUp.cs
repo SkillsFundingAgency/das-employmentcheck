@@ -8,6 +8,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
 using System.IO;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
@@ -69,6 +70,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // Application Settings
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
+
+            //DC Api Settings
+            builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>().Value);
 
             // HmrcAuthTokenService Settings
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
