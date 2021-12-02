@@ -61,9 +61,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                 result = await _dcTokenService.GetTokenAsync(
                     $"https://login.microsoftonline.com/{_dcApiSettings.Tenant}",
                     "client_credentials",
-                    _dcApiSettings.SecretValue,
+                    _dcApiSettings.ClientSecret,
                     _dcApiSettings.ClientId,
-                    _dcApiSettings.Scope);
+                    _dcApiSettings.IdentifierUri);
             }
             catch (Exception ex)
             {
