@@ -19,8 +19,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddNLog();
-            builder.Services.AddOptions();
+            builder.Services
+                .AddNLog()
+                .AddOptions()
+                .AddApprenticeshipLevyApiClient()
+                .AddHashingService();
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -80,7 +83,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
             builder.Services.AddEmploymentCheckService(config["EnvironmentName"]);
-
         }
     }
 }

@@ -96,6 +96,7 @@ namespace app_levy_data_seeder
             foreach (var data in SourceData)
             {
                 i++;
+                var now = DateTime.Now;
 
                 var check = new EmploymentChecks
                 {
@@ -109,8 +110,8 @@ namespace app_levy_data_seeder
                     CheckType = "StartDate+60",
                     IsEmployed = null,
                     HasBeenChecked = false,
-                    CreatedDate = DateTime.Now,
-                    LastUpdated = DateTime.Now
+                    CreatedDate = now,
+                    LastUpdated = now
                 };
                 
                 var checkId = await _dataAccess.Insert(check);
@@ -120,7 +121,7 @@ namespace app_levy_data_seeder
                 var queue = new ApprenticeEmploymentCheckMessageQueue
                 {
                     MessageId =  Guid.NewGuid(),
-                    MessageCreatedDateTime = DateTime.Now,
+                    MessageCreatedDateTime = now,
                     EmploymentCheckId = checkId,
                     Uln = check.ULN,
                     NationalInsuranceNumber = data.jsonBody.nino,

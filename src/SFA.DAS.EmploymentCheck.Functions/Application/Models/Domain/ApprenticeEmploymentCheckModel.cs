@@ -4,11 +4,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 {
     public class ApprenticeEmploymentCheckModel
     {
-        public ApprenticeEmploymentCheckModel() { }
-
         public ApprenticeEmploymentCheckModel(
             long id,
             long uln,
+            string nationalInsuranceNumber,
             long ukprn,
             long apprenticeshipId,
             long accountId,
@@ -22,6 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
         {
             Id = id;
             ULN = uln;
+            NationalInsuranceNumber = nationalInsuranceNumber;
             UKPRN = ukprn;
             ApprenticeshipId = apprenticeshipId;
             AccountId = accountId;
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
         public DateTime LastUpdated { get; set; }
 
         public DateTime CreatedDate { get; set; }
-
+      
         public bool HasBeenChecked { get; set; }
     }
 }

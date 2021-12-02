@@ -167,6 +167,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     apprenticeEmploymentCheckModels = apprenticeEmploymentChecksResult.Select(aec => new ApprenticeEmploymentCheckModel(
                         aec.Id,
                         aec.ULN,
+                        aec.NationalInsuranceNumber,
                         aec.UKPRN,
                         aec.ApprenticeshipId,
                         aec.AccountId,
