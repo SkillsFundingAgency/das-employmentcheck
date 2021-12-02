@@ -17,20 +17,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
     {
         private readonly ILogger<SubmitLearnerDataService> _logger;
         private readonly IDcTokenService _dcTokenService;
-        private readonly DcOAuthSettings _dcOAuthSettings;
         private readonly IHttpClientFactory _httpFactory;
         private readonly DcApiSettings _dcApiSettings;
 
         public SubmitLearnerDataService(
             ILogger<SubmitLearnerDataService> logger,
             IDcTokenService dcTokenService, 
-            IOptions<DcOAuthSettings> dcOAuthSettings, 
             IHttpClientFactory httpFactory,
             IOptions<DcApiSettings> dcApiSettings)
         {
             _logger = logger;
             _dcTokenService = dcTokenService;
-            _dcOAuthSettings = dcOAuthSettings.Value;
             _httpFactory = httpFactory;
             _dcApiSettings = dcApiSettings.Value;
         }
@@ -62,11 +59,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             try
             {
                 result = await _dcTokenService.GetTokenAsync(
-                    _dcOAuthSettings.TokenUrl,
-                    _dcOAuthSettings.GrantType,
-                    _dcOAuthSettings.SecretValue,
-                    _dcOAuthSettings.ClientId,
-                    _dcOAuthSettings.Scope);
+                    $"https://login.microsoftonline.com/{_dcApiSettings.Tenant}",
+                    "client_credentials",
+                    _dcApiSettings.ClientSecret,
+                    _dcApiSettings.ClientId,
+                    _dcApiSettings.IdentifierUri);
             }
             catch (Exception ex)
             {
@@ -84,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                var url = _dcApiSettings.LearnerNiAPi + "?ulns=" + learner.ULN;
+                var url = "/api/v1/ilr-data/learnersNi/2021?ulns=" + learner.ULN;
 
                 try
                 {
