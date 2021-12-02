@@ -21,23 +21,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             _logger = logger;
         }
 
-        public async Task<AccountDetailViewModel> GetEmployerAccount(long accountId)
+        public async Task<ResourceList> GetEmployerAccount(long accountId)
         {
-            var id = accountId + 1000;
-            var payScheme = "PayeScheme" + id.ToString();
-
-            var accountDetailViewModel = new AccountDetailViewModel
+            return await Task.FromResult(new ResourceList(new List<ResourceViewModel>
             {
-                AccountId = accountId,
-                StartingTransferAllowance = 1m,
-                RemainingTransferAllowance = 1m,
-                PayeSchemes = new ResourceList(new List<ResourceViewModel>
-                        {
-                            new ResourceViewModel { Id = (accountId + 1000).ToString(), Href = payScheme }
-                        })
-            };
-
-            return await Task.FromResult(accountDetailViewModel);
+                new ResourceViewModel
+                {
+                    Id = (accountId + 1000).ToString(), Href = $"PayeScheme{accountId}"
+                }
+            }));
         }
 
         public async Task<AccountDetailViewModel> GetEmployerAccount2(long accountId)

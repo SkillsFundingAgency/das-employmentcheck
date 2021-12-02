@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             {
                 var token = GetDcToken().Result;
 
-                apprenticeNiNumbers = GetNiNumbers(apprentices, token).Result;
+                apprenticeNiNumbers = await GetNiNumbers(apprentices, token);
             }
             catch (Exception ex)
             {
@@ -74,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         private async Task<ApprenticeNiNumber> SendIndividualRequest(ApprenticeEmploymentCheckModel learner, AuthResult token)
         {
-            const string thisMethodName = "SubmitLearnerDataService.SendIndividualRequest()";
+            var thisMethodName = $"{nameof(SubmitLearnerDataService)}.SendIndividualRequest()";
 
             var checkedLearner = new ApprenticeNiNumber();
             using (var client = _httpFactory.CreateClient("LearnerNiApi"))
@@ -93,16 +93,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                         var result = await response.Content.ReadAsStreamAsync();
                         if (result.Length > 0)
                         {
-                            try
-                            {
-                                var checkedLearners = await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
-                                checkedLearner = checkedLearners.FirstOrDefault();
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(
-                                    $"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                            }
+                            var checkedLearners = await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
+                            checkedLearner = checkedLearners.FirstOrDefault();
                         }
                     }
                     else
@@ -119,33 +111,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             return checkedLearner;
         }
 
-        private async Task<List<ApprenticeNiNumber>> GetNiNumbers(IList<ApprenticeEmploymentCheckModel> learners, AuthResult token)
+        private async Task<IList<ApprenticeNiNumber>> GetNiNumbers(ICollection<ApprenticeEmploymentCheckModel> learners, AuthResult token)
         {
-            var thisMethodName = "SubmitLearnerDataService.GetNiNumbers()";
+            var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetNiNumbers()";
 
             _logger.LogInformation($"{thisMethodName}: Getting Ni Numbers for {learners.Count} apprentices");
 
-            Stopwatch timer = new Stopwatch();
+            var timer = new Stopwatch();
             timer.Start();
-            List<ApprenticeNiNumber> checkedLearners = new List<ApprenticeNiNumber>();
+            var checkedLearners = new List<ApprenticeNiNumber>();
 
-            int counter = 0;
             var taskList = new List<Task<ApprenticeNiNumber>>();
 
             foreach (var learner in learners)
             {
                 taskList.Add(SendIndividualRequest(learner, token));
 
-                counter++;
+                var responses = await Task.WhenAll(taskList);
+                checkedLearners.AddRange(responses);
 
-                if (counter == 10)
-                {
-                    var response = await Task.WhenAll(taskList);
-                    checkedLearners.AddRange(response);
-
-                    taskList.Clear();
-                    counter = 0;
-                }
+                taskList.Clear();
             }
 
             timer.Stop();

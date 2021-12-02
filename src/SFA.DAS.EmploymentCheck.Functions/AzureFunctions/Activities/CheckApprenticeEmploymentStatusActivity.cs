@@ -47,13 +47,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                     else
                     {
                         _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The checkApprenticeEmploymentStatusQueryResult value returned from the call to CheckApprenticeEmploymentStatusQueryRequest() is null.");
-                        updatedApprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                     }
                 }
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The input parameter apprenticeEmploymentCheckMessageModel is null.");
-                    updatedApprenticeEmploymentCheckMessageModel = new ApprenticeEmploymentCheckMessageModel(); // create a blank message for the Mediator result wrapper
                 }
 
             }

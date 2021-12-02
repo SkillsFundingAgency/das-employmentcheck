@@ -19,6 +19,7 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
 
@@ -38,13 +39,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // #if DEBUG
             // For local development use the Stubs
 
-           // serviceCollection.AddTokenServiceStubServices();
            // //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
            // serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
            // serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
            //// serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
@@ -58,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<IHmrcService, HmrcService>();
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 
@@ -75,6 +74,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
                     return new TokenServiceApiClient(config);
                 });
+            }
+            else
+            {
+                serviceCollection.AddTokenServiceStubServices();
             }
 
             return serviceCollection;

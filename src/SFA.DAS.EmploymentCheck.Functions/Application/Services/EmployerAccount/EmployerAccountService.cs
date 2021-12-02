@@ -23,17 +23,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             _logger = logger;
         }
 
-        public async Task<AccountDetailViewModel> GetEmployerAccount(long accountId) // TODO: rename to GetAccountPayeSchemes
+        public async Task<ResourceList> GetEmployerAccount(long accountId) // TODO: rename to GetAccountPayeSchemes
         {
             var thisMethodName = $"{nameof(EmployerAccountService)}.GetEmployerAccount()";
-
-            AccountDetailViewModel accountDetailViewModel = null;
+            
+            ResourceList accountDetailViewModel = null;
             try
             {
-                accountDetailViewModel = await _accountsApiClient.Get<AccountDetailViewModel>($"api/accounts/{_hashingService.HashValue(accountId)}/payeschemes");
-                if (accountDetailViewModel != null && accountDetailViewModel.PayeSchemes?.Count > 0)
+                accountDetailViewModel = await _accountsApiClient.Get<ResourceList>($"api/accounts/{_hashingService.HashValue(accountId)}/payeschemes");
+                if (accountDetailViewModel != null && accountDetailViewModel.Count > 0)
                 {
-                    _logger.LogInformation($"{thisMethodName}: returned {accountDetailViewModel.PayeSchemes.Count} PAYE schemes");
+                    _logger.LogInformation($"{thisMethodName}: returned {accountDetailViewModel.Count} PAYE schemes");
                 }
                 else
                 {

@@ -1,16 +1,13 @@
-﻿using System;
+﻿using Dapper;
+using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
-using DurableTask.Core;
-using Dynamitey.DynamicObjects;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -26,12 +23,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <summary>
         /// Gets a batch of the the apprentices requiring employment checks from the Employment Check database
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="connectionString"></param>
-        /// <param name="azureResource"></param>
-        /// <param name="batchSize"></param>
-        /// <param name="azureServiceTokenProvider"></param>
-        /// <returns>Task<IList<ApprenticeEmploymentCheckModel>></returns>
         public virtual async Task<IList<ApprenticeEmploymentCheckModel>> GetApprenticeEmploymentChecks_Base(
             ILogger logger,
             string connectionString,
@@ -154,7 +145,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         "FROM [dbo].[EmploymentChecks] " +
                         "WHERE Id > @employmentCheckLastGetId " +
                         "AND HasBeenChecked = 0 " +
-                        "ORDER BY CreatedDate DESC",
+                        "ORDER BY Id ASC",
                 param: parameters,
                 commandType: CommandType.Text);
 
@@ -188,7 +179,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastGetId failed - {ex.Message}. {ex.StackTrace}");
             }
 
             return apprenticeEmploymentCheckModels;
@@ -350,7 +341,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                 if (apprenticeEmploymentCheckMessageModel == null)
                 {
-                    logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel value returned from the call to GetApprenticeEmploymentCheckMessage_Base() is null.");
+                    logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The checkModel value returned from the call to GetApprenticeEmploymentCheckMessage_Base() is null.");
                 }
 
             }
@@ -381,11 +372,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var thisMethodName = $"{ThisClassName}.GetApprenticeEmploymentCheckMessage_Base()";
 
             ApprenticeEmploymentCheckMessageModel model = null;
-            SqlConnection sqlConnection = null;
 
             try
             {
-                await using (sqlConnection = await CreateSqlConnection(
+                await using (var sqlConnection = await CreateSqlConnection(
                     logger,
                     connectionString,
                     azureResource,
@@ -414,14 +404,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                            "ReturnCode, " +
                                            "ReturnMessage " +
                                            "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                           "ORDER BY MessageCreatedDateTime";
+                                           "ORDER BY MessageId";
 
                         model = (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(sql, commandType: CommandType.Text)).FirstOrDefault();
 
                         if (model == null)
                         {
                             logger.LogInformation(
-                                $"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel returned from the LINQ statement employmentCheckMessageModels.FirstOrDefault() is null.");
+                                $"{thisMethodName}: {ErrorMessagePrefix} The checkModel returned from the LINQ statement employmentCheckMessageModels.FirstOrDefault() is null.");
                         }
                     }
                     else
@@ -433,15 +423,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
             catch (Exception ex)
             {
-                logger.LogError(
-                    $"{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-            finally
-            {
-                if (sqlConnection != null)
-                {
-                    sqlConnection.Close();
-                }
+                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return model;
@@ -454,20 +436,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             string connectionString,
             string azureResource,
             AzureServiceTokenProvider azureServiceTokenProvider,
-            ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+            ApprenticeEmploymentCheckMessageModel checkModel)
         {
             var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckResult_Base()";
 
             try
             {
-                if (apprenticeEmploymentCheckMessageModel != null)
+                if (checkModel != null)
                 {
-                    var sqlConnection = await CreateSqlConnection(logger, connectionString, azureResource,
-                        azureServiceTokenProvider);
+                    var sqlConnection = await CreateSqlConnection(logger, connectionString, azureResource, azureServiceTokenProvider);
                     if (sqlConnection == null)
                     {
-                        logger.LogError(
-                            $"{thisMethodName}: {ErrorMessagePrefix} The sqlConnection value returned from CreateSqlConnection() is null.");
+                        logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} The sqlConnection value returned from CreateSqlConnection() is null.");
                     }
                     else
                     {
@@ -477,142 +457,104 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             var transaction = sqlConnection.BeginTransaction();
                             var parameters = new DynamicParameters();
 
-                            parameters.Add("id", apprenticeEmploymentCheckMessageModel.EmploymentCheckId, DbType.Int64);
-                            parameters.Add("messageId", apprenticeEmploymentCheckMessageModel.MessageId, DbType.Guid);
-                            parameters.Add("isEmployed", apprenticeEmploymentCheckMessageModel.IsEmployed,
-                                DbType.Boolean);
-                            parameters.Add("lastUpdated",
-                                apprenticeEmploymentCheckMessageModel.EmploymentCheckedDateTime, DbType.DateTime);
-                            parameters.Add("returnCode", apprenticeEmploymentCheckMessageModel.ReturnCode,
-                                DbType.String);
-                            parameters.Add("returnMessage", apprenticeEmploymentCheckMessageModel.ReturnMessage,
-                                DbType.String);
+                            parameters.Add("id", checkModel.EmploymentCheckId, DbType.Int64);
+                            parameters.Add("messageId", checkModel.MessageId, DbType.Guid);
+                            parameters.Add("isEmployed", checkModel.IsEmployed, DbType.Boolean);
+                            parameters.Add("lastUpdated", checkModel.EmploymentCheckedDateTime, DbType.DateTime);
+                            parameters.Add("returnCode", checkModel.ReturnCode, DbType.String);
+                            parameters.Add("returnMessage", checkModel.ReturnMessage, DbType.String);
                             parameters.Add("hasBeenChecked", true);
 
-                            await sqlConnection.OpenAsync();
 
-                            logger.LogInformation(
-                                $"{thisMethodName}: Updating row for ULN: {apprenticeEmploymentCheckMessageModel.Uln}.");
+                            logger.LogInformation($"{thisMethodName}: Updating row for ULN: {checkModel.Uln}.");
+
+                            try
                             {
+                                await sqlConnection.ExecuteAsync(
+                                    "UPDATE [dbo].[EmploymentChecks] SET " +
+                                    "IsEmployed = @isEmployed," +
+                                    "LastUpdated = @lastUpdated," +
+                                    "HasBeenChecked = @hasBeenChecked," +
+                                    "ReturnCode = @returnCode," +
+                                    "ReturnMessage = @returnMessage" +
+                                    " WHERE Id = @id",
+                                    parameters,
+                                    commandType: CommandType.Text,
+                                    transaction: transaction);
 
-                                try
-                                {
-                                    await sqlConnection.ExecuteAsync(
-                                        "UPDATE [dbo].[EmploymentChecks] SET " +
-                                        "IsEmployed = @isEmployed," +
-                                        "LastUpdated = @lastUpdated," +
-                                        "HasBeenChecked = @hasBeenChecked," +
-                                        "ReturnCode = @returnCode," +
-                                        "ReturnMessage = @returnMessage" +
-                                        " WHERE Id = @id",
-                                        parameters,
-                                        commandType: CommandType.Text,
-                                        transaction: transaction);
+                                // -------------------------------------------------------------------
+                                // Archive a copy of the employment check message for auditing
+                                // -------------------------------------------------------------------
+                                var checkHistoryModel = new ApprenticeEmploymentCheckMessageHistoryModel(checkModel);
 
-                                    // -------------------------------------------------------------------
-                                    // Archive a copy of the employment check message for auditing
-                                    // -------------------------------------------------------------------
-                                    var apprenticeEmploymentCheckMessageHistoryModel =
-                                        new ApprenticeEmploymentCheckMessageHistoryModel(
-                                            apprenticeEmploymentCheckMessageModel);
+                                parameters = new DynamicParameters();
+                                parameters.Add("@messageHistoryId", checkHistoryModel.MessageHistoryId = Guid.NewGuid(), DbType.Guid);
+                                parameters.Add("@messageHistoryCreatedDateTime", checkHistoryModel.MessageHistoryCreatedDateTime, DbType.DateTime);
+                                parameters.Add("@messageId", checkHistoryModel.MessageId, DbType.Guid);
+                                parameters.Add("@messageCreatedDateTime", checkHistoryModel.MessageCreatedDateTime, DbType.DateTime);
+                                parameters.Add("@employmentCheckId", checkHistoryModel.EmploymentCheckId, DbType.Int64);
+                                parameters.Add("@uln", checkHistoryModel.Uln, DbType.Int64);
+                                parameters.Add("@nationalInsuranceNumber", checkHistoryModel.NationalInsuranceNumber, DbType.String);
+                                parameters.Add("@payeScheme", checkHistoryModel.PayeScheme, DbType.String);
+                                parameters.Add("@startDateTime", checkHistoryModel.StartDateTime, DbType.DateTime);
+                                parameters.Add("@endDateTime", checkHistoryModel.EndDateTime, DbType.DateTime);
+                                parameters.Add("@employmentCheckedDateTime", checkHistoryModel.EmploymentCheckedDateTime, DbType.DateTime);
+                                parameters.Add("@isEmployed", checkHistoryModel.IsEmployed, DbType.Boolean);
+                                parameters.Add("@returnCode", checkHistoryModel.ReturnCode, DbType.String);
+                                parameters.Add("@returnMessage", checkHistoryModel.ReturnMessage, DbType.String);
 
-                                    var messageHistoryParameters = new DynamicParameters();
-                                    messageHistoryParameters.Add("@messageHistoryId",
-                                        apprenticeEmploymentCheckMessageHistoryModel.MessageHistoryId = Guid.NewGuid(),
-                                        DbType.Guid);
-                                    messageHistoryParameters.Add("@messageHistoryCreatedDateTime",
-                                        apprenticeEmploymentCheckMessageHistoryModel.MessageHistoryCreatedDateTime,
-                                        DbType.DateTime);
+                                await sqlConnection.ExecuteAsync(
+                                    "INSERT [dbo].[ApprenticeEmploymentCheckMessageQueueHistory] " +
+                                    "( " +
+                                    " [MessageHistoryId] " +
+                                    ",[MessageHistoryCreatedDateTime] " +
+                                    ",[MessageId] " +
+                                    ",[MessageCreatedDateTime] " +
+                                    ",[EmploymentCheckId] " +
+                                    ",[Uln] " +
+                                    ",[NationalInsuranceNumber] " +
+                                    ",[PayeScheme] " +
+                                    ",[StartDateTime] " +
+                                    ",[EndDateTime] " +
+                                    ",[EmploymentCheckedDateTime] " +
+                                    ",[IsEmployed] " +
+                                    ",[ReturnCode] " +
+                                    ",[ReturnMessage] " +
+                                    ") " +
+                                    "VALUES (" +
+                                    "@messageHistoryId" +
+                                    ",@messageHistoryCreatedDateTime" +
+                                    ",@messageId " +
+                                    ",@messageCreatedDateTime " +
+                                    ",@employmentCheckId " +
+                                    ",@uln " +
+                                    ",@nationalInsuranceNumber " +
+                                    ",@payeScheme " +
+                                    ",@startDateTime " +
+                                    ",@endDateTime" +
+                                    ",@EmploymentCheckedDateTime " +
+                                    ",@IsEmployed " +
+                                    ",@ReturnCode " +
+                                    ",@ReturnMessage)",
+                                    parameters,
+                                    commandType: CommandType.Text,
+                                    transaction: transaction);
 
-                                    messageHistoryParameters.Add("@messageId",
-                                        apprenticeEmploymentCheckMessageHistoryModel.MessageId, DbType.Guid);
-                                    messageHistoryParameters.Add("@messageCreatedDateTime",
-                                        apprenticeEmploymentCheckMessageHistoryModel.MessageCreatedDateTime,
-                                        DbType.DateTime);
-                                    messageHistoryParameters.Add("@employmentCheckId",
-                                        apprenticeEmploymentCheckMessageHistoryModel.EmploymentCheckId, DbType.Int64);
-                                    messageHistoryParameters.Add("@uln",
-                                        apprenticeEmploymentCheckMessageHistoryModel.Uln, DbType.Int64);
-                                    messageHistoryParameters.Add("@nationalInsuranceNumber",
-                                        apprenticeEmploymentCheckMessageHistoryModel.NationalInsuranceNumber,
-                                        DbType.String);
-                                    messageHistoryParameters.Add("@payeScheme",
-                                        apprenticeEmploymentCheckMessageHistoryModel.PayeScheme, DbType.String);
-                                    messageHistoryParameters.Add("@startDateTime",
-                                        apprenticeEmploymentCheckMessageHistoryModel.StartDateTime, DbType.DateTime);
-                                    messageHistoryParameters.Add("@endDateTime",
-                                        apprenticeEmploymentCheckMessageHistoryModel.EndDateTime, DbType.DateTime);
-                                    messageHistoryParameters.Add("@employmentCheckedDateTime",
-                                        apprenticeEmploymentCheckMessageHistoryModel.EmploymentCheckedDateTime,
-                                        DbType.DateTime);
-                                    messageHistoryParameters.Add("@isEmployed",
-                                        apprenticeEmploymentCheckMessageHistoryModel.IsEmployed ?? false,
-                                        DbType.Boolean);
-                                    messageHistoryParameters.Add("@returnCode",
-                                        apprenticeEmploymentCheckMessageHistoryModel.ReturnCode, DbType.String);
-                                    messageHistoryParameters.Add("@returnMessage",
-                                        apprenticeEmploymentCheckMessageHistoryModel.ReturnMessage, DbType.String);
+                                parameters = new DynamicParameters();
+                                parameters.Add("messageId", checkModel.MessageId, DbType.Guid);
 
-                                    await sqlConnection.ExecuteAsync(
-                                        "INSERT [SFA.DAS.EmploymentCheck.Database].[dbo].[ApprenticeEmploymentCheckMessageQueueHistory] " +
-                                        "( " +
-                                        " [MessageHistoryId] " +
-                                        ",[MessageHistoryCreatedDateTime] " +
-                                        ",[MessageId] " +
-                                        ",[MessageCreatedDateTime] " +
-                                        ",[EmploymentCheckId] " +
-                                        ",[Uln] " +
-                                        ",[NationalInsuranceNumber] " +
-                                        ",[PayeScheme] " +
-                                        ",[StartDateTime] " +
-                                        ",[EndDateTime] " +
-                                        ",[EmploymentCheckedDateTime] " +
-                                        ",[IsEmployed] " +
-                                        ",[ReturnCode] " +
-                                        ",[ReturnMessage] " +
-                                        ") " +
-                                        "VALUES (" +
-                                        "@messageHistoryId" +
-                                        ",@messageHistoryCreatedDateTime" +
-                                        ",@messageId " +
-                                        ",@messageCreatedDateTime " +
-                                        ",@employmentCheckId " +
-                                        ",@uln " +
-                                        ",@nationalInsuranceNumber " +
-                                        ",@payeScheme " +
-                                        ",@startDateTime " +
-                                        ",@endDateTime" +
-                                        ",@EmploymentCheckedDateTime " +
-                                        ",@IsEmployed " +
-                                        ",@ReturnCode " +
-                                        ",@ReturnMessage)",
-                                        messageHistoryParameters,
-                                        commandType: CommandType.Text,
-                                        transaction: transaction);
+                                await sqlConnection.ExecuteAsync(
+                                    "DELETE [dbo].[ApprenticeEmploymentCheckMessageQueue] WHERE MessageId = @messageId",
+                                    parameters,
+                                    commandType: CommandType.Text,
+                                    transaction: transaction);
 
-                                    // -------------------------------------------------------------------
-                                    // Remove the employment check message from the queue
-                                    // -------------------------------------------------------------------
-                                    var messageParameters = new DynamicParameters();
-                                    messageParameters.Add("messageId", apprenticeEmploymentCheckMessageModel.MessageId,
-                                        DbType.Guid);
-
-                                    await sqlConnection.ExecuteAsync(
-                                        "DELETE [dbo].[ApprenticeEmploymentCheckMessageQueue] WHERE MessageId = @messageId",
-                                        messageParameters,
-                                        commandType: CommandType.Text,
-                                        transaction: transaction);
-
-                                    // -------------------------------------------------------------------
-                                    // Commit the transaction
-                                    // -------------------------------------------------------------------
-                                    transaction.Commit();
-                                }
-                                catch (Exception ex)
-                                {
-                                    transaction.Rollback();
-                                    logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
-                                }
+                                transaction.Commit();
+                            }
+                            catch (Exception ex)
+                            {
+                                transaction.Rollback();
+                                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
                             }
                         }
                     }
@@ -735,13 +677,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         }
                         else
                         {
-                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Creation of SQL Connection for the Employment Check Databasse failed.");
+                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Creation of SQL Connection for the Employment Check Database failed.");
                         }
                     }
                 }
                 else
                 {
-                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No apprentice employment check queue messaages to store.");
+                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No apprentice employment check queue messages to store.");
                 }
             }
             catch (Exception ex)
@@ -822,7 +764,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 }
                 else
                 {
-                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No apprentice employment check queue messaages to store.");
+                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No apprentice employment check queue mesaages to store.");
                 }
             }
             catch (Exception ex)
@@ -917,13 +859,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     else
                     {
                         logger.LogInformation(
-                            $"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Databasse failed.");
+                            $"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Database failed.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
     }

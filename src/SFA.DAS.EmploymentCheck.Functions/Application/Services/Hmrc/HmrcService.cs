@@ -30,10 +30,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         public async Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
             ApprenticeEmploymentCheckMessageModel request)
         {
-            if (_cachedToken == null) await RetrieveAuthenticationToken();
-
             try
             {
+                if (_cachedToken == null) await RetrieveAuthenticationToken();
+
                 var policy = Policy
                     .Handle<UnauthorizedAccessException>()
                     .RetryAsync(
@@ -46,20 +46,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 request.IsEmployed = result.Employed;
                 request.ReturnCode = "200 (OK)";
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.NotFound)
+            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.NotFound)
             {
                 _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
                 request.IsEmployed = false;
                 request.ReturnCode = $"{e.HttpCode} (Not Found)";
                 request.ReturnMessage = e.ResourceUri;
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.TooManyRequests)
+            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
             {
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
                 request.ReturnCode = $"{e.HttpCode} (Too Many Requests)";
                 request.ReturnMessage = e.ResourceUri;
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.BadRequest)
+            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
             {
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Bad Request)");
                 request.ReturnCode = $"{e.HttpCode} (Bad Request)";
@@ -68,8 +68,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             catch (ApiHttpException e)
             {
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-                request.ReturnCode = $"{e.HttpCode} ({(HttpStatusCode)e.HttpCode})";
+                request.ReturnCode = $"{e.HttpCode} ({(HttpStatusCode) e.HttpCode})";
                 request.ReturnMessage = e.ResourceUri;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
+                request.ReturnCode = "HMRC API CALL ERROR";
+                request.ReturnMessage = e.Message;
             }
 
             return request;

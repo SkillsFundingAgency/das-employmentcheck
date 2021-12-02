@@ -71,8 +71,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
                 _logger.LogInformation($"\n\n{nameof(GetApprenticeEmploymentChecksActivity)} activity returned {apprenticeEmploymentChecks.Count} results");
 
-                if (!apprenticeEmploymentChecks.Any()) return;
-
                 // If we got a batch of apprentices then lookup the Nino and Paye Schemes otherwise sleep for a while before repeating the execution
                 if (apprenticeEmploymentChecks.Count > 0)
                 {
@@ -90,6 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 }
                 else
                 {
+                    _logger.LogInformation($"{thisMethodName}: No data found so sleep for 10 seconds then execute the orchestrator again");
                     // No data found so sleep for 10 seconds then execute the orchestrator again
                     DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);

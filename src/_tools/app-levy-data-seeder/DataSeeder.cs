@@ -111,7 +111,7 @@ namespace app_levy_data_seeder
                     ULN = Convert.ToInt64(_learners[i % _learners.Length].Split('\t')[0]),
                     ApprenticeshipId = 122 + i,
                     UKPRN = 10000000 + i,
-                    NationalInsuranceNumber = _learners[i % _learners.Length].Split('\t')[1],//data.jsonBody.nino,
+                   // NationalInsuranceNumber = _learners[i % _learners.Length].Split('\t')[1],//data.jsonBody.nino,
                     AccountId = Convert.ToInt64(_accounts[i % _accounts.Length]),
                     MinDate = data.jsonBody.fromDate,
                     MaxDate = data.jsonBody.toDate,

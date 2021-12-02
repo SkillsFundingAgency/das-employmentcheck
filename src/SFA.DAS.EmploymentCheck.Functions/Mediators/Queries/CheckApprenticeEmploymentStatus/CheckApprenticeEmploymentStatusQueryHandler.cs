@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus
 {
@@ -34,14 +32,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
         {
             var thisMethodName = $"{ThisClassName}.Handle()";
 
-            ApprenticeEmploymentCheckMessageModel ApprenticeEmploymentCheckMessageModelResult = null;
+            ApprenticeEmploymentCheckMessageModel result = null;
             try
             {
                 if (request != null &&
                     request.ApprenticeEmploymentCheckMessageModel != null)
                 {
                     // Call the application client to store the apprentices employment check queue messages
-                    ApprenticeEmploymentCheckMessageModelResult = await _hmrcClient.CheckApprenticeEmploymentStatus_Client(request.ApprenticeEmploymentCheckMessageModel);
+                    result = await _hmrcClient.CheckApprenticeEmploymentStatus_Client(request.ApprenticeEmploymentCheckMessageModel);
                 }
                 else
                 {
@@ -53,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmp
                 _logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return new CheckApprenticeEmploymentStatusQueryResult(ApprenticeEmploymentCheckMessageModelResult);
+            return new CheckApprenticeEmploymentStatusQueryResult(result);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
             IList<ApprenticeEmploymentCheckModel> apprentices)
         {
-            var thisMethodName = "GetApprenticesNiNumberClient.Get()";
+            var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes()";
 
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try
@@ -36,26 +36,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                 {
                     foreach (var apprentice in apprentices)
                     {
-                        Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{apprentice.AccountId}] (apprentice ULN [{apprentice.ULN}]).");
-                        var accountDetailViewModel = await _employerAccountService.GetEmployerAccount(apprentice.AccountId);
+                        Log.WriteLog(_logger, thisMethodName, $"Getting PAYE schemes for employer account [{apprentice.AccountId}] (apprentice ULN [{apprentice.ULN}]).");
+                        var payeSchemes = await _employerAccountService.GetEmployerAccount(apprentice.AccountId);
 
-                        if (accountDetailViewModel != null &&
-                            accountDetailViewModel.PayeSchemes != null &&
-                            accountDetailViewModel.PayeSchemes.Count > 0)
+                        if (payeSchemes != null && payeSchemes.Count > 0)
                         {
-                            employerPayeSchemes.Add(new EmployerPayeSchemes(apprentice.AccountId, accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList()));
+                            employerPayeSchemes.Add(new EmployerPayeSchemes(apprentice.AccountId, payeSchemes.Select(x => x.Id).ToList()));
                         }
                         else
                         {
                             _logger.LogInformation($"{thisMethodName}: ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved");
-                            //Log.WriteLog(_logger, thisMethodName, "ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved.");
                         }
                     }
                 }
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved");
-                    //Log.WriteLog(_logger, thisMethodName, "ERROR: apprentices parameter is NULL, no employer PAYE schemes retrieved.");
                 }
             }
             catch (Exception ex)

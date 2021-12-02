@@ -11,10 +11,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator
     {
-        private readonly ILogger<ProcessApprenticeEmploymentChecksOrchestrator> _logger;
+        private readonly ILogger<ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator> _logger;
 
         public ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator(
-            ILogger<ProcessApprenticeEmploymentChecksOrchestrator> logger)
+            ILogger<ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator> logger)
         {
             _logger = logger;
         }
@@ -36,25 +36,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (apprenticeEmploymentCheckMessage == null)
                 {
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
-                   
-                    return;
+                    context.ContinueAsNew(null);
                 }
 
                 // Do the employment status check on this message
-                var result = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(
-                    nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
+                var result = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
+                if (result == null || result.EmploymentCheckId == 0)
+                {
 
-                // Save the employment status back to the database
-                await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
+                    _logger.LogError($"{nameof(CheckApprenticeEmploymentStatusActivity)} returned null result");
+                    
+                    context.ContinueAsNew(null);
+                }
 
-                // Execute RateLimiter
-                var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
+                if (result != null)
+                {
 
-                // Rate limiter delay between each call
-                var delay = context.CurrentUtcDateTime.Add(delayTimeSpan);
-                await context.CreateTimer(delay, CancellationToken.None);
+                    // Save the employment status back to the database
+                    await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
 
+                    // Execute RateLimiter
+                    var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
+
+                    // Rate limiter delay between each call
+                    var delay = context.CurrentUtcDateTime.Add(delayTimeSpan);
+                    await context.CreateTimer(delay, CancellationToken.None);
+                }
 
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)}: Completed.");
