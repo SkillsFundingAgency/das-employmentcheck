@@ -86,28 +86,29 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                 try
                 {
                     var response = await client.GetAsync(url);
-                    if (response.IsSuccessStatusCode)
+                    response.EnsureSuccessStatusCode();
+
+                    if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        if (response.StatusCode == HttpStatusCode.OK)
+                        var result = await response.Content.ReadAsStreamAsync();
+                        if (result.Length > 0)
                         {
-                            var result = await response.Content.ReadAsStreamAsync();
-                            if (result.Length > 0)
+                            try
                             {
-                                try
-                                {
-                                    var checkedLearners = await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
-                                    checkedLearner = checkedLearners.FirstOrDefault();
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                                }
+                                var checkedLearners = await JsonSerializer.DeserializeAsync<List<ApprenticeNiNumber>>(result);
+                                checkedLearner = checkedLearners.FirstOrDefault();
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(
+                                    $"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
                             }
                         }
-                        else
-                        {
-                            checkedLearner.ULN = learner.ULN;
-                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"\n\n{thisMethodName}: response code received from LearnerNiApi is {response.StatusCode}");
+                        checkedLearner.ULN = learner.ULN;
                     }
                 }
                 catch (Exception ex)

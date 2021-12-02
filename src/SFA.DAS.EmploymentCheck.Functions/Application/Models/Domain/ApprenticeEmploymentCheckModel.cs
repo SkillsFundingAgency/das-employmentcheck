@@ -4,6 +4,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 {
     public class ApprenticeEmploymentCheckModel
     {
+        public ApprenticeEmploymentCheckModel() { }
+
         public ApprenticeEmploymentCheckModel(
             long id,
             long uln,

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using DurableTask.Core;
 using Dynamitey.DynamicObjects;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
@@ -645,15 +646,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         var apprenticeEmploymentCheckMessage = new ApprenticeEmploymentCheckMessageModel();
 
                         // Get the National Insurance Number for this apprentice
-                        var nationalInsuranceNumber = apprenticeEmploymentData.ApprenticeNiNumbers.Where(ninumber => ninumber.ULN == apprentice.ULN).FirstOrDefault().NationalInsuranceNumber;
-
+                        var apprenticeNiNumber = apprenticeEmploymentData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.ULN == apprentice.ULN);
+                        if (apprenticeNiNumber == null)
+                        {
+                            logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} {nameof(apprenticeNiNumber)} is null.");
+                            continue;
+                        }
+                        var nationalInsuranceNumber = apprenticeNiNumber.NationalInsuranceNumber;
+                       
                         // Get the employer paye schemes for this apprentices
-                        var employerPayeSchemes = apprenticeEmploymentData.EmployerPayeSchemes.Where(ps => ps.EmployerAccountId == apprentice.AccountId).FirstOrDefault();
-
+                        var employerPayeSchemes = apprenticeEmploymentData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == apprentice.AccountId);
                         if (employerPayeSchemes == null)
                         {
-                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} employerPayeSchemes is null.");
-                            return apprenticeEmploymentCheckMessages;
+                            logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} {nameof(employerPayeSchemes)} is null.");
+                            continue;
                         }
 
                         // Create the individual message combinations for each paye scheme

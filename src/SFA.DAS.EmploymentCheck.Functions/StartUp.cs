@@ -21,9 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             builder.Services
                 .AddNLog()
-                .AddOptions()
-                .AddApprenticeshipLevyApiClient()
-                .AddHashingService();
+                .AddOptions();
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -82,7 +80,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
-            builder.Services.AddEmploymentCheckService(config["EnvironmentName"]);
+            builder.Services
+                .AddApprenticeshipLevyApiClient()
+                .AddHashingService()
+                .AddEmploymentCheckService(config["EnvironmentName"]);
         }
     }
 }
