@@ -15,6 +15,7 @@ namespace app_levy_data_seeder
         private static DataAccess _dataAccess;
         private static Options _options;
         private string[] _accounts;
+        private string[] _learners;
 
         public DataSeeder()
         {
@@ -61,7 +62,14 @@ namespace app_levy_data_seeder
             {
                 Console.WriteLine($"Found accounts list file: {accountsFile}");
                 _accounts = File.ReadAllLines(accountsFile);
-            } 
+            }
+
+            var learnersFile = hdDirectoryInWhichToSearch + "\\learners.txt";
+            if (File.Exists(learnersFile))
+            {
+                Console.WriteLine($"Found learners list file: {learnersFile}");
+                _learners = File.ReadAllLines(learnersFile);
+            }
         }
 
         private static void ReadSettings()
@@ -100,11 +108,11 @@ namespace app_levy_data_seeder
 
                 var check = new EmploymentChecks
                 {
-                    ULN = 1000000000 + i,
+                    ULN = Convert.ToInt64(_learners[i % _learners.Length].Split('\t')[0]),
                     ApprenticeshipId = 122 + i,
                     UKPRN = 10000000 + i,
-                    NationalInsuranceNumber = data.jsonBody.nino,
-                    AccountId = Convert.ToInt32(_accounts[i % _accounts.Length]),
+                    NationalInsuranceNumber = _learners[i % _learners.Length].Split('\t')[1],//data.jsonBody.nino,
+                    AccountId = Convert.ToInt64(_accounts[i % _accounts.Length]),
                     MinDate = data.jsonBody.fromDate,
                     MaxDate = data.jsonBody.toDate,
                     CheckType = "StartDate+60",
