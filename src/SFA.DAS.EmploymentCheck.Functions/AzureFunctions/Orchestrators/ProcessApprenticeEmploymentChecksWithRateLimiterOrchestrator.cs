@@ -44,7 +44,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                 if (result == null || result.EmploymentCheckId == 0)
                 {
-
                     _logger.LogError($"{nameof(CheckApprenticeEmploymentStatusActivity)} returned null result");
                     
                     context.ContinueAsNew(null);

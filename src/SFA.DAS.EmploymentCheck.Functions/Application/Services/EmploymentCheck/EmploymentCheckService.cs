@@ -121,9 +121,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     AzureResource,
                     _azureServiceTokenProvider);
 
-                if(apprenticeEmploymentCheckMessageModel == null)
+                if (apprenticeEmploymentCheckMessageModel == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The apprenticeEmploymentCheckMessageModel value returned from the call to DequeueApprenticeEmploymentCheckMessage_Base() is null.");
+                    _logger.LogInformation($"{thisMethodName}: The apprenticeEmploymentCheckMessageModel value returned from the call to DequeueApprenticeEmploymentCheckMessage_Base() is null.");
                 }
             }
             catch (Exception ex)

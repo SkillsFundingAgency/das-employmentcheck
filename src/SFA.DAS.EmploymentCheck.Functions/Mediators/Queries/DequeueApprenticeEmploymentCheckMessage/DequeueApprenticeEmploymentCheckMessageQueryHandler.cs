@@ -12,11 +12,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
         : IRequestHandler<DequeueApprenticeEmploymentCheckMessageQueryRequest,
             DequeueApprenticeEmploymentCheckMessageQueryResult>
     {
-        private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesQueryHandler";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
-
-        private IEmploymentCheckClient _employmentCheckClient;
-        private ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> _logger;
+        private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> _logger;
 
         public DequeueApprenticeEmploymentCheckMessageQueryHandler(
             IEmploymentCheckClient employmentCheckClient,
@@ -30,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
             DequeueApprenticeEmploymentCheckMessageQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = $"{ThisClassName}.Handle()";
+            var thisMethodName = $"{nameof(DequeueApprenticeEmploymentCheckMessageQueryHandler)}.Handle()";
 
             ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessage = null;
             try
@@ -40,12 +38,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueApprenticeE
 
                 if(apprenticeEmploymentCheckMessage == null)
                 {
-                    _logger.LogInformation($"{ThisClassName}: The value returned from DequeueApprenticeEmploymentCheckMessage_Client() is null.");
+                    _logger.LogInformation($"{thisMethodName}: The value returned from DequeueApprenticeEmploymentCheckMessage_Client() is null.");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{ThisClassName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new DequeueApprenticeEmploymentCheckMessageQueryResult(apprenticeEmploymentCheckMessage);
