@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Net;
@@ -13,12 +14,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     {
         private readonly IHmrcApiOptionsRepository _optionsRepository;
         private readonly ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> _logger;
+        private readonly HmrcApiRateLimiterOptions _options;
 
         public AdjustEmploymentCheckRateLimiterOptionsActivity(
             IHmrcApiOptionsRepository optionsRepository,
             ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> logger)
         {
             _optionsRepository = optionsRepository;
+            _options =  _optionsRepository.GetHmrcRateLimiterOptions().Result;
             _logger = logger;
         }
 
@@ -29,23 +32,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
             try
             {
-                var options = await _optionsRepository.GetHmrcRateLimiterOptions();
-
-                var tooManyRequests = string.Equals(input.ReturnCode, HttpStatusCode.TooManyRequests.ToString(),
+                var tooManyRequests = input.ReturnCode.Contains(HttpStatusCode.TooManyRequests.ToString(),
                     StringComparison.InvariantCultureIgnoreCase);
 
                 if (tooManyRequests)
                 {
-                    options.DelayInMs += options.DelayAdjustmentIntervalInMs;
-                    await _optionsRepository.IncreaseDelaySetting(options.DelayInMs);
+                    await _optionsRepository.IncreaseDelaySetting(_options);
                 }
                 else
                 {
-                    options.DelayInMs -= options.DelayAdjustmentIntervalInMs;
-                    await _optionsRepository.ReduceDelaySetting(Math.Max(0, options.DelayInMs));
+                    await _optionsRepository.ReduceDelaySetting(_options);
                 }
 
-                return await Task.FromResult(TimeSpan.FromMilliseconds(options.DelayInMs));
+                return await Task.FromResult(TimeSpan.FromMilliseconds(_options.DelayInMs));
             }
             catch (Exception ex)
             {
