@@ -3,14 +3,16 @@ using System;
 
 namespace app_levy_data_seeder.Models
 {
-    [Table("EmploymentChecks")]
-    public class EmploymentChecks
+    [Table("EmploymentCheck")]
+    public class EmploymentCheck
     {
         public long Id { get; set; }
 
-        public long ULN { get; set; }
+        public long CorrelationId { get; set; }
 
-        public long UKPRN { get; set; }
+        public string CheckType { get; set; }
+
+        public long Uln { get; set; }
 
         public long ApprenticeshipId { get; set; }
 
@@ -20,14 +22,10 @@ namespace app_levy_data_seeder.Models
 
         public DateTime MaxDate { get; set; }
 
-        public string CheckType { get; set; }
+        public bool? Employed { get; set; }
 
-        public bool? IsEmployed { get; set; }
+        public DateTime? CreatedOn { get; set; }
 
         public DateTime? LastUpdated { get; set; }
-
-        public DateTime? CreatedDate { get; set; }
-
-        public bool HasBeenChecked { get; set; }
     }
 }

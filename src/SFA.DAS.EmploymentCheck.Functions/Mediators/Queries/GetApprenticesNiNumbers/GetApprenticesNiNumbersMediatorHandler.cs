@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNu
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"{thisMethodName}Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new GetApprenticesNiNumberMediatorResult(apprenticeNiNumbers);

@@ -53,30 +53,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     {
                         await sqlConnection.OpenAsync();
 
-                        // Get the stored Id of the last item in the previous batch from the EmploymentCheckControlTable (if this is the first call then nothing will be returned and it will use the passed in value of zero)
-                        employmentCheckLastHighestBatchId = await GetEmploymentCheckLastHighestBatchId(logger, sqlConnection);
+                        // Get the Id of the last item in the previous batch
+                        employmentCheckLastHighestBatchId = await GetEmploymentCheckLastHighestBatchId(logger, sqlConnection, null);
 
                         // Get a batch of records starting from the last highest id
                         EmploymentCheckModels = await GetEmploymentCheckBatch(logger, sqlConnection, batchSize, employmentCheckLastHighestBatchId);
-
-                        if (EmploymentCheckModels != null &&
-                            EmploymentCheckModels.Count > 0)
-                        {
-                            // Save the new highest batch id in the control table
-                            employmentCheckLastHighestBatchId = EmploymentCheckModels.Max(aec => aec.Id);
-                            if (employmentCheckLastHighestBatchId > 0)
-                            {
-                                var savedEmploymentCheckGetId = await SaveEmploymentCheckLastHighestBatchId(
-                                    logger,
-                                    sqlConnection,
-                                    employmentCheckLastHighestBatchId);
-                            }
-                        }
-                        else
-                        {
-                            logger.LogInformation($"{thisMethodName}: The database call to get the GetEmploymentCheckBatch returned [0] results.");
-                            EmploymentCheckModels = new List<Models.Domain.EmploymentCheckModel>(); // return an empty result set rather than null which will report as an error in the calling method.
-                        }
                     }
                 }
             }
@@ -90,29 +71,40 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
         private async Task<long> GetEmploymentCheckLastHighestBatchId(
             ILogger logger,
-            SqlConnection sqlConnection)
+            SqlConnection sqlConnection,
+            SqlTransaction transaction)
         {
             var thisMethodName = $"{ThisClassName}.GetEmploymentCheckLastHighestBatchId()";
 
             long employmentCheckLastHighestBatchId = 0;
             try
             {
-                // Get the stored Id of the last item in the previous batch stored in the EmploymentCheckControlTable (if this is the first call then nothing will be returned and it will use the passed in value of \ero)
+                // Get the highest EmploymentCheckId from the message queue
+                // if there are no messages in the message queue
+                // Get the highest EmploymentCheckId from the message queue history
+                // if there are no messages in the message queue history
+                // use the default value of zero
                 logger.LogInformation($"{thisMethodName}: Getting the EmploymentCheckLastHighestBatchId");
-                var employmentCheckLastHighestBatchIdResult = await sqlConnection.QueryAsync<long>(
-                  sql: "SELECT TOP (1) EmploymentCheckLastHighestBatchId FROM [Business].[EmploymentCheckControlTable] WHERE RowId = 1",
-                  commandType: CommandType.Text);
+                employmentCheckLastHighestBatchId =
+                (
+                    await sqlConnection.QueryAsync<long>(
+                        sql: "SELECT ISNULL(MAX(EmploymentCheckId), 0) FROM [Cache].[EmploymentCheckMessageQueue] WITH (NOLOCK)",
+                        commandType: CommandType.Text, transaction: transaction)
+                ).FirstOrDefault();
 
-                // Extract the employmentCheckLastHighestBatchId for the resultset (if there was a resultset)
-                if (employmentCheckLastHighestBatchIdResult != null &&
-                    employmentCheckLastHighestBatchIdResult.Any())
+                if(employmentCheckLastHighestBatchId == 0)
                 {
-                    // A list was returned so get the item in the list which is the row from the control table which has a column holding the Id of the highest Id retrieved in the previous batch
-                    employmentCheckLastHighestBatchId = employmentCheckLastHighestBatchIdResult.FirstOrDefault();
+                    employmentCheckLastHighestBatchId =
+                    (
+                        await sqlConnection.QueryAsync<long>(
+                            sql: "SELECT ISNULL(MAX(EmploymentCheckId), 0) FROM [Cache].[EmploymentCheckMessageQueueHistory] WITH (NOLOCK)",
+                            commandType: CommandType.Text, transaction: transaction)
+                    ).FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the employmentCheckLastHighestBatchId failed - {ex.Message}. {ex.StackTrace}");
             }
 
@@ -189,71 +181,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return employmentCheckModels;
         }
 
-        private async Task<long> SaveEmploymentCheckLastHighestBatchId(
-            ILogger logger,
-            SqlConnection sqlConnection,
-            long employmentCheckLastHighestBatchId)
-        {
-            var thisMethodName = $"{ThisClassName}.SaveEmploymentCheckLastHighestBatchId()";
-
-            long updatedEmploymentCheckLastHighestBatchId = 0;
-            try
-            {
-                // On first use the control table will be empty and will need an insert rather than an update
-                var rowCountResult = await sqlConnection.QueryAsync<long>(
-                    sql: "SELECT COUNT(*) FROM [Business].[EmploymentCheckControlTable] WITH (NOLOCK)",
-                    commandType: CommandType.Text);
-
-                var rowCount = rowCountResult?.FirstOrDefault() ?? 0;
-
-                if (rowCount > 0)
-                {
-                    // Update the existing row(s)
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@employmentCheckLastHighestBatchId", employmentCheckLastHighestBatchId);
-
-                    // Update the highest id of the batch as the starting point for the next batch
-                    await sqlConnection.ExecuteAsync(
-                       sql: "UPDATE [Business].[EmploymentCheckControlTable] SET EmploymentCheckLastHighestBatchId = @employmentCheckLastHighestBatchId]",
-                       param: parameters,
-                       commandType: CommandType.Text);
-                }
-                else
-                {
-                    // insert a row
-                    // For the first call we set the employmentCheckLastHighestBatchId to zero to ensure we pick up the first batch
-                    employmentCheckLastHighestBatchId = 0;
-
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@employmentCheckLastHighestBatchId", employmentCheckLastHighestBatchId);
-
-                    await sqlConnection.ExecuteAsync(
-                       sql: "  INSERT [Business].[EmploymentCheckControlTable] ( " +
-                       "RowId, " +
-                       "EmploymentCheckLastHighestBatchId) " +
-                       "VALUES (" +
-                       "1, " +
-                       "@employmentCheckLastHighestBatchId)",
-                       param: parameters,
-                       commandType: CommandType.Text);
-                }
-
-                // Check the saved value matches the value we saved
-                updatedEmploymentCheckLastHighestBatchId = await GetEmploymentCheckLastHighestBatchId(logger, sqlConnection);
-
-                if (updatedEmploymentCheckLastHighestBatchId != employmentCheckLastHighestBatchId)
-                {
-                    logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The updatedEmploymentCheckLastHighestBatchId [{updatedEmploymentCheckLastHighestBatchId}] value return from SaveTheEmploymentCheckLastHighestBatchId() does not match the value saved [{employmentCheckLastHighestBatchId}].");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckLastHighestBatchId failed - {ex.Message}. {ex.StackTrace}");
-            }
-
-            return updatedEmploymentCheckLastHighestBatchId;
-        }
-
         /// <summary>
         /// Adds an employment check message to the HMRC API message queue
         /// Note: This abstract class makes it a requirement to implement this method in the Service and the ServiceStub and for local testing the ServiceStub will
@@ -287,7 +214,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     var employmentCheckMessages = await CreateEmploymentCheckMessages(logger, employmentCheckData);
 
-                    if(employmentCheckMessages != null)
+                    if(employmentCheckMessages != null && employmentCheckMessages.Any())
                     {
                         await StoreEmploymentCheckMessages(
                             logger,
@@ -401,18 +328,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         //       other instances aren't pulling the same message
 
                         const string sql = "SELECT TOP (1) " +
-                                           "MessageId, " +
-                                           "MessageCreatedDateTime, " +
+                                           "Id, " +
                                            "EmploymentCheckId, " +
                                            "Uln, " +
                                            "NationalInsuranceNumber, " +
                                            "PayeScheme, " +
-                                           "StartDateTime, " +
-                                           "EndDateTime, " +
-                                           "EmploymentCheckedDateTime, " +
-                                           "IsEmployed, " +
-                                           "ReturnCode, " +
-                                           "ReturnMessage " +
+                                           "MinDateTime, " +
+                                           "MaxDateTime, " +
+                                           "Employed, " +
+                                           "LastEmploymentCheck, " +
+                                           "ResponseId, " +
+                                           "ResponseMessage " +
                                            "FROM [Cache].[EmploymentCheckMessageQueue] " +
                                            "ORDER BY Id";
 
@@ -462,7 +388,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                         var transaction = sqlConnection.BeginTransaction();
                         {
-
                             try
                             {
                                 // -------------------------------------------------------------------
@@ -507,7 +432,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 await sqlConnection.ExecuteAsync(
                                     "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckMessageQueueHistory] " +
                                     "( " +
-                                    ",[MessageId] " +
+                                    " [MessageId] " +
                                     ",[EmploymentCheckId] " +
                                     ",[CorrelationId] " +
                                     ",[Uln] " +
@@ -523,7 +448,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     ",[CreatedOn] " +
                                     ") " +
                                     "VALUES (" +
-                                    ",@messageId " +
+                                    " @messageId " +
                                     ",@employmentCheckId " +
                                     ",@correlationId " +
                                     ",@uln " +
@@ -534,7 +459,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     ",@employed " +
                                     ",@lastEmploymentCheck " +
                                     ",@responseId " +
-                                    ",@responseMessage ",
+                                    ",@responseMessage " +
                                     ",@messageCreatedOn " +
                                     ",@createdOn)" +
                                     messageHistoryParameters,
@@ -561,7 +486,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             catch (Exception ex)
                             {
                                 transaction.Rollback();
-                                logger.LogInformation($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
                             }
                         }
                     }
@@ -593,21 +518,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     // Create an EmploymentCheckMessage for each combination of Uln, National Insurance Number and PayeSchemes.
                     // e.g. if an apprentices employer has 900 paye schemes then we need to create 900 messages for the given Uln and National Insurance Number
-                    // Note: Once we get a 'match' for a given Nino, PayeScheme, StartDate, EndDate from the HMRC API we could discard the remaining messages without calling the API if necessary
+                    // Note: Once we get a 'match' for a given Nino, PayeScheme, MinDate, MaxDate from the HMRC API we could discard the remaining messages without calling the API if necessary
                     // (at this point we don't know if we need to check all the payeschemes for a given apprentice just to ensure there's no match on multiple schemes)
                     foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
                     {
-                        var employmentCheckMessage = new EmploymentCheckMessage();
-
                         // Get the National Insurance Number for this apprentice
-                        var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.Where(ninumber => ninumber.Uln == employmentCheck.Uln).FirstOrDefault().NationalInsuranceNumber;
+                        var nationalInsuranceNumber = await LookupNationalInsuranceNumberInEmploymentData(logger, employmentCheck.Uln, employmentCheckData.ApprenticeNiNumbers);
+                        if(string.IsNullOrEmpty(nationalInsuranceNumber))
+                        {
+                            // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
+                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} No national insurance number found for apprentice Uln: [{employmentCheck.Uln}].");
+                            continue;
+                        }
 
                         // Get the employer paye schemes for this apprentices
-                        var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.Where(ps => ps.EmployerAccountId == employmentCheck.AccountId).FirstOrDefault();
+                        var employerPayeSchemes = await LookupPayeSchemeInEmploymentData(logger, employmentCheck.AccountId, employmentCheckData.EmployerPayeSchemes);
+                        if (employerPayeSchemes == null)
+                        {
+                            // No paye schems found for this apprentice so we're not able to do an employment and will need to skip this apprentice
+                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} No PAYE schemes found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
+                            continue;
+                        }
 
                         // Create the individual message combinations for each paye scheme
                         foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                         {
+                            var employmentCheckMessage = new EmploymentCheckMessage();
+
                             employmentCheckMessage.EmploymentCheckId = employmentCheck.Id;
                             employmentCheckMessage.Uln = employmentCheck.Uln;
                             employmentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
@@ -630,6 +567,44 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
 
             return await Task.FromResult(employmentCheckMessages);
+        }
+
+        private async Task<string> LookupNationalInsuranceNumberInEmploymentData(
+            ILogger logger,
+            long uln,
+            IList<ApprenticeNiNumber> apprenticeNiNumbers)
+        {
+            string nationalInsuranceNumber = string.Empty;
+
+            try
+            {
+                nationalInsuranceNumber = apprenticeNiNumbers.Where(ninumber => ninumber.Uln == uln).FirstOrDefault().NationalInsuranceNumber;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            return await Task.FromResult(nationalInsuranceNumber);
+        }
+
+        private async Task<EmployerPayeSchemes> LookupPayeSchemeInEmploymentData(
+            ILogger logger,
+            long accountId,
+            IList<EmployerPayeSchemes> employerPayeSchemesList)
+        {
+            EmployerPayeSchemes employerPayeSchemes = null;
+
+            try
+            {
+                 employerPayeSchemes = employerPayeSchemesList.Where(ps => ps.EmployerAccountId == accountId).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+
+            return await Task.FromResult(employerPayeSchemes);
         }
 
         /// <summary>
@@ -700,7 +675,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="connectionString"></param>
         /// <param name="azureResource"></param>
         /// <param name="azureServiceTokenProvider"></param>
-        /// <param name="employmentCheckMessageModel"></param>
+        /// <param name="employmentCheckMessage"></param>
         /// <returns>Task</returns>
         public virtual async Task StoreEmploymentCheckMessage(
             ILogger logger,
@@ -708,13 +683,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             SqlConnection sqlConnection,
             string azureResource,
             AzureServiceTokenProvider azureServiceTokenProvider,
-            EmploymentCheckMessage employmentCheckMessageModel)
+            EmploymentCheckMessage employmentCheckMessage)
         {
             var thisMethodName = $"{ThisClassName}.StoreEmploymentCheckMessage()";
 
             try
             {
-                if (employmentCheckMessageModel != null)
+                if (employmentCheckMessage != null)
                 {
                     if (sqlConnection == null)
                     {
@@ -727,52 +702,49 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         await sqlConnection.OpenAsync();
                     }
 
-                    var employmentCheckMessageQueueParameter = new DynamicParameters();
-                    employmentCheckMessageQueueParameter.Add("@employmentCheckId", employmentCheckMessageModel.EmploymentCheckId, DbType.Int64);
-                    employmentCheckMessageQueueParameter.Add("@correlationId", employmentCheckMessageModel.CorrelationId, DbType.Int64);
-                    employmentCheckMessageQueueParameter.Add("@uln", employmentCheckMessageModel.Uln, DbType.Int64);
-                    employmentCheckMessageQueueParameter.Add("@nationalInsuranceNumber", employmentCheckMessageModel.NationalInsuranceNumber, DbType.String);
-                    employmentCheckMessageQueueParameter.Add("@payeScheme", employmentCheckMessageModel.PayeScheme, DbType.String);
-                    employmentCheckMessageQueueParameter.Add("@minDateTime", employmentCheckMessageModel.MinDateTime, DbType.DateTime);
-                    employmentCheckMessageQueueParameter.Add("@maxDateTime", employmentCheckMessageModel.MaxDateTime, DbType.DateTime);
-                    employmentCheckMessageQueueParameter.Add("@employed", employmentCheckMessageModel.Employed ?? false, DbType.Boolean);
-                    employmentCheckMessageQueueParameter.Add("@lastEmploymentCheck", employmentCheckMessageModel.LastEmploymentCheck, DbType.DateTime);
-                    employmentCheckMessageQueueParameter.Add("@responseId", employmentCheckMessageModel.ResponseId, DbType.Int16);
-                    employmentCheckMessageQueueParameter.Add("@responseMessage", employmentCheckMessageModel.ResponseMessage, DbType.String);
-                    employmentCheckMessageQueueParameter.Add("@createdOn", employmentCheckMessageModel.CreatedOn, DbType.DateTime);
+                    var transaction = sqlConnection.BeginTransaction();
+                    {
+                        try
+                        {
+                            var parameter = new DynamicParameters();
+                            parameter.Add("@employmentCheckId", employmentCheckMessage.EmploymentCheckId, DbType.Int64);
+                            parameter.Add("@correlationId", employmentCheckMessage.CorrelationId, DbType.Int64);
+                            parameter.Add("@uln", employmentCheckMessage.Uln, DbType.Int64);
+                            parameter.Add("@nationalInsuranceNumber", employmentCheckMessage.NationalInsuranceNumber, DbType.String);
+                            parameter.Add("@payeScheme", employmentCheckMessage.PayeScheme, DbType.String);
+                            parameter.Add("@minDateTime", employmentCheckMessage.MinDateTime, DbType.DateTime);
+                            parameter.Add("@maxDateTime", employmentCheckMessage.MaxDateTime, DbType.DateTime);
+                            parameter.Add("@employed", employmentCheckMessage.Employed ?? false, DbType.Boolean);
+                            parameter.Add("@lastEmploymentCheck", employmentCheckMessage.LastEmploymentCheck, DbType.DateTime);
+                            parameter.Add("@responseId", employmentCheckMessage.ResponseId, DbType.Int16);
+                            parameter.Add("@responseMessage", employmentCheckMessage.ResponseMessage, DbType.String);
+                            parameter.Add("@createdOn", employmentCheckMessage.CreatedOn = DateTime.Now, DbType.DateTime);
 
-                    await sqlConnection.ExecuteAsync(
-                        "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckMessageQueue] " +
-                        "( " +
-                        ",[EmploymentCheckId] " +
-                        ",[CorrelationId] " +
-                        ",[Uln] " +
-                        ",[NationalInsuranceNumber] " +
-                        ",[PayeScheme] " +
-                        ",[MinDateTime] " +
-                        ",[MaxDateTime] " +
-                        ",[Employed] " +
-                        ",[LastEmploymentChecked] " +
-                        ",[ResponseId] " +
-                        ",[ResponseMessage] " +
-                        ",[LastUpdated] " +
-                        ",[CreatedOn] " +
-                        ") " +
-                        "VALUES (" +
-                        ",@employmentCheckId " +
-                        ",@correlationId " +
-                        ",@uln " +
-                        ",@nationalInsuranceNumber " +
-                        ",@payeScheme " +
-                        ",@minDateTime " +
-                        ",@maxDateTime" +
-                        ",@employed " +
-                        ",@lastEmploymentCheck " +
-                        ",@ResponseId " +
-                        ",@ResponseMessage ",
-                        ",@createdOn)" +
-                        employmentCheckMessageQueueParameter,
-                        commandType: CommandType.Text);
+                            await sqlConnection.ExecuteAsync(
+                                "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckMessageQueue] " +
+                                "       ( EmploymentCheckId,  CorrelationId, Uln,   NationalInsuranceNumber,  PayeScheme,  MinDateTime,  MaxDateTime,  Employed,  LastEmploymentCheck,  ResponseId,  ResponseMessage,  CreatedOn) " +
+                                "VALUES (@employmentCheckId, @correlationId, @uln, @nationalInsuranceNumber, @payeScheme, @minDateTime, @maxDateTime, @employed, @lastEmploymentCheck, @ResponseId, @ResponseMessage, @createdOn)",
+                                parameter,
+                                commandType: CommandType.Text,
+                                transaction: transaction);
+
+                            // TODO: Delete after testing using the highest Id on the message queues is successful
+                            // update the highest batch number in the control table
+                            //var savedEmploymentCheckGetId =
+                            //    await SaveEmploymentCheckLastHighestBatchId(
+                            //            logger,
+                            //            sqlConnection,
+                            //            transaction,
+                            //            employmentCheckMessage.EmploymentCheckId);
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            logger.LogError($"Exception caught - {ex.Message}. {ex.StackTrace}");
+                        }
+                    }
                 }
                 else
                 {

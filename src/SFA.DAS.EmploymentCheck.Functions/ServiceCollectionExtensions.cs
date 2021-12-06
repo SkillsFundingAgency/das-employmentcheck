@@ -13,6 +13,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -56,14 +57,20 @@ namespace SFA.DAS.EmploymentCheck.Functions
             });
 
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
-            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
-            serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 
-            serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
+            //serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
+            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
+            //serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
+            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
+            //serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
+
+            //serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
+            //erviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
+
+            //serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton(new AzureServiceTokenProvider());

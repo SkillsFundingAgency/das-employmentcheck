@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [Cache].[EmploymentCheckMessageQueue](
-	[Id] [bigint] NOT NULL,
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[EmploymentCheckId] [bigint] NOT NULL,
 	[CorrelationId] [bigint] NOT NULL,
 	[Uln] [bigint] NOT NULL,

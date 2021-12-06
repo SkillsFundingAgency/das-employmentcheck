@@ -23,7 +23,7 @@ namespace app_levy_data_seeder
             Console.WriteLine("Confirm these settings are correct by pressing [enter]:");
             Console.ReadLine();
         }
-      
+
         public async Task DoTheWork()
         {
             Console.WriteLine("Reading data...");
@@ -89,32 +89,32 @@ namespace app_levy_data_seeder
             {
                 i++;
 
-                var check = new EmploymentChecks
+                var check = new EmploymentCheck
                 {
-                    ULN = 1000000000 + i,
+                    CorrelationId = 0,
+                    Uln = 1000000000 + i,
                     ApprenticeshipId = 122 + i,
-                    UKPRN = 10000000 + i,
                     AccountId = i,
                     MinDate = data.jsonBody.fromDate,
                     MaxDate = data.jsonBody.toDate,
-                    CheckType = "StartDate+60",
-                    IsEmployed = null,
-                    HasBeenChecked = false,
-                    CreatedDate = DateTime.Now
+
+                    Employed = null,
+                    CreatedOn = DateTime.Now
                 };
 
                 var checkId = await _dataAccess.Insert(check);
 
-                var queue = new ApprenticeEmploymentCheckMessageQueue
+                var queue = new EmploymentCheckMessageQueue
                 {
-                    MessageId =  Guid.NewGuid(),
-                    MessageCreatedDateTime = DateTime.Now,
+                    Id =  check.Id,
                     EmploymentCheckId = checkId,
-                    Uln = check.ULN,
+                    CorrelationId = check.CorrelationId,
+                    Uln = check.Uln,
                     NationalInsuranceNumber = data.jsonBody.nino,
                     PayeScheme = data.jsonBody.empref.ToUpper(),
-                    StartDateTime = check.MinDate,
-                    EndDateTime = check.MaxDate
+                    MinDateTime = check.MinDate,
+                    MaxDateTime = check.MaxDate,
+                    Employed = check.Employed
                 };
 
                 await _dataAccess.Insert(queue);
@@ -124,15 +124,14 @@ namespace app_levy_data_seeder
 
         private static async Task ClearData()
         {
-           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
-           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
-           await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
-           await _dataAccess.DeleteAll("[dbo].[EmploymentChecksControlTable]");
-           await _dataAccess.DeleteAll("[dbo].[ExecutionTrace]");
+           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckMessageQueueHistory]");
+           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckMessageQueue]");
+           await _dataAccess.DeleteAll("[Business].[EmploymentChecks]");
+           await _dataAccess.DeleteAll("[Business].[EmploymentCheckControlTable]");
            await _dataAccess.DeleteAll("[employer_check].[DAS_SubmissionEvents]");
            await _dataAccess.DeleteAll("[employer_check].[LastProcessedEvent]");
         }
 
-        
+
     }
 }

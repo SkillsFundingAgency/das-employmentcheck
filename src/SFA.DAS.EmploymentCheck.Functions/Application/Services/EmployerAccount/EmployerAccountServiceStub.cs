@@ -23,8 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 
         public async Task<AccountDetailViewModel> GetEmployerAccount(long accountId)
         {
-            var id = accountId + 1000;
-            var payScheme = "PayeScheme" + id.ToString();
+            var payScheme = "PayeScheme" + accountId.ToString();
 
             var accountDetailViewModel = new AccountDetailViewModel
             {
@@ -33,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 RemainingTransferAllowance = 1m,
                 PayeSchemes = new ResourceList(new List<ResourceViewModel>
                         {
-                            new ResourceViewModel { Id = (accountId + 1000).ToString(), Href = payScheme }
+                            new ResourceViewModel { Id = (accountId).ToString(), Href = payScheme }
                         })
             };
 

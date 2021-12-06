@@ -66,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSch
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new GetEmployersPayeSchemesMediatorResult(employersPayeSchemes);
