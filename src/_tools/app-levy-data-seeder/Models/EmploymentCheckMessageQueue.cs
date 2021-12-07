@@ -27,7 +27,7 @@ namespace app_levy_data_seeder.Models
 
         public DateTime? LastEmploymentCheck { get; set; }
 
-        public string ResponseId { get; set; }
+        public string ResponseHttpStatusCode { get; set; }
 
         public string ResponseMessage { get; set; }
     }

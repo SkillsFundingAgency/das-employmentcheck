@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             DateTime maxDateTime,
             bool? employed,
             DateTime? lastEmploymentCheck,
-            short responseId,
+            short responseHttpStatusCode,
             string responseMessage,
             DateTime messageCreatedOn,
             DateTime createdOn)
@@ -39,7 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
                 MaxDateTime = maxDateTime;
                 LastEmploymentCheck = lastEmploymentCheck;
                 Employed = employed;
-                ResponseId = responseId;
+                ResponseHttpStatusCode = responseHttpStatusCode;
                 ResponseMessage = responseMessage;
                 MessageCreatedOn = messageCreatedOn;
                 CreatedOn = DateTime.UtcNow;
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             MaxDateTime = employmentCheckMessageModel.MaxDateTime;
             Employed = employmentCheckMessageModel.Employed;
             LastEmploymentCheck = employmentCheckMessageModel.LastEmploymentCheck;
-            ResponseId = employmentCheckMessageModel.ResponseHttpStatusCode;
+            ResponseHttpStatusCode = employmentCheckMessageModel.ResponseHttpStatusCode;
             ResponseMessage = employmentCheckMessageModel.ResponseMessage;
             MessageCreatedOn = employmentCheckMessageModel.CreatedOn;
             CreatedOn = DateTime.UtcNow;
@@ -90,7 +90,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 
         public DateTime? LastEmploymentCheck { get; set; }
 
-        public short ResponseId { get; set; }
+        public short ResponseHttpStatusCode { get; set; }
 
         public string ResponseMessage { get; set; }
 

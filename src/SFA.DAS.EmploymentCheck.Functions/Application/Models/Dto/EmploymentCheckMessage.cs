@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
             DateTime maxDateTime,
             bool? employed,
             DateTime? lastEmploymentCheck,
-            short responseId,
+            short responseHttpStatusCode,
             string responseMessage,
             DateTime lastUpdated,
             DateTime createdOn)
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
                 MaxDateTime = maxDateTime;
                 Employed = employed;
                 LastEmploymentCheck = lastEmploymentCheck;
-                ResponseHttpStatusCode = responseId;
+                ResponseHttpStatusCode = responseHttpStatusCode;
                 ResponseMessage = responseMessage;
                 LastUpdated = lastUpdated;
                 CreatedOn = createdOn;

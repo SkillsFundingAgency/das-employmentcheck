@@ -341,7 +341,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                            "MaxDateTime, " +
                                            "Employed, " +
                                            "LastEmploymentCheck, " +
-                                           "ResponseId, " +
+                                           "ResponseHttpStatusCode, " +
                                            "ResponseMessage " +
                                            "FROM [Cache].[EmploymentCheckMessageQueue] " +
                                            "ORDER BY Id";
@@ -428,7 +428,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 messageHistoryParameters.Add("@maxDateTime", employmentCheckMessageHistoryModel.MaxDateTime, DbType.DateTime);
                                 messageHistoryParameters.Add("@employed", employmentCheckMessageHistoryModel.Employed ?? false, DbType.Boolean);
                                 messageHistoryParameters.Add("@lastEmploymentCheck", employmentCheckMessageHistoryModel.LastEmploymentCheck, DbType.DateTime);
-                                messageHistoryParameters.Add("@responseId", employmentCheckMessageHistoryModel.ResponseId, DbType.Int16);
+                                messageHistoryParameters.Add("@responseHttpStatusCode", employmentCheckMessageHistoryModel.ResponseHttpStatusCode, DbType.Int16);
                                 messageHistoryParameters.Add("@responseMessage", employmentCheckMessageHistoryModel.ResponseMessage, DbType.String);
                                 messageHistoryParameters.Add("@messageCreatedOn", employmentCheckMessageHistoryModel.MessageCreatedOn, DbType.DateTime);
                                 messageHistoryParameters.Add("@createdOn", employmentCheckMessageHistoryModel.CreatedOn, DbType.DateTime);
@@ -446,7 +446,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     ",[MaxDateTime] " +
                                     ",[Employed] " +
                                     ",[LastEmploymentChecked] " +
-                                    ",[ResponseId] " +
+                                    ",[ResponseHttpStatusCode] " +
                                     ",[ResponseMessage] " +
                                     ",[MessageCreatedOn] " +
                                     ",[CreatedOn] " +
@@ -462,7 +462,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     ",@maxDateTime" +
                                     ",@employed " +
                                     ",@lastEmploymentCheck " +
-                                    ",@responseId " +
+                                    ",@responseHttpStatusCode " +
                                     ",@responseMessage " +
                                     ",@messageCreatedOn " +
                                     ",@createdOn)" +
@@ -736,14 +736,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             parameter.Add("@maxDateTime", employmentCheckMessage.MaxDateTime, DbType.DateTime);
                             parameter.Add("@employed", employmentCheckMessage.Employed ?? false, DbType.Boolean);
                             parameter.Add("@lastEmploymentCheck", employmentCheckMessage.LastEmploymentCheck, DbType.DateTime);
-                            parameter.Add("@responseId", employmentCheckMessage.ResponseHttpStatusCode, DbType.Int16);
+                            parameter.Add("@responseHttpStatusCode", employmentCheckMessage.ResponseHttpStatusCode, DbType.Int16);
                             parameter.Add("@responseMessage", employmentCheckMessage.ResponseMessage, DbType.String);
                             parameter.Add("@createdOn", employmentCheckMessage.CreatedOn = DateTime.Now, DbType.DateTime);
 
                             await sqlConnection.ExecuteAsync(
                                 "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckMessageQueue] " +
-                                "       ( EmploymentCheckId,  CorrelationId, Uln,   NationalInsuranceNumber,  PayeScheme,  MinDateTime,  MaxDateTime,  Employed,  LastEmploymentCheck,  ResponseId,  ResponseMessage,  CreatedOn) " +
-                                "VALUES (@employmentCheckId, @correlationId, @uln, @nationalInsuranceNumber, @payeScheme, @minDateTime, @maxDateTime, @employed, @lastEmploymentCheck, @ResponseId, @ResponseMessage, @createdOn)",
+                                "       ( EmploymentCheckId,  CorrelationId, Uln,   NationalInsuranceNumber,  PayeScheme,  MinDateTime,  MaxDateTime,  Employed,  LastEmploymentCheck,  ResponseHttpStatusCode,  ResponseMessage,  CreatedOn) " +
+                                "VALUES (@employmentCheckId, @correlationId, @uln, @nationalInsuranceNumber, @payeScheme, @minDateTime, @maxDateTime, @employed, @lastEmploymentCheck, @ResponseHttpStatusCode, @ResponseMessage, @createdOn)",
                                 parameter,
                                 commandType: CommandType.Text,
                                 transaction: transaction);
