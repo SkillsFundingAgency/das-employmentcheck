@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
             IList<Models.Domain.EmploymentCheckModel> employmentCheckModels)
         {
-            var thisMethodName = "EmployerAccountClient.GetEmployersPayeSchemes()";
+            var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes()";
 
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try
@@ -39,9 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                         Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{employmentCheckModel.AccountId}] (apprentice ULN [{employmentCheckModel.Uln}]).");
                         var accountDetailViewModel = await _employerAccountService.GetEmployerAccount(employmentCheckModel.AccountId);
 
-                        if (accountDetailViewModel != null &&
-                            accountDetailViewModel.PayeSchemes != null &&
-                            accountDetailViewModel.PayeSchemes.Count > 0)
+                        if (payeSchemes != null && payeSchemes.Count > 0)
                         {
                             employerPayeSchemes.Add(new EmployerPayeSchemes(employmentCheckModel.AccountId, accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList()));
                         }

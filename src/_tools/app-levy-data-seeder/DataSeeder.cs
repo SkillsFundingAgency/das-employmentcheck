@@ -14,6 +14,8 @@ namespace app_levy_data_seeder
         public IList<InputData> SourceData = new List<InputData>();
         private static DataAccess _dataAccess;
         private static Options _options;
+        private string[] _accounts;
+        private string[] _learners;
 
         public DataSeeder()
         {
@@ -54,6 +56,20 @@ namespace app_levy_data_seeder
                     }
                 }
             }
+
+            var accountsFile = hdDirectoryInWhichToSearch + "\\accounts.txt";
+            if (File.Exists(accountsFile))
+            {
+                Console.WriteLine($"Found accounts list file: {accountsFile}");
+                _accounts = File.ReadAllLines(accountsFile);
+            }
+
+            var learnersFile = hdDirectoryInWhichToSearch + "\\learners.txt";
+            if (File.Exists(learnersFile))
+            {
+                Console.WriteLine($"Found learners list file: {learnersFile}");
+                _learners = File.ReadAllLines(learnersFile);
+            }
         }
 
         private static void ReadSettings()
@@ -73,8 +89,8 @@ namespace app_levy_data_seeder
 
             Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
             Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");
+            Console.WriteLine($"Seeding [dbo].[EmploymentChecks] table only: {_options.SeedEmploymentChecksOnly}");
         }
-
 
         public  async Task SeedData()
         {
@@ -88,23 +104,27 @@ namespace app_levy_data_seeder
             foreach (var data in SourceData)
             {
                 i++;
+                var now = DateTime.Now;
 
                 var check = new EmploymentCheck
                 {
-                    CorrelationId = 0,
-                    Uln = 1000000000 + i,
+                    Uln = Convert.ToInt64(_learners[i % _learners.Length].Split('\t')[0]),
                     ApprenticeshipId = 122 + i,
-                    AccountId = i,
+                   // NationalInsuranceNumber = _learners[i % _learners.Length].Split('\t')[1],//data.jsonBody.nino,
+                    AccountId = Convert.ToInt64(_accounts[i % _accounts.Length]),
                     MinDate = data.jsonBody.fromDate,
                     MaxDate = data.jsonBody.toDate,
-
+                    CheckType = "StartDate+60",
                     Employed = null,
-                    CreatedOn = DateTime.Now
+                    CreatedOn = now,
+                    LastUpdated = now
                 };
-
+                
                 var checkId = await _dataAccess.Insert(check);
 
-                var queue = new EmploymentCheckMessageQueue
+                if (_options.SeedEmploymentChecksOnly) continue;
+                
+                var queue = new ApprenticeEmploymentCheckMessageQueue
                 {
                     Id =  check.Id,
                     EmploymentCheckId = checkId,

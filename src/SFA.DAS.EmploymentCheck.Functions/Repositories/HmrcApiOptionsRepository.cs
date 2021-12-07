@@ -31,37 +31,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _table.CreateIfNotExistsAsync().ConfigureAwait(false);
         }
 
-
-        public async Task ReduceDelaySetting(int value)
-        {
-            var record = await GetHmrcRateLimiterOptions();
-
-            //var query =  TableOperation.Retrieve<HmrcApiRateLimiterOptions>
-            //    (_rateLimiterConfiguration.EnvironmentName, RowKey);
-
-            //var retrieveOperation = new TableQuery<HmrcApiRateLimiterOptions>();
-            //TableOperation.Retrieve<HmrcApiRateLimiterOptions>("Skype", "skypeid");
-
-            //var record = await _table.ExecuteAsync<HmrcApiRateLimiterOptions>(TableOperation.Retrieve("",""));
-
-           // var record = await _table.ExecuteQuerySegmentedAsync(retrieveOperation, null).Result;
-
-
-            //var record = _table.ExecuteAsync(new TableQuery<HmrcApiRateLimiterOptions>())
-            //    .SingleOrDefault(x => x.RowKey == RowKey) ?? GetDefaultOptions();
-
-
-            var timeSinceLastUpdate = DateTime.UtcNow - record.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromDays(record.MinimumUpdatePeriodInDays)) return;
-
-            record.DelayInMs = value;
-            record.UpdateDateTime = DateTime.UtcNow;
-            record.PartitionKey = _rateLimiterConfiguration.EnvironmentName;
-
-            var operation = TableOperation.InsertOrReplace(record);
-            await _table.ExecuteAsync(operation);
-        }
-
         public async Task<HmrcApiRateLimiterOptions> GetHmrcRateLimiterOptions()
         {
             var query = new TableQuery<HmrcApiRateLimiterOptions>();
@@ -72,14 +41,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             return record ?? GetDefaultOptions();
         }
 
-        public async Task IncreaseDelaySetting(int value)
+        public async Task ReduceDelaySetting(HmrcApiRateLimiterOptions options)
         {
-            var record = await GetHmrcRateLimiterOptions() ?? GetDefaultOptions();
-            record.DelayInMs = value;
-            record.UpdateDateTime = DateTime.UtcNow;
-            record.PartitionKey = _rateLimiterConfiguration.EnvironmentName;
+            var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
+            if (timeSinceLastUpdate < TimeSpan.FromDays(options.MinimumUpdatePeriodInDays)) return;
 
-            var operation = TableOperation.InsertOrReplace(record);
+            options.DelayInMs = Math.Max(0, options.DelayInMs - options.DelayAdjustmentIntervalInMs);
+            options.UpdateDateTime = DateTime.UtcNow;
+
+            var operation = TableOperation.InsertOrReplace(options);
+            await _table.ExecuteAsync(operation);
+        }
+
+        public async Task IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
+        {
+            options.DelayInMs += options.DelayAdjustmentIntervalInMs;
+            options.UpdateDateTime = DateTime.UtcNow;
+
+            var operation = TableOperation.InsertOrReplace(options);
             await _table.ExecuteAsync(operation);
         }
 

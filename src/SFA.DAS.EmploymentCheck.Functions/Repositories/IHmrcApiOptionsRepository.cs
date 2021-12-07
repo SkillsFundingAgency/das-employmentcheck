@@ -5,8 +5,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IHmrcApiOptionsRepository
     {
-        Task ReduceDelaySetting(int value);
-        Task IncreaseDelaySetting(int value);
         Task<HmrcApiRateLimiterOptions> GetHmrcRateLimiterOptions();
+        Task ReduceDelaySetting(HmrcApiRateLimiterOptions options);
+        Task IncreaseDelaySetting(HmrcApiRateLimiterOptions options);
     }
 }

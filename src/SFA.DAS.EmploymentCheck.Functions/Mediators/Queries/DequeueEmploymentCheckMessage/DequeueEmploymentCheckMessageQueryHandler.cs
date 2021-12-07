@@ -13,8 +13,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueEmploymentC
         : IRequestHandler<DequeueEmploymentCheckMessageQueryRequest,
             DequeueEmploymentCheckMessageQueryResult>
     {
-        private const string ThisClassName = "\n\nDequeueApprenticeEmploymentCheckMessagesQueryHandler";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
+        private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> _logger;
 
         private IEmploymentCheckClient _employmentCheckClient;
         private ILogger<DequeueEmploymentCheckMessageQueryHandler> _logger;
@@ -31,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueEmploymentC
             DequeueEmploymentCheckMessageQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = $"{ThisClassName}.Handle()";
+            var thisMethodName = $"{nameof(DequeueApprenticeEmploymentCheckMessageQueryHandler)}.Handle()";
 
             EmploymentCheckMessage apprenticeEmploymentCheckMessage = null;
             try
@@ -47,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueEmploymentC
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{ThisClassName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return new DequeueEmploymentCheckMessageQueryResult(apprenticeEmploymentCheckMessage);

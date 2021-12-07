@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Dapper;
+using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -312,7 +316,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             try
             {
-                await using (sqlConnection = await CreateSqlConnection(
+                await using (var sqlConnection = await CreateSqlConnection(
                     logger,
                     connectionString,
                     azureResource,
@@ -478,9 +482,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                         commandType: CommandType.Text,
                                         transaction: transaction);
 
-                                // -------------------------------------------------------------------
-                                // Commit the transaction
-                                // -------------------------------------------------------------------
                                 transaction.Commit();
                             }
                             catch (Exception ex)
@@ -653,7 +654,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         }
                         else
                         {
-                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Creation of SQL Connection for the Employment Check Databasse failed.");
+                            logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} Creation of SQL Connection for the Employment Check Database failed.");
                         }
                     }
                 }
@@ -875,7 +876,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     else
                     {
                         logger.LogInformation(
-                            $"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Databasse failed.");
+                            $"\n\n{DateTime.UtcNow} {thisMethodName}: *** ERROR ***: Creation of SQL Connection for the Employment Check Database failed.");
                     }
                 }
             }

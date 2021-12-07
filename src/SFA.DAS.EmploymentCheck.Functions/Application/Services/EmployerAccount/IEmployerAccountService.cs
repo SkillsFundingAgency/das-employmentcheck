@@ -5,6 +5,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 {
     public interface IEmployerAccountService
     {
-        Task<AccountDetailViewModel> GetEmployerAccount(long accountId);
+        Task<ResourceList> GetEmployerAccount(long accountId);
     }
 }

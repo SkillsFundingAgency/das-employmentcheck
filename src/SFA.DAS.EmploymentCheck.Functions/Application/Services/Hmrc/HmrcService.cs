@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 request.ResponseId = 200;
                 request.ResponseMessage = "OK";
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.NotFound)
+            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.NotFound)
             {
                 _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
                 request.Employed = false;
@@ -61,13 +61,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 request.ResponseMessage = $"(Not Found ){e.ResourceUri}";
 
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.TooManyRequests)
+            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
             {
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
                 request.ResponseId = (short)e.HttpCode;
                 request.ResponseMessage = $"(Too Many Requests) {e.ResourceUri}";
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int)HttpStatusCode.BadRequest)
+            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
             {
                 _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
                 request.ResponseId = (short)e.HttpCode;
@@ -79,6 +79,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
                 request.ResponseId = (short)e.HttpCode;
                 request.ResponseMessage = $"{e.HttpCode} ({(HttpStatusCode)e.HttpCode} {e.ResourceUri})";
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
+                request.ReturnCode = "HMRC API CALL ERROR";
+                request.ReturnMessage = e.Message;
             }
 
             return request;

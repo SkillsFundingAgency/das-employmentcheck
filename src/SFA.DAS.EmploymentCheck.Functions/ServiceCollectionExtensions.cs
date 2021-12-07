@@ -20,6 +20,8 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
+using SFA.DAS.HashingService;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -38,13 +40,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // #if DEBUG
             // For local development use the Stubs
 
-           // serviceCollection.AddTokenServiceStubServices();
            // //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
            // serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
            // serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
            //// serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
             //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
@@ -76,7 +76,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 serviceCollection.AddSingleton(new AzureServiceTokenProvider());
             }
 
-            serviceCollection.AddHmrcClient();
             if (environmentName == "PROD")
             {
                 serviceCollection.AddTransient<ITokenServiceApiClient, TokenServiceApiClient>(s =>
@@ -84,6 +83,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     var config = s.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value;
                     return new TokenServiceApiClient(config);
                 });
+            }
+            else
+            {
+                serviceCollection.AddTokenServiceStubServices();
             }
 
             return serviceCollection;
@@ -111,7 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return serviceCollection;
         }
 
-        private static IServiceCollection AddHmrcClient(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddApprenticeshipLevyApiClient(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddTransient<IApprenticeshipLevyApiClient>(s =>
             {
@@ -129,6 +132,18 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 httpClient.BaseAddress = new Uri(settings.BaseUrl);
 
                 return new ApprenticeshipLevyApiClient(httpClient);
+            });
+
+            return serviceCollection;
+        }
+
+
+        public static IServiceCollection AddHashingService(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddSingleton<IHashingService>(c =>
+            {
+                var settings = c.GetService<IOptions<ApplicationSettings>>().Value;
+                return new HashingService.HashingService(settings.AllowedHashstringCharacters, settings.Hashstring);
             });
 
             return serviceCollection;
