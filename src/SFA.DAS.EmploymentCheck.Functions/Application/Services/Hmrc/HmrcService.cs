@@ -49,9 +49,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 request.LastEmploymentCheck = DateTime.UtcNow;
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
-                request.Employed = result.Employed;
-                request.ResponseHttpStatusCode = 200;
-                request.ResponseMessage = "OK";
+
+                if(result != null)
+                {
+                    request.Employed = result.Employed;
+                    request.ResponseHttpStatusCode = 200;
+                    request.ResponseMessage = "OK";
+                }
+                else
+                {
+                    // TODO: Decide what we should return when the result is null (as is the case when running with stub data)
+                    request.Employed = null;
+                    request.ResponseHttpStatusCode = 500;
+                    request.ResponseMessage = "GetEmploymentStatus() returned null.";
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The result value returned from the GetEmploymentStatus() call returned null.");
+                }
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.NotFound)
             {
