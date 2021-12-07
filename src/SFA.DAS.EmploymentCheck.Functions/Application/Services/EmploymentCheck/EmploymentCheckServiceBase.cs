@@ -420,7 +420,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 var messageHistoryParameters = new DynamicParameters();
                                 messageHistoryParameters.Add("@messageId", employmentCheckMessageHistoryModel.MessageId, DbType.Int64);
                                 messageHistoryParameters.Add("@employmentCheckId", employmentCheckMessageHistoryModel.EmploymentCheckId, DbType.Int64);
-                                messageHistoryParameters.Add("@correlationId", employmentCheckMessageHistoryModel.CorrelationId, DbType.Int64);
+                                messageHistoryParameters.Add("@correlationId", employmentCheckMessageHistoryModel.CorrelationId, DbType.Guid);
                                 messageHistoryParameters.Add("@uln", employmentCheckMessageHistoryModel.Uln, DbType.Int64);
                                 messageHistoryParameters.Add("@nationalInsuranceNumber", employmentCheckMessageHistoryModel.NationalInsuranceNumber, DbType.String);
                                 messageHistoryParameters.Add("@payeScheme", employmentCheckMessageHistoryModel.PayeScheme, DbType.String);
@@ -544,16 +544,35 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         // Create the individual message combinations for each paye scheme
                         foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                         {
-                            var employmentCheckMessage = new EmploymentCheckMessage();
+                            if(employmentCheck.Id > 0 &&
+                                employmentCheck.Uln > 0 &&
+                                !string.IsNullOrEmpty(nationalInsuranceNumber) &&
+                                employmentCheck.MinDate > DateTime.MinValue &&
+                                employmentCheck.MaxDate > DateTime.MinValue &&
+                                !string.IsNullOrEmpty(payeScheme))
+                            {
+                                var employmentCheckMessage = new EmploymentCheckMessage();
 
-                            employmentCheckMessage.EmploymentCheckId = employmentCheck.Id;
-                            employmentCheckMessage.Uln = employmentCheck.Uln;
-                            employmentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
-                            employmentCheckMessage.MinDateTime = employmentCheck.MinDate;
-                            employmentCheckMessage.MaxDateTime = employmentCheck.MinDate;
-                            employmentCheckMessage.PayeScheme = payeScheme;
+                                employmentCheckMessage.EmploymentCheckId = employmentCheck.Id;
+                                employmentCheckMessage.Uln = employmentCheck.Uln;
+                                employmentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
+                                employmentCheckMessage.MinDateTime = employmentCheck.MinDate;
+                                employmentCheckMessage.MaxDateTime = employmentCheck.MaxDate;
+                                employmentCheckMessage.PayeScheme = payeScheme;
 
-                            employmentCheckMessages.Add(employmentCheckMessage);
+                                employmentCheckMessages.Add(employmentCheckMessage);
+                            }
+                            else
+                            {
+                                // There was invalid data preventing a message being created
+                                logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} One of the following input values for creating an EmploymentCheckMessage was invalid: \n" +
+                                    $"employmentCheck.Id: [{employmentCheck.Id}] should be > 0, \n" +
+                                    $"employmentCheck.Uln: [{employmentCheck.Uln}] should be > 0, \n" +
+                                    $"nationalInsuranceNumber: [{nationalInsuranceNumber}] should be not null and not empty, \n" +
+                                    $"employmentCheck.MinDate: [{employmentCheck.MinDate}] should be > {DateTime.MinValue}, \n" +
+                                    $"employmentCheck.MaxDate: [{employmentCheck.MaxDate}] should be > {DateTime.MinValue}, \n" +
+                                    $"payeScheme: [{payeScheme}] should be not null and not empty.\n");
+                            }
                         }
                     }
                 }

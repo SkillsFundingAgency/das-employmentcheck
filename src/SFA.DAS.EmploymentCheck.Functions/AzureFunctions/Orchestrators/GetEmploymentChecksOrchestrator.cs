@@ -89,6 +89,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: No data found so sleep for 10 seconds then execute the orchestrator again");
+
+                    // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
+
                     // No data found so sleep for 10 seconds then execute the orchestrator again
                     DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
