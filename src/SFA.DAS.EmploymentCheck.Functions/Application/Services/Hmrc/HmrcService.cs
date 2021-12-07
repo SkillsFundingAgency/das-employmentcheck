@@ -33,6 +33,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         {
             try
             {
+                request.EmploymentCheckedDateTime = DateTime.UtcNow;
+               
                 if (ValidateRequest(request) == false) return request;
 
                 if (_cachedToken == null) await RetrieveAuthenticationToken();
@@ -43,7 +45,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                         retryCount: 1,
                         onRetryAsync: async (outcome, retryNumber, context) => await RetrieveAuthenticationToken());
 
-                request.EmploymentCheckedDateTime = DateTime.UtcNow;
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
                 request.IsEmployed = result.Employed;
