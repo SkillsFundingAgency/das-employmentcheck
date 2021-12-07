@@ -32,16 +32,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
             try
             {
-                var tooManyRequests = input.ReturnCode.Contains(HttpStatusCode.TooManyRequests.ToString(),
-                    StringComparison.InvariantCultureIgnoreCase);
+                if (input.ReturnCode != null)
+                {
+                    var tooManyRequests = input.ReturnCode.Contains(HttpStatusCode.TooManyRequests.ToString(),
+                        StringComparison.InvariantCultureIgnoreCase);
 
-                if (tooManyRequests)
-                {
-                    await _optionsRepository.IncreaseDelaySetting(_options);
-                }
-                else
-                {
-                    await _optionsRepository.ReduceDelaySetting(_options);
+                    if (tooManyRequests)
+                    {
+                        await _optionsRepository.IncreaseDelaySetting(_options);
+                    }
+                    else
+                    {
+                        await _optionsRepository.ReduceDelaySetting(_options);
+                    }
                 }
 
                 return await Task.FromResult(TimeSpan.FromMilliseconds(_options.DelayInMs));

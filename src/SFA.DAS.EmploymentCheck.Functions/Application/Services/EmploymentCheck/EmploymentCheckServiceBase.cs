@@ -574,10 +574,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var apprenticeEmploymentCheckMessages = new List<ApprenticeEmploymentCheckMessageModel>();
             try
             {
-                if (apprenticeEmploymentData != null &&
-                    apprenticeEmploymentData.ApprenticeEmploymentChecks != null &&
-                    apprenticeEmploymentData.ApprenticeNiNumbers != null &&
-                    apprenticeEmploymentData.EmployerPayeSchemes != null)
+                if (apprenticeEmploymentData is {ApprenticeEmploymentChecks: { }})
                 {
                     // Create an ApprenticeEmploymentCheckMessage for each combination of Uln, National Insurance Number and PayeSchemes.
                     // e.g. if an apprentices employer has 900 paye schemes then we need to create 900 messages for the given Uln and National Insurance Number
@@ -592,16 +589,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         if (apprenticeNiNumber == null)
                         {
                             logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} {nameof(apprenticeNiNumber)} is null.");
-                            continue;
                         }
-                        var nationalInsuranceNumber = apprenticeNiNumber.NationalInsuranceNumber;
+                        var nationalInsuranceNumber = apprenticeNiNumber?.NationalInsuranceNumber;
                        
                         // Get the employer paye schemes for this apprentices
                         var employerPayeSchemes = apprenticeEmploymentData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == apprentice.AccountId);
                         if (employerPayeSchemes == null)
                         {
                             logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} {nameof(employerPayeSchemes)} is null.");
-                            continue;
+                            employerPayeSchemes = new EmployerPayeSchemes(apprentice.AccountId, new List<string> {null});
                         }
 
                         // Create the individual message combinations for each paye scheme

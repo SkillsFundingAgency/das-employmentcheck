@@ -8,6 +8,7 @@ using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
@@ -32,6 +33,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         {
             try
             {
+                if (ValidateRequest(request) == false) return request;
+
                 if (_cachedToken == null) await RetrieveAuthenticationToken();
 
                 var policy = Policy
@@ -80,6 +83,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
             return request;
 
+        }
+
+        private static bool ValidateRequest(ApprenticeEmploymentCheckMessageModel request)
+        {
+            var valid = true;
+            var sb = new StringBuilder();
+            if (request.NationalInsuranceNumber == null)
+            {
+                valid = false;
+                sb.Append("NationalInsuranceNumber is null");
+            }
+
+            if (request.PayeScheme == null)
+            {
+                valid = false;
+                if (sb.Length > 0) sb.Append("|");
+                sb.Append("PayeScheme is null");
+            }
+
+            request.ReturnMessage = sb.ToString();
+
+            return valid;
         }
 
         private async Task<EmploymentStatus> GetEmploymentStatus(ApprenticeEmploymentCheckMessageModel request)
