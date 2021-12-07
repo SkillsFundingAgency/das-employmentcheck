@@ -735,28 +735,29 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     parameters.Add("@employmentCheckedDateTime", apprenticeEmploymentCheckMessage.EmploymentCheckedDateTime, DbType.DateTime);
                     parameters.Add("@isEmployed", apprenticeEmploymentCheckMessage.IsEmployed ?? false, DbType.Boolean);
 
-                    await sqlConnection.ExecuteAsync(
-                        sql:
-                        "INSERT [dbo].[ApprenticeEmploymentCheckMessageQueue] (" +
-                        "MessageId, " +
-                        "MessageCreatedDateTime, " +
-                        "EmploymentCheckId, " +
-                        "Uln, " +
-                        "NationalInsuranceNumber, " +
-                        "PayeScheme, " +
-                        "StartDateTime, " +
-                        "EndDateTime) " +
-                        "VALUES (" +
-                        "@messageId, " +
-                        "@messageCreatedDateTime, " +
-                        "@employmentCheckId, " +
-                        "@uln, " +
-                        "@nationalInsuranceNumber, " +
-                        "@payeScheme, " +
-                        "@startDateTime, " +
-                        "@endDateTime)",
-                        commandType: CommandType.Text,
-                        param: parameters);
+                    const string sql = "INSERT INTO [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
+                                       "(MessageId, " +
+                                       "MessageCreatedDateTime, " +
+                                       "EmploymentCheckId, " +
+                                       "Uln, " +
+                                       "NationalInsuranceNumber, " +
+                                       "PayeScheme, " +
+                                       "StartDateTime, " +
+                                       "EndDateTime) " +
+                                       "SELECT " +
+                                       "@messageId, " +
+                                       "@messageCreatedDateTime, " +
+                                       "@employmentCheckId, " +
+                                       "@uln, " +
+                                       "@nationalInsuranceNumber, " +
+                                       "@payeScheme, " +
+                                       "@startDateTime, " +
+                                       "@endDateTime " +
+                                       "WHERE NOT EXISTS " +
+                                       "(SELECT 1 FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
+                                       "WHERE EmploymentCheckId = @employmentCheckId);";
+
+                    await sqlConnection.ExecuteAsync(sql, commandType: CommandType.Text, param: parameters);
                 }
                 else
                 {
