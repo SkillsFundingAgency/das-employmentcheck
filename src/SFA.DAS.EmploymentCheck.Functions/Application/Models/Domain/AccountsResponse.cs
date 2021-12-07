@@ -6,7 +6,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
     {
         public long Id { get; set; }
 
-        public long CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public long AccountId { get; set; }
 

@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
             ILogger<EmploymentCheckMessage> logger,
             long id,
             long employmentCheckId,
-            long correlationId,
+            Guid correlationId,
             long uln,
             string nationalInsuranceNumber,
             string payeScheme,
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
                 MaxDateTime = maxDateTime;
                 Employed = employed;
                 LastEmploymentCheck = lastEmploymentCheck;
-                ResponseId = responseId;
+                ResponseHttpStatusCode = responseId;
                 ResponseMessage = responseMessage;
                 LastUpdated = lastUpdated;
                 CreatedOn = createdOn;
@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
 
         public long EmploymentCheckId { get; set; }
 
-        public long CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public long Uln { get; set; }
 
@@ -67,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
 
         public DateTime? LastEmploymentCheck { get; set; }
 
-        public short ResponseId { get; set; }
+        public short ResponseHttpStatusCode { get; set; }
 
         public string ResponseMessage { get; set; }
 

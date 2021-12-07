@@ -316,7 +316,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             try
             {
-                await using (var sqlConnection = await CreateSqlConnection(
+                await using (sqlConnection = await CreateSqlConnection(
                     logger,
                     connectionString,
                     azureResource,
@@ -709,7 +709,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         {
                             var parameter = new DynamicParameters();
                             parameter.Add("@employmentCheckId", employmentCheckMessage.EmploymentCheckId, DbType.Int64);
-                            parameter.Add("@correlationId", employmentCheckMessage.CorrelationId, DbType.Int64);
+                            parameter.Add("@correlationId", employmentCheckMessage.CorrelationId, DbType.Guid);
                             parameter.Add("@uln", employmentCheckMessage.Uln, DbType.Int64);
                             parameter.Add("@nationalInsuranceNumber", employmentCheckMessage.NationalInsuranceNumber, DbType.String);
                             parameter.Add("@payeScheme", employmentCheckMessage.PayeScheme, DbType.String);
@@ -717,7 +717,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             parameter.Add("@maxDateTime", employmentCheckMessage.MaxDateTime, DbType.DateTime);
                             parameter.Add("@employed", employmentCheckMessage.Employed ?? false, DbType.Boolean);
                             parameter.Add("@lastEmploymentCheck", employmentCheckMessage.LastEmploymentCheck, DbType.DateTime);
-                            parameter.Add("@responseId", employmentCheckMessage.ResponseId, DbType.Int16);
+                            parameter.Add("@responseId", employmentCheckMessage.ResponseHttpStatusCode, DbType.Int16);
                             parameter.Add("@responseMessage", employmentCheckMessage.ResponseMessage, DbType.String);
                             parameter.Add("@createdOn", employmentCheckMessage.CreatedOn = DateTime.Now, DbType.DateTime);
 
@@ -728,15 +728,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 parameter,
                                 commandType: CommandType.Text,
                                 transaction: transaction);
-
-                            // TODO: Delete after testing using the highest Id on the message queues is successful
-                            // update the highest batch number in the control table
-                            //var savedEmploymentCheckGetId =
-                            //    await SaveEmploymentCheckLastHighestBatchId(
-                            //            logger,
-                            //            sqlConnection,
-                            //            transaction,
-                            //            employmentCheckMessage.EmploymentCheckId);
 
                             transaction.Commit();
                         }
@@ -834,7 +825,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             i++;
                             var now = DateTime.Now;
                             var parameters = new DynamicParameters();
-                            parameters.Add("@correlationId", 1000000000 + i, DbType.Int64);
+                            parameters.Add("@correlationId", new Guid(), DbType.Guid);
                             parameters.Add("@checkType", "StartDate+60", DbType.String);
                             parameters.Add("@uln", 1000000000 + i, DbType.Int64);
                             parameters.Add("@apprenticeshipId", i, DbType.Int64);

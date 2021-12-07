@@ -23,17 +23,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             _logger = logger;
         }
 
-        public async Task<ResourceList> GetEmployerAccount(long accountId) // TODO: rename to GetAccountPayeSchemes
+        public async Task<ResourceList> GetAccountPayeSchemes(long accountId)
         {
-            var thisMethodName = $"{nameof(EmployerAccountService)}.GetEmployerAccount()";
-            
-            ResourceList accountDetailViewModel = null;
+            var thisMethodName = $"{nameof(EmployerAccountService)}.GetAccountPayeSchemes()";
+
+            ResourceList resourceList = null;
             try
             {
-                accountDetailViewModel = await _accountsApiClient.Get<ResourceList>($"api/accounts/{_hashingService.HashValue(accountId)}/payeschemes");
-                if (accountDetailViewModel != null && accountDetailViewModel.Count > 0)
+                resourceList = await _accountsApiClient.Get<ResourceList>($"api/accounts/{_hashingService.HashValue(accountId)}/payeschemes");
+                if (resourceList != null && resourceList.Count > 0)
                 {
-                    _logger.LogInformation($"{thisMethodName}: returned {accountDetailViewModel.Count} PAYE schemes");
+                    _logger.LogInformation($"{thisMethodName}: returned {resourceList.Count} PAYE schemes");
                 }
                 else
                 {
@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 _logger.LogError($"{thisMethodName}\n\n Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return accountDetailViewModel;
+            return resourceList;
         }
     }
 }

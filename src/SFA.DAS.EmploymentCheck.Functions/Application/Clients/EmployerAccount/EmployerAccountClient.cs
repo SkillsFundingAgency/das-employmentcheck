@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Models.Domain.EmploymentCheckModel> employmentCheckModels)
+            IList<EmploymentCheckModel> employmentCheckModels)
         {
             var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes()";
 
@@ -37,21 +37,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
                     foreach (var employmentCheckModel in employmentCheckModels)
                     {
                         Log.WriteLog(_logger, thisMethodName, $"Getting PAYE scheme for employer account [{employmentCheckModel.AccountId}] (apprentice ULN [{employmentCheckModel.Uln}]).");
-                        var accountDetailViewModel = await _employerAccountService.GetEmployerAccount(employmentCheckModel.AccountId);
+                        var resourceList = await _employerAccountService.GetAccountPayeSchemes(employmentCheckModel.AccountId);
 
-                        if (payeSchemes != null && payeSchemes.Count > 0)
+                        if (resourceList != null && resourceList.Any())
                         {
-                            employerPayeSchemes.Add(new EmployerPayeSchemes(employmentCheckModel.AccountId, accountDetailViewModel.PayeSchemes.Select(x => x.Id).ToList()));
+                            employerPayeSchemes.Add(new EmployerPayeSchemes(employmentCheckModel.AccountId, resourceList.Select(x => x.Id).ToList()));
                         }
                         else
                         {
-                            _logger.LogInformation($"{thisMethodName}: ERROR: AccountDetailViewModel/PayeSchemes parameter is NULL, no employer PAYE schemes retrieved");
+                            _logger.LogInformation($"{thisMethodName}: ERROR: resourceList parameter is NULL, no employer PAYE schemes retrieved");
                         }
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: ERROR: the employmentCheckModels input parameter is NULL, no employer PAYE schemes retrieved");
+                    _logger.LogInformation($"{thisMethodName}: ERROR: the resourceList input parameter is NULL, no employer PAYE schemes retrieved");
                 }
             }
             catch (Exception ex)

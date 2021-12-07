@@ -8,7 +8,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 
         public EmploymentCheckModel(
             long id,
-            long correlationId,
+            Guid correlationId,
             string checkType,
             long uln,
             long apprenticeshipId,
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 
         public long Id { get; set; }
 
-        public long CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public string CheckType { get; set; }
 

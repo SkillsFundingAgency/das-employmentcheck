@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             _logger = logger;
         }
 
-        public async Task<ResourceList> GetEmployerAccount(long accountId)
+        public async Task<ResourceList> GetAccountPayeSchemes(long accountId)
         {
             return await Task.FromResult(new ResourceList(new List<ResourceViewModel>
             {

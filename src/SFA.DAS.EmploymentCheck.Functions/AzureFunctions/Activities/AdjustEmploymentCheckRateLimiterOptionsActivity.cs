@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
@@ -32,8 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
             try
             {
-                var tooManyRequests = input.ReturnCode.Contains(HttpStatusCode.TooManyRequests.ToString(),
-                    StringComparison.InvariantCultureIgnoreCase);
+                var tooManyRequests = input.ResponseHttpStatusCode == (short)HttpStatusCode.TooManyRequests;
 
                 if (tooManyRequests)
                 {
@@ -49,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             catch (Exception ex)
             {
                 _logger.LogError($"{thisMethodName} Exception caught - {ex.Message}. {ex.StackTrace}");
-                throw;
+                throw; // TODO: GLG: Rus - where is this being caught? If it's not being caught the underlying Task library will not return execution to the calling Orchestrator causing the program to hang.
             }
         }
     }

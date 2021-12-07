@@ -5,7 +5,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckEmploymentStatus;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -15,43 +17,43 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         public const string ErrorMessagePrefix = "[*** ERROR ***]";
 
         private readonly IMediator _mediator;
-        private readonly ILogger<SaveApprenticeEmploymentCheckResultActivity> _logger;
+        private readonly ILogger<SaveEmploymentCheckResultActivity> _logger;
 
         public CheckApprenticeEmploymentStatusActivity(
             IMediator mediator,
-            ILogger<SaveApprenticeEmploymentCheckResultActivity> logger)
+            ILogger<SaveEmploymentCheckResultActivity> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
         [FunctionName(nameof(CheckApprenticeEmploymentStatusActivity))]
-        public async Task<ApprenticeEmploymentCheckMessageModel> CheckApprenticeEmploymentStatusActivityTask(
-            [ActivityTrigger] ApprenticeEmploymentCheckMessageModel apprenticeEmploymentCheckMessageModel)
+        public async Task<EmploymentCheckMessage> CheckApprenticeEmploymentStatusActivityTask(
+            [ActivityTrigger] EmploymentCheckMessage employmentCheckMessage)
         {
             var thisMethodName = $"{ThisClassName}.CheckApprenticeEmploymentStatusActivityTask()";
 
-            ApprenticeEmploymentCheckMessageModel updatedApprenticeEmploymentCheckMessageModel = null;
+            EmploymentCheckMessage updatedEmploymentCheckMessage = null;
             try
             {
-                if (apprenticeEmploymentCheckMessageModel != null)
+                if (employmentCheckMessage != null)
                 {
                     // Send MediatR request to check the apprentices employment status using the HMRC API
-                    var checkApprenticeEmploymentStatusQueryResult = await _mediator.Send(new CheckApprenticeEmploymentStatusQueryRequest(apprenticeEmploymentCheckMessageModel));
+                    var checkApprenticeEmploymentStatusQueryResult = await _mediator.Send(new CheckEmploymentStatusQueryRequest(employmentCheckMessage));
 
                     if (checkApprenticeEmploymentStatusQueryResult != null &&
-                        checkApprenticeEmploymentStatusQueryResult.ApprenticeEmploymentCheckMessageModel != null)
+                        checkApprenticeEmploymentStatusQueryResult.EmploymentCheckMessage != null)
                     {
-                        updatedApprenticeEmploymentCheckMessageModel = checkApprenticeEmploymentStatusQueryResult.ApprenticeEmploymentCheckMessageModel;
+                        updatedEmploymentCheckMessage = checkApprenticeEmploymentStatusQueryResult.EmploymentCheckMessage;
                     }
                     else
                     {
-                        _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The checkApprenticeEmploymentStatusQueryResult value returned from the call to CheckApprenticeEmploymentStatusQueryRequest() is null.");
+                        _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The checkEmploymentStatusQueryResult value returned from the call to CheckEmploymentStatusQueryRequest() is null.");
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The input parameter apprenticeEmploymentCheckMessageModel is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The input parameter employmentCheckMessage is null.");
                 }
 
             }
@@ -60,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
                 _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            return updatedApprenticeEmploymentCheckMessageModel;
+            return updatedEmploymentCheckMessage;
         }
     }
 }

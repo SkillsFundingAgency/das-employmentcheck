@@ -119,12 +119,12 @@ namespace app_levy_data_seeder
                     CreatedOn = now,
                     LastUpdated = now
                 };
-                
+
                 var checkId = await _dataAccess.Insert(check);
 
                 if (_options.SeedEmploymentChecksOnly) continue;
-                
-                var queue = new ApprenticeEmploymentCheckMessageQueue
+
+                var queue = new EmploymentCheckMessageQueue
                 {
                     Id =  check.Id,
                     EmploymentCheckId = checkId,
@@ -147,11 +147,8 @@ namespace app_levy_data_seeder
            await _dataAccess.DeleteAll("[Cache].[EmploymentCheckMessageQueueHistory]");
            await _dataAccess.DeleteAll("[Cache].[EmploymentCheckMessageQueue]");
            await _dataAccess.DeleteAll("[Business].[EmploymentChecks]");
-           await _dataAccess.DeleteAll("[Business].[EmploymentCheckControlTable]");
            await _dataAccess.DeleteAll("[employer_check].[DAS_SubmissionEvents]");
            await _dataAccess.DeleteAll("[employer_check].[LastProcessedEvent]");
         }
-
-
     }
 }

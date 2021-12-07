@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         public SubmitLearnerDataService(
             ILogger<SubmitLearnerDataService> logger,
-            IDcTokenService dcTokenService, 
+            IDcTokenService dcTokenService,
             IHttpClientFactory httpFactory,
             IOptions<DcApiSettings> dcApiSettings)
         {
@@ -81,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                var url = "/api/v1/ilr-data/learnersNi/2021?ulns=" + learner.ULN;
+                var url = "/api/v1/ilr-data/learnersNi/2021?ulns=" + learner.Uln;
 
                 try
                 {
@@ -100,7 +100,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                     else
                     {
                         _logger.LogInformation($"\n\n{thisMethodName}: response code received from LearnerNiApi is {response.StatusCode}");
-                        checkedLearner.ULN = learner.ULN;
+                        checkedLearner.Uln = learner.Uln;
                     }
                 }
                 catch (Exception ex)
@@ -111,7 +111,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             return checkedLearner;
         }
 
-        private async Task<IList<ApprenticeNiNumber>> GetNiNumbers(ICollection<ApprenticeEmploymentCheckModel> learners, AuthResult token)
+        private async Task<IList<ApprenticeNiNumber>> GetNiNumbers(ICollection<EmploymentCheckModel> learners, AuthResult token)
         {
             var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetNiNumbers()";
 

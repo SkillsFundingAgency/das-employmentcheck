@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Business].[EmploymentCheck]
 (
 	[Id] BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	[CorrelationId] BIGINT NOT NULL,
+	[CorrelationId] uniqueidentifier NOT NULL,
     [CheckType] VARCHAR(50) NOT NULL,
     [Uln] BIGINT NOT NULL,
     [ApprenticeshipId] BIGINT NULL,

@@ -13,10 +13,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueEmploymentC
         : IRequestHandler<DequeueEmploymentCheckMessageQueryRequest,
             DequeueEmploymentCheckMessageQueryResult>
     {
+        private const string ThisClassName = nameof(DequeueEmploymentCheckMessageQueryHandler);
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
-        private readonly IEmploymentCheckClient _employmentCheckClient;
-        private readonly ILogger<DequeueApprenticeEmploymentCheckMessageQueryHandler> _logger;
-
         private IEmploymentCheckClient _employmentCheckClient;
         private ILogger<DequeueEmploymentCheckMessageQueryHandler> _logger;
 
@@ -32,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.DequeueEmploymentC
             DequeueEmploymentCheckMessageQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = $"{nameof(DequeueApprenticeEmploymentCheckMessageQueryHandler)}.Handle()";
+            var thisMethodName = $"{nameof(DequeueEmploymentCheckMessageQueryHandler)}.Handle()";
 
             EmploymentCheckMessage apprenticeEmploymentCheckMessage = null;
             try

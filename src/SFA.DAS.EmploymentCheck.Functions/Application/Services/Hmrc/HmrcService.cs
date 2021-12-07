@@ -50,41 +50,41 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
                 request.Employed = result.Employed;
-                request.ResponseId = 200;
+                request.ResponseHttpStatusCode = 200;
                 request.ResponseMessage = "OK";
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.NotFound)
             {
                 _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
                 request.Employed = false;
-                request.ResponseId = (short) e.HttpCode; // storing as a short in the db to save space as the highest code is only 3 digits
+                request.ResponseHttpStatusCode = (short) e.HttpCode; // storing as a short in the db to save space as the highest code is only 3 digits
                 request.ResponseMessage = $"(Not Found ){e.ResourceUri}";
 
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
             {
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
-                request.ResponseId = (short)e.HttpCode;
+                request.ResponseHttpStatusCode = (short)e.HttpCode;
                 request.ResponseMessage = $"(Too Many Requests) {e.ResourceUri}";
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
             {
                 _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
-                request.ResponseId = (short)e.HttpCode;
+                request.ResponseHttpStatusCode = (short)e.HttpCode;
                 request.ResponseMessage = $"(Bad Request) {e.ResourceUri}";
             }
 
             catch (ApiHttpException e)
             {
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-                request.ResponseId = (short)e.HttpCode;
+                request.ResponseHttpStatusCode = (short)e.HttpCode;
                 request.ResponseMessage = $"{e.HttpCode} ({(HttpStatusCode)e.HttpCode} {e.ResourceUri})";
             }
             catch (Exception e)
             {
                 _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
-                request.ReturnCode = "HMRC API CALL ERROR";
-                request.ReturnMessage = e.Message;
+                request.ResponseHttpStatusCode = 500; // TODO: There is no http status code in the exception so just made this up
+                request.ResponseMessage = $"HMRC API CALL ERROR {e.Message}";
             }
 
             return request;

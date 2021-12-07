@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             long id,
             long messageId,
             long employmentCheckId,
-            long correlationId,
+            Guid correlationId,
             long uln,
             string nationalInsuranceNumber,
             string payeScheme,
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
             MaxDateTime = employmentCheckMessageModel.MaxDateTime;
             Employed = employmentCheckMessageModel.Employed;
             LastEmploymentCheck = employmentCheckMessageModel.LastEmploymentCheck;
-            ResponseId = employmentCheckMessageModel.ResponseId;
+            ResponseId = employmentCheckMessageModel.ResponseHttpStatusCode;
             ResponseMessage = employmentCheckMessageModel.ResponseMessage;
             MessageCreatedOn = employmentCheckMessageModel.CreatedOn;
             CreatedOn = DateTime.UtcNow;
@@ -72,7 +72,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 
         public long MessageId { get; set; }
 
-        public long CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public long EmploymentCheckId { get; set; }
 

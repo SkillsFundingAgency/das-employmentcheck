@@ -11,7 +11,7 @@ namespace app_levy_data_seeder.Models
 
         public long EmploymentCheckId { get; set; }
 
-        public long CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public long Uln { get; set; }
 

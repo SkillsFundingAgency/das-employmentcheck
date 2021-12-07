@@ -133,4 +133,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="CreatedOn" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="07fe94b2-f8d2-41ec-93b6-42f42c82ee23" ChangeDateTime="12/07/2021 09:13:32">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckMessageQueue].[ResponseId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckMessageQueue]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ResponseHttpStatusCode" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ad678a95-214c-4ec9-906b-dfd177ce4105" ChangeDateTime="12/07/2021 09:13:56">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckMessageQueueHistory].[ResponseId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckMessageQueueHistory]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ResponseHttpStatusCode" />
+  </Operation>
 </Operations>
