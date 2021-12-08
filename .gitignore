@@ -264,3 +264,4 @@ src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 *.dbmdl
 **/appsettings.json
 **/config.json
+/src/_tools/app-levy-data-seeder/Files/*

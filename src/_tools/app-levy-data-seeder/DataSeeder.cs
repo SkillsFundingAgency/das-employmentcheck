@@ -31,45 +31,58 @@ namespace app_levy_data_seeder
 
         public async Task SeedData()
         {
-            if (_options.ClearExistingData) await ClearData();
-            var now = DateTime.Now;
-            var i = 0;
-
-            foreach (var line in File.ReadLines(_csvDataFile).Skip(1))
+            try
             {
-                i++;
-                var columns = line.Split(',');
-                var check = new EmploymentChecks
+                var i = 0;
+
+
+                if (_options.ClearExistingData) await ClearData();
+                var now = DateTime.Now;
+
+
+                for (var j = 0; j < _options.DataSets; j++)
                 {
-                    ULN = Convert.ToInt64(columns[0]),
-                    AccountId = Convert.ToInt64(columns[1]),
-                    MinDate = Convert.ToDateTime(columns[2]),
-                    MaxDate = Convert.ToDateTime(columns[3]),
-                    HasBeenChecked = false,
-                    CreatedDate = now
-                };
+                    foreach (var line in File.ReadLines(_csvDataFile).Skip(1))
+                    {
+                        i++;
+                        var columns = line.Split(',');
+                        var check = new EmploymentChecks
+                        {
+                            ULN = Convert.ToInt64(columns[0]),
+                            AccountId = Convert.ToInt64(columns[1]),
+                            MinDate = Convert.ToDateTime(columns[2]),
+                            MaxDate = Convert.ToDateTime(columns[3]),
+                            HasBeenChecked = false,
+                            CreatedDate = now,
+                            CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20]
+                        };
 
-                check.CheckType = $"{check.MinDate:dd/MM/yy}-{check.MaxDate:dd/MM/yy}";
+                        var checkId = await _dataAccess.Insert(check);
+                        Console.WriteLine($"[{i}] Added EmploymentChecks record");
 
-                var checkId = await _dataAccess.Insert(check);
-                Console.WriteLine($"[{i}] Added EmploymentChecks record");
+                        if (_options.SeedEmploymentChecksOnly) continue;
 
-                if (_options.SeedEmploymentChecksOnly) continue;
+                        var queue = new ApprenticeEmploymentCheckMessageQueue
+                        {
+                            MessageId = Guid.NewGuid(),
+                            MessageCreatedDateTime = now,
+                            EmploymentCheckId = checkId,
+                            Uln = check.ULN,
+                            NationalInsuranceNumber = columns[4],
+                            PayeScheme = columns[5],
+                            StartDateTime = check.MinDate,
+                            EndDateTime = check.MaxDate
+                        };
 
-                var queue = new ApprenticeEmploymentCheckMessageQueue
-                {
-                    MessageId = Guid.NewGuid(),
-                    MessageCreatedDateTime = now,
-                    EmploymentCheckId = checkId,
-                    Uln = check.ULN,
-                    NationalInsuranceNumber = columns[4],
-                    PayeScheme = columns[5],
-                    StartDateTime = check.MinDate,
-                    EndDateTime = check.MaxDate
-                };
-
-                await _dataAccess.Insert(queue);
-                Console.WriteLine($"[{i}] Added ApprenticeEmploymentCheckMessageQueue record");
+                        await _dataAccess.Insert(queue);
+                        Console.WriteLine($"[{i}] Added ApprenticeEmploymentCheckMessageQueue record");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
             }
         }
 
@@ -103,7 +116,5 @@ namespace app_levy_data_seeder
            await _dataAccess.DeleteAll("[employer_check].[DAS_SubmissionEvents]");
            await _dataAccess.DeleteAll("[employer_check].[LastProcessedEvent]");
         }
-
-        
     }
 }
