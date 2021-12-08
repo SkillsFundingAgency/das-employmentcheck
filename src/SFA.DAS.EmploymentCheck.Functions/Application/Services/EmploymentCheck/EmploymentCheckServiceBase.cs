@@ -582,7 +582,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     // (at this point we don't know if we need to check all the payeschemes for a given apprentice just to ensure there's no match on multiple schemes)
                     foreach (var apprentice in apprenticeEmploymentData.ApprenticeEmploymentChecks)
                     {
-                        var apprenticeEmploymentCheckMessage = new ApprenticeEmploymentCheckMessageModel();
 
                         // Get the National Insurance Number for this apprentice
                         var apprenticeNiNumber = apprenticeEmploymentData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.ULN == apprentice.ULN);
@@ -603,14 +602,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         // Create the individual message combinations for each paye scheme
                         foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                         {
-                            apprenticeEmploymentCheckMessage.EmploymentCheckId = apprentice.Id;
-                            apprenticeEmploymentCheckMessage.Uln = apprentice.ULN;
-                            apprenticeEmploymentCheckMessage.NationalInsuranceNumber = nationalInsuranceNumber;
-                            apprenticeEmploymentCheckMessage.StartDateTime = apprentice.MinDate;
-                            apprenticeEmploymentCheckMessage.EndDateTime = apprentice.MinDate;
-                            apprenticeEmploymentCheckMessage.PayeScheme = payeScheme;
+                            var message = new ApprenticeEmploymentCheckMessageModel
+                            {
+                                EmploymentCheckId = apprentice.Id,
+                                Uln = apprentice.ULN,
+                                NationalInsuranceNumber = nationalInsuranceNumber,
+                                StartDateTime = apprentice.MinDate,
+                                EndDateTime = apprentice.MinDate,
+                                PayeScheme = payeScheme
+                            };
 
-                            apprenticeEmploymentCheckMessages.Add(apprenticeEmploymentCheckMessage);
+                            apprenticeEmploymentCheckMessages.Add(message);
                         }
                     }
                 }
@@ -755,7 +757,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                        "@endDateTime " +
                                        "WHERE NOT EXISTS " +
                                        "(SELECT 1 FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                       "WHERE EmploymentCheckId = @employmentCheckId);";
+                                       "WHERE EmploymentCheckId = @employmentCheckId " +
+                                       "AND PayeScheme = @payeScheme" +
+                                       ");";
 
                     await sqlConnection.ExecuteAsync(sql, commandType: CommandType.Text, param: parameters);
                 }
