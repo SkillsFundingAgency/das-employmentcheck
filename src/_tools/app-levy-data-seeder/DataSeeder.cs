@@ -100,7 +100,7 @@ namespace app_levy_data_seeder
 
         private async Task InsertData()
         {
-            var i = 0;
+            var i = -1;
             foreach (var data in SourceData)
             {
                 i++;
