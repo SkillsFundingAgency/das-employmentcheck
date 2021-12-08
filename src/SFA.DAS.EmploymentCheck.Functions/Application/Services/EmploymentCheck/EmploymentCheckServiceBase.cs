@@ -386,7 +386,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 if (employmentCheckMessage != null)
                 {
                     var sqlConnection = await CreateSqlConnection(logger, connectionString, azureResource, azureServiceTokenProvider);
-                    if (sqlConnection == null)
+                    if (sqlConnection != null)
                     {
                         await sqlConnection.OpenAsync();
 
@@ -401,12 +401,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 employmentCheckParameters.Add("id", employmentCheckMessage.EmploymentCheckId, DbType.Int64);
                                 employmentCheckParameters.Add("messageId", employmentCheckMessage.Id, DbType.Int64);
                                 employmentCheckParameters.Add("employed", employmentCheckMessage.Employed, DbType.Boolean);
-                                employmentCheckParameters.Add("hasBeenChecked", true);
 
                                 await sqlConnection.ExecuteAsync(
                                     "UPDATE [Business].[EmploymentCheck] " +
                                     "SET Employed = @employed, " +
-                                    "LastUpdated = GETDATE(), " +
+                                    "LastUpdated = GETDATE() " +
                                     "WHERE Id = @id",
                                         employmentCheckParameters,
                                         commandType: CommandType.Text,
@@ -430,42 +429,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 messageHistoryParameters.Add("@lastEmploymentCheck", employmentCheckMessageHistoryModel.LastEmploymentCheck, DbType.DateTime);
                                 messageHistoryParameters.Add("@responseHttpStatusCode", employmentCheckMessageHistoryModel.ResponseHttpStatusCode, DbType.Int16);
                                 messageHistoryParameters.Add("@responseMessage", employmentCheckMessageHistoryModel.ResponseMessage, DbType.String);
-                                messageHistoryParameters.Add("@messageCreatedOn", employmentCheckMessageHistoryModel.MessageCreatedOn, DbType.DateTime);
-                                messageHistoryParameters.Add("@createdOn", employmentCheckMessageHistoryModel.CreatedOn, DbType.DateTime);
+                                messageHistoryParameters.Add("@messageCreatedOn", employmentCheckMessageHistoryModel.MessageCreatedOn = DateTime.Now, DbType.DateTime);
+                                messageHistoryParameters.Add("@createdOn", employmentCheckMessageHistoryModel.CreatedOn = DateTime.Now, DbType.DateTime);
 
                                 await sqlConnection.ExecuteAsync(
                                     "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckMessageQueueHistory] " +
-                                    "( " +
-                                    " [MessageId] " +
-                                    ",[EmploymentCheckId] " +
-                                    ",[CorrelationId] " +
-                                    ",[Uln] " +
-                                    ",[NationalInsuranceNumber] " +
-                                    ",[PayeScheme] " +
-                                    ",[MinDateTime] " +
-                                    ",[MaxDateTime] " +
-                                    ",[Employed] " +
-                                    ",[LastEmploymentChecked] " +
-                                    ",[ResponseHttpStatusCode] " +
-                                    ",[ResponseMessage] " +
-                                    ",[MessageCreatedOn] " +
-                                    ",[CreatedOn] " +
-                                    ") " +
-                                    "VALUES (" +
-                                    " @messageId " +
-                                    ",@employmentCheckId " +
-                                    ",@correlationId " +
-                                    ",@uln " +
-                                    ",@nationalInsuranceNumber " +
-                                    ",@payeScheme " +
-                                    ",@minDateTime " +
-                                    ",@maxDateTime" +
-                                    ",@employed " +
-                                    ",@lastEmploymentCheck " +
-                                    ",@responseHttpStatusCode " +
-                                    ",@responseMessage " +
-                                    ",@messageCreatedOn " +
-                                    ",@createdOn)" +
+                                    "       ( [MessageId], [EmploymentCheckId], [CorrelationId], [Uln], [NationalInsuranceNumber], [PayeScheme], [MinDateTime], [MaxDateTime], [Employed], [LastEmploymentCheck], [ResponseHttpStatusCode], [ResponseMessage], [MessageCreatedOn], [CreatedOn]) " +
+                                    "VALUES ( @messageId , @employmentCheckId , @correlationId , @uln , @nationalInsuranceNumber , @payeScheme , @minDateTime , @maxDateTime , @employed , @lastEmploymentCheck , @responseHttpStatusCode , @responseMessage , @messageCreatedOn , @createdOn)",
                                     messageHistoryParameters,
                                     commandType: CommandType.Text,
                                     transaction: transaction);
@@ -474,7 +444,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 // Remove the employment check message from the queue
                                 // -------------------------------------------------------------------
                                 var messageParameters = new DynamicParameters();
-                                messageParameters.Add("messageId", employmentCheckMessage.Id, DbType.Int64);
+                                messageParameters.Add("id", employmentCheckMessage.Id, DbType.Int64);
 
                                 await sqlConnection.ExecuteAsync(
                                     "DELETE [Cache].[EmploymentCheckMessageQueue] WHERE Id = @id",
