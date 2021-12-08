@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,9 +10,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData
 {
@@ -34,12 +34,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<ApprenticeEmploymentCheckModel> apprentices)
         {
-            const string thisMethodName = "SubmitLearnerDataService.GetApprenticeNiNumbers()";
+            var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetApprenticeNiNumbers()";
 
             IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
             try
             {
-                var token = GetDcToken().Result;
+                var token = await GetDcToken();
 
                 apprenticeNiNumbers = await GetNiNumbers(apprentices, token);
             }
@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
 
         private async Task<AuthResult> GetDcToken()
         {
-            var thisMethodName = "SubmitLearnerDataService.GetDcToken()";
+            var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetDcToken()";
 
             var result = new AuthResult();
             try
@@ -81,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                var url = "/api/v1/ilr-data/learnersNi/2021?ulns=" + learner.ULN;
+                var url = $"/api/v1/ilr-data/learnersNi/2122?ulns={learner.ULN}";
 
                 try
                 {
