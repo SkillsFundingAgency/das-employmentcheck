@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmploymentChecks;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetApprenticeEmploymentChecksActivity
     {
-        private const string ThisClassName = "\n\nGetApprenticeEmploymentChecksActivity";
-
         private readonly IMediator _mediator;
         private readonly ILogger<GetApprenticeEmploymentChecksActivity> _logger;
 
@@ -29,8 +27,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         public async Task<IList<ApprenticeEmploymentCheckModel>> Get(
             [ActivityTrigger] long employmentCheckLastGetId)
         {
-            var thisMethodName = $"{ThisClassName}.Get()";
-
             GetApprenticeEmploymentChecksQueryResult getApprenticesResult;
             try
             {
@@ -38,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"\n\n{nameof(GetApprenticeEmploymentChecksActivity)}: Exception caught - {ex.Message}. {ex.StackTrace}");
                 getApprenticesResult = new GetApprenticeEmploymentChecksQueryResult(new List<ApprenticeEmploymentCheckModel>()); //return an empty list instead of null
             }
 

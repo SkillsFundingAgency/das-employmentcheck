@@ -7,9 +7,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticeEmplo
     {
         public GetApprenticeEmploymentChecksQueryRequest(long employmentCheckLastGetId)
         {
-            employmentCheckLastGetId = employmentCheckLastGetId;
+            EmploymentCheckLastGetId = employmentCheckLastGetId;
         }
 
-        public long employmentCheckLastGetId { get; }
+        public long EmploymentCheckLastGetId { get; }
     }
 }
