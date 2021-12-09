@@ -13,8 +13,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
     public class EmployerAccountClient
         : IEmployerAccountClient
     {
-        private IEmployerAccountService _employerAccountService;
-        private ILogger<IEmploymentCheckClient> _logger;
+        private readonly IEmployerAccountService _employerAccountService;
+        private readonly ILogger<IEmploymentCheckClient> _logger;
 
         public EmployerAccountClient(
             IEmployerAccountService employerAccountService,
@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 
                         if (payeSchemes != null && payeSchemes.Count > 0)
                         {
-                            employerPayeSchemes.Add(new EmployerPayeSchemes(apprentice.AccountId, payeSchemes.Select(x => x.Id).ToList()));
+                            employerPayeSchemes.Add(new EmployerPayeSchemes(apprentice.AccountId, payeSchemes.Select(x => x.Id.ToUpper()).ToList()));
                         }
                         else
                         {
