@@ -1,25 +1,24 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData
 {
     public class SubmitLearnerDataApiClient : ISubmitLearnerDataApiClient
     {
-        private HttpClient _httpClient;
-        private IWebHostEnvironment _hostingEnvironment;
-        private SubmitLearnerDataApiConfiguration _configuration;
-        private IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private ILogger<IEmployerAccountApiClient> _logger;
+        private readonly HttpClient _httpClient;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly SubmitLearnerDataApiConfiguration _configuration;
+        private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
+        private readonly ILogger<IEmployerAccountApiClient> _logger;
 
         public SubmitLearnerDataApiClient(
             IHttpClientFactory httpClientFactory,
@@ -39,15 +38,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
 
         public async Task<TResponse> Get<TResponse>(string url)
         {
-            var thisMethodName = "SubmitLearnerDataApiClient.Get()";
-
-            //_logger.LogInformation($"{thisMethodName} Started.");
-
-            string json = string.Empty;
+            var json = string.Empty;
 
             try
             {
-                //_logger.LogInformation($"{thisMethodName} Executing Http Get Request to {url}.");
                 var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
                 await AddAuthenticationHeader(httpRequestMessage);
 
@@ -56,14 +50,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
                 response.EnsureSuccessStatusCode();
 
                 json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                //_logger.LogInformation($"{thisMethodName} Http Get Request returned {json}.");
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{nameof(SubmitLearnerDataApiClient)}.Get(): Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
-            //_logger.LogInformation($"{thisMethodName} Completed.");
             return JsonConvert.DeserializeObject<TResponse>(json);
         }
 
@@ -71,8 +63,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         {
             if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
             {
-                var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
-                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                try
+                {
+                    var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
+                    httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"\n\n{nameof(SubmitLearnerDataApiClient)}.AddAuthenticationHeader(): Exception caught - {ex.Message}. {ex.StackTrace}");
+                }
+
             }
         }
     }

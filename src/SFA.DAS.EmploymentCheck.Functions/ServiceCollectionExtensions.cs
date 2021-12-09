@@ -36,15 +36,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountApiClient, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
 
-            // #if DEBUG
-            // For local development use the Stubs
-
-           // //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-           // serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-           // serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
-           //// serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
-            //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
-
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
                 var hmrcApiRateLimiterConfiguration = new HmrcApiRateLimiterConfiguration
@@ -90,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddLogging((options) =>
             {
-                options.AddFilter("SFA.DAS", LogLevel.Information); // this is because all logging is filtered out by defualt
+                options.AddFilter("SFA.DAS", LogLevel.Information);
                 options.SetMinimumLevel(LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {
@@ -127,7 +118,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             return serviceCollection;
         }
-
 
         public static IServiceCollection AddHashingService(this IServiceCollection serviceCollection)
         {
