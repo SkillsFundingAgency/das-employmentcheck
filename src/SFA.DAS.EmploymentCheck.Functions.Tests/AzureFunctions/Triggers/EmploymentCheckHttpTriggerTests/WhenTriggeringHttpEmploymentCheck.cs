@@ -1,11 +1,11 @@
-﻿using System.Net;
-using System.Net.Http;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
@@ -24,10 +24,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
         }
 
         [Fact]
-        public async void Then_The_Instance_Id_Is_Created()
+        public async Task Then_The_Instance_Id_Is_Created()
         {
             //Arrange
-            var instanceId = "test";
+            const string instanceId = "test";
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
             _starter.Setup(x => x.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator), null))
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
         }
 
         [Fact]
-        public async void Then_The_Status_Code_Is_Returned()
+        public async Task Then_The_Status_Code_Is_Returned()
         {
             //Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK);

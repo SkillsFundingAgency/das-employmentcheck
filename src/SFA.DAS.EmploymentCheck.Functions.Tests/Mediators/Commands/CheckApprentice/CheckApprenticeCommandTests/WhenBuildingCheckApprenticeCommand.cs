@@ -1,37 +1,24 @@
-﻿//using System;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-//using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
-//using Xunit;
+﻿using AutoFixture;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.CheckApprenticeEmploymentStatus;
+using Xunit;
 
-//namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Commands.CheckApprentice.CheckApprenticeCommandTests
-//{
-//    public class WhenBuildingCheckApprenticeCommand
-//    {
-//        [Fact]
-//        public void Then_The_Command_Is_Built_Correctly()
-//        {
-//            //Arrange
-//            var apprentice = new ApprenticeEmploymentCheck(1,
-//                1,
-//                "1000001",
-//                1000001,
-//                1000001,
-//                1000001,
-//                DateTime.Today.AddDays(1),
-//                DateTime.Today.AddDays(1));
+namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Commands.CheckApprentice.CheckApprenticeCommandTests
+{
+    public class WhenBuildingCheckApprenticeCommand
+    {
+        [Fact]
+        public void Then_The_Command_Is_Built_Correctly()
+        {
+            //Arrange
+            var fixture = new Fixture();
+            var apprentice = fixture.Create<ApprenticeEmploymentCheckMessageModel>();
 
-//            //Act
-//            var command = new ProcessApprenticeEmploymentChecksCommand(apprentice);
+            //Act
+            var command = new CheckApprenticeEmploymentStatusQueryRequest(apprentice);
 
-//            //Assert
-//            Assert.Equal(apprentice.Id, command.Apprentice.Id);
-//            Assert.Equal(apprentice.AccountId, command.Apprentice.AccountId);
-//            Assert.Equal(apprentice.NationalInsuranceNumber, command.Apprentice.NationalInsuranceNumber);
-//            Assert.Equal(apprentice.ULN, command.Apprentice.ULN);
-//            Assert.Equal(apprentice.UKPRN, command.Apprentice.UKPRN);
-//            Assert.Equal(apprentice.ApprenticeshipId, command.Apprentice.ApprenticeshipId);
-//            Assert.Equal(apprentice.StartDate, command.Apprentice.StartDate);
-//            Assert.Equal(apprentice.EndDate, command.Apprentice.EndDate);
-//        }
-//    }
-//}
+            //Assert
+            Assert.Equal(apprentice, command.ApprenticeEmploymentCheckMessageModel);
+        }
+    }
+}

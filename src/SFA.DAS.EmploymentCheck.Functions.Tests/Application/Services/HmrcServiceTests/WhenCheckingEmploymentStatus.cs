@@ -1,113 +1,114 @@
-﻿//using System;
-//using HMRC.ESFA.Levy.Api.Client;
-//using HMRC.ESFA.Levy.Api.Types;
-//using HMRC.ESFA.Levy.Api.Types.Exceptions;
-//using Microsoft.Extensions.Logging;
-//using Moq;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-//using SFA.DAS.EmploymentCheck.Functions.Helpers;
-//using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CheckApprentice;
-//using SFA.DAS.TokenService.Api.Client;
-//using SFA.DAS.TokenService.Api.Types;
-//using Xunit;
+﻿using AutoFixture;
+using HMRC.ESFA.Levy.Api.Client;
+using HMRC.ESFA.Levy.Api.Types;
+using HMRC.ESFA.Levy.Api.Types.Exceptions;
+using Microsoft.Extensions.Logging;
+using Moq;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
+using SFA.DAS.TokenService.Api.Client;
+using SFA.DAS.TokenService.Api.Types;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
-//namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
-//{
-//    public class WhenCheckingEmploymentStatus
-//    {
-//        private readonly Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-//        private readonly Mock<ILogger<HmrcService>> _logger;
-//        private readonly Mock<ITokenServiceApiClient> _tokenService;
-//        private readonly PrivilegedAccessToken _token;
-//        private readonly ApprenticeEmploymentCheckModel _apprentice;
-//        private readonly ProcessApprenticeEmploymentChecksCommand _command;
+namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
+{
+    public class WhenCheckingEmploymentStatus
+    {
+        private readonly Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
+        private readonly Mock<ILogger<HmrcService>> _logger;
+        private readonly Mock<ITokenServiceApiClient> _tokenService;
+        private readonly PrivilegedAccessToken _token;
+        private readonly ApprenticeEmploymentCheckModel _apprentice;
+        private readonly Fixture _fixture;
+     
+        public WhenCheckingEmploymentStatus()
+        {
+            _fixture = new Fixture();
+            _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
+            _logger = new Mock<ILogger<HmrcService>>();
+            _tokenService = new Mock<ITokenServiceApiClient>();
 
-//        public WhenCheckingEmploymentStatus()
-//        {
-//            _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-//            _logger = new Mock<ILogger<HmrcService>>();
-//            _tokenService = new Mock<ITokenServiceApiClient>();
+            _token = new PrivilegedAccessToken {AccessCode = "code", ExpiryTime = DateTime.Today.AddDays(7)};
 
-//            _token = new PrivilegedAccessToken();
-//            _token.AccessCode = "code";
-//            _token.ExpiryTime = DateTime.Today.AddDays(7);
+            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
 
-//            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
+            _apprentice = _fixture.Create<ApprenticeEmploymentCheckModel>();
+            _apprentice.MinDate = _fixture.Create<DateTime>();
+            _apprentice.MaxDate = _apprentice.MinDate.AddMonths(-6);
+        }
 
-//            _apprentice = new ApprenticeEmploymentCheck(1, 1, "1000001", 1000001, 10000001, 1, DateTime.Today.AddDays(-1),
-//                DateTime.Today.AddDays(1));
-//            _command = new ProcessApprenticeEmploymentChecksCommand(_apprentice);
-//        }
+        [Fact]
+        public async Task Then_The_TokenServiceApiClient_Is_Called()
+        {
+            // Arrange
+            var employmentStatus = new EmploymentStatus {Employed = true};
 
-//        [Fact]
-//        public async void Then_The_TokenServiceApiClient_Is_Called()
-//        {
-//            //Arrange
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, "PAYE",
+                    _apprentice.NationalInsuranceNumber, _apprentice.MinDate, _apprentice.MaxDate))
+                .ReturnsAsync(employmentStatus);
 
-//            var employmentStatus = new EmploymentStatus();
-//            employmentStatus.Employed = true;
+            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            var request = _fixture.Create<ApprenticeEmploymentCheckMessageModel>();
 
-//            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, "paye",
-//                    _apprentice.NationalInsuranceNumber, _command.Apprentice.StartDate, _command.Apprentice.EndDate))
-//                .ReturnsAsync(employmentStatus);
+            // Act
+            await sut.IsNationalInsuranceNumberRelatedToPayeScheme(request);
 
-//            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+        }
 
-//            //Act
+        [Fact]
+        public async Task Then_The_ApprenticeshipLevyApiClient_Is_Called_And_The_Response_Is_Returned()
+        {
+            // Arrange
+            var employmentStatus = new EmploymentStatus {Employed = true};
 
-//            await sut.IsNationalInsuranceNumberRelatedToPayeScheme("paye", _command, DateTime.Today.AddDays(-1), DateTime.Today.AddDays(1));
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, "PAYE",
+                    _apprentice.NationalInsuranceNumber, _apprentice.MinDate, _apprentice.MaxDate))
+                .ReturnsAsync(employmentStatus);
 
-//            //Assert
+            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            var request = _fixture.Build<ApprenticeEmploymentCheckMessageModel>()
+                .With(x => x.NationalInsuranceNumber, _apprentice.NationalInsuranceNumber)
+                .With(x => x.PayeScheme, "PAYE")
+                .With(x => x.StartDateTime, _apprentice.MinDate)
+                .With(x => x.EndDateTime, _apprentice.MaxDate)
+                .Create();
 
-//            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
-//        }
+            // Act
+            var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme(request);
 
-//        [Fact]
-//        public async void Then_The_ApprenticeshipLevyApiClient_Is_Called_And_The_Response_Is_Returned()
-//        {
-//            //Arrange
+            // Assert
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(_token.AccessCode, "PAYE",
+                _apprentice.NationalInsuranceNumber, _apprentice.MinDate, _apprentice.MaxDate), Times.Exactly(1));
+            Assert.Equal(employmentStatus.Employed, result.IsEmployed);
+        }
 
-//            var employmentStatus = new EmploymentStatus();
-//            employmentStatus.Employed = true;
+        [Fact]
+        public async Task And_The_ApprenticeshipLevyApiClient_Throws_An_ApiHttpException_Then_It_Returns_False()
+        {
+            // Arrange
+            var exception = new ApiHttpException(404, "message", "uri", "body");
 
-//            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, "paye",
-//                    _apprentice.NationalInsuranceNumber, _command.Apprentice.StartDate, _command.Apprentice.EndDate))
-//                .ReturnsAsync(employmentStatus);
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, "PAYE",
+                    _apprentice.NationalInsuranceNumber, _apprentice.MinDate, _apprentice.MaxDate))
+                .ThrowsAsync(exception);
 
-//            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            var request = _fixture.Build<ApprenticeEmploymentCheckMessageModel>()
+                .With(x => x.NationalInsuranceNumber, _apprentice.NationalInsuranceNumber)
+                .With(x => x.PayeScheme, "PAYE")
+                .With(x => x.StartDateTime, _apprentice.MinDate)
+                .With(x => x.EndDateTime, _apprentice.MaxDate)
+                .Create();
 
-//            //Act
+            // Act
+            var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme(request);
 
-//            var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme("paye", _command, DateTime.Today.AddDays(-1), DateTime.Today.AddDays(1));
-
-//            //Assert
-
-//            _apprenticeshipLevyService.Verify((System.Linq.Expressions.Expression<Func<IApprenticeshipLevyApiClient, System.Threading.Tasks.Task<EmploymentStatus>>>)(x => x.GetEmploymentStatus(_token.AccessCode, "paye",
-//                (string)_apprentice.NationalInsuranceNumber, _command.Apprentice.StartDate, _command.Apprentice.EndDate)), Times.Exactly(1));
-//            Assert.Equal(employmentStatus.Employed, result);
-//        }
-
-//        [Fact]
-//        public async void And_The_ApprenticeshipLevyApiClient_Throws_An_ApiHttpException_Then_It_Returns_False()
-//        {
-//            //Arrange
-
-//            var exception = new ApiHttpException(404, "message", "uri", "body");
-
-//            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, "paye",
-//                    _apprentice.NationalInsuranceNumber, _command.Apprentice.StartDate, _command.Apprentice.EndDate))
-//                .ThrowsAsync(exception);
-
-//            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
-
-//            //Act
-
-//            var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme("paye", _command, DateTime.Today.AddDays(-1), DateTime.Today.AddDays(1));
-
-//            //Assert
-
-//            Assert.False(result);
-//        }
-//    }
-//}
+            // Assert
+            Assert.False(result.IsEmployed);
+        }
+    }
+}

@@ -15,9 +15,9 @@
     [HasBeenChecked] BIT NOT NULL DEFAULT 0,
     [ReturnCode] VARCHAR(50) NULL,
     [ReturnMessage] VARCHAR(MAX) NULL
-    CONSTRAINT UC_EmploymentChecks UNIQUE (Accountid, uln, ukprn, apprenticeshipid, checktype)
+    CONSTRAINT UC_EmploymentChecks UNIQUE ([AccountId], [ULN], [UKPRN], [ApprenticeshipId], [CheckType])
 )
 GO
-CREATE INDEX [IX_EmploymentChecks_Column] ON [dbo].[EmploymentChecks] (uln, accountid, ukprn, checktype)
-go
-CREATE INDEX [IX_EmploymentChecks_Checks] ON [dbo].[EmploymentChecks] (checktype, uln)
+CREATE INDEX [IX_EmploymentChecks_Column] ON [dbo].[EmploymentChecks] ([ULN], [AccountId], [UKPRN], [CheckType])
+GO
+CREATE INDEX [IX_EmploymentChecks_Checks] ON [dbo].[EmploymentChecks] ([CheckType], [ULN])
