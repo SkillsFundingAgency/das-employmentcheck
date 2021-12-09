@@ -3,21 +3,31 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData
 {
     public class DcTokenService : IDcTokenService
     {
-        private readonly IHttpClientFactory _httpFactory;
+        private const string ThisClassName = "\n\nDcTokenService";
+        public const string ErrorMessagePrefix = "[*** ERROR ***]";
 
-        public DcTokenService(IHttpClientFactory httpFactory)
+        private readonly IHttpClientFactory _httpFactory;
+        private readonly ILogger<DcTokenService> _logger;
+
+        public DcTokenService(
+            ILogger<DcTokenService> logger,
+            IHttpClientFactory httpFactory)
         {
+            _logger = logger;
             _httpFactory = httpFactory;
         }
 
         public async Task<AuthResult> GetTokenAsync(string baseUrl, string grantType, string secret, string clientId, string scope)
         {
+            string thisMethodName = $"{nameof(DcTokenService)}.GetApprenticeNiNumbers()";
+
             using (HttpClient client = _httpFactory.CreateClient("TokenRequest"))
             {
                 var form = new Dictionary<string, string>
@@ -28,17 +38,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                     { "scope", scope }
                 };
 
+                AuthResult token = null;
                 try
                 {
                     HttpResponseMessage tokenResponse = await client.PostAsync(baseUrl, new FormUrlEncodedContent(form));
                     var jsonContent = await tokenResponse.Content.ReadAsStreamAsync();
-                    AuthResult token = await JsonSerializer.DeserializeAsync<AuthResult>(jsonContent);
-                    return token;
+                    token = await JsonSerializer.DeserializeAsync<AuthResult>(jsonContent);
+
                 }
                 catch (Exception ex)
                 {
-                    return new AuthResult();
+                    _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+
+                    token = new AuthResult();
                 }
+
+                return token;
             }
         }
     }

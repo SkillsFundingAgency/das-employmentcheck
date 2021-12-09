@@ -55,9 +55,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
         {
             var thisMethodName = "SubmitLearnerDataService.GetDcToken()";
 
-            var result = new AuthResult();
+            AuthResult result = null;
             try
             {
+
                 result = await _dcTokenService.GetTokenAsync(
                     $"https://login.microsoftonline.com/{_dcApiSettings.Tenant}",
                     "client_credentials",
@@ -68,7 +69,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             catch (Exception ex)
             {
                 _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                result = new AuthResult();
             }
+
             return result;
         }
 

@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         private ILogger<EmploymentChecksOrchestrator> _logger;
 
         /// <summary>
-        /// The ApprenticeEmploymentChecksOrchestrator orchestrator constructor, used to initialise the logging component.
+        /// The EmploymentChecksOrchestrator constructor, used to initialise the logging component.
         /// </summary>
         /// <param name="logger"></param>
         public EmploymentChecksOrchestrator(

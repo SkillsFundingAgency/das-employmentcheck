@@ -147,4 +147,25 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="ResponseHttpStatusCode" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="c6dc1911-8bd6-429a-8dc6-e90b9cafe768" ChangeDateTime="12/09/2021 07:15:26">
+    <Property Name="ElementName" Value="[Cache].[RequestResponseType].[RequestResponseTypeId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[RequestResponseType]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="RequestTypeId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="31c71c34-aa26-471d-9b1b-304c3107e1cc" ChangeDateTime="12/09/2021 07:17:27">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckCacheRequest].[RequestResponseTypeId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckCacheRequest]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="RequestTypeId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8139819c-f949-4dcf-847e-9e9faf741700" ChangeDateTime="12/09/2021 07:23:11">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckCacheResponse].[EmploymentCheckCacheResponseId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckCacheResponse]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EmploymentCheckCacheRequestId" />
+  </Operation>
 </Operations>
