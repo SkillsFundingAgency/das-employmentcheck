@@ -74,14 +74,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return serviceCollection;
         }
 
-
         public static IServiceCollection AddNLog(this IServiceCollection serviceCollection)
         {
             var nLogConfiguration = new NLogConfiguration();
 
-            serviceCollection.AddLogging((options) =>
+            serviceCollection.AddLogging(options =>
             {
-                options.AddFilter("SFA.DAS", LogLevel.Information);
+                options.AddFilter(typeof(Startup).Namespace, LogLevel.Information);
                 options.SetMinimumLevel(LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {

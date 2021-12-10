@@ -48,7 +48,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            //builder.Services.AddMediatR(typeof(GetApprenticesToVerifyRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetApprenticeEmploymentChecksQueryRequest).Assembly);
 
             // SubmitLearnerData API Configuration
