@@ -262,3 +262,6 @@ src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 *.ncrunchproject
 /src/SFA.DAS.EAS.Web/SFA.DAS.EAS.Web.csproj.DotSettings
 *.dbmdl
+**/appsettings.json
+**/config.json
+/src/_tools/app-levy-data-seeder/Files/*
