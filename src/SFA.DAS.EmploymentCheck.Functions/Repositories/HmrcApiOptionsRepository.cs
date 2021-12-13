@@ -62,6 +62,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             await _table.ExecuteAsync(operation);
         }
 
+        public async Task CreateDefaultOptions()
+        {
+            InitTableStorage();
+            var options = GetDefaultOptions();
+            options.UpdateDateTime = DateTime.UtcNow;
+            var operation = TableOperation.InsertOrReplace(options);
+            await _table.ExecuteAsync(operation);
+        }
+
         private HmrcApiRateLimiterOptions GetDefaultOptions()
         {
             return new HmrcApiRateLimiterOptions
