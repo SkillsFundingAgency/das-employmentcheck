@@ -25,27 +25,31 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             var thisMethodName = $"{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)}.ProcessApprenticeEmploymentChecksSubOrchestratorTask()";
 
             try
-            { 
+            {
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{thisMethodName}: Started.");
 
 
                 // Get the next message off the message queue
-                var apprenticeEmploymentCheckMessage = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
+                var apprenticeEmploymentCheckMessage =
+                    await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(
+                        nameof(DequeueApprenticeEmploymentCheckMessageActivity), null);
 
                 if (apprenticeEmploymentCheckMessage == null)
                 {
-                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
+                    _logger.LogInformation(
+                        $"\n\n{thisMethodName}: {nameof(DequeueApprenticeEmploymentCheckMessageActivity)} returned no results. Nothing to process.");
                     context.ContinueAsNew(null);
                 }
 
                 // Do the employment status check on this message
-                var result = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
+                var result = await context.CallActivityAsync<ApprenticeEmploymentCheckMessageModel>(
+                    nameof(CheckApprenticeEmploymentStatusActivity), apprenticeEmploymentCheckMessage);
 
                 if (result == null || result.EmploymentCheckId == 0)
                 {
                     _logger.LogInformation($"{nameof(CheckApprenticeEmploymentStatusActivity)} returned null result");
-                    
+
                     context.ContinueAsNew(null);
                 }
 
@@ -56,13 +60,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     await context.CallActivityAsync(nameof(SaveApprenticeEmploymentCheckResultActivity), result);
 
                     // Execute RateLimiter
-                    var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
+                    var delayTimeSpan =
+                        await context.CallActivityAsync<TimeSpan>(
+                            nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
 
                     // Rate limiter delay between each call
                     var delay = context.CurrentUtcDateTime.Add(delayTimeSpan);
                     await context.CreateTimer(delay, CancellationToken.None);
                 }
+            }
 
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    $"\n\n{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)} Exception caught: {ex.Message}. {ex.StackTrace}");
+            }
+
+            finally
+            {
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)}: Completed.");
 
@@ -72,11 +87,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // will run though the table storage 'event sourcing' state.
                 context.ContinueAsNew(null);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{nameof(ProcessApprenticeEmploymentChecksWithRateLimiterOrchestrator)} Exception caught: {ex.Message}. {ex.StackTrace}");
-            }
         }
-
     }
 }
