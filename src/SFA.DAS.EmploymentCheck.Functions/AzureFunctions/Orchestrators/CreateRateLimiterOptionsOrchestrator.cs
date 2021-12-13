@@ -21,7 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             try
             {
-                // We now have all the data we need for the employment check so create a message on the message queue ready for the employment check orchestrator to process
                 await context.CallActivityAsync(nameof(CreateRateLimiterOptionsActivity), context.InstanceId);
             }
 

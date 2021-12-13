@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     EnvironmentName = Environment.GetEnvironmentVariable("EnvironmentName"),
                     StorageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
                 };
-                return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration);
+                return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
 
             serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
