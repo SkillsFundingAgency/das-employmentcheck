@@ -67,32 +67,49 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 // Get the apprentices requiring an employment check (we have to await this call as we can't do anything else until we have the list of apprentices)
-                var apprenticeEmploymentChecks = await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(nameof(GetApprenticeEmploymentChecksActivity), 0);
-                _logger.LogInformation($"\n\n{nameof(GetApprenticeEmploymentChecksActivity)} activity returned {apprenticeEmploymentChecks.Count} results");
+                var apprenticeEmploymentChecks =
+                    await context.CallActivityAsync<IList<ApprenticeEmploymentCheckModel>>(
+                        nameof(GetApprenticeEmploymentChecksActivity), 0);
+                _logger.LogInformation(
+                    $"\n\n{nameof(GetApprenticeEmploymentChecksActivity)} activity returned {apprenticeEmploymentChecks.Count} results");
 
                 // If we got a batch of apprentices then lookup the Nino and Paye Schemes otherwise sleep for a while before repeating the execution
                 if (apprenticeEmploymentChecks.Count > 0)
                 {
                     // Get the apprentices National Insurance Numbers
-                    var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), apprenticeEmploymentChecks);
+                    var getNationalInsuranceNumbersTask =
+                        context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity),
+                            apprenticeEmploymentChecks);
 
                     // Get the apprentices employer PAYE schemes
-                    var getPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), apprenticeEmploymentChecks);
+                    var getPayeSchemesTask =
+                        context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity),
+                            apprenticeEmploymentChecks);
 
                     // Wait for the NI numbers and PAYE schemes calls to finish before proceeding to add the data to the db message queue
                     await Task.WhenAll(getNationalInsuranceNumbersTask, getPayeSchemesTask);
 
                     // We now have all the data we need for the employment check so create a message on the message queue ready for the employment check orchestrator to process
-                    await context.CallActivityAsync<int>(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity), new ApprenticeRelatedData(apprenticeEmploymentChecks, getNationalInsuranceNumbersTask.Result, getPayeSchemesTask.Result));
+                    await context.CallActivityAsync<int>(nameof(EnqueueApprenticeEmploymentCheckMessagesActivity),
+                        new ApprenticeRelatedData(apprenticeEmploymentChecks, getNationalInsuranceNumbersTask.Result,
+                            getPayeSchemesTask.Result));
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: No data found so sleep for 10 seconds then execute the orchestrator again");
+                    _logger.LogInformation(
+                        $"{thisMethodName}: No data found so sleep for 10 seconds then execute the orchestrator again");
                     // No data found so sleep for 10 seconds then execute the orchestrator again
                     DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+            }
 
+            finally
+            {
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity
                 // functions were running so this could be a new instance of the orchestrator which
@@ -102,11 +119,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Completed.");
             }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
-            }
-
         }
     }
 }
