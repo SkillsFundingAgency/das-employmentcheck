@@ -608,7 +608,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 Uln = apprentice.ULN,
                                 NationalInsuranceNumber = nationalInsuranceNumber,
                                 StartDateTime = apprentice.MinDate,
-                                EndDateTime = apprentice.MinDate,
+                                EndDateTime = apprentice.MaxDate,
                                 PayeScheme = payeScheme
                             };
 
