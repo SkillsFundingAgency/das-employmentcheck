@@ -5,8 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
-using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using System.IO;
+using Microsoft.Extensions.Options;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.TestHarness
 {
@@ -38,6 +39,8 @@ namespace SFA.DAS.EmploymentCheck.TestHarness
 
         private void RegisterTokenServiceStub(IServiceCollection services)
         {
+            services.Configure<HmrcAuthTokenServiceConfiguration>(Configuration.GetSection("HmrcAuthTokenService"));
+            services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
             services.AddTokenServiceStubServices();
         }
 
