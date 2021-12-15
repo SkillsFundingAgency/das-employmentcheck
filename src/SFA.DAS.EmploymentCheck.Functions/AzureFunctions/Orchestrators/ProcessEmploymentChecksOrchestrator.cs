@@ -37,6 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     public class ProcessEmploymentChecksOrchestrator
     {
         private const string ThisClassName = "\n\nProcessEmploymentChecksOrchestrator";
+        private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
         private ILogger<ProcessEmploymentChecksOrchestrator> _logger;
 
@@ -89,7 +90,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
-
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+            }
+            finally
+            {
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{thisMethodName}: Completed.");
 
@@ -98,10 +105,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // functions were running so this could be a new instance of the orchestrator which
                 // will run though the table storage 'event sourcing' state.
                 context.ContinueAsNew(null);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
             }
         }
     }

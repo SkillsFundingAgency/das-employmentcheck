@@ -4,15 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class SeedEmploymentCheckTestDataOrchestrator
     {
         private const string ThisClassName = "\n\nSeedEmploymentCheckTestDataOrchestrator";
+        public const string ErrorMessagePrefix = "[*** ERROR ***]";
         private ILogger<SeedEmploymentCheckTestDataOrchestrator> _logger;
 
         public SeedEmploymentCheckTestDataOrchestrator(
@@ -39,9 +38,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
             catch (Exception ex)
             {
-                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
-
         }
     }
 }

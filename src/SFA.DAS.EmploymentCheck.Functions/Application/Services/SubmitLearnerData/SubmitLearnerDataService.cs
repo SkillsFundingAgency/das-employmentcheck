@@ -10,11 +10,15 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData
 {
     public class SubmitLearnerDataService : ISubmitLearnerDataService
     {
+        private const string ThisClassName = "\n\nSubmitLearnerDataService";
+        private const string ErrorMessagePrefix = "[*** ERROR ***]";
+
         private readonly ILogger<SubmitLearnerDataService> _logger;
         private readonly IDcTokenService _dcTokenService;
         private readonly IHttpClientFactory _httpFactory;
@@ -32,9 +36,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             _dcApiSettings = dcApiSettings.Value;
         }
 
-        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Models.Domain.EmploymentCheckModel> apprentices)
+        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<EmploymentCheckModel> apprentices)
         {
-            const string thisMethodName = "SubmitLearnerDataService.GetApprenticeNiNumbers()";
+            string thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetApprenticesNiNumber()";
 
             IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
             try
@@ -45,35 +49,90 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             }
             catch (Exception ex)
             {
-                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
 
             return await Task.FromResult(apprenticeNiNumbers);
         }
 
-        private async Task<AuthResult> GetDcToken()
+        //public async Task<IList<DataCollectionsApiResult>> GetApprenticesNiNumber(IList<EmploymentCheckModel> apprentices)
+        //{
+        //    string thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetApprenticesNiNumber()";
+
+        //    IList<DataCollectionsApiResult> dataCollectionsApiResult = null;
+        //    try
+        //    {
+        //        var token = GetDcToken().Result;
+
+        //        dataCollectionsApiResult = await GetNiNumbers(apprentices, token);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+        //    }
+
+        //    return await Task.FromResult(dataCollectionsApiResult);
+        //}
+
+
+        private async Task<IList<ApprenticeNiNumber>> GetNiNumbers(ICollection<EmploymentCheckModel> learners, AuthResult token)
         {
-            var thisMethodName = "SubmitLearnerDataService.GetDcToken()";
+            var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetNiNumbers()";
 
-            AuthResult result = null;
-            try
+            _logger.LogInformation($"{thisMethodName}: Getting Ni Numbers for {learners.Count} apprentices");
+
+            var timer = new Stopwatch();
+            timer.Start();
+
+            var checkedLearners = new List<ApprenticeNiNumber>();
+
+            var taskList = new List<Task<ApprenticeNiNumber>>();
+
+            foreach (var learner in learners)
             {
+                taskList.Add(SendIndividualRequest(learner, token));
 
-                result = await _dcTokenService.GetTokenAsync(
-                    $"https://login.microsoftonline.com/{_dcApiSettings.Tenant}",
-                    "client_credentials",
-                    _dcApiSettings.ClientSecret,
-                    _dcApiSettings.ClientId,
-                    _dcApiSettings.IdentifierUri);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                result = new AuthResult();
+                var responses = await Task.WhenAll(taskList);
+                checkedLearners.AddRange(responses);
+
+                taskList.Clear();
             }
 
-            return result;
+            timer.Stop();
+            _logger.LogInformation($"{thisMethodName}: Got Ni Numbers for {learners.Count} apprentices. {timer}ms elapsed");
+
+            return checkedLearners;
         }
+
+        //private async Task<IList<DataCollectionsApiResult>> GetNiNumbers(ICollection<EmploymentCheckModel> learners, AuthResult token)
+        //{
+        //    var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetNiNumbers()";
+
+        //    _logger.LogInformation($"{thisMethodName}: Getting Ni Numbers for {learners.Count} apprentices");
+
+        //    var timer = new Stopwatch();
+        //    timer.Start();
+
+        //    var checkedLearners = new List<DataCollectionsApiResult>();
+
+        //    var taskList = new List<Task<ApprenticeNiNumber>>();
+
+        //    foreach (var learner in learners)
+        //    {
+        //        taskList.Add(SendIndividualRequest(learner, token));
+
+        //        var responses = await Task.WhenAll(taskList);
+        //        checkedLearners.AddRange(responses);
+
+        //        taskList.Clear();
+        //    }
+
+        //    timer.Stop();
+        //    _logger.LogInformation($"{thisMethodName}: Got Ni Numbers for {learners.Count} apprentices. {timer}ms elapsed");
+
+        //    return checkedLearners;
+        //}
+
 
         private async Task<ApprenticeNiNumber> SendIndividualRequest(EmploymentCheckModel learner, AuthResult token)
         {
@@ -108,38 +167,34 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                    _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
                 }
             }
             return checkedLearner;
         }
 
-        private async Task<IList<ApprenticeNiNumber>> GetNiNumbers(ICollection<EmploymentCheckModel> learners, AuthResult token)
+        private async Task<AuthResult> GetDcToken()
         {
-            var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetNiNumbers()";
+            var thisMethodName = "SubmitLearnerDataService.GetDcToken()";
 
-            _logger.LogInformation($"{thisMethodName}: Getting Ni Numbers for {learners.Count} apprentices");
-
-            var timer = new Stopwatch();
-            timer.Start();
-            var checkedLearners = new List<ApprenticeNiNumber>();
-
-            var taskList = new List<Task<ApprenticeNiNumber>>();
-
-            foreach (var learner in learners)
+            AuthResult result = null;
+            try
             {
-                taskList.Add(SendIndividualRequest(learner, token));
 
-                var responses = await Task.WhenAll(taskList);
-                checkedLearners.AddRange(responses);
-
-                taskList.Clear();
+                result = await _dcTokenService.GetTokenAsync(
+                    $"https://login.microsoftonline.com/{_dcApiSettings.Tenant}",
+                    "client_credentials",
+                    _dcApiSettings.ClientSecret,
+                    _dcApiSettings.ClientId,
+                    _dcApiSettings.IdentifierUri);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                result = new AuthResult();
             }
 
-            timer.Stop();
-            _logger.LogInformation($"{thisMethodName}: Got Ni Numbers for {learners.Count} apprentices. {timer}ms elapsed");
-
-            return checkedLearners;
+            return result;
         }
     }
 }

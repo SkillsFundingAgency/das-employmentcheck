@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
+namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
 {
-   public class EmploymentCheckCacheRequest
+    public class RequestType
     {
         public long Id { get; set; }
 
-        public Guid CorrelationId { get; set; }
+        public string Description { get; set; }
 
         public DateTime CreatedOn { get; set; }
 

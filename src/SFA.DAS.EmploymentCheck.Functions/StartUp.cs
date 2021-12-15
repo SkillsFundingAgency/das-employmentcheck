@@ -59,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountApiConfiguration>>().Value);
 
-            // HMRC API Settings
+            // HMRC API Configuration
             builder.Services.Configure<HmrcApiConfiguration>(config.GetSection("HmrcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiConfiguration>>().Value);
 
@@ -67,10 +67,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<TokenServiceApiClientConfiguration>(config.GetSection("TokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<TokenServiceApiClientConfiguration>>().Value);
 
-            // Application Settings
+            // Application Configuration
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
+            // TODO: Data Collections was renamed Submit Learner Data several years ago is this a duplicate of the Submit Learner Data configuration above
             //DC Api Settings
             builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>().Value);

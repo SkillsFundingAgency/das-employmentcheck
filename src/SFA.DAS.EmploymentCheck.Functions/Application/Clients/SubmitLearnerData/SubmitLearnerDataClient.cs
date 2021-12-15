@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerDat
         }
 
         public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(
-            IList<Models.Domain.EmploymentCheckModel> apprentices)
+            IList<EmploymentCheckModel> apprentices)
         {
             const string thisMethodName = "SubmitLearnerDataClient.GetApprenticesNiNumber()";
 

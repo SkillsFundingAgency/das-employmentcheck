@@ -9,6 +9,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
     public class SubmitLearnerDataServiceStub : ISubmitLearnerDataService
     {
         private const string ThisClassName = "\n\nEmployerAccountServiceStub";
+        private const string ErrorMessagePrefix = "[*** ERROR ***]";
+
         private readonly ILogger<ISubmitLearnerDataService> _logger;
 
         public SubmitLearnerDataServiceStub(
@@ -17,11 +19,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             _logger = logger;
         }
 
-        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<Models.Domain.EmploymentCheckModel> employmentCheckModels)
+        public async Task<IList<ApprenticeNiNumber>> GetApprenticesNiNumber(IList<EmploymentCheckModel> employmentCheckModels)
         {
             var thisMethodName = $"{ThisClassName}.GetApprenticesNiNumber()";
 
-            List<ApprenticeNiNumber> apprenticesNiNumber = new List<ApprenticeNiNumber>();
+            IList<ApprenticeNiNumber> apprenticesNiNumber = new List<ApprenticeNiNumber>();
             if (employmentCheckModels != null &&
                 employmentCheckModels.Count > 0)
             {
@@ -36,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLear
             return await Task.FromResult(apprenticesNiNumber);
         }
 
-        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(Models.Domain.EmploymentCheckModel employmentCheckModel)
+        private async Task<ApprenticeNiNumber> FindApprenticeNiNumber(EmploymentCheckModel employmentCheckModel)
         {
             var uln = employmentCheckModel.Uln;
             var niNumber = "NI" + employmentCheckModel.Uln.ToString();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System;
@@ -25,18 +26,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         /// Gets a batch of the employment checks from the Employment Check database
         /// </summary>
         /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async Task<IList<Models.Domain.EmploymentCheckModel>> GetEmploymentChecksBatch_Client(long employmentCheckLastHighestBatchId)
+        public async Task<IList<EmploymentCheckModel>> GetEmploymentChecksBatch(long employmentCheckLastHighestBatchId)
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.GetEmploymentChecksBatch_Client()";
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.GetEmploymentChecksBatch()";
 
-            IList<Models.Domain.EmploymentCheckModel> employmentCheckModels = null;
+            IList<EmploymentCheckModel> employmentCheckModels = null;
             try
             {
-                employmentCheckModels = (IList<Models.Domain.EmploymentCheckModel>)await _employmentCheckService.GetEmploymentChecksBatch_Service(employmentCheckLastHighestBatchId);
+                employmentCheckModels = await _employmentCheckService.GetEmploymentChecksBatch(employmentCheckLastHighestBatchId);
 
                 if (employmentCheckModels == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckModels value returned from the GetEmploymentChecksBatch_Service() service returned null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckModels value returned from the GetEmploymentChecksBatch() service returned null.");
                 }
             }
             catch (Exception ex)
@@ -45,6 +46,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             }
 
             return employmentCheckModels;
+        }
+
+        /// <summary>
+        /// Creates an EmploymentCheckCacheRequest for each employment check in the given list of employment checks
+        /// </summary>
+        /// <param name="employmentCheckModels">The list of employment checks that require a an employment check cache request.</param>
+        /// <returns>Task<IList<EmploymentCheckCacheRequest>></returns>
+        public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(IList<EmploymentCheckModel> employmentCheckModels)
+        {
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.CreateEmploymentCheckCacheRequests()";
+
+            IList<EmploymentCheckCacheRequest> employmentCheckCacheRequests = null;
+            try
+            {
+                employmentCheckCacheRequests = await _employmentCheckService.CreateEmploymentCheckCacheRequests(employmentCheckModels);
+
+                if (employmentCheckCacheRequests == null)
+                {
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckCacheRequests value returned from the CreateEmploymentCheckCacheRequests() service returned null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+            }
+
+            return employmentCheckCacheRequests;
         }
 
         /// <summary>
@@ -60,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             {
                 if (employmentCheckData != null)
                 {
-                    await _employmentCheckService.EnqueueEmploymentCheckMessages_Service(employmentCheckData);
+                    await _employmentCheckService.EnqueueEmploymentCheckMessages(employmentCheckData);
                 }
                 else
                 {
@@ -84,7 +112,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             EmploymentCheckMessage employmentCheckMessage = null;
             try
             {
-                employmentCheckMessage = await _employmentCheckService.DequeueEmploymentCheckMessage_Service();
+                employmentCheckMessage = await _employmentCheckService.DequeueEmploymentCheckMessage();
 
                 if(employmentCheckMessage == null)
                 {
@@ -107,7 +135,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             {
                 if (employmentCheckMessage != null)
                 {
-                    await _employmentCheckService.SaveEmploymentCheckResult_Service(employmentCheckMessage);
+                    await _employmentCheckService.SaveEmploymentCheckResult(employmentCheckMessage);
                 }
                 else
                 {

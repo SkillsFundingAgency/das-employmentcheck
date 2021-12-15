@@ -168,4 +168,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="EmploymentCheckCacheRequestId" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="af9643bc-4c03-4bc3-8c52-ce9dd58cea6e" ChangeDateTime="12/10/2021 13:08:30">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckCacheResponse].[HmrcResponse]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckCacheResponse]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Response" />
+  </Operation>
 </Operations>

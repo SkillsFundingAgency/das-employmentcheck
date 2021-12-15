@@ -5,10 +5,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using AgileObjects.AgileMapper;
-using AgileObjects.AgileMapper.Extensions;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSchemes;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities

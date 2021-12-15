@@ -2,17 +2,21 @@
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain
 {
-    public class AccountsResponse
+    public class OldEmploymentCheckCacheResponse
     {
         public long Id { get; set; }
 
         public Guid CorrelationId { get; set; }
 
-        public long AccountId { get; set; }
+        public int? Employed { get; set; }
 
-        public string PayeSchemes { get; set; }
+        public string FoundOnPaye { get; set; }
 
-        public string Response { get; set; }
+        public bool ProcessingComplete { get; set; }
+
+        public int Count { get; set; }
+
+        public string HmrcResponse { get; set; }
 
         public DateTime CreatedOn { get; set; }
 

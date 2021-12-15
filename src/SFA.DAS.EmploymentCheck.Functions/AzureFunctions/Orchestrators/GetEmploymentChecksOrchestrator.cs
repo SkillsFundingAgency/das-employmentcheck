@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -39,6 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     public class GetEmploymentChecksOrchestrator
     {
         private const string ThisClassName = "\n\nGetEmploymentChecksOrchestrator";
+        private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
         private ILogger<GetEmploymentChecksOrchestrator> _logger;
 
@@ -68,12 +68,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
-                // Get the batch of employment checks
+                // Get a batch of employment checks
                 var employmentChecks = await context.CallActivityAsync<IList<EmploymentCheckModel>>(nameof(GetEmploymentChecksActivity), 0);
 
-                // If we got a batch of employment checks then lookup the Nino and Paye Schemes otherwise sleep for a while before repeating the process
+                // 'Enrich' the data (lookup Nino and Paye Scheme(s)) and add an employment check message to the message queue
                 if (employmentChecks.Count > 0)
                 {
+                    // Create the EmploymentCheckCacheRequests
+                    var employmentCheckCacheRequests = await context.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(CreateEmploymentCheckCacheRequestsActivity), employmentChecks);
+
                     // Get the apprentices National Insurance Numbers
                     var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), employmentChecks);
 
@@ -97,20 +100,49 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
 
+                #region
+                //// If we got a batch of employment checks then lookup the Nino and Paye Schemes otherwise sleep for a while before repeating the process
+                //if (employmentChecks.Count > 0)
+                //{
+                //    // Get the apprentices National Insurance Numbers
+                //    var getNationalInsuranceNumbersTask = context.CallActivityAsync<IList<ApprenticeNiNumber>>(nameof(GetApprenticesNiNumberActivity), employmentChecks);
+
+                //    // Get the apprentices employer PAYE schemes
+                //    var getPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployersPayeSchemesActivity), employmentChecks);
+
+                //    // Wait for the NI numbers and PAYE schemes calls to finish before proceeding to add the data to the db message queue
+                //    await Task.WhenAll(getNationalInsuranceNumbersTask, getPayeSchemesTask);
+
+                //    // We now have all the data we need for the employment check so create a message on the message queue ready for the employment check orchestrator to process
+                //    await context.CallActivityAsync<int>(nameof(EnqueueEmploymentCheckMessagesActivity), new EmploymentCheckData(employmentChecks, getNationalInsuranceNumbersTask.Result, getPayeSchemesTask.Result));
+                //}
+                //else
+                //{
+                //    _logger.LogInformation($"{thisMethodName}: No data found so sleep for 10 seconds then execute the orchestrator again");
+
+                //    // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
+
+                //    // No data found so sleep for 10 seconds then execute the orchestrator again
+                //    DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                //    await context.CreateTimer(sleep, CancellationToken.None);
+                //}
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+            finally
+            {
+                if (!context.IsReplaying)
+                    _logger.LogInformation($"{thisMethodName}: Completed.");
+
                 // execute the orchestrator again with a new context to process the next message
                 // Note: The orchestrator may have been unloaded from memory whilst the activity
                 // functions were running so this could be a new instance of the orchestrator which
                 // will run though the table storage 'event sourcing' state.
                 context.ContinueAsNew(null);
-
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"\n\n{thisMethodName}: Completed.");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName} Exception caught: {ex.Message}. {ex.StackTrace}");
-            }
-
         }
     }
 }

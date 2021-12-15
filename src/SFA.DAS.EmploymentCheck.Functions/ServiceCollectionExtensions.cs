@@ -4,8 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
-using SFA.DAS.Api.Common.Infrastructure;
-using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
@@ -13,7 +11,6 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.StubsSubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -37,14 +34,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountApiClient, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
 
-            // #if DEBUG
-            // For local development use the Stubs
-
-           // //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-           // serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-           // serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
-           //// serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
-            //serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
+            // TODO: sort out the syntax for DI with generic repository
+            //serviceCollection.AddTransient<IEmploymentCheckRepository, EmploymentCheckRepository>();
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
@@ -56,21 +47,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration);
             });
 
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
+            serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
-            //serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-
-            //serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataService>();
-            serviceCollection.AddTransient<ISubmitLearnerDataService, SubmitLearnerDataServiceStub>();
-            //serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountServiceStub>();
-            //serviceCollection.AddTransient<IHmrcService, HmrcService>();
-            serviceCollection.AddTransient<IHmrcService, HmrcServiceStub>();
 
-            //serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
-            //erviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckServiceStub>();
-
-            //serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
                 serviceCollection.AddSingleton(new AzureServiceTokenProvider());
@@ -136,7 +118,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             return serviceCollection;
         }
-
 
         public static IServiceCollection AddHashingService(this IServiceCollection serviceCollection)
         {

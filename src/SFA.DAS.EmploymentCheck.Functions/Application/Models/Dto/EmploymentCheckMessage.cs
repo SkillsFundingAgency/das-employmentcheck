@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto
 {
+    [Table("Cache.EmploymentCheckMessage")]
+
     public class EmploymentCheckMessage
     {
         public EmploymentCheckMessage() { }

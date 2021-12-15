@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck
             try
             {
                 // Call the application client to get the employment checks
-                employmentCheckModels = await _employmentCheckClient.GetEmploymentChecksBatch_Client(request.EmploymentCheckLastHighestBatchId);
+                employmentCheckModels = await _employmentCheckClient.GetEmploymentChecksBatch(request.EmploymentCheckLastHighestBatchId);
 
                 if (employmentCheckModels != null &&
                     employmentCheckModels.Count > 0)
