@@ -40,23 +40,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             const string thisMethodName = "EmployerAccountApiClient.Get()";
 
             var json = string.Empty;
+            HttpResponseMessage response = null;
 
             try
             {
-                _logger.LogInformation($"{thisMethodName} Executing Http Get Request to {url}.");
                 var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
                 await AddAuthenticationHeader(httpRequestMessage);
 
-                var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
-
+                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                _logger.LogInformation($"{thisMethodName} Http Get Request returned {json}.");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {response?.Content.ReadAsStringAsync()} {ex.StackTrace}");
                 return JsonConvert.DeserializeObject<TResponse>("");
             }
 
