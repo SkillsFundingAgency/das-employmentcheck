@@ -13,5 +13,6 @@ namespace app_levy_data_seeder.Models
         public string CheckType { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool HasBeenChecked { get; set; }
+        public string NationalInsuranceNumber { get; set; }
     }
 }

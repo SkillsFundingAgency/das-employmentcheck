@@ -37,11 +37,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
             var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetApprenticeNiNumbers()";
 
             IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
+
             try
             {
-                var token = await GetDcToken();
-
-                apprenticeNiNumbers = await GetNiNumbers(apprentices, token);
+                if (_dcApiSettings.TaskSize == 0)
+                {
+                    _logger.LogInformation($"\n\n{thisMethodName}: DC API Call turned off, returning existing NINOs");
+                    
+                    apprenticeNiNumbers = apprentices
+                        .Select(a => new ApprenticeNiNumber(a.ULN, a.NationalInsuranceNumber)).ToList();
+                }
+                else
+                {
+                    _logger.LogInformation($"\n\n{thisMethodName}: DC API Call turned on, returning fetching data");
+                   
+                    var token = await GetDcToken();
+                    apprenticeNiNumbers = await GetNiNumbers(apprentices, token);
+                }
             }
             catch (Exception ex)
             {
