@@ -479,7 +479,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     "ReturnCode = @returnCode," +
                                     "ReturnMessage = @returnMessage" +
                                     " WHERE Id = @id" +
-                                    " AND isEmployed <> 1",
+                                    " AND (isEmployed <> 1 OR isEmployed IS NULL)",
                                     parameters,
                                     commandType: CommandType.Text,
                                     transaction: transaction);
