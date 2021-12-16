@@ -52,6 +52,7 @@ namespace app_levy_data_seeder
                             AccountId = Convert.ToInt64(columns[1]),
                             MinDate = Convert.ToDateTime(columns[2]),
                             MaxDate = Convert.ToDateTime(columns[3]),
+                            NationalInsuranceNumber = _options.SeedNinos ? columns[4] : null,
                             HasBeenChecked = false,
                             CreatedDate = now,
                             CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20]

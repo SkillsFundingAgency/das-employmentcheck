@@ -132,6 +132,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 apprenticeEmploymentChecksResult = await sqlConnection.QueryAsync<ApprenticeEmploymentCheckModel>(
                 sql: "SELECT TOP (@batchSize) Id," +
                         "ULN," +
+                        "NationalInsuranceNumber, " +
                         "UKPRN," +
                         "ApprenticeshipId," +
                         "AccountId," +
