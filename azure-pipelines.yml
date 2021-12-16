@@ -150,16 +150,17 @@ stages:
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
-# - stage: Deploy_DEMO
-#   dependsOn: Build
-#   displayName: Deploy to DEMO
-#   condition: and(succeeded(), eq(variables.Deploy, 'true'))
-#   variables:
-#   - group: DevTest Management Resources
-#   - group: DEMO DevTest Shared Resources
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       Environment: DEMO
-#       ServiceConnection: SFA-DAS-DevTest-ARM
-#       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+- stage: Deploy_DEMO
+  dependsOn: Build
+  displayName: Deploy to DEMO
+  condition: and(succeeded(), eq(variables.Deploy, 'true'))
+  variables:
+  - group: DevTest Management Resources
+  - group: DEMO DevTest Shared Resources
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: DEMO
+      ServiceConnection: SFA-DAS-DevTest-ARM
+      AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
