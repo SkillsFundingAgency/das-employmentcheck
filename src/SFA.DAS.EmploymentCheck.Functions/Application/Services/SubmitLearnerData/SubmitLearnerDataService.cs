@@ -36,34 +36,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerDa
         {
             var thisMethodName = $"{nameof(SubmitLearnerDataService)}.GetApprenticeNiNumbers()";
 
-            IList<ApprenticeNiNumber> apprenticeNiNumbers = new List<ApprenticeNiNumber>();
-            IList<ApprenticeEmploymentCheckModel> apprenticesToCheck = new List<ApprenticeEmploymentCheckModel>();
+            IList<ApprenticeNiNumber> apprenticeNiNumbers = null;
 
             try
             {
-                _logger.LogInformation($"\n\n{thisMethodName}: Checking for NINOs present already in database");
-                foreach (var apprentice in apprentices)
+                if (_dcApiSettings.TaskSize == 0)
                 {
-                    if (apprentice.NationalInsuranceNumber != null &&
-                        !string.IsNullOrEmpty(apprentice.NationalInsuranceNumber))
-                    {
-                        apprenticeNiNumbers.Add(new ApprenticeNiNumber(apprentice.ULN, apprentice.NationalInsuranceNumber));
-                    }
-                    else
-                    {
-                        apprenticesToCheck.Add(apprentice);
-                    }
+                    _logger.LogInformation($"\n\n{thisMethodName}: DC API Call turned off, returning existing NINOs");
+                    
+                    apprenticeNiNumbers = apprentices
+                        .Select(a => new ApprenticeNiNumber(a.ULN, a.NationalInsuranceNumber)).ToList();
                 }
-                _logger.LogInformation($"\n\n{thisMethodName}: {apprenticeNiNumbers.Count} NINOs already in database, not calling DC API for those records");
-                if (apprenticesToCheck.Count > 0)
+                else
                 {
-                    _logger.LogInformation($"\n\n{thisMethodName}: Calling DC API for {apprenticesToCheck.Count} record(s)");
+                    _logger.LogInformation($"\n\n{thisMethodName}: DC API Call turned on, returning fetching data");
+                   
                     var token = await GetDcToken();
-                    var returnedApprenticeNiNumbers = await GetNiNumbers(apprenticesToCheck, token);
-                    foreach (var apprenticeNiNumber in returnedApprenticeNiNumbers)
-                    {
-                        apprenticeNiNumbers.Add(apprenticeNiNumber);
-                    }
+                    apprenticeNiNumbers = await GetNiNumbers(apprentices, token);
                 }
             }
             catch (Exception ex)
