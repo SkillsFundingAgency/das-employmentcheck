@@ -109,7 +109,7 @@ stages:
   variables:
   - group: PreProd Management Resources
   - group: PreProd Shared Resources
-  - group: PREPROD das-employmentcheck
+  - group: PREPROD das-employmentcheck 
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -134,20 +134,21 @@ stages:
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
- - stage: Deploy_MO
-   dependsOn: Build
-   displayName: Deploy to MO
-   condition: and(succeeded(), eq(variables.Deploy, 'true'))
-   variables:
-   - group: MO Management Resources
-   - group: MO Shared Resources
-   - group: MO das-employmentcheck
-   jobs:
-   - template: pipeline-templates/job/deploy.yml
-     parameters:
-       Environment: MO
-       ServiceConnection: SFA-ASM-ModelOffice-ARM
-       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+- stage: Deploy_MO
+  dependsOn: Build
+  displayName: Deploy to MO
+  condition: and(succeeded(), eq(variables.Deploy, 'true'))
+  variables:
+  - group: MO Management Resources
+  - group: MO Shared Resources
+  - group: MO das-employmentcheck
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: MO
+      ServiceConnection: SFA-ASM-ModelOffice-ARM
+      AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 # - stage: Deploy_DEMO
 #   dependsOn: Build
