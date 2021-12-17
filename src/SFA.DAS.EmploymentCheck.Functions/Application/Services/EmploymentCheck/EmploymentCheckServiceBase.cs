@@ -405,7 +405,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                            "ReturnCode, " +
                                            "ReturnMessage " +
                                            "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                           "ORDER BY MessageId";
+                                           "ORDER BY EmploymentCheckId";
 
                         model = (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(sql, commandType: CommandType.Text)).FirstOrDefault();
 
