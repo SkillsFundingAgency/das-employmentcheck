@@ -34,17 +34,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             try
             {
                 request.EmploymentCheckedDateTime = DateTime.UtcNow;
-               
+
                 if (ValidateRequest(request) == false) return request;
 
                 if (_cachedToken == null) await RetrieveAuthenticationToken();
 
                 var policy = Policy
-                    .Handle<UnauthorizedAccessException>()
+                    .Handle<ApiHttpException>(e => e.HttpCode == (int) HttpStatusCode.Unauthorized)
                     .RetryAsync(
                         retryCount: 1,
-                        onRetryAsync: async (outcome, retryNumber, context) => await RetrieveAuthenticationToken());
-
+                        onRetryAsync: async (ex, retryNumber, context) =>
+                        {
+                            _logger.LogError($"HMRC API returned {404} (Unauthorized)");
+                            await RetrieveAuthenticationToken();
+                        });
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
                 request.IsEmployed = result.Employed;
@@ -83,7 +86,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
 
             return request;
-
         }
 
         private static bool ValidateRequest(ApprenticeEmploymentCheckMessageModel request)
