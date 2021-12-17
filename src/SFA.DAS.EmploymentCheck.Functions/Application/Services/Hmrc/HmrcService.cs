@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                         retryCount: 1,
                         onRetryAsync: async (ex, retryNumber, context) =>
                         {
-                            _logger.LogError($"HMRC API returned {404} (Unauthorized)");
+                            _logger.LogError($"HMRC API returned 401 (Unauthorized)");
                             await RetrieveAuthenticationToken();
                         });
 
