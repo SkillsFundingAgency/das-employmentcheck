@@ -761,6 +761,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                        "(SELECT 1 FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
                                        "WHERE EmploymentCheckId = @employmentCheckId " +
                                        "AND (ISNULL(@payeScheme, '') = ISNULL(PayeScheme, ''))" +
+                                       "AND NationalInsuranceNumber = @nationalInsuranceNumber" +
                                        ");";
 
                     await sqlConnection.ExecuteAsync(sql, commandType: CommandType.Text, param: parameters);
