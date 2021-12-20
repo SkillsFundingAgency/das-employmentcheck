@@ -405,7 +405,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                            "ReturnCode, " +
                                            "ReturnMessage " +
                                            "FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                           "ORDER BY MessageId";
+                                           "ORDER BY EmploymentCheckId";
 
                         model = (await sqlConnection.QueryAsync<ApprenticeEmploymentCheckMessageModel>(sql, commandType: CommandType.Text)).FirstOrDefault();
 
@@ -760,7 +760,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                        "WHERE NOT EXISTS " +
                                        "(SELECT 1 FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
                                        "WHERE EmploymentCheckId = @employmentCheckId " +
-                                       "AND PayeScheme = @payeScheme" +
+                                       "AND (ISNULL(@payeScheme, '') = ISNULL(PayeScheme, ''))" +
                                        ");";
 
                     await sqlConnection.ExecuteAsync(sql, commandType: CommandType.Text, param: parameters);
