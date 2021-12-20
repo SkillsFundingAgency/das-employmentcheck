@@ -14,3 +14,5 @@
     [ReturnMessage] VARCHAR(MAX) NULL
 )
 GO
+CREATE NONCLUSTERED INDEX [IX_ApprenticeEmploymentCheckMessageQueue__EmploymentCheckId] ON [dbo].[ApprenticeEmploymentCheckMessageQueue] ([EmploymentCheckId])
+GO
