@@ -52,7 +52,7 @@ namespace app_levy_data_seeder
                             AccountId = Convert.ToInt64(columns[1]),
                             MinDate = Convert.ToDateTime(columns[2]),
                             MaxDate = Convert.ToDateTime(columns[3]),
-                            NationalInsuranceNumber = _options.SeedNinos ? columns[4] : null,
+                            NationalInsuranceNumber = _options.SeedNinos ? GetNullableValue(columns[4]) : null,
                             HasBeenChecked = false,
                             CreatedDate = now,
                             CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20]
@@ -69,8 +69,8 @@ namespace app_levy_data_seeder
                             MessageCreatedDateTime = now,
                             EmploymentCheckId = checkId,
                             Uln = check.ULN,
-                            NationalInsuranceNumber = columns[4],
-                            PayeScheme = columns[5],
+                            NationalInsuranceNumber = GetNullableValue(columns[4]),
+                            PayeScheme = GetNullableValue(columns[5]),
                             StartDateTime = check.MinDate,
                             EndDateTime = check.MaxDate
                         };
@@ -86,6 +86,8 @@ namespace app_levy_data_seeder
                 Console.WriteLine(ex);
             }
         }
+
+        private static string GetNullableValue(string value) => value == "<null>" ? null : value;
 
         private static void ReadSettings()
         {
