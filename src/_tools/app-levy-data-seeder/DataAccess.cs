@@ -34,10 +34,15 @@ namespace app_levy_data_seeder
             await dbConnection.ExecuteAsync($"DELETE {table}");
         }
 
+        public async Task ResetControlTable()
+        {
+            await using var dbConnection = GetSqlConnection(_connectionString);
+            await dbConnection.ExecuteAsync("UPDATE [dbo].[EmploymentChecksControlTable] SET EmploymentCheckLastGetId=0 WHERE RowId=1");
+        }
+
         private static SqlConnection GetSqlConnection(string connectionString)
         {
             return new SqlConnection() { ConnectionString = connectionString, AccessToken = connectionString.Contains("Integrated Security") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
         }
-
     }
 }
