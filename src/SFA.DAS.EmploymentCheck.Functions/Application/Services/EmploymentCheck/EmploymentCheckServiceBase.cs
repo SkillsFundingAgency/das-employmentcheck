@@ -695,12 +695,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <summary>
         /// Store an individual employment check message in the database table queue
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="connectionString"></param>
-        /// <param name="azureResource"></param>
-        /// <param name="azureServiceTokenProvider"></param>
-        /// <param name="apprenticeEmploymentCheckMessage"></param>
-        /// <returns>Task</returns>
         public virtual async Task StoreApprenticeEmploymentCheckMessage(
             ILogger logger,
             string connectionString,
@@ -748,7 +742,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                        "PayeScheme, " +
                                        "StartDateTime, " +
                                        "EndDateTime) " +
-                                       "SELECT " +
+                                       "VALUES (" +
                                        "@messageId, " +
                                        "@messageCreatedDateTime, " +
                                        "@employmentCheckId, " +
@@ -757,18 +751,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                        "@payeScheme, " +
                                        "@startDateTime, " +
                                        "@endDateTime " +
-                                       "WHERE NOT EXISTS " +
-                                       "(SELECT 1 FROM [dbo].[ApprenticeEmploymentCheckMessageQueue] " +
-                                       "WHERE EmploymentCheckId = @employmentCheckId " +
-                                       "AND (ISNULL(@payeScheme, '') = ISNULL(PayeScheme, ''))" +
-                                       "AND (ISNULL(@nationalInsuranceNumber, '') = ISNULL(NationalInsuranceNumber, ''))" +
                                        ");";
 
                     await sqlConnection.ExecuteAsync(sql, commandType: CommandType.Text, param: parameters);
                 }
                 else
                 {
-                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No apprentice employment check queue mesaages to store.");
+                    logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No apprentice employment check queue messages to store.");
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Message.Contains("UC_ApprenticeEmploymentCheckMessageQueue"))
+                {
+                    var message = "Violation of UNIQUE KEY constraint 'UC_ApprenticeEmploymentCheckMessageQueue'. " +
+                                  "Cannot insert duplicate key in object 'dbo.ApprenticeEmploymentCheckMessageQueue'. " +
+                                  $"The duplicate key value is (EmploymentCheckId={apprenticeEmploymentCheckMessage?.EmploymentCheckId}).";
+                    logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {message}");
+                }
+                else
+                {
+                    logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
                 }
             }
             catch (Exception ex)
