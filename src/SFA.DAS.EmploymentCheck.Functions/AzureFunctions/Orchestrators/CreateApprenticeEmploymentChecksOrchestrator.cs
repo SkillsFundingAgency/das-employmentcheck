@@ -99,7 +99,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation(
                         $"{thisMethodName}: No data found so sleep for 10 seconds then execute the orchestrator again");
                     // No data found so sleep for 10 seconds then execute the orchestrator again
-                    DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
