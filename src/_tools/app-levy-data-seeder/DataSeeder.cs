@@ -114,7 +114,7 @@ namespace app_levy_data_seeder
            await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
            await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
            await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
-           await _dataAccess.DeleteAll("[dbo].[EmploymentChecksControlTable]");
+           await _dataAccess.ResetControlTable();
            await _dataAccess.DeleteAll("[dbo].[ExecutionTrace]");
            await _dataAccess.DeleteAll("[employer_check].[DAS_SubmissionEvents]");
            await _dataAccess.DeleteAll("[employer_check].[LastProcessedEvent]");

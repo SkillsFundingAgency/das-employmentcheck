@@ -12,6 +12,7 @@
     [IsEmployed] BIT NULL,
     [ReturnCode] VARCHAR(50) NULL,
     [ReturnMessage] VARCHAR(MAX) NULL
+    CONSTRAINT UC_ApprenticeEmploymentCheckMessageQueue UNIQUE ([EmploymentCheckId], [Uln], [NationalInsuranceNumber], [PayeScheme], [StartDateTime], [EndDateTime])
 )
 GO
 CREATE NONCLUSTERED INDEX [IX_ApprenticeEmploymentCheckMessageQueue__EmploymentCheckId] ON [dbo].[ApprenticeEmploymentCheckMessageQueue] ([EmploymentCheckId])
