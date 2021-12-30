@@ -30,12 +30,12 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/0.4.22
+    ref: refs/tags/0.4.29
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
     name: SkillsFundingAgency/das-platform-automation
-    ref: refs/tags/4.5.5
+    ref: refs/tags/4.5.11
     endpoint: SkillsFundingAgency
   pipelines:
   - pipeline: das-employer-config
@@ -73,7 +73,6 @@ stages:
 - stage: Deploy_TEST
   dependsOn: Build
   displayName: Deploy to TEST
-  condition: and(succeeded(), eq(variables.Deploy, 'true'))
   variables:
   - group: DevTest Management Resources
   - group: TEST DevTest Shared Resources
@@ -89,7 +88,6 @@ stages:
 - stage: Deploy_TEST2
   dependsOn: Build
   displayName: Deploy to TEST2
-  condition: and(succeeded(), eq(variables.Deploy, 'true'))
   variables:
   - group: DevTest Management Resources
   - group: TEST2 DevTest Shared Resources
@@ -105,7 +103,6 @@ stages:
 - stage: Deploy_PP
   dependsOn: Build
   displayName: Deploy to PP
-  condition: and(succeeded(), eq(variables.Deploy, 'true'))
   variables:
   - group: PreProd Management Resources
   - group: PreProd Shared Resources
@@ -121,7 +118,6 @@ stages:
 - stage: Deploy_PROD
   dependsOn: Build
   displayName: Deploy to PROD
-  condition: and(succeeded(), eq(variables.Deploy, 'true'))
   variables:
   - group: Prod Management Resources
   - group: Prod Shared Resources
@@ -137,7 +133,6 @@ stages:
 # - stage: Deploy_MO
 #   dependsOn: Build
 #   displayName: Deploy to MO
-#   condition: and(succeeded(), eq(variables.Deploy, 'true'))
 #   variables:
 #   - group: MO Management Resources
 #   - group: MO Shared Resources
@@ -152,7 +147,6 @@ stages:
 # - stage: Deploy_DEMO
 #   dependsOn: Build
 #   displayName: Deploy to DEMO
-#   condition: and(succeeded(), eq(variables.Deploy, 'true'))
 #   variables:
 #   - group: DevTest Management Resources
 #   - group: DEMO DevTest Shared Resources
