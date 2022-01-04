@@ -106,7 +106,7 @@ stages:
   variables:
   - group: PreProd Management Resources
   - group: PreProd Shared Resources
-  - group: PREPROD das-employmentcheck 
+  - group: PREPROD das-employmentcheck
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
