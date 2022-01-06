@@ -77,8 +77,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         _logger.LogInformation($"{thisMethodName}: Getting the EmploymentChecksBatch");
 
                         // Get a batch of employment checks that do not already have a matching pending EmploymentCheckCacheRequest
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@batchSize", _batchSize);
+
                         employmentChecksBatch = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
-                                sql: "SELECT TOP (_batchSize)" +
+                                sql: "SELECT TOP (@batchSize)" +
                                     "[Id], " +
                                     "[CorrelationId], " +
                                     "[CheckType], " +
@@ -94,6 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     "WHERE AEC.Id > (SELECT ISNULL(MAX(ApprenticeEmploymentCheckId), 0) FROM [Cache].[EmploymentCheckCacheRequest]) " +
                                     "AND AEC.Id NOT IN (SELECT ApprenticeEmploymentCheckId FROM [Cache].[EmploymentCheckCacheRequest] WHERE (RequestCompletionStatus = 0 OR RequestCompletionStatus IS NULL)) " +
                                     "ORDER BY AEC.Id ",
+                                param: parameters,
                                 commandType: CommandType.Text)).ToList();
                     }
                     catch (Exception ex)
