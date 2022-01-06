@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using System;
 using System.Collections.Generic;
@@ -12,35 +12,42 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
     public class EmployerAccountClient
         : IEmployerAccountClient
     {
-        private IEmployerAccountService _employerAccountService;
+        #region Private members
         private ILogger<IEmploymentCheckClient> _logger;
+        private IEmployerAccountService _employerAccountService;
 
+        #endregion Private members
+
+        #region Constructors
         public EmployerAccountClient(
-            IEmployerAccountService employerAccountService,
-            ILogger<IEmploymentCheckClient> logger)
+            ILogger<IEmploymentCheckClient> logger,
+            IEmployerAccountService employerAccountService
+            )
         {
             _employerAccountService = employerAccountService;
             _logger = logger;
         }
+        #endregion Constructors
 
+        #region GetEmployersPayeSchemes
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<EmploymentCheckModel> employmentCheckModels)
+            IList<Models.EmploymentCheck> apprenticeEmploymentChecks)
         {
             var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes()";
 
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try
             {
-                if (employmentCheckModels != null && employmentCheckModels.Count != 0)
+                if (apprenticeEmploymentChecks != null && apprenticeEmploymentChecks.Count != 0)
                 {
-                    foreach (var employmentCheckModel in employmentCheckModels)
+                    foreach (var apprenticeEmploymentCheck in apprenticeEmploymentChecks)
                     {
-                        _logger.LogInformation($"{thisMethodName}: Getting PAYE scheme for employer account [{employmentCheckModel.AccountId}] (apprentice ULN [{employmentCheckModel.Uln}]).");
-                        var resourceList = await _employerAccountService.GetAccountPayeSchemes(employmentCheckModel.AccountId);
+                        _logger.LogInformation($"{thisMethodName}: Getting PAYE scheme for employer account [{apprenticeEmploymentCheck.AccountId}] (apprentice ULN [{apprenticeEmploymentCheck.Uln}]).");
+                        var resourceList = await _employerAccountService.GetPayeSchemes(apprenticeEmploymentCheck);
 
                         if (resourceList != null && resourceList.Any())
                         {
-                            employerPayeSchemes.Add(new EmployerPayeSchemes(employmentCheckModel.AccountId, resourceList.Select(x => x.Id).ToList()));
+                            employerPayeSchemes.Add(new EmployerPayeSchemes(apprenticeEmploymentCheck.AccountId, resourceList.Select(x => x.Id).ToList()));
                         }
                         else
                         {
@@ -60,5 +67,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 
             return employerPayeSchemes;
         }
+        #endregion GetEmployersPayeSchemes
     }
 }

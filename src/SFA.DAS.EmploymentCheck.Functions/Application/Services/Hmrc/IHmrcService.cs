@@ -1,11 +1,11 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
-using System;
+﻿using HMRC.ESFA.Levy.Api.Types;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public interface IHmrcService
     {
-        Task<EmploymentCheckMessage> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckMessage request);
+        Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request);
     }
 }

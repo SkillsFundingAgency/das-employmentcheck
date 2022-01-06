@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Models.Domain.EmployerPayeSchemesTests

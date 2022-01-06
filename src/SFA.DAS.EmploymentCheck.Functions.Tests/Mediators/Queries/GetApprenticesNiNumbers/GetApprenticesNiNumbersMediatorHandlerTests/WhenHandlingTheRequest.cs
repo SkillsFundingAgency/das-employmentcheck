@@ -27,7 +27,7 @@
 //        public async void Then_The_SubmitLearnerDataClient_Is_Called()
 //        {
 //            //Arrange
-//            var request = new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>());
+//            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>());
 
 //            _submitLearnerDataClient.Setup(x => x.GetApprenticesNiNumber(request.Apprentices))
 //                .ReturnsAsync(new List<ApprenticeNiNumber>());
@@ -36,7 +36,7 @@
 
 //            //Act
 
-//            await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>()), CancellationToken.None);
+//            await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>()), CancellationToken.None);
 
 //            //Assert
 
@@ -47,7 +47,7 @@
 //        public async void And_The_SubmitLearnerDataClient_Returns_Null_Then_An_Empty_List_Is_Returned()
 //        {
 //            //Arrange
-//            var request = new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>());
+//            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>());
 
 //            _submitLearnerDataClient.Setup(x => x.GetApprenticesNiNumber(request.Apprentices))
 //                .ReturnsAsync((List<ApprenticeNiNumber>)null);
@@ -56,7 +56,7 @@
 
 //            //Act
 
-//            var result = await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>()), CancellationToken.None);
+//            var result = await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>()), CancellationToken.None);
 
 //            //Assert
 
@@ -67,7 +67,7 @@
 //        public async void And_The_SubmitLearnerDataClient_Returns_ApprenticeNiNumbers_Then_They_Are_Returned()
 //        {
 //            //Arrange
-//            var request = new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>());
+//            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>());
 
 //            var niNumber = new ApprenticeNiNumber(1000001, "1000001");
 //            var niNumbers = new List<ApprenticeNiNumber> {niNumber};
@@ -79,7 +79,7 @@
 
 //            //Act
 
-//            var result = await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>()), CancellationToken.None);
+//            var result = await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>()), CancellationToken.None);
 
 //            //Assert
 
@@ -91,7 +91,7 @@
 //        {
 //            //Arrange
 
-//            var request = new GetApprenticesNiNumberMediatorRequest(new List<EmploymentCheckModel>());
+//            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheck>());
 
 //            var exception = new Exception("Exception");
 //            _submitLearnerDataClient.Setup(x => x.GetApprenticesNiNumber(request.Apprentices)).ThrowsAsync(exception);

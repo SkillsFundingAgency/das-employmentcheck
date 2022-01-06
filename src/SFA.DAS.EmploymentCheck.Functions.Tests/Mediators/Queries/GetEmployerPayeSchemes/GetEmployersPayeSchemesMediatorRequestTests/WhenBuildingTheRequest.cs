@@ -22,7 +22,7 @@
 //                1,
 //                DateTime.Today.AddDays(-1),
 //                DateTime.Today.AddDays(1));
-//            var apprentices = new List<EmploymentCheckModel> {apprentice};
+//            var apprentices = new List<ApprenticeEmploymentCheck> {apprentice};
 
 //            //Act
 

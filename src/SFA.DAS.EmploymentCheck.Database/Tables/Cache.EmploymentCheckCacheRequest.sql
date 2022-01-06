@@ -1,13 +1,18 @@
 ﻿CREATE TABLE [Cache].[EmploymentCheckCacheRequest](
-	[Id] [bigint] IDENTITY NOT NULL,
-	[EmploymentCheckId] [bigint] NOT NULL,
-	[RequestTypeId] [tinyint] NOT NULL,
-	[CorrelationId] UNIQUEIDENTIFIER NULL,
-	[Description] [varchar](255),
-	[Data] [varchar](MAX),
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[CorrelationId] [uniqueidentifier] NULL,
+	[Nino] [varchar](20) NOT NULL,
+	[PayeScheme] [varchar](500) NOT NULL,
+	[MinDate] [datetime] NOT NULL,
+	[MaxDate] [datetime] NOT NULL,
+	[Employed] [bit] NULL,
+	[RequestCompletionStatus] [smallint] NULL,
 	[CreatedOn] [datetime] NOT NULL,
-	[LastUpdated] [datetime] NOT NULL,
- CONSTRAINT [PK_Cache_EmploymentCheckCacheRequest] PRIMARY KEY CLUSTERED
-(
-	[Id] ASC
-))
+	[LastUpdatedOn] [datetime] NULL,
+	CONSTRAINT [PK_Cache_EmploymentCheckCacheRequest] PRIMARY KEY CLUSTERED
+	(
+		[Id] ASC
+	)
+)
+GO

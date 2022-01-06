@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
@@ -12,27 +12,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class AdjustEmploymentCheckRateLimiterOptionsActivity
     {
+        #region Private members
         private readonly IHmrcApiOptionsRepository _optionsRepository;
         private readonly ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> _logger;
         private readonly HmrcApiRateLimiterOptions _options;
+        #endregion Private members
 
+        #region Constructors
         public AdjustEmploymentCheckRateLimiterOptionsActivity(
-            IHmrcApiOptionsRepository optionsRepository,
-            ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> logger)
+            ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> logger,
+            IHmrcApiOptionsRepository optionsRepository)
         {
-            _optionsRepository = optionsRepository;
-            _options =  _optionsRepository.GetHmrcRateLimiterOptions().Result;
             _logger = logger;
+            _optionsRepository = optionsRepository;
+            _options = _optionsRepository.GetHmrcRateLimiterOptions().Result;
         }
+        #endregion Constructors
 
+        #region AdjustEmploymentCheckRateLimiterOptionsActivityTask
         [FunctionName(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity))]
-        public async Task<TimeSpan> AdjustEmploymentCheckRateLimiterOptionsActivityTask([ActivityTrigger] EmploymentCheckMessage input)
+        public async Task<TimeSpan> AdjustEmploymentCheckRateLimiterOptionsActivityTask([ActivityTrigger] EmploymentCheckCacheRequest input)
         {
             var thisMethodName = $"{nameof(AdjustEmploymentCheckRateLimiterOptionsActivity)}.AdjustEmploymentCheckRateLimiterOptionsActivity()";
 
             try
             {
-                var tooManyRequests = input.ResponseHttpStatusCode == (short)HttpStatusCode.TooManyRequests;
+                var tooManyRequests = input.RequestCompletionStatus == (short)HttpStatusCode.TooManyRequests;
 
                 if (tooManyRequests)
                 {
@@ -48,8 +53,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             catch (Exception ex)
             {
                 _logger.LogError($"{thisMethodName} Exception caught - {ex.Message}. {ex.StackTrace}");
-                throw; // TODO: GLG: Rus - where is this being caught? If it's not being caught the underlying Task library will not return execution to the calling Orchestrator causing the program to hang.
+                throw;
             }
         }
+        #endregion AdjustEmploymentCheckRateLimiterOptionsActivityTask
     }
 }

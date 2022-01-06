@@ -1,19 +1,18 @@
-﻿CREATE TABLE [Business].[EmploymentCheck]
-(
-	[Id] BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	[CorrelationId] uniqueidentifier NOT NULL,
-    [CheckType] VARCHAR(50) NOT NULL,
-    [Uln] BIGINT NOT NULL,
-    [ApprenticeshipId] BIGINT NULL,
-    [AccountId] BIGINT NULL,
-    [MinDate] DATETIME NOT NULL,
-    [MaxDate] DATETIME NOT NULL,
-    [Employed] BIT NULL,
-    [CreatedOn] DATETIME NOT NULL,
-    [LastUpdated] DATETIME NOT NULL DEFAULT getdate()
+﻿CREATE TABLE [Business].[EmploymentCheck](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[CorrelationId] [uniqueidentifier] NULL,
+	[CheckType] [varchar](50) NOT NULL,
+	[Uln] [bigint] NOT NULL,
+	[ApprenticeshipId] [bigint] NULL,
+	[AccountId] [bigint] NOT NULL,
+	[MinDate] [datetime] NOT NULL,
+	[MaxDate] [datetime] NOT NULL,
+	[Employed] [bit] NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[LastUpdatedOn] [datetime] NULL,
+	CONSTRAINT [PK_Business_EmploymentCheck] PRIMARY KEY CLUSTERED
+	(
+		[Id] ASC
+	)
 )
-GO
-CREATE INDEX [IX_EmploymentCheck_Uln_AccountId_CheckType] ON [Business].[EmploymentCheck] (Uln, AccountId, CheckType)
-GO
-CREATE INDEX [IX_EmploymentCheck_CheckType_Uln] ON [Business].[EmploymentCheck] (CheckType, Uln)
 GO

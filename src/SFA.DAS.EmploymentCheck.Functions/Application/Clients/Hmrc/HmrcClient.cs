@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using System;
 using System.Threading.Tasks;
@@ -8,34 +8,38 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc
 {
     public class HmrcClient : IHmrcClient
     {
+        #region Private members
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
         private readonly IHmrcService _hmrcService;
         private readonly ILogger<IHmrcClient> _logger;
+        #endregion Private members
 
+        #region Constructors
         public HmrcClient(IHmrcService  hmrcService, ILogger<HmrcClient> logger)
         {
             _hmrcService = hmrcService;
             _logger = logger;
         }
+        #endregion Constructors
 
+        #region CheckEmploymentStatus
         /// <summary>
-        /// Sends the employmentCheckMessage to the HMRC API
+        /// Sends the employmentCheckCacheRequest to the HMRC API
         /// </summary>
-        /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async Task<EmploymentCheckMessage> CheckEmploymentStatus_Client(
-            EmploymentCheckMessage employmentCheckMessage)
+        /// <returns>Task<IList<ApprenticeEmploymentCheck>></returns>
+        public async Task<EmploymentCheckCacheRequest> CheckEmploymentStatus(
+            EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             var thisMethodName = $"{nameof(HmrcClient)}.CheckEmploymentStatus_Client()";
 
-            EmploymentCheckMessage employmentCheckMessageResult = null;
+            EmploymentCheckCacheRequest employmentCheckCacheRequestResult = null;
             try
             {
-                if (employmentCheckMessage != null &&
-                    employmentCheckMessage.Id > 0)
+                if (employmentCheckCacheRequest != null)
                 {
-                    employmentCheckMessageResult = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(employmentCheckMessage);
+                    employmentCheckCacheRequestResult = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(employmentCheckCacheRequest);
 
-                    if (employmentCheckMessageResult == null)
+                    if (employmentCheckCacheRequestResult == null)
                     {
                         _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckMessageResult value returned from the IsNationalInsuranceNumberRelatedToPayeScheme() call returned null.");
                     }
@@ -50,7 +54,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return employmentCheckMessageResult;
+            return employmentCheckCacheRequestResult;
         }
+        #endregion CheckEmploymentStatus
     }
 }

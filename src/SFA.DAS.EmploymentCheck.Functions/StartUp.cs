@@ -7,9 +7,11 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System.IO;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecks;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -48,12 +50,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            builder.Services.AddMediatR(typeof(GetEmploymentChecksQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetEmploymentCheckBatchQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetNiNumbersQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
 
-            // SubmitLearnerData API Configuration
-            builder.Services.Configure<SubmitLearnerDataApiConfiguration>(
+            // DcLearnerData API Configuration
+            builder.Services.Configure<DcLearnerDataApiConfiguration>(
                 config.GetSection("SubmitLearnersDataApiSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<SubmitLearnerDataApiConfiguration>>().Value);
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcLearnerDataApiConfiguration>>().Value);
 
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));

@@ -1,5 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,14 +6,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
     public interface IEmploymentCheckClient
     {
-        Task<IList<EmploymentCheckModel>> GetEmploymentChecksBatch(long employmentCheckLastHighestBatchId);
+        Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
 
-        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(IList<EmploymentCheckModel> employmentCheckModels);
+        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
-        Task EnqueueEmploymentCheckMessages_Client(EmploymentCheckData employmentCheckData);
+        Task<EmploymentCheckCacheRequest> ProcessEmploymentCheckCacheRequest();
 
-        Task<EmploymentCheckMessage> DequeueEmploymentCheckMessage_Client();
+        Task StoreEmploymentCheckCachRequest(EmploymentCheckCacheRequest employmentCheckCacheRequest);
 
-        Task SaveEmploymentCheckResult_Client(EmploymentCheckMessage employmentCheckMessage);
+        Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest);
     }
 }

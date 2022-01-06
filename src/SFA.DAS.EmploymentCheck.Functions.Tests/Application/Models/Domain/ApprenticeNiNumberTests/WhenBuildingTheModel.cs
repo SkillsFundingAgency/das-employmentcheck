@@ -1,4 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Models.Domain.ApprenticeNiNumberTests
@@ -15,12 +15,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Models.Domain.Appr
 
             //Act
 
-            var result = new ApprenticeNiNumber(uln, niNumber);
+            var result = new LearnerNiNumber(uln, niNumber);
 
             //Assert
 
             Assert.Equal(uln, result.Uln);
-            Assert.Equal(niNumber, result.NationalInsuranceNumber);
+            Assert.Equal(niNumber, result.NiNumber);
         }
     }
 }

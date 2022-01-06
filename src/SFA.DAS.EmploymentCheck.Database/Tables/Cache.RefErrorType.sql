@@ -1,12 +1,13 @@
 ﻿CREATE TABLE [Cache].[RefErrorType](
-	[Id] [bigint] IDENTITY(1,1) NOT NULL,
-	[Source] [varchar](50) NOT NULL,
-	[Message] [varchar](50) NOT NULL,
-	[MaxRetries] [bigint] NOT NULL,
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[Source] [varchar](max) NOT NULL,
+	[Message] [varchar](max) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
-	[LastUpdated] [datetime] NOT NULL,
-	PRIMARY KEY CLUSTERED
+	[LastUpdatedOn] [datetime] NOT NULL,
+	CONSTRAINT [PK_Cache_RefErrorType] PRIMARY KEY CLUSTERED
 	(
 		[Id] ASC
 	)
 )
+GO

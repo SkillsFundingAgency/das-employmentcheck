@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -11,30 +10,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <summary>
         /// Gets a batch of the apprentices requiring employment checks from the Employment Check database.
         /// </summary>
-        /// <returns>IList<EmploymentCheckModel></returns>
-        Task<IList<EmploymentCheckModel>> GetEmploymentChecksBatch(long employmentCheckLastHighestBatchId);
+        /// <returns>IList<ApprenticeEmploymentCheck></returns>
+        Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
 
         /// <summary>
-        /// Creates an EmploymentCheckCacheRequest for each employment check in the given list of employment checks
+        /// Creates an EmploymentCheckCacheRequest for each employment check in the given batch of employment checks
         /// </summary>
-        /// <param name="employmentCheckModels"></param>
+        /// <param name="employmentCheckBatch"></param>
         /// <returns></returns>
-        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(IList<EmploymentCheckModel> employmentCheckModels);
+        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
-        /// <summary>
-        /// Adds an employment check message to the HMRC API message queue.
-        /// </summary>
-        /// <param name="employmentCheckData"></param>
-        /// <returns>Task</returns>
-        Task EnqueueEmploymentCheckMessages(EmploymentCheckData employmentCheckData);
+        Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
 
-        /// <summary>
-        /// Gets an employment check message from the HMRC API message queue.
-        /// </summary>
-        /// <returns></returns>
-        Task<EmploymentCheckMessage> DequeueEmploymentCheckMessage();
+        Task StoreEmploymentCheckCacheRequest(EmploymentCheckCacheRequest employmentCheckCacheRequest);
 
-        Task SaveEmploymentCheckResult(EmploymentCheckMessage employmentCheckMessage);
+        Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest);
 
         Task SeedEmploymentCheckDatabaseTableTestData();
     }

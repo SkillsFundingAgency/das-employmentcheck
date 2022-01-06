@@ -175,4 +175,39 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="Response" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="3a7ebde7-497f-45e2-98c2-e368ec655821" ChangeDateTime="12/15/2021 15:04:43">
+    <Property Name="ElementName" Value="[Cache].[AccountsResponse].[EmploymentCheckCacheRequestId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[AccountsResponse]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EmploymentCheckId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a723c6a9-d155-470e-a986-d3e148502e9a" ChangeDateTime="12/15/2021 15:05:32">
+    <Property Name="ElementName" Value="[Cache].[DataCollectionsResponse].[EmploymentCheckCacheRequestId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[DataCollectionsResponse]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EmploymentCheckId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="7edb78e4-6c58-4f5b-aa73-6de69f3102cf" ChangeDateTime="12/15/2021 15:05:56">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckCacheResponse].[EmploymentCheckCacheRequestId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckCacheResponse]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="EmploymentCheckId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="685f4c6f-12b3-435e-8562-471b779ddefd" ChangeDateTime="12/15/2021 15:27:42">
+    <Property Name="ElementName" Value="[Cache].[AccountsResponsePayeSchemes].[PayeSchemes]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[AccountsResponsePayeSchemes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PayeScheme" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8f472b51-fa0a-4f57-92ae-4522e955f4ab" ChangeDateTime="12/17/2021 12:58:12">
+    <Property Name="ElementName" Value="[Cache].[EmploymentCheckRequest].[UpdatedOn]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[Cache].[EmploymentCheckRequest]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastUpdated" />
+  </Operation>
 </Operations>

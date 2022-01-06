@@ -1,17 +1,17 @@
-﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+﻿//using MediatR;
+//using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.EnqueueEmploymentCheckMessages
-{
-    public class EnqueueEmploymentCheckMessagesCommand
-        : IRequest
-    {
-        public EnqueueEmploymentCheckMessagesCommand(
-            EmploymentCheckData apprenticeRelatedData)
-        {
-            ApprenticeRelatedData = apprenticeRelatedData;
-        }
+//namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.EnqueueEmploymentCheckMessages
+//{
+//    public class EnqueueEmploymentCheckMessagesCommand
+//        : IRequest
+//    {
+//        public EnqueueEmploymentCheckMessagesCommand(
+//            EmploymentCheckData apprenticeRelatedData)
+//        {
+//            ApprenticeRelatedData = apprenticeRelatedData;
+//        }
 
-        public EmploymentCheckData ApprenticeRelatedData { get; }
-    }
-}
+//        public EmploymentCheckData ApprenticeRelatedData { get; }
+//    }
+//}

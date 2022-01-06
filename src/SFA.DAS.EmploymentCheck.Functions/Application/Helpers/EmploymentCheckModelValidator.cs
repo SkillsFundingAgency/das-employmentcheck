@@ -1,20 +1,20 @@
 ﻿using FluentValidation;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
 {
-    public class EmploymentCheckModelValidator
-        : AbstractValidator<EmploymentCheckModel>
+    public class ApprenticeEmploymentCheckValidator
+        : AbstractValidator<Models.EmploymentCheck>
     {
-        public EmploymentCheckModelValidator()
+        public ApprenticeEmploymentCheckValidator()
         {
-            RuleFor(employmentCheckModel => employmentCheckModel.Id).NotEmpty();
-            RuleFor(employmentCheckModel => employmentCheckModel.CheckType).NotEmpty();
-            RuleFor(employmentCheckModel => employmentCheckModel.Uln).NotEmpty();
-            RuleFor(employmentCheckModel => employmentCheckModel.ApprenticeshipId).NotEmpty();
-            RuleFor(employmentCheckModel => employmentCheckModel.AccountId).NotEmpty();
-            RuleFor(employmentCheckModel => employmentCheckModel.MinDate).NotEqual(System.DateTime.MinValue);
-            RuleFor(employmentCheckModel => employmentCheckModel.MaxDate).NotEqual(System.DateTime.MinValue);
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.Id).NotEmpty();
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.CheckType).NotEmpty();
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.Uln).NotEmpty();
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.ApprenticeshipId).NotEmpty();
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.AccountId).NotEmpty();
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.MinDate).NotEqual(System.DateTime.MinValue);
+            RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.MaxDate).NotEqual(System.DateTime.MinValue);
         }
     }
 }

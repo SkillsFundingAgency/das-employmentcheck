@@ -1,15 +1,18 @@
 ﻿CREATE TABLE [Cache].[EmploymentCheckCacheResponse](
-	[Id] [bigint] NOT NULL,
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
 	[EmploymentCheckCacheRequestId] [bigint] NOT NULL,
-	[CorrelationId] UNIQUEIDENTIFIER NULL,
-	[Employed] [int] NULL,
-	[FoundOnPaye] [varchar](255) NULL,
-	[ProcessingComplete] [bit] NOT NULL,
-	[Count] [int] NULL,
-	[Response] [varchar](1024) NULL,
+	[CorrelationId] [uniqueidentifier] NULL,
+	[Employed] [bit] NULL,
+	[FoundOnPaye] [varchar](2000) NULL,
+	[ProcessingComplete][bit] NOT NULL,
+	[Count] [int] NOT NULL,
+	[HttpResponse] [varchar](2000) NULL,
+	[HttpStatusCode] [smallint] NULL,
 	[CreatedOn] [datetime] NOT NULL,
-	[LastUpdated] [datetime] NOT NULL,
- CONSTRAINT [PK_Cache_EmploymentCheckCacheResponse] PRIMARY KEY CLUSTERED
-(
-	[Id] ASC
-))
+	CONSTRAINT [PK_Cache_EmploymentCheckCacheResponse] PRIMARY KEY CLUSTERED
+	(
+		[Id] ASC
+	)
+)
+GO

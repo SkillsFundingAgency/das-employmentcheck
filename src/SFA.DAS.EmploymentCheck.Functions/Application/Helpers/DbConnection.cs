@@ -8,9 +8,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
 {
     public class DbConnection
     {
+        #region Private members
         private const string ThisClassName = "\n\nSqlConnection";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
+        #endregion Private members
 
+        #region CreateSqlConnection
         public async Task<SqlConnection> CreateSqlConnection(
             ILogger logger,
             string connectionString,
@@ -57,5 +60,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
 
             return sqlConnection;
         }
+        #endregion Constructors
     }
 }

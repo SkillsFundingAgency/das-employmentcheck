@@ -20,7 +20,7 @@
 //        private readonly Mock<IEmploymentCheckService> _employmentCheckService;
 //        private readonly Mock<IEmployerAccountService> _accountsService;
 //        private readonly Mock<IHmrcService> _hmrcService;
-//        private readonly EmploymentCheckModel _apprentice;
+//        private readonly ApprenticeEmploymentCheck _apprentice;
 
 //        public WhenHandlingTheCommand()
 //        {

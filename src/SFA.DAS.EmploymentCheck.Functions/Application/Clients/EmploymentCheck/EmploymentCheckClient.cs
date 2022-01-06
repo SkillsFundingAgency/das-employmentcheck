@@ -1,43 +1,51 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
+﻿using Ardalis.GuardClauses;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
-    public class EmploymentCheckClient : IEmploymentCheckClient
+    public class EmploymentCheckClient
+        : IEmploymentCheckClient
     {
+        #region Private members
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
-        private readonly IEmploymentCheckService _employmentCheckService;
+
         private readonly ILogger<IEmploymentCheckClient> _logger;
+        private readonly IEmploymentCheckService _employmentCheckService;
+        #endregion Private members
 
+        #region Constructors
         public EmploymentCheckClient(
-            IEmploymentCheckService employmentCheckService,
-            ILogger<IEmploymentCheckClient> logger)
+            ILogger<IEmploymentCheckClient> logger,
+            IEmploymentCheckService employmentCheckService)
         {
-            _employmentCheckService = employmentCheckService;
             _logger = logger;
+            _employmentCheckService = employmentCheckService;
         }
+        #endregion Constructors
 
+        #region GetEmploymentChecksBatch
         /// <summary>
-        /// Gets a batch of the employment checks from the Employment Check database
+        /// Get a batch of the employment checks from the Employment Check database
         /// </summary>
-        /// <returns>Task<IList<EmploymentCheckModel>></returns>
-        public async Task<IList<EmploymentCheckModel>> GetEmploymentChecksBatch(long employmentCheckLastHighestBatchId)
+        /// <returns>Task<IList<ApprenticeEmploymentCheck>></returns>
+        public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.GetEmploymentChecksBatch()";
+            var thisMethodName = MethodBase.GetCurrentMethod().Name;
 
-            IList<EmploymentCheckModel> employmentCheckModels = null;
+            IList<Models.EmploymentCheck> employmentChecks = null;
             try
             {
-                employmentCheckModels = await _employmentCheckService.GetEmploymentChecksBatch(employmentCheckLastHighestBatchId);
+                employmentChecks = await _employmentCheckService.GetEmploymentChecksBatch();
 
-                if (employmentCheckModels == null)
+                if (employmentChecks == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckModels value returned from the GetEmploymentChecksBatch() service returned null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentChecks value returned from the GetEmploymentCheckBatch() service returned null.");
                 }
             }
             catch (Exception ex)
@@ -45,26 +53,30 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return employmentCheckModels;
+            return employmentChecks;
         }
+        #endregion GetEmploymentChecksBatch
 
+        #region CreateEmploymentCheckCacheRequests
         /// <summary>
         /// Creates an EmploymentCheckCacheRequest for each employment check in the given list of employment checks
         /// </summary>
-        /// <param name="employmentCheckModels">The list of employment checks that require a an employment check cache request.</param>
+        /// <param name="employmentCheckData">The list of data containing the employment checks that require a an employment check cache request.</param>
         /// <returns>Task<IList<EmploymentCheckCacheRequest>></returns>
-        public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(IList<EmploymentCheckModel> employmentCheckModels)
+        public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
+            EmploymentCheckData employmentCheckData)
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.CreateEmploymentCheckCacheRequests()";
+            Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
+            var thisMethodName = MethodBase.GetCurrentMethod().Name;
 
-            IList<EmploymentCheckCacheRequest> employmentCheckCacheRequests = null;
+            IList<EmploymentCheckCacheRequest> employmentCheckRequests = null;
             try
             {
-                employmentCheckCacheRequests = await _employmentCheckService.CreateEmploymentCheckCacheRequests(employmentCheckModels);
+                employmentCheckRequests = await _employmentCheckService.CreateEmploymentCheckCacheRequests(employmentCheckData);
 
-                if (employmentCheckCacheRequests == null)
+                if (employmentCheckRequests == null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The employmentCheckCacheRequests value returned from the CreateEmploymentCheckCacheRequests() service returned null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The  value returned from CreateEmploymentCheckCacheRequests() returned null.");
                 }
             }
             catch (Exception ex)
@@ -72,74 +84,48 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
 
-            return employmentCheckCacheRequests;
+            return employmentCheckRequests;
         }
+        #endregion CreateEmploymentCheckCacheRequests
 
-        /// <summary>
-        /// Adds an employment check message to the HMRC API message queue
-        /// </summary>
-        /// <param name="employmentCheckData"></param>
-        /// <returns></returns>
-        public async Task EnqueueEmploymentCheckMessages_Client(EmploymentCheckData employmentCheckData)
+        #region ProcessEmploymentCheckCacheRequest
+        public async Task<EmploymentCheckCacheRequest> ProcessEmploymentCheckCacheRequest()
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.EnqueueEmploymentCheckMessages_Client()";
+            var thisMethodName = MethodBase.GetCurrentMethod().Name;
 
+            EmploymentCheckCacheRequest employmentCheckCacheRequest = null;
             try
             {
-                if (employmentCheckData != null)
+                employmentCheckCacheRequest = await _employmentCheckService.GetEmploymentCheckCacheRequest();
+
+                if (employmentCheckCacheRequest == null)
                 {
-                    await _employmentCheckService.EnqueueEmploymentCheckMessages(employmentCheckData);
-                }
-                else
-                {
-                    _logger.LogInformation($"{thisMethodName}: The list of enriched employment data (apprentice, NI numbers and Paye Schemes) parameter is null.");
+                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The  value returned from ProcessEmploymentCheckCacheRequest() returned null.");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{thisMethodName}:{ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
             }
+
+            return employmentCheckCacheRequest;
         }
+        #endregion ProcessEmploymentCheckCacheRequest
 
-        /// <summary>
-        /// Gets an employment check message from the HMRC API message queue
-        /// </summary>
-        /// <returns>EmploymentCheckMessage</returns>
-        public async Task<EmploymentCheckMessage> DequeueEmploymentCheckMessage_Client()
+        #region StoreEmploymentCheckCacheRequest
+        public async Task StoreEmploymentCheckCachRequest(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.DequeueEmploymentCheckMessage_Client()";
-
-            EmploymentCheckMessage employmentCheckMessage = null;
-            try
-            {
-                employmentCheckMessage = await _employmentCheckService.DequeueEmploymentCheckMessage();
-
-                if(employmentCheckMessage == null)
-                {
-                    _logger.LogInformation($"{thisMethodName}: The employmentCheckMessage value returned from the call to DequeueEmploymentCheckMessage_Service() is null.");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}.{ex.StackTrace}");
-            }
-
-            return employmentCheckMessage;
-        }
-
-        public async Task SaveEmploymentCheckResult_Client(EmploymentCheckMessage employmentCheckMessage)
-        {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.SaveEmploymentCheckResult_Client()";
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.StoreEmploymentCheckCachRequest()";
 
             try
             {
-                if (employmentCheckMessage != null)
+                if (employmentCheckCacheRequest != null)
                 {
-                    await _employmentCheckService.SaveEmploymentCheckResult(employmentCheckMessage);
+                    await _employmentCheckService.StoreEmploymentCheckCacheRequest(employmentCheckCacheRequest);
                 }
                 else
                 {
-                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The employmentCheckMessage input parameter is null.");
+                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The employmentCheckCacheRequest input parameter is null.");
                 }
             }
             catch (Exception ex)
@@ -147,5 +133,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
                 _logger.LogError($"\n\n{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
+
+        public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
+        {
+            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.StoreEmploymentCheckCachRequest()";
+
+            try
+            {
+                if (employmentCheckCacheRequest != null)
+                {
+                    await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
+                }
+                else
+                {
+                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The employmentCheckCacheRequest input parameter is null.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"\n\n{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+            }
+        }
+        #endregion StoreEmploymentCheckCacheRequest
     }
 }

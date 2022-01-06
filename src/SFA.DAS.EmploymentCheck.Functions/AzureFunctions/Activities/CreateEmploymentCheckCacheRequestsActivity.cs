@@ -1,22 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Dto;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequests;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class CreateEmploymentCheckCacheRequestsActivity
     {
+        #region Privatet members
         private const string ThisClassName = "\n\nCreateEmploymentCheckCacheRequestsActivity";
         private readonly IMediator _mediator;
         private readonly ILogger<CreateEmploymentCheckCacheRequestsActivity> _logger;
+        #endregion Privatet members
 
+        #region Constructors
         public CreateEmploymentCheckCacheRequestsActivity(
             IMediator mediator,
             ILogger<CreateEmploymentCheckCacheRequestsActivity> logger)
@@ -24,26 +25,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             _mediator = mediator;
             _logger = logger;
         }
+        #endregion Constructors
 
+        #region Get
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestsActivity))]
-        public async Task<IList<EmploymentCheckCacheRequest>> Get(
-            [ActivityTrigger] IList<EmploymentCheckModel> employmentCheckModels)
+        public async Task Create([ActivityTrigger] EmploymentCheckData employmentCheckData)
         {
-            var thisMethodName = $"{ThisClassName}.Get()";
+            var thisMethodName = $"{ThisClassName}.Create()";
 
-            CreateEmploymentCheckCacheRequestsCommandResult createEmploymentCheckCacheRequestsQueryResult;
             try
             {
-                createEmploymentCheckCacheRequestsQueryResult = await _mediator.Send(new CreateEmploymentCheckCacheRequestsCommandRequest(employmentCheckModels));
+                // Send MediatR request to create the employment check cache requests
+                await _mediator.Send(new CreateEmploymentCheckCacheRequestCommand(employmentCheckData));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                createEmploymentCheckCacheRequestsQueryResult = new CreateEmploymentCheckCacheRequestsCommandResult(new List<EmploymentCheckCacheRequest>()); //returns empty list instead of null
             }
 
-            return createEmploymentCheckCacheRequestsQueryResult.EmploymentCheckCacheRequests;
+            return;
         }
+        #endregion Get
     }
 }
-

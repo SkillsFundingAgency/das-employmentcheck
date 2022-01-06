@@ -14,8 +14,10 @@ namespace app_levy_data_seeder
         public IList<InputData> SourceData = new List<InputData>();
         private static DataAccess _dataAccess;
         private static Options _options;
+        private static string _csvDataFile;
         private string[] _accounts;
         private string[] _learners;
+
 
         public DataSeeder()
         {
@@ -74,6 +76,9 @@ namespace app_levy_data_seeder
 
         private static void ReadSettings()
         {
+            _csvDataFile = Path.Combine(Directory.GetCurrentDirectory(), "Files\\testdata.csv");
+            if (!File.Exists(_csvDataFile)) throw new Exception($"Input file not found in: {_csvDataFile}");
+
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json", optional: false).Build();
@@ -84,8 +89,8 @@ namespace app_levy_data_seeder
             Console.WriteLine($"Using database connection string: {_options.EmploymentChecksConnectionString}");
             _dataAccess = new DataAccess(_options.EmploymentChecksConnectionString);
 
-            if (!Directory.Exists(_options.DataFolderLocation)) throw new Exception($"Cannot find data folder here: {_options.DataFolderLocation}");
-            Console.WriteLine($"Using data folder: {_options.DataFolderLocation}");
+            //if (!Directory.Exists(_options.DataFolderLocation)) throw new Exception($"Cannot find data folder here: {_options.DataFolderLocation}");
+            //Console.WriteLine($"Using data folder: {_options.DataFolderLocation}");
 
             Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
             Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");

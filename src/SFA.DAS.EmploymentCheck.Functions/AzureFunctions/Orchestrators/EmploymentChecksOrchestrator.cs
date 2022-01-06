@@ -6,38 +6,18 @@ using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
-    // There are effectively 2 processes (orchestrator durable functions) used to implement this solution, see the diagram below:
-    //
-    // This code is a top-level orchestrator that calls the orchestrators for Process 1 and process 2 which then run
-    // in a loop asynchronously.
-    //
-    // +------------------------------------+                                     +------------------------------------+
-    // |             Process 1              |                                     |              Process 2             |
-    // | 1. Get the apprentices requiring   |                                     | 1. Get the next employment check   |
-    // | an employment check from the       |                                     | message from the message queue.    |
-    // | EmploymentChecks database.         |                                     |                                    |
-    // |                                    |         +------------------+        | 2. Call the HMRC API to get the    |
-    // | 2. Lookup the related apprentice   | (write) |                  | (read) | employment status for the given    |
-    // | National Insurance Numbers and     |-------->| (Database Queue) |------->| apprentice in the employment check |
-    // | Employer Paye Schemes (via API's). |         |                  |        | message.                           |
-    // |                                    |         +------------------+        |                                    |
-    // | 3. Store the enriched apprentice   |                                     | 3. Store result of the employment  |
-    // | data in a database message queue   |                                     | check, remove and archive the      |
-    // | (to handle the differences in      |                                     | employment check message from      |
-    // | processing rates between Process   |                                     | the message queue. Repeat process. |
-    // | and Process 2). Repeat process.    |                                     |                                    |
-    // +------------------------------------+                                     +------------------------------------+
-
     /// <summary>
     /// The top-level orchestrator to check the employment status of apprentices.
     /// </summary>
     public class EmploymentChecksOrchestrator
     {
+        #region Private members
         private const string ThisClassName = "\n\nEmploymentChecksOrchestrator";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
-
         private ILogger<EmploymentChecksOrchestrator> _logger;
+        #endregion Private members
 
+        #region Constructors
         /// <summary>
         /// The EmploymentChecksOrchestrator constructor, used to initialise the logging component.
         /// </summary>
@@ -47,7 +27,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             _logger = logger;
         }
+        #endregion Constructors
 
+        #region EmploymentChecksOrchestrator
         /// <summary>
         /// The top-level orchestrator task entry point.
         /// </summary>
@@ -57,7 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         public async Task EmploymentChecksOrchestratorTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{ThisClassName}.ApprenticeEmploymentChecksOrchestrator()";
+            var thisMethodName = $"{ThisClassName}.EmploymentChecksOrchestrator()";
 
             try
             {
@@ -65,15 +47,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                await context.CallSubOrchestratorAsync(nameof(GetEmploymentChecksOrchestrator), 0);
+                //await context.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), null);
 
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                //await context.CallSubOrchestratorAsync(nameof(ProcessEmploymentChecksOrchestrator), 0);
+                //await context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), 0);
 
-                //var getEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(GetEmploymentChecksOrchestrator), 0);
-                //var processEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessEmploymentChecksOrchestrator), 0);
+                var getEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), 0);
+                var processEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), 0);
 
-                //await Task.WhenAll(getEmploymentChecksTask, processEmploymentChecksTask);
+                await Task.WhenAll(getEmploymentChecksTask, processEmploymentChecksTask);
 
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Completed.");
@@ -83,6 +65,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
+        #endregion EmploymentChecksOrchestrator
     }
 }
-

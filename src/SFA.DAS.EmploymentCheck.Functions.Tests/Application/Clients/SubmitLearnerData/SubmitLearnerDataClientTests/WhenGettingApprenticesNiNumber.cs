@@ -5,13 +5,13 @@
 //using Microsoft.Extensions.Logging;
 //using Moq;
 //using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
+//using SFA.DAS.EmploymentCheck.Functions.Application.Clients.DcearnerData;
 //using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Services.SubmitLearnerData;
+//using SFA.DAS.EmploymentCheck.Functions.Application.Services.DcLearnerData;
 //using SFA.DAS.EmploymentCheck.Functions.Helpers;
 //using Xunit;
 
-//namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
+//namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.DcLearnerData.DcLearnerDataClientTests
 //{
 //    public class WhenGettingApprenticesNiNumber
 //    {

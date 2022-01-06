@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
 using System.Collections.Generic;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 
@@ -12,10 +11,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class SeedEmploymentCheckTestDataActivity
     {
+        #region Private members
         private const string ThisClassName = "\n\nEmploymentCheckServiceBase";
         IEmploymentCheckService _employmentCheckService;
         private readonly ILogger<SeedEmploymentCheckTestDataActivity> _logger;
+        #endregion Private members
 
+        #region Constructors
         public SeedEmploymentCheckTestDataActivity(
             IEmploymentCheckService employmentCheckService,
             ILogger<SeedEmploymentCheckTestDataActivity> logger)
@@ -23,7 +25,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             _employmentCheckService = employmentCheckService;
             _logger = logger;
         }
+        #endregion Constructors
 
+        #region SeedEmploymentCheckTestDataActivityTask
         [FunctionName(nameof(SeedEmploymentCheckTestDataActivity))]
         public async Task<int> SeedEmploymentCheckTestDataActivityTask(
             [ActivityTrigger] int input)
@@ -42,5 +46,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
             return await Task.FromResult(0);
         }
+        #endregion SeedEmploymentCheckTestDataActivityTask
     }
 }

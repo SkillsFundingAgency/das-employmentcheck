@@ -1,13 +1,15 @@
 ﻿CREATE TABLE [Cache].[DataCollectionsResponse](
-	[Id] [bigint] IDENTITY NOT NULL,
-	[EmploymentCheckCacheRequestId] [bigint] NOT NULL,
-	[CorrelationId] [bigint] NOT NULL,
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[CorrelationId] [uniqueidentifier] NULL,
 	[Uln] [bigint] NOT NULL,
 	[NiNumber] [varchar](20) NULL,
-	[Response] [varchar](1024) NULL,
+	[HttpResponse] [varchar](2000) NULL,
+	[HttpStatusCode] [smallint] NULL,
 	[CreatedOn] [datetime] NOT NULL,
-	[LastUpdated] [datetime] NOT NULL,
- CONSTRAINT [PK_Cache_DataCollectionsResponse] PRIMARY KEY CLUSTERED
-(
-	[Id] ASC
-))
+	CONSTRAINT [PK_Cache_DataCollectionsResponse] PRIMARY KEY CLUSTERED
+	(
+		[Id] ASC
+	)
+)
+GO
