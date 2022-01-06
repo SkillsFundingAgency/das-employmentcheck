@@ -11,16 +11,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
         {
             //Arrange
 
-            var learnerNiNumber = new LearnerNiNumber(1000001, "1000001");
-            var learnerNiNumbers = new List<LearnerNiNumber> {learnerNiNumber};
+            var apprenticeNiNumber = new LearnerNiNumber(1000001, "1000001");
+            var apprenticeNiNumbers = new List<LearnerNiNumber> {apprenticeNiNumber};
 
             //Act
 
-            //var result = new GetLearnerNiNumbersResultQuery(learnerNiNumbers);
+            var result = new Functions.Mediators.Queries.GetNiNumbers.GetNiNumbersQueryResult(apprenticeNiNumbers);
 
             //Assert
 
-            //Assert.Equal(learnerNiNumbers, result.LearnerNiNumber);
+            Assert.Equal(apprenticeNiNumbers, result.LearnerNiNumber);
         }
     }
 }

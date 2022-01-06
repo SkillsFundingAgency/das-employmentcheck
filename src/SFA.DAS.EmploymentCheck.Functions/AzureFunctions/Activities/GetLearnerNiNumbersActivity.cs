@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -38,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             var thisMethodName = $"{ThisClassName}.Get()";
             Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
 
-            GetNiNumbersQueryResult getLearnerNiNumbersQueryResult = null;
+            var getLearnerNiNumbersQueryResult = new GetNiNumbersQueryResult(new List<LearnerNiNumber>());
             try
             {
                 getLearnerNiNumbersQueryResult = await _mediator.Send(new GetNiNumbersQueryRequest(employmentCheckBatch));

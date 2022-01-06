@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -29,25 +27,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         #endregion Constructors
 
         #region Get
+
         [FunctionName(nameof(GetEmploymentChecksBatchActivity))]
         public async Task<IList<Application.Models.EmploymentCheck>> Get(
             [ActivityTrigger] Object notUsed)
         {
-            var thisMethodName = MethodBase.GetCurrentMethod().Name;
+            var result = await _mediator.Send(new GetEmploymentCheckBatchQueryRequest());
 
-            GetEmploymentCheckBatchQueryResult getEmploymentCheckBatchResultQuery = null;
-            try
-            {
-                // We may have a partial batch of data so catch any Exceptions in called code and let the Orchestrator check for data
-                getEmploymentCheckBatchResultQuery = await _mediator.Send(new GetEmploymentCheckBatchQueryRequest());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-
-            return getEmploymentCheckBatchResultQuery.ApprenticeEmploymentChecks;
+            return result.ApprenticeEmploymentChecks;
         }
+
         #endregion Get
     }
 }

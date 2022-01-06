@@ -1,8 +1,6 @@
 ﻿using app_levy_data_seeder.Models;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,13 +9,9 @@ namespace app_levy_data_seeder
 {
     public class DataSeeder
     {
-        public IList<InputData> SourceData = new List<InputData>();
         private static DataAccess _dataAccess;
         private static Options _options;
         private static string _csvDataFile;
-        private string[] _accounts;
-        private string[] _learners;
-
 
         public DataSeeder()
         {
@@ -27,52 +21,73 @@ namespace app_levy_data_seeder
             Console.WriteLine("Confirm these settings are correct by pressing [enter]:");
             Console.ReadLine();
         }
-
+      
         public async Task DoTheWork()
         {
-            Console.WriteLine("Reading data...");
+            Console.WriteLine("Seeding data...");
             Console.WriteLine();
-
-            ReadSourceData();
             await SeedData();
         }
 
-        public void ReadSourceData()
+        public async Task SeedData()
         {
-            var hdDirectoryInWhichToSearch = new DirectoryInfo(_options.DataFolderLocation);
-            var dirsInDir = hdDirectoryInWhichToSearch.GetDirectories("*-employed-*");
-
-            for (var i = 0; i < _options.DataSets; i++)
+            try
             {
-                foreach (var foundDir in dirsInDir)
-                {
-                    var files = foundDir.GetDirectories().First().GetDirectories().First().GetDirectories().First()
-                        .GetDirectories()
-                        .First().GetFiles("*.json");
+                var i = 0;
 
-                    foreach (var file in files)
+
+                if (_options.ClearExistingData) await ClearData();
+                var now = DateTime.Now;
+
+
+                for (var j = 0; j < _options.DataSets; j++)
+                {
+                    foreach (var line in File.ReadLines(_csvDataFile).Skip(1))
                     {
-                        Console.WriteLine($"Found data file: {file.FullName}");
-                        var data = JsonConvert.DeserializeObject<InputData>(File.ReadAllText(file.FullName));
-                        SourceData.Add(data);
+                        i++;
+                        var columns = line.Split(',');
+                        var check = new EmploymentChecks
+                        {
+                            ULN = Convert.ToInt64(columns[0]),
+                            AccountId = Convert.ToInt64(columns[1]),
+                            MinDate = Convert.ToDateTime(columns[2]),
+                            MaxDate = Convert.ToDateTime(columns[3]),
+                            NationalInsuranceNumber = _options.SeedNinos ? GetNullableValue(columns[4]) : null,
+                            HasBeenChecked = false,
+                            CreatedDate = now,
+                            CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20]
+                        };
+
+                        var checkId = await _dataAccess.Insert(check);
+                        Console.WriteLine($"[{i}] Added EmploymentChecks record");
+
+                        if (_options.SeedEmploymentChecksOnly) continue;
+
+                        var queue = new ApprenticeEmploymentCheckMessageQueue
+                        {
+                            MessageId = Guid.NewGuid(),
+                            MessageCreatedDateTime = now,
+                            EmploymentCheckId = checkId,
+                            Uln = check.ULN,
+                            NationalInsuranceNumber = GetNullableValue(columns[4]),
+                            PayeScheme = GetNullableValue(columns[5]),
+                            StartDateTime = check.MinDate,
+                            EndDateTime = check.MaxDate
+                        };
+
+                        await _dataAccess.Insert(queue);
+                        Console.WriteLine($"[{i}] Added ApprenticeEmploymentCheckMessageQueue record");
                     }
                 }
             }
-
-            var accountsFile = hdDirectoryInWhichToSearch + "\\accounts.txt";
-            if (File.Exists(accountsFile))
+            catch (Exception ex)
             {
-                Console.WriteLine($"Found accounts list file: {accountsFile}");
-                _accounts = File.ReadAllLines(accountsFile);
-            }
-
-            var learnersFile = hdDirectoryInWhichToSearch + "\\learners.txt";
-            if (File.Exists(learnersFile))
-            {
-                Console.WriteLine($"Found learners list file: {learnersFile}");
-                _learners = File.ReadAllLines(learnersFile);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
             }
         }
+
+        private static string GetNullableValue(string value) => value == "<null>" ? null : value;
 
         private static void ReadSettings()
         {
@@ -86,72 +101,21 @@ namespace app_levy_data_seeder
             _options = new Options();
             config.Bind(_options);
 
-            Console.WriteLine($"Using database connection string: {_options.EmploymentChecksConnectionString}");
-            _dataAccess = new DataAccess(_options.EmploymentChecksConnectionString);
-
-            //if (!Directory.Exists(_options.DataFolderLocation)) throw new Exception($"Cannot find data folder here: {_options.DataFolderLocation}");
-            //Console.WriteLine($"Using data folder: {_options.DataFolderLocation}");
-
             Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
             Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");
             Console.WriteLine($"Seeding [dbo].[EmploymentChecks] table only: {_options.SeedEmploymentChecksOnly}");
+
+            Console.WriteLine($"Using database connection string: {_options.EmploymentChecksConnectionString}");
+            _dataAccess = new DataAccess(_options.EmploymentChecksConnectionString);
         }
-
-        public  async Task SeedData()
-        {
-            if (_options.ClearExistingData) await ClearData();
-            await InsertData();
-        }
-
-        private async Task InsertData()
-        {
-            var i = 0;
-            foreach (var data in SourceData)
-            {
-                i++;
-                var now = DateTime.Now;
-
-                var check = new EmploymentCheck
-                {
-                    Uln = Convert.ToInt64(_learners[i % _learners.Length].Split('\t')[0]),
-                    ApprenticeshipId = 122 + i,
-                   // NationalInsuranceNumber = _learners[i % _learners.Length].Split('\t')[1],//data.jsonBody.nino,
-                    AccountId = Convert.ToInt64(_accounts[i % _accounts.Length]),
-                    MinDate = data.jsonBody.fromDate,
-                    MaxDate = data.jsonBody.toDate,
-                    CheckType = "StartDate+60",
-                    Employed = null,
-                    CreatedOn = now,
-                    LastUpdated = now
-                };
-
-                var checkId = await _dataAccess.Insert(check);
-
-                if (_options.SeedEmploymentChecksOnly) continue;
-
-                var queue = new EmploymentCheckMessageQueue
-                {
-                    Id =  check.Id,
-                    EmploymentCheckId = checkId,
-                    CorrelationId = check.CorrelationId,
-                    Uln = check.Uln,
-                    NationalInsuranceNumber = data.jsonBody.nino,
-                    PayeScheme = data.jsonBody.empref.ToUpper(),
-                    MinDateTime = check.MinDate,
-                    MaxDateTime = check.MaxDate,
-                    Employed = check.Employed
-                };
-
-                await _dataAccess.Insert(queue);
-            }
-        }
-
 
         private static async Task ClearData()
         {
-           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckMessageQueueHistory]");
-           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckMessageQueue]");
-           await _dataAccess.DeleteAll("[Business].[EmploymentChecks]");
+           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
+           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
+           await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
+           await _dataAccess.ResetControlTable();
+           await _dataAccess.DeleteAll("[dbo].[ExecutionTrace]");
            await _dataAccess.DeleteAll("[employer_check].[DAS_SubmissionEvents]");
            await _dataAccess.DeleteAll("[employer_check].[LastProcessedEvent]");
         }
