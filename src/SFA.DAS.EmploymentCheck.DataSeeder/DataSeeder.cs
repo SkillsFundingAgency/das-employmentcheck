@@ -1,11 +1,11 @@
-﻿using app_levy_data_seeder.Models;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using SFA.DAS.EmploymentCheck.DataSeeder.Models;
 
-namespace app_levy_data_seeder
+namespace SFA.DAS.EmploymentCheck.DataSeeder
 {
     public class DataSeeder
     {
@@ -48,35 +48,19 @@ namespace app_levy_data_seeder
                         var columns = line.Split(',');
                         var check = new EmploymentChecks
                         {
+                            CorrelationId = Guid.NewGuid(),
+                            CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20],
                             ULN = Convert.ToInt64(columns[0]),
                             AccountId = Convert.ToInt64(columns[1]),
+                            ApprenticeshipId = 12300000 + i,
                             MinDate = Convert.ToDateTime(columns[2]),
                             MaxDate = Convert.ToDateTime(columns[3]),
-                            NationalInsuranceNumber = _options.SeedNinos ? GetNullableValue(columns[4]) : null,
-                            HasBeenChecked = false,
-                            CreatedDate = now,
-                            CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20]
+                            Employed = null,
+                            CreatedOn = now,
                         };
 
                         var checkId = await _dataAccess.Insert(check);
                         Console.WriteLine($"[{i}] Added EmploymentChecks record");
-
-                        if (_options.SeedEmploymentChecksOnly) continue;
-
-                        var queue = new ApprenticeEmploymentCheckMessageQueue
-                        {
-                            MessageId = Guid.NewGuid(),
-                            MessageCreatedDateTime = now,
-                            EmploymentCheckId = checkId,
-                            Uln = check.ULN,
-                            NationalInsuranceNumber = GetNullableValue(columns[4]),
-                            PayeScheme = GetNullableValue(columns[5]),
-                            StartDateTime = check.MinDate,
-                            EndDateTime = check.MaxDate
-                        };
-
-                        await _dataAccess.Insert(queue);
-                        Console.WriteLine($"[{i}] Added ApprenticeEmploymentCheckMessageQueue record");
                     }
                 }
             }
@@ -111,13 +95,11 @@ namespace app_levy_data_seeder
 
         private static async Task ClearData()
         {
-           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueueHistory]");
-           await _dataAccess.DeleteAll("[dbo].[ApprenticeEmploymentCheckMessageQueue]");
-           await _dataAccess.DeleteAll("[dbo].[EmploymentChecks]");
-           await _dataAccess.ResetControlTable();
-           await _dataAccess.DeleteAll("[dbo].[ExecutionTrace]");
-           await _dataAccess.DeleteAll("[employer_check].[DAS_SubmissionEvents]");
-           await _dataAccess.DeleteAll("[employer_check].[LastProcessedEvent]");
+           await _dataAccess.DeleteAll("[Business].[EmploymentCheck]");
+           await _dataAccess.DeleteAll("[Cache].[AccountsResponse]");
+           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckCacheRequest]");
+           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckCacheResponse]");
+           await _dataAccess.DeleteAll("[Cache].[DataCollectionsResponse]");
         }
     }
 }

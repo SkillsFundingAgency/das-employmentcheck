@@ -1,10 +1,10 @@
-﻿using Dapper;
+﻿using System.Data.SqlClient;
+using System.Threading.Tasks;
+using Dapper;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
 
-namespace app_levy_data_seeder
+namespace SFA.DAS.EmploymentCheck.DataSeeder
 {
     public class DataAccess
     {
@@ -32,12 +32,6 @@ namespace app_levy_data_seeder
         {
             await using var dbConnection = GetSqlConnection(_connectionString);
             await dbConnection.ExecuteAsync($"DELETE {table}");
-        }
-
-        public async Task ResetControlTable()
-        {
-            await using var dbConnection = GetSqlConnection(_connectionString);
-            await dbConnection.ExecuteAsync("UPDATE [dbo].[EmploymentChecksControlTable] SET EmploymentCheckLastGetId=0 WHERE RowId=1");
         }
 
         private static SqlConnection GetSqlConnection(string connectionString)

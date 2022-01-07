@@ -1,4 +1,4 @@
-﻿namespace app_levy_data_seeder
+﻿namespace SFA.DAS.EmploymentCheck.DataSeeder
 {
     public class Options
     {
