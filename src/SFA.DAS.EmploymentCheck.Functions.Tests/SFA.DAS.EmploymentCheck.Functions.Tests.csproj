@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Compile Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
+    <Compile Remove="Mediators\Queries\GetApprenticesToVerify\**" />
     <EmbeddedResource Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
+    <EmbeddedResource Remove="Mediators\Queries\GetApprenticesToVerify\**" />
     <None Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
+    <None Remove="Mediators\Queries\GetApprenticesToVerify\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,10 +23,6 @@
     <PackageReference Include="Moq.AutoMock" Version="3.0.0" />
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Mediators\Queries\GetApprenticesToVerify\" />
   </ItemGroup>
 
   <ItemGroup>
