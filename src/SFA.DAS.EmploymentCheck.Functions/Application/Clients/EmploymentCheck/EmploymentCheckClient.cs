@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         {
             var thisMethodName = MethodBase.GetCurrentMethod().Name;
 
-            IList<Models.EmploymentCheck> employmentChecks = null;
+            IList<Models.EmploymentCheck> employmentChecks = new List<Models.EmploymentCheck>();
             try
             {
                 employmentChecks = await _employmentCheckService.GetEmploymentChecksBatch();

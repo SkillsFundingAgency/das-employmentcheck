@@ -1,5 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch
 {

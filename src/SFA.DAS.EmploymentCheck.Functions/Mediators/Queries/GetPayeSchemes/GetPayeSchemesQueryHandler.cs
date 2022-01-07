@@ -34,19 +34,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes
             GetPayeSchemesQueryRequest getPayeSchemesRequest,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = "GetPayeSchemesQueryHandler.Handle()";
+            const string thisMethodName = "GetPayeSchemesQueryHandler.Handle";
 
             Guard.Against.Null(getPayeSchemesRequest, nameof(getPayeSchemesRequest));
             Guard.Against.Null(getPayeSchemesRequest.EmploymentCheckBatch, nameof(getPayeSchemesRequest.EmploymentCheckBatch));
 
-            IList<EmployerPayeSchemes> employersPayeSchemes = null;
+            IList<EmployerPayeSchemes> employersPayeSchemes = new List<EmployerPayeSchemes>();
             try
             {
                 // Call the application client to get the employer PAYE schemes for the apprentices
                 employersPayeSchemes = await _employerAccountClient.GetEmployersPayeSchemes(getPayeSchemesRequest.EmploymentCheckBatch);
 
-                if (employersPayeSchemes != null &&
-                    employersPayeSchemes.Count > 0)
+                if (employersPayeSchemes.Count > 0)
                 {
                     _logger.LogInformation($"{thisMethodName} returned {employersPayeSchemes.Count} PAYE scheme(s)");
                 }

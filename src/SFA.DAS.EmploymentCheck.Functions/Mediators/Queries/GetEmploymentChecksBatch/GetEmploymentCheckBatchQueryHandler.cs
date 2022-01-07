@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Ardalis.GuardClauses;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch
 {
@@ -35,26 +33,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck
 
             Guard.Against.Null(request, nameof(request));
 
-            IList<Application.Models.EmploymentCheck> employmentChecks = null;
-            try
-            {
-                // Call the application client to get the employment checks
-                employmentChecks = await _employmentCheckClient.GetEmploymentChecksBatch();
+            var employmentChecks = await _employmentCheckClient.GetEmploymentChecksBatch();
 
-                if (employmentChecks != null &&
-                    employmentChecks.Count > 0)
-                {
-                    _logger.LogInformation($"{thisMethodName} returned {employmentChecks.Count} employment check(s)");
-                }
-                else
-                {
-                    _logger.LogInformation($"{thisMethodName} returned null/zero employment checks");
-                    employmentChecks = new List<Application.Models.EmploymentCheck>(); // return empty list rather than null
-                }
-            }
-            catch (Exception ex)
+            if (employmentChecks.Count > 0)
             {
-                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName} returned {employmentChecks.Count} employment check(s)");
+            }
+            else
+            {
+                _logger.LogInformation($"{thisMethodName} returned null/zero employment checks");
+                employmentChecks = new List<Application.Models.EmploymentCheck>(); // return empty list rather than null
             }
 
             return new GetEmploymentCheckBatchQueryResult(employmentChecks);

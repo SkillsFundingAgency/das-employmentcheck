@@ -1,0 +1,11 @@
+﻿namespace SFA.DAS.EmploymentCheck.DataSeeder
+{
+    public class Options
+    {
+        public string EmploymentChecksConnectionString { get; set; }
+        public int DataSets { get; set; }
+        public bool ClearExistingData { get; set; }
+        public bool SeedEmploymentChecksOnly { get; set; }
+        public bool SeedNinos { get; set; } = true;
+    }
+}

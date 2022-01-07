@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResultTests
@@ -17,11 +17,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Act
 
-            //var result = new GetAccountsPayeSchemesQueryResult(payeSchemes);
+            var result = new GetPayeSchemesQueryResult(payeSchemes);
 
             //Assert
 
-            //Assert.Equal(payeSchemes, result.EmployersPayeSchemes);
+            Assert.Equal(payeSchemes, result.EmployersPayeSchemes);
         }
     }
 }

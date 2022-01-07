@@ -1,167 +1,103 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Threading;
-//using FluentAssertions;
-//using Microsoft.Extensions.Logging;
-//using Moq;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-//using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-//using SFA.DAS.EmploymentCheck.Functions.Helpers;
-//using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmployerPayeSchemes;
-//using Xunit;
+﻿using AutoFixture;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Xunit;
 
-//namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployerPayeSchemesMediatorHandlerTests
-//{
-//    public class WhenHandlingTheRequest
-//    {
-//        private readonly Mock<IEmployerAccountClient> _employerAccountClient;
-//        private readonly Mock<ILogger<GetEmployerPayeSchemesMediatorHandler>> _logger;
+namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployerPayeSchemesMediatorHandlerTests
+{
+    public class WhenHandlingTheRequest
+    {
+        private readonly Mock<IEmployerAccountClient> _employerAccountClient;
+        private readonly Mock<ILogger<GetPayeSchemesQueryHandler>> _logger;
+        private readonly List<Functions.Application.Models.EmploymentCheck> _apprentices;
 
-//        public WhenHandlingTheRequest()
-//        {
-//            _employerAccountClient = new Mock<IEmployerAccountClient>();
-//            _logger = new Mock<ILogger<GetEmployerPayeSchemesMediatorHandler>>();
-//        }
+        public WhenHandlingTheRequest()
+        {
+            _employerAccountClient = new Mock<IEmployerAccountClient>();
+            _logger = new Mock<ILogger<GetPayeSchemesQueryHandler>>();
+            var fixture = new Fixture();
+            _apprentices = fixture.CreateMany<Functions.Application.Models.EmploymentCheck>().ToList();
+        }
 
-//        [Fact]
-//        public async void And_There_Are_No_Apprentices_Then_An_Empty_List_Is_Returned()
-//        {
-//            //Arrange
+        [Fact]
+        public async Task And_There_Are_No_Learners_Then_An_Empty_List_Is_Returned()
+        {
+            //Arrange
+            var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-//            var sut = new GetEmployerPayeSchemesMediatorHandler(_employerAccountClient.Object, _logger.Object);
+            //Act
+            var result = await sut.Handle(new GetPayeSchemesQueryRequest(new List<Functions.Application.Models.EmploymentCheck>()),
+                CancellationToken.None);
 
-//            //Act
+            //Assert
+            result.EmployersPayeSchemes.Should().BeNull();
+        }
 
-//            var result = await sut.Handle(new GetEmployersPayeSchemesMediatorRequest(new List<ApprenticeEmploymentCheck>()),
-//                CancellationToken.None);
+        [Fact]
+        public async Task And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
+        {
+            //Arrange
+            var request = new GetPayeSchemesQueryRequest(_apprentices);
+            var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
+            var payeSchemes = new List<EmployerPayeSchemes> { payeScheme };
 
-//            //Assert
+            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(payeSchemes);
 
-//            Assert.Equal(new List<EmployerPayeSchemes>(), result.EmployersPayeSchemes);
-//        }
+            var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-//        [Fact]
-//        public async void And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
-//        {
-//            //Arrange
+            //Act
 
-//            var apprentice = new ApprenticeEmploymentCheck(
-//                1,
-//                1,
-//                "1000001",
-//                1000001,
-//                1000001,
-//                1,
-//                DateTime.Today.AddDays(-1),
-//                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheck> {apprentice};
-//            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
+            var result = await sut.Handle(request, CancellationToken.None);
 
-//            var payeScheme = new EmployerPayeSchemes(1, new List<string> {"paye scheme"});
-//            var payeSchemes = new List<EmployerPayeSchemes> {payeScheme};
+            //Assert
 
-//            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.Apprentices)).ReturnsAsync(payeSchemes);
+            Assert.Equal(result.EmployersPayeSchemes, payeSchemes);
+        }
 
-//            var sut = new GetEmployerPayeSchemesMediatorHandler(_employerAccountClient.Object, _logger.Object);
+        [Fact]
+        public async Task And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_An_Empty_List_Is_Returned()
+        {
+            //Arrange
+            var request = new GetPayeSchemesQueryRequest(_apprentices);
 
-//            //Act
+            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(new List<EmployerPayeSchemes>());
+          
+            var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-//            var result = await sut.Handle(request, CancellationToken.None);
+            //Act
 
-//            //Assert
+            var result = await sut.Handle(request, CancellationToken.None);
 
-//            Assert.Equal(result.EmployersPayeSchemes, payeSchemes);
-//        }
+            //Assert
 
-//        [Fact]
-//        public async void And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_An_Empty_List_Is_Returned()
-//        {
-//            //Arrange
+            result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
+        }
 
-//            var apprentice = new ApprenticeEmploymentCheck(
-//                1,
-//                1,
-//                "1000001",
-//                1000001,
-//                1000001,
-//                1,
-//                DateTime.Today.AddDays(-1),
-//                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheck> { apprentice };
-//            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
+        [Fact]
+        public async Task And_The_EmployerAccountClient_Returns_Null_Then_An_Empty_List_Is_Returned()
+        {
+            //Arrange
+            var request = new GetPayeSchemesQueryRequest(_apprentices);
 
-//            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.Apprentices)).ReturnsAsync(new List<EmployerPayeSchemes>());
+            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync((List<EmployerPayeSchemes>)null);
 
-//            var sut = new GetEmployerPayeSchemesMediatorHandler(_employerAccountClient.Object, _logger.Object);
+            var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-//            //Act
+            //Act
 
-//            var result = await sut.Handle(request, CancellationToken.None);
+            var result = await sut.Handle(request, CancellationToken.None);
 
-//            //Assert
+            //Assert
 
-//            result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-//        }
-
-//        [Fact]
-//        public async void And_The_EmployerAccountClient_Returns_Null_Then_An_Empty_List_Is_Returned()
-//        {
-//            //Arrange
-
-//            var apprentice = new ApprenticeEmploymentCheck(
-//                1,
-//                1,
-//                "1000001",
-//                1000001,
-//                1000001,
-//                1,
-//                DateTime.Today.AddDays(-1),
-//                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheck> { apprentice };
-//            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
-
-//            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.Apprentices)).ReturnsAsync((List<EmployerPayeSchemes>)null);
-
-//            var sut = new GetEmployerPayeSchemesMediatorHandler(_employerAccountClient.Object, _logger.Object);
-
-//            //Act
-
-//            var result = await sut.Handle(request, CancellationToken.None);
-
-//            //Assert
-
-//            result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-//        }
-
-//        [Fact(Skip = "Code path only includes logging")]
-//        public async void And_The_EmployerAccountClient_Throws_An_Exception_Then_That_Is_Logged()
-//        {
-//            //Arrange
-
-//            var apprentice = new ApprenticeEmploymentCheck(
-//                1,
-//                1,
-//                "1000001",
-//                1000001,
-//                1000001,
-//                1,
-//                DateTime.Today.AddDays(-1),
-//                DateTime.Today.AddDays(1));
-//            var apprentices = new List<ApprenticeEmploymentCheck> { apprentice };
-//            var request = new GetEmployersPayeSchemesMediatorRequest(apprentices);
-
-//            var exception = new Exception("exception");
-
-//            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.Apprentices)).ThrowsAsync(exception);
-
-//            var sut = new GetEmployerPayeSchemesMediatorHandler(_employerAccountClient.Object, _logger.Object);
-
-//            //Act
-
-//            var result = await sut.Handle(request, CancellationToken.None);
-
-//            //Assert
-
-//        }
-//    }
-//}
+            result.EmployersPayeSchemes.Should().BeNull();
+        }
+    }
+}

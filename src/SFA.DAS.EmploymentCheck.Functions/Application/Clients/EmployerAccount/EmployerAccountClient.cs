@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
             IList<Models.EmploymentCheck> apprenticeEmploymentChecks)
         {
-            var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes()";
+            var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes";
 
             IList<EmployerPayeSchemes> employerPayeSchemes = new List<EmployerPayeSchemes>();
             try

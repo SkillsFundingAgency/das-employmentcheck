@@ -31,24 +31,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         #endregion Constructors
 
         #region Get
+
         [FunctionName(nameof(Activities.GetEmployerPayeSchemesActivity))]
-        public async Task<IList<EmployerPayeSchemes>> Get([ActivityTrigger] IList<Application.Models.EmploymentCheck> employmentCheckBatch)
+        public async Task<IList<EmployerPayeSchemes>> Get(
+            [ActivityTrigger] IList<Application.Models.EmploymentCheck> employmentCheckBatch)
         {
-            var thisMethodName = $"{ThisClassName}.Get()";
             Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
+            var result = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheckBatch));
 
-            GetPayeSchemesQueryResult getPayeSchemesQueryResult = null;
-            try
-            {
-                getPayeSchemesQueryResult = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheckBatch));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-
-            return getPayeSchemesQueryResult.EmployersPayeSchemes;
+            return result.EmployersPayeSchemes;
         }
+
         #endregion Get
     }
 }

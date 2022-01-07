@@ -1,12 +1,12 @@
 ﻿using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
+using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using HMRC.ESFA.Levy.Api.Types.Exceptions;
 
 namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
 {
@@ -32,9 +32,8 @@ namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
         /// <param name="empRef">employer reference</param>
         /// <param name="fromDate">from date</param>
         /// <param name="toDate">to date</param>
-        /// <returns>Employed true/false</returns>
-        /// sample request: https://localhost:5001/EmploymentCheckHttpTestHarness?accessCode=*******************&nino=PR555555A&empRef=923%2FEZ00059&fromDate=2010-01-01&toDate=2018-01-01
-
+        /// <returns><see cref="EmploymentStatus"/> object</returns>
+        /// sample request: https://localhost:5001/EmploymentCheckHttpTestHarness?nino=PR555555A&empRef=923%2FEZ00059&fromDate=2010-01-01&toDate=2018-01-01
         [HttpGet]
         public async Task<EmploymentStatus> IsEmployed(string nino, string empRef, DateTime fromDate, DateTime toDate)
         {
@@ -58,12 +57,11 @@ namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
                 Console.WriteLine(e);
                 throw;
             }
-
         }
 
         [HttpGet]
         [Route("token-test")]
-        public async Task<bool> IsEmployed______TEMP()
+        public async Task<bool> TokenStubTest()
         {
             var accessCode = (await  _authTokenBroker.GetTokenAsync()).AccessToken;
 

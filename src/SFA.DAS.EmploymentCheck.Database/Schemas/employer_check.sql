@@ -1,6 +1,4 @@
-﻿CREATE SCHEMA [employer_check]
-GO
-CREATE SCHEMA [Business]
+﻿CREATE SCHEMA [Business]
 GO
 CREATE SCHEMA [Cache]
 GO

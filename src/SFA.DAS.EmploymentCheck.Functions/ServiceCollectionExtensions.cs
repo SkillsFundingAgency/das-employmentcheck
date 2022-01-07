@@ -29,8 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
     {
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
-            string sqlConnection = Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString");
-
             serviceCollection.AddHttpClient();
             serviceCollection.AddTransient<IEmploymentCheckClient, EmploymentCheckClient>();
             serviceCollection.AddTransient<ILearnerClient, LearnerClient>();
@@ -44,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     EnvironmentName = Environment.GetEnvironmentVariable("EnvironmentName"),
                     StorageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
                 };
-                return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration);
+                return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();

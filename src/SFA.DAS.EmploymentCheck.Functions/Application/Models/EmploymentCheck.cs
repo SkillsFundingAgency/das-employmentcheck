@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
     [Table("ApprenticeEmploymentCheck", Schema = "Business")]
-
     public class EmploymentCheck
     {
         public EmploymentCheck() { }
@@ -56,10 +55,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public DateTime LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
-
-        //public ICollection<NiNumberApiResponseDto> NiNumberApiResponses { get; set; } = new Collection<NiNumberApiResponseDto>();
-
-        //public ICollection<AccountsResponse> PayeSchemeApiResponses { get; set; } = new Collection<AccountsResponse>();
     }
 }
 
