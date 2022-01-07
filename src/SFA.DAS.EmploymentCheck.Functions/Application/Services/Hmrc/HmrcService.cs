@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
@@ -28,16 +29,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private PrivilegedAccessToken _cachedToken;
 
         private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
-        private readonly string _connectionString = System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString"); // TODO: move to config
+        private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         #endregion Private members
 
         #region Constructors
-        public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILogger<HmrcService> logger)
+        public HmrcService(
+            ITokenServiceApiClient tokenService,
+            IApprenticeshipLevyApiClient apprenticeshipLevyService, 
+            ILogger<HmrcService> logger,
+            ApplicationSettings applicationSettings,
+            AzureServiceTokenProvider azureServiceTokenProvider
+            )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
+            _azureServiceTokenProvider = azureServiceTokenProvider;
+            _connectionString = applicationSettings.DbConnectionString;
             _cachedToken = null;
         }
         #endregion Constructors

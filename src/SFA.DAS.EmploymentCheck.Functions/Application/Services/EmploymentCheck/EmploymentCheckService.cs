@@ -25,9 +25,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private readonly ApprenticeEmploymentCheckValidator _apprenticeEmploymentCheckValidator;
         private readonly EmploymentCheckCacheRequestValidator _employmentCheckRequestValidator;
 
-        private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
-        private readonly string _connectionString = System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString"); // TODO: move to config
-        private readonly int _batchSize; // TODO: move to config
+        private const string AzureResource = "https://database.windows.net/";
+        private readonly string _connectionString;
+        private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         #endregion Private members
 
@@ -36,15 +36,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// The EmploymentCheckService contains the methods to read and save Employment Checks
         /// </summary>
         /// <param name="applicationSettings"></param>
-        /// <param name="employmentCheckDbConfiguration"></param>
         /// <param name="azureServiceTokenProvider"></param>
         /// <param name="logger"></param>
         public EmploymentCheckService(
             ILogger<IEmploymentCheckService> logger,
-            ApplicationSettings applicationSettings,                            // TODO: Replace this generic application setting
+            ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider)
         {
             _logger = logger;
+            _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
             _employmentCheckDataValidator = new EmploymentCheckDataValidator();

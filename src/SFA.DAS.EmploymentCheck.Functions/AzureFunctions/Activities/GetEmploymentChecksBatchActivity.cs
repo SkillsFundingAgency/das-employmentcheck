@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(GetEmploymentChecksBatchActivity))]
         public async Task<IList<Application.Models.EmploymentCheck>> Get(
-            [ActivityTrigger] object _)
+            [ActivityTrigger] object input)
         {
             var result = await _mediator.Send(new GetEmploymentCheckBatchQueryRequest());
 

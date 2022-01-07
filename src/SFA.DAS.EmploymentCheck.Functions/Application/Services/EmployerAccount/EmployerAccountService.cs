@@ -1,25 +1,24 @@
-﻿using Microsoft.Extensions.Logging;
-using SFA.DAS.EAS.Account.Api.Types;
-using System;
-using System.Threading.Tasks;
-using SFA.DAS.HashingService;
+﻿using Dapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Services.AppAuthentication;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
-using Dapper;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.HashingService;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
-using Ardalis.GuardClauses;
-using Microsoft.AspNetCore.Hosting;
-using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.Api.Common.Interfaces;
-using Microsoft.Extensions.Hosting;
+using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 {
@@ -27,39 +26,38 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         : IEmployerAccountService
     {
         #region Private memebers
-        private const string ThisClassName = "\n\nEmployerAccountService";
-        private const string ErrorMessagePrefix = "[*** ERROR ***]";
-
-        private readonly ILogger<IEmployerAccountService> _logger;
+        private readonly ILogger<EmployerAccountService> _logger;
         private readonly IHashingService _hashingService;
         private readonly HttpClient _httpClient;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private readonly IEmployerAccountService _employerAccountService;
 
         private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
-        private readonly string _connectionString = System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString"); // TODO: move to config
-        private readonly int _batchSize; // TODO: move to config
+        private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         #endregion Private memebers
 
         #region Constructors
         public EmployerAccountService(
-            ILogger<IEmployerAccountService> logger,
+            ILogger<EmployerAccountService> logger,
             EmployerAccountApiConfiguration apiConfiguration,
+            ApplicationSettings applicationSettings,
             IHashingService hashingService,
             IHttpClientFactory httpClientFactory,
             IWebHostEnvironment hostingEnvironment,
-            IAzureClientCredentialHelper azureClientCredentialHelper)
+            IAzureClientCredentialHelper azureClientCredentialHelper, 
+            AzureServiceTokenProvider azureServiceTokenProvider)
         {
             _logger = logger;
+            _connectionString = applicationSettings.DbConnectionString;
             _configuration = apiConfiguration;
             _hashingService = hashingService;
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);
             _hostingEnvironment = hostingEnvironment;
             _azureClientCredentialHelper = azureClientCredentialHelper;
+            _azureServiceTokenProvider = azureServiceTokenProvider;
         }
         #endregion Constructors
 
@@ -93,7 +91,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         #endregion GetPayeSchemes
 
         #region Get
-        // TODO: Move this code into the service layer
         public async Task<TResponse> Get<TResponse>(Models.EmploymentCheck apprenticeEmploymentCheck)
         {
             var thisMethodName = "EmployerAccountApiClient.Get()";

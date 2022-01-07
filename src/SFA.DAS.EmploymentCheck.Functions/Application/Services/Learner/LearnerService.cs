@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using Dapper;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
@@ -17,6 +6,16 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 {
@@ -33,8 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         private readonly DcApiSettings _dcApiSettings;
 
         private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
-        private readonly string _connectionString = System.Environment.GetEnvironmentVariable($"EmploymentChecksConnectionString"); // TODO: move to config
-        private readonly int _batchSize; // TODO: move to config
+        private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         #endregion Private members
 
@@ -44,9 +42,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             IDcTokenService dcTokenService,
             IHttpClientFactory httpFactory,
             IOptions<DcApiSettings> dcApiSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider)
+            AzureServiceTokenProvider azureServiceTokenProvider,
+            ApplicationSettings applicationSettings
+            )
         {
             _logger = logger;
+            _connectionString = applicationSettings.DbConnectionString;
             _dcTokenService = dcTokenService;
             _httpFactory = httpFactory;
             _dcApiSettings = dcApiSettings.Value;

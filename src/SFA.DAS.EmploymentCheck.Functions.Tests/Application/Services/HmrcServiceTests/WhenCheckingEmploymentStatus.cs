@@ -9,6 +9,7 @@ using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
 {
@@ -16,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
         private Mock<ILogger<HmrcService>> _logger;
+        private Mock<ApplicationSettings> _settings;
         private Mock<ITokenServiceApiClient> _tokenService;
         private PrivilegedAccessToken _token;
         private Functions.Application.Models.EmploymentCheckCacheRequest _apprentice;
@@ -27,6 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
             _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
+            _settings = new Mock<ApplicationSettings>();
 
             _token = new PrivilegedAccessToken {AccessCode = "code", ExpiryTime = DateTime.Today.AddDays(7)};
 
@@ -47,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                     _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate))
                 .ReturnsAsync(employmentStatus);
 
-            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
 
             // Act
             await sut.IsNationalInsuranceNumberRelatedToPayeScheme(_apprentice);
@@ -66,7 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                     _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate))
                 .ReturnsAsync(employmentStatus);
 
-            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object);
+            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
 
             // Act
             var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme(_apprentice);
