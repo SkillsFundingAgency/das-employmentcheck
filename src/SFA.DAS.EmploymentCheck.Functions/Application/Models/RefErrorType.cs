@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Dapper.Contrib.Extensions;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application
+namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
+    [Table("Cache.RefErrorType")]
     public class RefErrorType
     {
         public RefErrorType() { }

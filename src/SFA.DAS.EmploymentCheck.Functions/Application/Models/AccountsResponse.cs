@@ -1,7 +1,9 @@
 ﻿using System;
+using Dapper.Contrib.Extensions;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
+    [Table("Cache.AccountsResponse")]
     public class AccountsResponse
     {
         public AccountsResponse () { }

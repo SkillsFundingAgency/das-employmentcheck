@@ -1,9 +1,9 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+using Dapper.Contrib.Extensions;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
-    [Table("ApprenticeEmploymentCheck", Schema = "Business")]
+    [Table("Business.EmploymentCheck")]
     public class EmploymentCheck
     {
         public EmploymentCheck() { }
