@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using AutoFixture;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
-using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentices.GetApprenticesMediatorResultTests
 {
     public class WhenBuildingTheResult
     {
 
-        [Fact]
+        [Test]
         public void Then_The_Result_Is_Built_Correctly()
         {
             //Arrange
@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
             var result = new GetEmploymentCheckBatchQueryResult(apprentices);
 
             //Assert
-            Assert.Equal(apprentices, result.ApprenticeEmploymentChecks);
+            Assert.AreEqual(apprentices, result.ApprenticeEmploymentChecks);
         }
     }
 }

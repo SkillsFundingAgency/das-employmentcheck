@@ -8,7 +8,7 @@ using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit;
+using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetLearnerNiNumbersActivityTests
 {
@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetL
             _apprentices = new List<Functions.Application.Models.EmploymentCheck> { fixture.Create<Functions.Application.Models.EmploymentCheck>() };
         }
 
-        [Fact]
+        [Test]
         public void Then_The_NINumbers_Are_Returned()
         {
             //Arrange
@@ -44,10 +44,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetL
 
             //Assert
             Assert.NotNull(result);
-            Assert.Equal(apprenticeNiNumbers.LearnerNiNumber.Count, result.Count);
-            Assert.Equal(apprenticeNiNumbers.LearnerNiNumber, result);
+            Assert.AreEqual(apprenticeNiNumbers.LearnerNiNumber.Count, result.Count);
+            Assert.AreEqual(apprenticeNiNumbers.LearnerNiNumber, result);
         }
-        [Fact]
+        [Test]
         public void And_Throws_An_Exception_Then_Exception_Is_Handled()
         {
             //Arrange
@@ -61,7 +61,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetL
             var result = sut.Get(_apprentices).Result;
 
             //Assert
-            Assert.Equal(new List<LearnerNiNumber>(), result);
+            Assert.AreEqual(new List<LearnerNiNumber>(), result);
         }
     }
 }

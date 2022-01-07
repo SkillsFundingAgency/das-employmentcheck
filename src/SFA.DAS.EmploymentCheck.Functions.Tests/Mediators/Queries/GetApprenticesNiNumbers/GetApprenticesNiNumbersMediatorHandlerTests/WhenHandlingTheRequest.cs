@@ -1,28 +1,29 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprenticesNiNumbers.GetApprenticesNiNumbersMediatorHandlerTests
 {
     public class WhenHandlingTheRequest
     {
-        private readonly Mock<ILearnerClient> _submitLearnerDataClient;
-        private readonly Mock<ILogger<GetNiNumbersQueryHandler>> _logger;
+        private Mock<ILearnerClient> _submitLearnerDataClient;
+        private Mock<ILogger<GetNiNumbersQueryHandler>> _logger;
 
-        public WhenHandlingTheRequest()
+        [SetUp]
+        public void SetUp()
         {
             _submitLearnerDataClient = new Mock<ILearnerClient>();
             _logger = new Mock<ILogger<GetNiNumbersQueryHandler>>();
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_SubmitLearnerDataClient_Is_Called()
         {
             //Arrange
@@ -42,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
             _submitLearnerDataClient.Verify(x => x.GetNiNumbers(request.EmploymentCheckBatch), Times.Exactly(1));
         }
 
-        [Fact]
+        [Test]
         public async Task And_The_SubmitLearnerDataClient_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
@@ -62,7 +63,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
             result.LearnerNiNumber.Should().BeEquivalentTo(new List<LearnerNiNumber>());
         }
 
-        [Fact]
+        [Test]
         public async Task And_The_SubmitLearnerDataClient_Returns_LearnerNiNumbers_Then_They_Are_Returned()
         {
             //Arrange

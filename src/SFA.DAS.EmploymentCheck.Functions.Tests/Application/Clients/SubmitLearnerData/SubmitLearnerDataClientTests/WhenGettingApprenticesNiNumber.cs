@@ -8,7 +8,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
 {
@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             _logger = new Mock<ILogger<IEmploymentCheckClient>>();
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_SubmitLeanerDataService_Is_Called()
         {
             //Arrange
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             _submitLearnerDataService.Verify(x => x.GetNiNumbers(apprentices), Times.Exactly(1));
         }
 
-        [Fact]
+        [Test]
         public async Task And_The_LearnerService_Returns_No_Ni_Numbers_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
@@ -60,7 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             //Assert
             result.Should().BeEquivalentTo(new List<LearnerNiNumber>());
         }
-        [Fact]
+        [Test]
         public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
@@ -78,7 +78,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             result.Should().BeNull();
         }
 
-        [Fact]
+        [Test]
         public async Task And_The_LearnerService_Returns_Ni_Numbers_Then_They_Are_Returned()
         {
             //Arrange
@@ -95,7 +95,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             var result = await sut.GetNiNumbers(apprentices);
 
             //Assert
-            Assert.Equal(niNumbers, result);
+            Assert.AreEqual(niNumbers, result);
         }
     }
 }

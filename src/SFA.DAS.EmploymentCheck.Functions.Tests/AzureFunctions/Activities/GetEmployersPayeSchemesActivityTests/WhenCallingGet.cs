@@ -8,7 +8,7 @@ using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
-using Xunit;
+using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
 {
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
                 {fixture.Create<Functions.Application.Models.EmploymentCheck>()};
         }
 
-        [Fact]
+        [Test]
         public void Then_The_EmployerPayeSchemes_Are_Returned()
         {
             //Arrange
@@ -44,8 +44,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
 
             //Assert
             Assert.NotNull(result);
-            Assert.Equal(employersPayeSchemes.EmployersPayeSchemes.Count, result.Count);
-            Assert.Equal(employersPayeSchemes.EmployersPayeSchemes, result);
+            Assert.AreEqual(employersPayeSchemes.EmployersPayeSchemes.Count, result.Count);
+            Assert.AreEqual(employersPayeSchemes.EmployersPayeSchemes, result);
         }
     }
 }

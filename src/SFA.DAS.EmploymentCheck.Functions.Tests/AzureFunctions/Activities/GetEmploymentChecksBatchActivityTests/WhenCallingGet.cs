@@ -6,7 +6,7 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit;
+using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmploymentChecksBatchActivityTests
 {
@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
             _logger = new Mock<ILogger<GetEmploymentChecksBatchActivity>>();
         }
 
-        [Fact]
+        [Test]
         public void Then_Learners_Are_Returned()
         {
             //Arrange
@@ -39,8 +39,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
 
             //Assert
             Assert.NotNull(result);
-            Assert.Equal(apprentices.Count, result.Count);
-            Assert.Equal(apprentices, result);
+            Assert.AreEqual(apprentices.Count, result.Count);
+            Assert.AreEqual(apprentices, result);
         }
     }
 }

@@ -1,27 +1,27 @@
 ﻿using AutoFixture;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
-using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
 {
     public class WhenCheckingEmploymentStatus
     {
-        private readonly Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private readonly Mock<ILogger<HmrcService>> _logger;
-        private readonly Mock<ITokenServiceApiClient> _tokenService;
-        private readonly PrivilegedAccessToken _token;
-        private readonly Functions.Application.Models.EmploymentCheckCacheRequest _apprentice;
+        private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
+        private Mock<ILogger<HmrcService>> _logger;
+        private Mock<ITokenServiceApiClient> _tokenService;
+        private PrivilegedAccessToken _token;
+        private Functions.Application.Models.EmploymentCheckCacheRequest _apprentice;
 
-        public WhenCheckingEmploymentStatus()
+        [SetUp]
+        public void SetUp()
         {
             var fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _apprentice.MaxDate = _apprentice.MinDate.AddMonths(-6);
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_TokenServiceApiClient_Is_Called()
         {
             // Arrange
@@ -56,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_ApprenticeshipLevyApiClient_Is_Called_And_The_Response_Is_Returned()
         {
             // Arrange
@@ -74,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             // Assert
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(_token.AccessCode, _apprentice.PayeScheme,
                 _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate), Times.Exactly(1));
-            Assert.Equal(employmentStatus.Employed, result.Employed);
+            Assert.AreEqual(employmentStatus.Employed, result.Employed);
         }
     }
 }

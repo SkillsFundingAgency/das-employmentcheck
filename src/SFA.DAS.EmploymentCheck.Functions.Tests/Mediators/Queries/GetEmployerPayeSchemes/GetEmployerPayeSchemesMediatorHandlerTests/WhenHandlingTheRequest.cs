@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
@@ -9,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployerPayeSchemesMediatorHandlerTests
 {
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             _apprentices = fixture.CreateMany<Functions.Application.Models.EmploymentCheck>().ToList();
         }
 
-        [Fact]
+        [Test]
         public async Task And_There_Are_No_Learners_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             result.EmployersPayeSchemes.Should().BeNull();
         }
 
-        [Fact]
+        [Test]
         public async Task And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
         {
             //Arrange
@@ -59,10 +59,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            Assert.Equal(result.EmployersPayeSchemes, payeSchemes);
+            Assert.AreEqual(result.EmployersPayeSchemes, payeSchemes);
         }
 
-        [Fact]
+        [Test]
         public async Task And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
@@ -81,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
         }
 
-        [Fact]
+        [Test]
         public async Task And_The_EmployerAccountClient_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
