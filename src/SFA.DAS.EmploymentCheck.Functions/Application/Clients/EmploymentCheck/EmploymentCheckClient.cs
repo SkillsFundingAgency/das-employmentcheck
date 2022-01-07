@@ -113,26 +113,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         #endregion ProcessEmploymentCheckCacheRequest
 
         #region StoreEmploymentCheckCacheRequest
-        public async Task StoreEmploymentCheckCachRequest(EmploymentCheckCacheRequest employmentCheckCacheRequest)
-        {
-            var thisMethodName = $"\n\n{nameof(EmploymentCheckClient)}.StoreEmploymentCheckCachRequest()";
-
-            try
-            {
-                if (employmentCheckCacheRequest != null)
-                {
-                    await _employmentCheckService.StoreEmploymentCheckCacheRequest(employmentCheckCacheRequest);
-                }
-                else
-                {
-                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The employmentCheckCacheRequest input parameter is null.");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"\n\n{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-        }
 
         public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {

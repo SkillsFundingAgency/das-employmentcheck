@@ -257,7 +257,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         #endregion ProcessEmploymentCheckCacheRequest
 
         #region StoreEmploymentCacheRequest
-        public async Task StoreEmploymentCheckCacheRequest(
+        private async Task StoreEmploymentCheckCacheRequest(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             var thisMethodName = $"{nameof(ThisClassName)}.StoreEmploymentCheckCacheRequest()";

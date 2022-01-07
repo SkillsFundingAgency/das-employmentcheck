@@ -54,11 +54,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddMediatR(typeof(GetNiNumbersQueryRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
 
-            // DcLearnerData API Configuration
-            builder.Services.Configure<DcLearnerDataApiConfiguration>(
-                config.GetSection("SubmitLearnersDataApiSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcLearnerDataApiConfiguration>>().Value);
-
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountApiConfiguration>>().Value);
@@ -75,7 +70,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
-            // TODO: Data Collections was renamed Submit Learner Data several years ago is this a duplicate of the Submit Learner Data configuration above
             //DC Api Settings
             builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>().Value);
