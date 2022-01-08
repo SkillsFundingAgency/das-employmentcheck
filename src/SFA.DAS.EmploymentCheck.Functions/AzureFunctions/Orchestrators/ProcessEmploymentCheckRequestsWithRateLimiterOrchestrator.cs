@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities.GetEmploymentCheckCacheRequest;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         #endregion Private members
 
         #region ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
+        /// <summary>
+        /// Process Employment Check Cache Requests one-at-a-time where the Employed flag is null
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         [FunctionName(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator))]
         public async Task ProcessEmploymentChecksWithRateLimiterOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {

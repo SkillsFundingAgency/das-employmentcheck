@@ -49,4 +49,8 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Application\Exceptions\" />
+    <Folder Include="Mediators\Queries\ProcessEmploymentCheckCacheRequest\" />
+  </ItemGroup>
 </Project>

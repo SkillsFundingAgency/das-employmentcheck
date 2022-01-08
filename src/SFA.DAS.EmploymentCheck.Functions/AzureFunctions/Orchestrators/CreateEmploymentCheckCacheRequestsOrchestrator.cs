@@ -64,7 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
 
                     // Create an EmploymentCheckCacheRequest for each combination of Nino, Payescheme, MinDate and MaxDate
-                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheckBatch, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequesActivity), new EmploymentCheckData(employmentCheckBatch, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
                 }
                 else
                 {

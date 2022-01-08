@@ -52,8 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         #endregion Constructors
 
         #region IsNationalInsuranceNumberRelatedToPayeScheme
-        public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(
-            EmploymentCheckCacheRequest request)
+        public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
         {
             var thisMethodName = $"{ThisClassName}.IsNationalInsuranceNumberRelatedToPayeScheme()";
 
@@ -98,6 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.NotFound)
             {
+                request.RequestCompletionStatus = (short)e.HttpCode;
                 _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
 
                 // Note: We don't have access to the actual API response (it's within the levy service GetEmploymentStatus() call) so the response is populated with the description related to the HttpStatusCode
@@ -114,6 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
             {
+                request.RequestCompletionStatus = (short)e.HttpCode;
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
@@ -129,6 +130,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
             {
+                request.RequestCompletionStatus = (short)e.HttpCode;
                 _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
@@ -145,6 +147,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
             catch (ApiHttpException e)
             {
+                request.RequestCompletionStatus = (short)e.HttpCode;
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
@@ -160,6 +163,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (Exception e)
             {
+                request.RequestCompletionStatus = 500;
                 _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
@@ -182,25 +186,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         #region GetEmploymentStatus
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
-            var thisMethodName = $"{ThisClassName}.GetEmploymentStatus()";
-
-            EmploymentStatus employmentStatus = null;
-            try
-            {
-                employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
+                return await _apprenticeshipLevyService.GetEmploymentStatus(
                     _cachedToken.AccessCode,
                     request.PayeScheme,
                     request.Nino,
                     request.MinDate,
                     request.MaxDate
                 );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
-
-            return employmentStatus;
         }
         #endregion GetEmploymentStatus
 
