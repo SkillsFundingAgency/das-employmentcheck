@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Domain.Entities;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprenticesNiNumbers.GetApprenticesNiNumberMediatorResult
 {
@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
 
             //Act
 
-            var result = new Functions.Mediators.Queries.GetNiNumbers.GetNiNumbersQueryResult(apprenticeNiNumbers);
+            var result = new EmploymentCheck.Application.Mediators.Queries.GetNiNumbers.GetNiNumbersQueryResult(apprenticeNiNumbers);
 
             //Assert
 

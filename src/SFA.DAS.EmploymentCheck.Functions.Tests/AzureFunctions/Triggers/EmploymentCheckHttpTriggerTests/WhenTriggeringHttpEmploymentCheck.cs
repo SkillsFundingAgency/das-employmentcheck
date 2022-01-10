@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
+using SFA.DAS.EmploymentCheck.Functions.Triggers;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -39,7 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
-            
+
             Assert.AreEqual(response, result);
         }
 

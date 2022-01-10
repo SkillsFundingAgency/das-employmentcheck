@@ -4,30 +4,30 @@ using HMRC.ESFA.Levy.Api.Types;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
 {
     public class WhenCheckingEmploymentStatus
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private Mock<ILogger<HmrcService>> _logger;
+        private Mock<ILogger<EmploymentCheckService>> _logger;
         private Mock<ApplicationSettings> _settings;
         private Mock<ITokenServiceApiClient> _tokenService;
         private PrivilegedAccessToken _token;
-        private Functions.Application.Models.EmploymentCheckCacheRequest _apprentice;
+        private Domain.Entities.EmploymentCheckCacheRequest _apprentice;
 
         [SetUp]
         public void SetUp()
         {
             var fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _logger = new Mock<ILogger<HmrcService>>();
+            _logger = new Mock<ILogger<EmploymentCheckService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _settings = new Mock<ApplicationSettings>();
 
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
 
             _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
 
-            _apprentice = fixture.Create<Functions.Application.Models.EmploymentCheckCacheRequest>();
+            _apprentice = fixture.Create<Domain.Entities.EmploymentCheckCacheRequest>();
             _apprentice.MinDate = fixture.Create<DateTime>();
             _apprentice.MaxDate = _apprentice.MinDate.AddMonths(-6);
         }
@@ -50,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                     _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate))
                 .ReturnsAsync(employmentStatus);
 
-            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
+            var sut = new EmploymentCheckService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
 
             // Act
             await sut.IsNationalInsuranceNumberRelatedToPayeScheme(_apprentice);
@@ -69,7 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                     _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate))
                 .ReturnsAsync(employmentStatus);
 
-            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
+            var sut = new EmploymentCheckService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
 
             // Act
             var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme(_apprentice);

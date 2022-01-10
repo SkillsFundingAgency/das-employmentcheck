@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Interfaces.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Interfaces.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +18,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
     public class WhenGettingEmployersPayeSchemes
     {
         private Mock<IEmployerAccountService> _employerAccountService;
-        private Mock<ILogger<IEmploymentCheckClient>> _logger;
-        private List<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private Mock<ILogger<IEmployerAccountClient>> _logger;
+        private List<Domain.Entities.EmploymentCheck> _apprentices;
         private Fixture _fixture;
 
         [SetUp]
@@ -27,8 +27,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
         {
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
-            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck> {_fixture.Create<Functions.Application.Models.EmploymentCheck>()};
+            _logger = new Mock<ILogger<IEmployerAccountClient>>();
+            _apprentices = new List<Domain.Entities.EmploymentCheck> {_fixture.Create<Domain.Entities.EmploymentCheck>()};
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
 
             //Act
 
-            var result = await sut.GetEmployersPayeSchemes(new List<Functions.Application.Models.EmploymentCheck>());
+            var result = await sut.GetEmployersPayeSchemes(new List<Domain.Entities.EmploymentCheck>());
 
             //Assert
 
@@ -117,10 +117,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
 
             var exception = new Exception("exception");
 
-            _employerAccountService.Setup(x => x.GetPayeSchemes(It.IsAny<Functions.Application.Models.EmploymentCheck>())).ThrowsAsync(exception);
+            _employerAccountService.Setup(x => x.GetPayeSchemes(It.IsAny<Domain.Entities.EmploymentCheck>())).ThrowsAsync(exception);
 
             var sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
-           
+
             //Act
 
             var result = await sut.GetEmployersPayeSchemes(_apprentices);

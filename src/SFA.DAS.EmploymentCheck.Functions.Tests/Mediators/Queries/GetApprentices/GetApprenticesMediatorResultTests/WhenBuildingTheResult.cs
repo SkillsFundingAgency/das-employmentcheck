@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
+using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetEmploymentChecksBatch;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentices.GetApprenticesMediatorResultTests
 {
@@ -13,13 +13,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
         {
             //Arrange
             var fixture = new Fixture();
-            var apprentices = fixture.CreateMany<Functions.Application.Models.EmploymentCheck>().ToList();
+            var apprentices = fixture.CreateMany<Domain.Entities.EmploymentCheck>().ToList();
 
             //Act
             var result = new GetEmploymentCheckBatchQueryResult(apprentices);
 
             //Assert
-            Assert.AreEqual(apprentices, result.ApprenticeEmploymentChecks);
+            Assert.AreEqual(apprentices, result.EmploymentChecks);
         }
     }
 }

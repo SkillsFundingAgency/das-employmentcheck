@@ -1,23 +1,36 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Exceptions\" />
+    <Compile Remove="Mediators\Queries\ProcessEmploymentCheckCacheRequest\**" />
+    <EmbeddedResource Remove="Mediators\Queries\ProcessEmploymentCheckCacheRequest\**" />
+    <None Remove="Mediators\Queries\ProcessEmploymentCheckCacheRequest\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Ardalis.GuardClauses" Version="3.3.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.6" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="HMRC.ESFA.Levy.Api.Client" Version="2.0.4" />
+    <PackageReference Include="HMRC.ESFA.Levy.Api.Types" Version="2.0.4" />
+    <PackageReference Include="MediatR" Version="10.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.22" />
+    <PackageReference Include="Polly" Version="7.2.2" />
+    <PackageReference Include="SFA.DAS.Account.Api.Types" Version="1.6.3073" />
+    <PackageReference Include="SFA.DAS.Api.Common" Version="1.0.19" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
+    <PackageReference Include="SFA.DAS.HashingService" Version="1.0.183" />
+    <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
+    <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\SFA.DAS.EmploymentCheck.Domain.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Domain\SFA.DAS.EmploymentCheck.Domain.csproj" />
   </ItemGroup>
 
 </Project>

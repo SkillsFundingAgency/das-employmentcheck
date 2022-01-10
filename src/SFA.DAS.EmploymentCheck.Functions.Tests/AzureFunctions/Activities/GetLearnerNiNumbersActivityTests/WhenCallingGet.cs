@@ -2,13 +2,13 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
+using SFA.DAS.EmploymentCheck.Functions.Activities;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Domain.Entities;
+using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetNiNumbers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetLearnerNiNumbersActivityTests
 {
@@ -17,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetL
         private readonly Mock<IMediator> _mediator;
         private readonly Mock<ILogger<GetLearnerNiNumbersActivity>> _logger;
         private readonly LearnerNiNumber _apprenticeNiNumber;
-        private readonly IList<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private readonly IList<Domain.Entities.EmploymentCheck> _apprentices;
 
         public WhenCallingGet()
         {
@@ -25,14 +25,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetL
             _mediator = new Mock<IMediator>();
             _logger = new Mock<ILogger<GetLearnerNiNumbersActivity>>();
             _apprenticeNiNumber = fixture.Create<LearnerNiNumber>();
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck> { fixture.Create<Functions.Application.Models.EmploymentCheck>() };
+            _apprentices = new List<Domain.Entities.EmploymentCheck> { fixture.Create<Domain.Entities.EmploymentCheck>() };
         }
 
         [Test]
         public void Then_The_NINumbers_Are_Returned()
         {
             //Arrange
-            var sut = new GetLearnerNiNumbersActivity(_mediator.Object, _logger.Object);
+            var sut = new GetLearnerNiNumbersActivity(_mediator.Object);
 
             var apprenticeNiNumbers = new GetNiNumbersQueryResult(new List<LearnerNiNumber> { _apprenticeNiNumber });
 
@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetL
         {
             //Arrange
             var exception = new Exception("test message");
-            var sut = new GetLearnerNiNumbersActivity(_mediator.Object, _logger.Object);
+            var sut = new GetLearnerNiNumbersActivity(_mediator.Object);
 
             _mediator.Setup(x => x.Send(It.IsAny<GetNiNumbersQueryRequest>(), CancellationToken.None))
                 .ThrowsAsync(exception);

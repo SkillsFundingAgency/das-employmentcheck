@@ -3,9 +3,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Application.Interfaces.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,14 +17,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
     {
         private readonly Mock<IEmployerAccountClient> _employerAccountClient;
         private readonly Mock<ILogger<GetPayeSchemesQueryHandler>> _logger;
-        private readonly List<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private readonly List<Domain.Entities.EmploymentCheck> _apprentices;
 
         public WhenHandlingTheRequest()
         {
             _employerAccountClient = new Mock<IEmployerAccountClient>();
             _logger = new Mock<ILogger<GetPayeSchemesQueryHandler>>();
             var fixture = new Fixture();
-            _apprentices = fixture.CreateMany<Functions.Application.Models.EmploymentCheck>().ToList();
+            _apprentices = fixture.CreateMany<Domain.Entities.EmploymentCheck>().ToList();
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
             //Act
-            var result = await sut.Handle(new GetPayeSchemesQueryRequest(new List<Functions.Application.Models.EmploymentCheck>()),
+            var result = await sut.Handle(new GetPayeSchemesQueryRequest(new List<Domain.Entities.EmploymentCheck>()),
                 CancellationToken.None);
 
             //Assert
@@ -69,7 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             var request = new GetPayeSchemesQueryRequest(_apprentices);
 
             _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(new List<EmployerPayeSchemes>());
-          
+
             var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
             //Act
