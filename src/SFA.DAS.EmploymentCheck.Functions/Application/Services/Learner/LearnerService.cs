@@ -122,7 +122,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                var url = "/api/v1/ilr-data/learnersNi/2021?ulns=" + learner.Uln;
+                var url = "/api/v1/ilr-data/learnersNi/2122?ulns=" + learner.Uln;
 
                 try
                 {
