@@ -12,14 +12,14 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
         public AccountsResponse () { }
 
         public AccountsResponse(
-            long? apprenticeEmploymentCheckId,
+            long? employmentCheckId,
             Guid? correlationId,
             long accountId,
             string payeSchemes,
             string httpResponse,
             short httpStatusCode)
         {
-            ApprenticeEmploymentCheckId = apprenticeEmploymentCheckId;
+            EmploymentCheckId = employmentCheckId;
             CorrelationId = correlationId;
             AccountId = accountId;
             PayeSchemes = payeSchemes;
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             HttpStatusCode = httpStatusCode;
         }
 
-        public long? ApprenticeEmploymentCheckId { get; set; }
+        public long? EmploymentCheckId { get; set; }
 
         public Guid? CorrelationId { get; set; }
 

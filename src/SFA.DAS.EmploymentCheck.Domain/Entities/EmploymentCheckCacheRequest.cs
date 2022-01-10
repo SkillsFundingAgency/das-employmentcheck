@@ -1,14 +1,16 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Common;
 
 namespace SFA.DAS.EmploymentCheck.Domain.Entities
 {
     [Table("Cache.EmploymentCheckCacheRequest")]
     public class EmploymentCheckCacheRequest
+        : Entity
     {
         public long Id { get; set; }
 
-        public long ApprenticeEmploymentCheckId { get; set; }
+        public long EmploymentCheckId { get; set; }
 
         public Guid? CorrelationId { get; set; }
 

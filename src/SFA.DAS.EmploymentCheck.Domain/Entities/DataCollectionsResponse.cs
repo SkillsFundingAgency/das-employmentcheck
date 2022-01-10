@@ -1,22 +1,24 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Common;
 
 namespace SFA.DAS.EmploymentCheck.Domain.Entities
 {
     [Table("Cache.DataCollectionsResponse")]
     public class DataCollectionsResponse
+        : Entity
     {
         public DataCollectionsResponse() { }
 
         public DataCollectionsResponse(
-            long? apprenticeEmploymentCheckId,
+            long? employmentCheckId,
             Guid? correlationId,
             long uln,
             string niNumber,
             string httpResponse,
             short httpStatusCode)
         {
-            ApprenticeEmploymentCheckId = apprenticeEmploymentCheckId;
+            EmploymentCheckId = employmentCheckId;
             CorrelationId = correlationId;
             Uln = uln;
             NiNumber = niNumber;
@@ -24,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             HttpStatusCode = httpStatusCode;
         }
 
-        public long? ApprenticeEmploymentCheckId { get; set; }
+        public long? EmploymentCheckId { get; set; }
 
         public Guid? CorrelationId { get; set; }
 

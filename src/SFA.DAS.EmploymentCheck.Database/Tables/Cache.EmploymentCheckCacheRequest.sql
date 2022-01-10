@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [Cache].[EmploymentCheckCacheRequest](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
-	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[EmploymentCheckId] [bigint] NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
 	[Nino] [varchar](20) NOT NULL,
 	[PayeScheme] [varchar](500) NOT NULL,

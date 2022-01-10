@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [Cache].[AccountsResponse](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
-	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[EmploymentCheckId] [bigint] NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
 	[AccountId] [bigint] NOT NULL,
 	[PayeSchemes] [varchar](max),

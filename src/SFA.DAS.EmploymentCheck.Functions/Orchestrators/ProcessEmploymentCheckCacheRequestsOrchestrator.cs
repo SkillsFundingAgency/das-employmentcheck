@@ -41,9 +41,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                 // Get the next employment check cache request
                 var employmentCheckCachRequest = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetNextEmploymentCheckCacheRequestActivity), null);
-                Guard.Against.Null(employmentCheckCachRequest, nameof(employmentCheckCachRequest));
 
-                if (employmentCheckCachRequest.Id != 0) // if there was no more employment check data we may have a blank request so skip processing it
+                if (employmentCheckCachRequest != null && employmentCheckCachRequest.Id != 0) // if there was no more employment check data we may have a blank request so skip processing it
                 {
                     // Do the employment status check on this request
                     var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetLearnerEmploymentStatusActivity), employmentCheckCachRequest);

@@ -50,12 +50,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 //await context.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), null);
 
                 // TODO: This 'await' version is just for testing in isolation, delete after test.
-                await context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckCacheRequestsOrchestrator), 0);
+                //await context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckCacheRequestsOrchestrator), 0);
 
-                //var getEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), 0);
-                //var processEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckCacheRequestsOrchestrator), 0);
+                var getEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), 0);
+                var processEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckCacheRequestsOrchestrator), 0);
 
-                //await Task.WhenAll(getEmploymentChecksTask, processEmploymentChecksTask);
+                await Task.WhenAll(getEmploymentChecksTask, processEmploymentChecksTask);
 
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Completed.");

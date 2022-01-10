@@ -1,9 +1,11 @@
 ﻿using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Common;
 
 namespace SFA.DAS.EmploymentCheck.Domain.Entities
 {
     [Table("Cache.RefErrorType")]
     public class RefErrorType
+        : Entity
     {
         public RefErrorType() { }
 
