@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [Cache].[EmploymentCheckCacheResponse](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
-	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[EmploymentCheckId] [bigint] NOT NULL,
 	[EmploymentCheckCacheRequestId] [bigint] NOT NULL,
 	[CorrelationId] [uniqueidentifier] NULL,
 	[Employed] [bit] NULL,

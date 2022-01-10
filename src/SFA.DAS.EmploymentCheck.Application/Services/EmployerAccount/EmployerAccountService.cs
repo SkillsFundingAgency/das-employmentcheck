@@ -290,7 +290,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                                     try
                                     {
                                         var parameter = new DynamicParameters();
-                                        parameter.Add("@apprenticeEmploymentCheckId", accountsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+                                        parameter.Add("@EmploymentCheckId", accountsResponse.EmploymentCheckId, DbType.Int64);
                                         parameter.Add("@correlationId", accountsResponse.CorrelationId, DbType.Guid);
                                         parameter.Add("@accountId", accountsResponse.AccountId, DbType.Int64);
                                         parameter.Add("@payeSchemes", accountsResponse.PayeSchemes, DbType.String);

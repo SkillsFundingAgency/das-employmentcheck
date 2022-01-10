@@ -1,15 +1,17 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Common;
 
 namespace SFA.DAS.EmploymentCheck.Domain.Entities
 {
     [Table("Cache.EmploymentCheckCacheResponse")]
     public class EmploymentCheckCacheResponse
+        : Entity
     {
         public EmploymentCheckCacheResponse() { }
 
         public EmploymentCheckCacheResponse(
-            long? apprenticeEmploymentCheckId,
+            long? employmentCheckId,
             long employmentCheckCacheRequestId,
             Guid? correlationId,
             bool? employed,
@@ -19,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             string httpResponse,
             short httpStatusCode)
         {
-            ApprenticeEmploymentCheckId = apprenticeEmploymentCheckId;
+            EmploymentCheckId = employmentCheckId;
             EmploymentCheckCacheRequestId = employmentCheckCacheRequestId;
             CorrelationId = correlationId;
             Employed = employed;
@@ -30,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             HttpStatusCode = httpStatusCode;
         }
 
-        public long? ApprenticeEmploymentCheckId { get; set; }
+        public long? EmploymentCheckId { get; set; }
 
         public long? EmploymentCheckCacheRequestId { get; set; }
 

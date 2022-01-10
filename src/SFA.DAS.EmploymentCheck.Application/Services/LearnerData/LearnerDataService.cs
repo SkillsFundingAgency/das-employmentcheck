@@ -114,7 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
             return checkedLearners;
         }
 
-        private async Task<LearnerNiNumber> SendIndividualRequest(Domain.Entities.EmploymentCheck learner, AuthResult token)
+        private async Task<LearnerNiNumber> SendIndividualRequest(Domain.Entities.EmploymentCheck employmentCheck, AuthResult token)
         {
             var thisMethodName = $"{nameof(LearnerDataService)}.SendIndividualRequest()";
 
@@ -135,9 +135,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                         _logger.LogInformation($"\n\n{thisMethodName}: response code received from Data Collections API is NULL");
 
                         await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                            learner.Id,
-                            learner.CorrelationId,
-                            learner.Uln,
+                            employmentCheck.Id,
+                            employmentCheck.CorrelationId,
+                            employmentCheck.Uln,
                             "NULL", // NiNumber
                             "NULL", // HttpResponse
                             0));    // HttpStatusCode
@@ -150,9 +150,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                         _logger.LogInformation($"\n\n{thisMethodName}: response code received from Data Collections is [{response.StatusCode}]");
 
                         await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                            learner.Id,
-                            learner.CorrelationId,
-                            learner.Uln,
+                            employmentCheck.Id,
+                            employmentCheck.CorrelationId,
+                            employmentCheck.Uln,
                             "NULL", // NiNumber
                             response.ToString(),
                             (short)response.StatusCode));
@@ -165,9 +165,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                         _logger.LogInformation($"\n\n{thisMethodName}: response content received from Data Collections is NULL or zero length");
 
                         await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                            learner.Id,
-                            learner.CorrelationId,
-                            learner.Uln,
+                            employmentCheck.Id,
+                            employmentCheck.CorrelationId,
+                            employmentCheck.Uln,
                             "NULL", // NiNumber
                             response.ToString(),
                             (short)response.StatusCode));
@@ -180,9 +180,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                         _logger.LogInformation($"\n\n{thisMethodName}: deserialised response content received from Data Collections is NULL or zero length");
 
                         await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                            learner.Id,
-                            learner.CorrelationId,
-                            learner.Uln,
+                            employmentCheck.Id,
+                            employmentCheck.CorrelationId,
+                            employmentCheck.Uln,
                             "NULL", // NiNumber
                             response.ToString(),
                             (short)response.StatusCode));
@@ -190,12 +190,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                     }
 
                     learnerNiNumber = learnerNiNumbers.FirstOrDefault();
-                    _logger.LogInformation($"\n\n{thisMethodName}: deserialised response content NiNumber for Uln [{learner.Uln}] received from Data Collections.");
+                    _logger.LogInformation($"\n\n{thisMethodName}: deserialised response content NiNumber for Uln [{employmentCheck.Uln}] received from Data Collections.");
 
                     await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                        learner.Id,
-                        learner.CorrelationId,
-                        learner.Uln,
+                        employmentCheck.Id,
+                        employmentCheck.CorrelationId,
+                        employmentCheck.Uln,
                         learnerNiNumber.NiNumber,
                         response.ToString(),
                         (short)response.StatusCode));
@@ -260,7 +260,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                                     try
                                     {
                                         var parameter = new DynamicParameters();
-                                        parameter.Add("@apprenticeEmploymentCheckId", dataCollectionsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+                                        parameter.Add("@employmentCheckId", dataCollectionsResponse.EmploymentCheckId, DbType.Int64);
                                         parameter.Add("@correlationId", dataCollectionsResponse.CorrelationId, DbType.Guid);
                                         parameter.Add("@uln", dataCollectionsResponse.Uln, DbType.Int64);
                                         parameter.Add("@niNumber", dataCollectionsResponse.NiNumber, DbType.String);

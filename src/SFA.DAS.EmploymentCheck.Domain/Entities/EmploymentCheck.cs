@@ -1,10 +1,12 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Common;
 
 namespace SFA.DAS.EmploymentCheck.Domain.Entities
 {
     [Table("Business.EmploymentCheck")]
     public class EmploymentCheck
+        : Entity
     {
         public EmploymentCheck() { }
 
@@ -18,6 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             DateTime minDate,
             DateTime maxDate,
             bool? employed,
+            short requestCompletionStatus,
             DateTime lastUpdatedOn,
             DateTime createdOn)
         {
@@ -30,6 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             MinDate = minDate;
             MaxDate = maxDate;
             Employed = employed;
+            RequestCompletionStatus = requestCompletionStatus;
             LastUpdatedOn = lastUpdatedOn;
             CreatedOn = createdOn;
         }
@@ -51,6 +55,8 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
         public DateTime MaxDate { get; set; }
 
         public bool? Employed { get; set; }
+
+        public short RequestCompletionStatus { get; set; }
 
         public DateTime LastUpdatedOn { get; set; }
 

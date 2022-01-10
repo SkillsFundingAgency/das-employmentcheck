@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [Cache].[RefErrorType](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[ApprenticeEmploymentCheckId] [bigint] NOT NULL,
+	[EmploymentCheckId] [bigint] NOT NULL,
 	[Source] [varchar](max) NOT NULL,
 	[Message] [varchar](max) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,

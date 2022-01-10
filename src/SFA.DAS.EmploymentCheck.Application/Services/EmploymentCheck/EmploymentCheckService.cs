@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Application.Common;
 using SFA.DAS.EmploymentCheck.Application.Common.Models;
 using SFA.DAS.EmploymentCheck.Application.Interfaces.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Domain.Entities;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
@@ -73,13 +74,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
                 if(result != null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The result value returned from the GetEmploymentStatus() call was [{result.Employed}].");
+                    _logger.LogInformation($"{thisMethodName}: The value returned from the GetEmploymentStatus() call was [{result.Employed}].");
 
                     request.Employed = result.Employed;
-                    request.RequestCompletionStatus = 200;
+                    request.RequestCompletionStatus = (short)ProcessingCompletionStatus.CompletedSuccessfully;
 
                     await StoreHmrcResponse(new EmploymentCheckCacheResponse(
-                        request.ApprenticeEmploymentCheckId,
+                        request.EmploymentCheckId,
                         request.Id,
                         request.CorrelationId,
                         request.Employed,
@@ -104,7 +105,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
                 // Note: We don't have access to the actual API response (it's within the levy service GetEmploymentStatus() call) so the response is populated with the description related to the HttpStatusCode
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
+                    request.EmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     null,           // Employed
@@ -120,7 +121,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
+                    request.EmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     null,           // Employed
@@ -136,7 +137,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
+                    request.EmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     null,           // Employed
@@ -153,7 +154,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
+                    request.EmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     null,           // Employed
@@ -169,7 +170,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
 
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
+                    request.EmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     null,           // Employed
@@ -241,7 +242,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                                     try
                                     {
                                         var parameter = new DynamicParameters();
-                                        parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+                                        parameter.Add("@EmploymentCheckId", employmentCheckCacheResponse.EmploymentCheckId, DbType.Int64);
                                         parameter.Add("@employmentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
                                         parameter.Add("@correlationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
                                         parameter.Add("@employed", employmentCheckCacheResponse.Employed, DbType.Boolean);
