@@ -268,7 +268,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                                         parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
                                         await sqlConnection.ExecuteAsync(
-                                            "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[DataCollectionsResponse] " +
+                                            "INSERT [Cache].[DataCollectionsResponse] " +
                                             "       ( ApprenticeEmploymentCheckId,  CorrelationId,  Uln,  NiNumber,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
                                             "VALUES (@apprenticeEmploymentCheckId, @correlationId, @uln, @niNumber, @httpResponse, @httpStatusCode, @createdOn)",
                                             parameter,
