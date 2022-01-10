@@ -296,7 +296,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                 parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
                                 await sqlConnection.ExecuteAsync(
-                                    "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckCacheRequest] " +
+                                    "INSERT [Cache].[EmploymentCheckCacheRequest] " +
                                     "       ( ApprenticeEmploymentCheckId,  CorrelationId,  Nino,  PayeScheme,  MinDate,  MaxDate,  Employed,  CreatedOn) " +
                                     "VALUES (@ApprenticeEmploymentCheckId, @correlationId, @Nino, @payeScheme, @minDate, @maxDate, @employed, @createdOn) ",
                                     parameter,
@@ -374,7 +374,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                 parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
                                 await sqlConnection.ExecuteAsync(
-                                    "UPDATE [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckCacheRequest] " +
+                                    "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
                                     "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
                                     "WHERE Id = @Id ",
                                     parameter,
@@ -431,7 +431,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                 parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
                                 await sqlConnection.ExecuteAsync(
-                                    "UPDATE [SFA.DAS.EmploymentCheck.Database].[Business].[EmploymentCheck] " +
+                                    "UPDATE [Business].[EmploymentCheck] " +
                                     "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
                                     "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
                                     parameter,

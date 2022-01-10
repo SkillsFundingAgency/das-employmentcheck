@@ -123,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
             {
                 client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                var url = "/api/v1/ilr-data/learnersNi/2021?ulns=" + learner.Uln;
+                var url = "/api/v1/ilr-data/learnersNi/2122?ulns=" + learner.Uln;
 
                 try
                 {
@@ -269,7 +269,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.LearnerData
                                         parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
                                         await sqlConnection.ExecuteAsync(
-                                            "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[DataCollectionsResponse] " +
+                                            "INSERT [Cache].[DataCollectionsResponse] " +
                                             "       ( ApprenticeEmploymentCheckId,  CorrelationId,  Uln,  NiNumber,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
                                             "VALUES (@apprenticeEmploymentCheckId, @correlationId, @uln, @niNumber, @httpResponse, @httpStatusCode, @createdOn)",
                                             parameter,

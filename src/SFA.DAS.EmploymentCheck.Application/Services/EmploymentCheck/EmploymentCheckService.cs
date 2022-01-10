@@ -253,7 +253,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                                         parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
                                         var id = await sqlConnection.ExecuteScalarAsync(
-                                            "INSERT [SFA.DAS.EmploymentCheck.Database].[Cache].[EmploymentCheckCacheResponse] " +
+                                            "INSERT [Cache].[EmploymentCheckCacheResponse] " +
                                             "       ( ApprenticeEmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
                                             "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
                                             parameter,
