@@ -250,7 +250,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call to get the EmploymentCheckCacheRequest failed - {ex.Message}. {ex.StackTrace}");
+                        _logger.LogError($"{thisMethodName} {ErrorMessagePrefix} The database call in GetNextEmploymentCheckCacheRequest failed - {ex.Message}. {ex.StackTrace}");
                     }
                 }
             }
