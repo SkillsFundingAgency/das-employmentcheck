@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
@@ -13,14 +12,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
     public class WhenCallingGet
     {
         private readonly Mock<IMediator> _mediator;
-        private readonly Mock<ILogger<GetEmploymentChecksBatchActivity>> _logger;
         private readonly Fixture _fixture;
 
         public WhenCallingGet()
         {
             _fixture = new Fixture();
             _mediator = new Mock<IMediator>();
-            _logger = new Mock<ILogger<GetEmploymentChecksBatchActivity>>();
         }
 
         [Test]
@@ -28,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
         {
             //Arrange
             var apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
-            var sut = new GetEmploymentChecksBatchActivity(_logger.Object, _mediator.Object);
+            var sut = new GetEmploymentChecksBatchActivity(_mediator.Object);
 
             _mediator.Setup(x => x.Send(It.IsAny<GetEmploymentCheckBatchQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(new GetEmploymentCheckBatchQueryResult(apprentices));

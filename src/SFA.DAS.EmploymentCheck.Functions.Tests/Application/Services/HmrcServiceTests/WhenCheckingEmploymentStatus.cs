@@ -59,25 +59,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
-        [Test]
-        public async Task Then_The_ApprenticeshipLevyApiClient_Is_Called_And_The_Response_Is_Returned()
-        {
-            // Arrange
-            var employmentStatus = new EmploymentStatus {Employed = true};
-
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _apprentice.PayeScheme,
-                    _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate))
-                .ReturnsAsync(employmentStatus);
-
-            var sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _settings.Object, null);
-
-            // Act
-            var result = await sut.IsNationalInsuranceNumberRelatedToPayeScheme(_apprentice);
-
-            // Assert
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(_token.AccessCode, _apprentice.PayeScheme,
-                _apprentice.Nino, _apprentice.MinDate, _apprentice.MaxDate), Times.Exactly(1));
-            Assert.AreEqual(employmentStatus.Employed, result.Employed);
-        }
+        
     }
 }

@@ -8,7 +8,6 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -109,25 +108,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
 
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
         }
-
-        [Test]
-        public async Task And_An_Exception_Is_Thrown_Then_An_Empty_List_Is_Returned()
-        {
-            //Arrange
-
-            var exception = new Exception("exception");
-
-            _employerAccountService.Setup(x => x.GetPayeSchemes(It.IsAny<Functions.Application.Models.EmploymentCheck>())).ThrowsAsync(exception);
-
-            var sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
-           
-            //Act
-
-            var result = await sut.GetEmployersPayeSchemes(_apprentices);
-
-            //Assert
-
-            result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
-        }
+        
     }
 }

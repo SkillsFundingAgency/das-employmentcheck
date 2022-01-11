@@ -30,39 +30,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
         #endregion Constructors
 
         #region Handle
+
         public async Task<GetNiNumbersQueryResult> Handle(
             GetNiNumbersQueryRequest getNiNumbersQueryRequest,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = $"{nameof(GetNiNumbersQueryHandler)}.Handle()";
+            var thisMethodName = $"{nameof(GetNiNumbersQueryHandler)}.Handle";
 
             Guard.Against.Null(getNiNumbersQueryRequest, nameof(getNiNumbersQueryRequest));
             Guard.Against.Null(getNiNumbersQueryRequest.EmploymentCheckBatch, nameof(getNiNumbersQueryRequest.EmploymentCheckBatch));
 
-            IList<LearnerNiNumber> learnerNiNumbers = null;
-            try
-            {
-                // Call the application client to get the NiNumbers for the apprentices
-                learnerNiNumbers = await _learnerClient.GetNiNumbers(getNiNumbersQueryRequest.EmploymentCheckBatch);
+            var learnerNiNumbers = await _learnerClient.GetNiNumbers(getNiNumbersQueryRequest.EmploymentCheckBatch);
 
-                if (learnerNiNumbers != null &&
-                    learnerNiNumbers.Count > 0)
-                {
-                    _logger.LogInformation($"{thisMethodName} returned {learnerNiNumbers.Count} NiNumbers");
-                }
-                else
-                {
-                    _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
-                    learnerNiNumbers = new List<LearnerNiNumber>(); // return empty list rather than null
-                }
-            }
-            catch (Exception ex)
+            if (learnerNiNumbers != null &&
+                learnerNiNumbers.Count > 0)
             {
-                _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogInformation($"{thisMethodName} returned {learnerNiNumbers.Count} NiNumbers");
+            }
+            else
+            {
+                _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
+                learnerNiNumbers = new List<LearnerNiNumber>(); // return empty list rather than null
             }
 
             return new GetNiNumbersQueryResult(learnerNiNumbers);
         }
+
         #endregion Handle
     }
 }

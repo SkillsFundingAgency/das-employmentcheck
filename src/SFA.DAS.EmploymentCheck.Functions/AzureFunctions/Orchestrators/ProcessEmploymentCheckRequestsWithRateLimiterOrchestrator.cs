@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         [FunctionName(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator))]
         public async Task ProcessEmploymentChecksWithRateLimiterOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}.ProcessEmploymentChecksWithRateLimiterOrchestratorTask()";
+            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}.ProcessEmploymentChecksWithRateLimiterOrchestratorTask";
 
             try
             {
@@ -33,12 +33,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"{thisMethodName}: Started.");
 
                 // Get the next request
-                var employmentCheckCachRequest = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
+                var employmentCheckCacheRequest = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
 
-                if (employmentCheckCachRequest.Id != 0)
+                if (employmentCheckCacheRequest.Id != 0)
                 {
                     // Do the employment status check on this request
-                    var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCachRequest);
+                    var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
 
                     // Save the employment status back to the database
                     await context.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), result);
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
 
                     // No data found so sleep for 10 seconds then execute the orchestrator again
-                    DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
 

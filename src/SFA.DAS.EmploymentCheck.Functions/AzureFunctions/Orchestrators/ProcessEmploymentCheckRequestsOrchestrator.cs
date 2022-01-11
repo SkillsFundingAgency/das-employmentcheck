@@ -15,9 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     public class ProcessEmploymentCheckRequestsOrchestrator
     {
         private const string ThisClassName = "\n\nProcessEmploymentChecksOrchestrator";
-        private const string ErrorMessagePrefix = "[*** ERROR ***]";
-
-        private ILogger<ProcessEmploymentCheckRequestsOrchestrator> _logger;
+        private readonly ILogger<ProcessEmploymentCheckRequestsOrchestrator> _logger;
 
         /// <summary>
         /// The ProcessApprenticeEmploymentChecksOrchestrator constructor, used to initialise the logging component.
@@ -38,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         public async Task ProcessEmploymentCheckCacheRequestsOrchestratorTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{ThisClassName}.ProcessEmploymentChecksOrchestratorTask()";
+            var thisMethodName = $"{ThisClassName}.ProcessEmploymentChecksOrchestratorTask";
 
             try
             {
@@ -65,7 +63,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
 
                     // No data found so sleep for 10 seconds then execute the orchestrator again
-                    DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using System.Threading;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -14,9 +14,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         #region Private members
         private const string ThisClassName = "\n\nCreateEmploymentCheckRequestsOrchestrator";
-        private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
-        private ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
+        private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
         #endregion Private members
 
         #region Constructors
@@ -41,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         public async Task CreateEmploymentCheckRequestsTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask()"; // Note: Can't use GetCurrentMethod() here as it returns something like 'Move_Next() from the durable task framework
+            var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask"; // Note: Can't use GetCurrentMethod() here as it returns something like 'Move_Next() from the durable task framework
 
             try
             {
@@ -73,13 +72,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
 
                     // No data found so sleep for 10 seconds then execute the orchestrator again
-                    DateTime sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
             finally
             {

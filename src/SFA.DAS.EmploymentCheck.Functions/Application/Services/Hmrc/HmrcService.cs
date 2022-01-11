@@ -14,14 +14,13 @@ using System;
 using System.Data;
 using System.Net;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
     public class HmrcService : IHmrcService
     {
         #region Private members
-        private const string ThisClassName = "\n\nHmrcService";
-        public const string ErrorMessagePrefix = "[*** ERROR ***]";
 
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;
@@ -55,12 +54,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(
             EmploymentCheckCacheRequest request)
         {
-            var thisMethodName = $"{ThisClassName}.IsNationalInsuranceNumberRelatedToPayeScheme()";
+            var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
 
             try
             {
-                if (_cachedToken == null)
-                    await RetrieveAuthenticationToken();
+                if (_cachedToken == null) await RetrieveAuthenticationToken();
 
                 var policy = Policy
                     .Handle<UnauthorizedAccessException>()
@@ -70,10 +68,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
 
-                if(result != null)
+                if (result != null)
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The result value returned from the GetEmploymentStatus() call was [{result.Employed}].");
-
                     request.Employed = result.Employed;
                     request.RequestCompletionStatus = 200;
 
@@ -83,15 +79,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                         request.CorrelationId,
                         request.Employed,
                         request.PayeScheme,
-                        true,           // ProcessingComplete
-                        1,              // Count
-                        "(200 OK)",
-                        (short)200));
+                        true,
+                        1,
+                        "(OK)",
+                        200));
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} The result value returned from the GetEmploymentStatus() call returned null.");
-
+                    _logger.LogError($"{thisMethodName}: The result value returned from the GetEmploymentStatus call returned null.");
+                    
                     request.Employed = null;
                     request.RequestCompletionStatus = 500;
                 }
@@ -171,7 +167,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     false,           // ProcessingComplete
                     1,               // Count
                     $"HMRC API CALL ERROR {e.Message}",
-                    (short)500));
+                    500));
             }
 
             return request;
@@ -180,126 +176,70 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         #endregion IsNationalInsuranceNumberRelatedToPayeScheme
 
         #region GetEmploymentStatus
+
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
-            var thisMethodName = $"{ThisClassName}.GetEmploymentStatus()";
-
-            EmploymentStatus employmentStatus = null;
-            try
-            {
-                employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
-                    _cachedToken.AccessCode,
-                    request.PayeScheme,
-                    request.Nino,
-                    request.MinDate,
-                    request.MaxDate
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
+            var employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
+                _cachedToken.AccessCode,
+                request.PayeScheme,
+                request.Nino,
+                request.MinDate,
+                request.MaxDate
+            );
 
             return employmentStatus;
         }
+
         #endregion GetEmploymentStatus
 
         #region RetrieveAuthenticationToken
+
         private async Task RetrieveAuthenticationToken()
         {
-            var thisMethodName = $"{ThisClassName}.RetrieveAuthenticationToken()";
-
-            try
-            {
-                _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{thisMethodName}: {ErrorMessagePrefix} Exception caught - {ex.Message}. {ex.StackTrace}");
-            }
+            _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
         }
+
         #endregion RetrieveAuthenticationToken
 
         #region StoreHmrcResponse
+
         public async Task<int> StoreHmrcResponse(
             EmploymentCheckCacheResponse employmentCheckCacheResponse)
         {
-            var thisMethodName = $"{ThisClassName}.StoreHmrcResponse()";
+            if (employmentCheckCacheResponse == null) return await Task.FromResult(0);
 
-            int result = 0;
-            try
+            var dbConnection = new DbConnection();
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                AzureResource,
+                _azureServiceTokenProvider))
             {
-                if (employmentCheckCacheResponse != null)
-                {
-                    var dbConnection = new DbConnection();
-                    if (dbConnection != null)
-                    {
-                        await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                            _logger,
-                            _connectionString,
-                            AzureResource,
-                            _azureServiceTokenProvider))
-                        {
-                            if (sqlConnection != null)
-                            {
-                                await sqlConnection.OpenAsync();
-                                {
-                                    try
-                                    {
-                                        var parameter = new DynamicParameters();
-                                        parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheResponse.ApprenticeEmploymentCheckId, DbType.Int64);
-                                        parameter.Add("@employmentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
-                                        parameter.Add("@correlationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
-                                        parameter.Add("@employed", employmentCheckCacheResponse.Employed, DbType.Boolean);
-                                        parameter.Add("@foundOnPaye", employmentCheckCacheResponse.FoundOnPaye, DbType.String);
-                                        parameter.Add("@processingComplete", employmentCheckCacheResponse.ProcessingComplete, DbType.Boolean);
-                                        parameter.Add("@count", employmentCheckCacheResponse.Count, DbType.Int32);
-                                        parameter.Add("@httpResponse", employmentCheckCacheResponse.HttpResponse, DbType.String);
-                                        parameter.Add("@httpStatusCode", employmentCheckCacheResponse.HttpStatusCode, DbType.Int16);
-                                        parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
+                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-                                        var id = await sqlConnection.ExecuteScalarAsync(
-                                            "INSERT [Cache].[EmploymentCheckCacheResponse] " +
-                                            "       ( ApprenticeEmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
-                                            "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
-                                            parameter,
-                                            commandType: CommandType.Text);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                await sqlConnection.OpenAsync();
+                var parameter = new DynamicParameters();
+                parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+                parameter.Add("@employmentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
+                parameter.Add("@correlationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
+                parameter.Add("@employed", employmentCheckCacheResponse.Employed, DbType.Boolean);
+                parameter.Add("@foundOnPaye", employmentCheckCacheResponse.FoundOnPaye, DbType.String);
+                parameter.Add("@processingComplete", employmentCheckCacheResponse.ProcessingComplete, DbType.Boolean);
+                parameter.Add("@count", employmentCheckCacheResponse.Count, DbType.Int32);
+                parameter.Add("@httpResponse", employmentCheckCacheResponse.HttpResponse, DbType.String);
+                parameter.Add("@httpStatusCode", employmentCheckCacheResponse.HttpStatusCode, DbType.Int16);
+                parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
+
+                await sqlConnection.ExecuteScalarAsync(
+                    "INSERT [Cache].[EmploymentCheckCacheResponse] " +
+                    "       ( ApprenticeEmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
+                    "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
+                    parameter,
+                    commandType: CommandType.Text);
             }
 
-            return await Task.FromResult(result);
+            return await Task.FromResult(0);
         }
+
         #endregion StoreHmrcResponse
-
-        #region Stub data
-        /// <summary>
-        /// Returns the employment status for the given apprentice NationalInsuranceNumber and PayeScheme between the given Start Date and End Date
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeSchemeStub(
-            EmploymentCheckCacheRequest request)
-        {
-            if (request != null)
-            {
-                request.Employed = true;
-            }
-
-            return await Task.FromResult(request);
-        }
-        #endregion Stub data
     }
 }
