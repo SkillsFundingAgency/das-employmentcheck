@@ -13,15 +13,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetEmploymentChe
         : IRequestHandler<GetEmploymentCheckBatchQueryRequest,
             GetEmploymentCheckBatchQueryResult>
     {
-        private ILogger<GetEmploymentCheckBatchQueryHandler> _logger;
-        private IPaymentsComplianceClient _complianceClient;
+        private readonly ILogger<GetEmploymentCheckBatchQueryHandler> _logger;
+        private readonly IPaymentsComplianceClient _paymentsComplianceClient;
 
         public GetEmploymentCheckBatchQueryHandler(
             ILogger<GetEmploymentCheckBatchQueryHandler> logger,
             IPaymentsComplianceClient complianceClient)
         {
             _logger = logger;
-            _complianceClient = complianceClient;
+            _paymentsComplianceClient = complianceClient;
 
         }
 
@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetEmploymentChe
 
             Guard.Against.Null(request, nameof(request));
 
-            var employmentChecks = await _complianceClient.GetEmploymentChecksBatch();
+            var employmentChecks = await _paymentsComplianceClient.GetEmploymentChecksBatch();
 
             if (employmentChecks.Count > 0)
             {

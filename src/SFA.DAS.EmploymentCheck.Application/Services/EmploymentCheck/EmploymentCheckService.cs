@@ -242,7 +242,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                                     try
                                     {
                                         var parameter = new DynamicParameters();
-                                        parameter.Add("@EmploymentCheckId", employmentCheckCacheResponse.EmploymentCheckId, DbType.Int64);
+                                        parameter.Add("@employmentCheckId", employmentCheckCacheResponse.EmploymentCheckId, DbType.Int64);
                                         parameter.Add("@employmentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
                                         parameter.Add("@correlationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
                                         parameter.Add("@employed", employmentCheckCacheResponse.Employed, DbType.Boolean);
@@ -255,8 +255,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
                                         var id = await sqlConnection.ExecuteScalarAsync(
                                             "INSERT [Cache].[EmploymentCheckCacheResponse] " +
-                                            "       ( ApprenticeEmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
-                                            "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
+                                            "       ( EmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
+                                            "VALUES (@employmentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
                                             parameter,
                                             commandType: CommandType.Text);
                                     }

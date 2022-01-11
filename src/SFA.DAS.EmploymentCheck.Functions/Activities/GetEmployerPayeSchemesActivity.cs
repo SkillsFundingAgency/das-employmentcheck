@@ -4,8 +4,8 @@ using Ardalis.GuardClauses;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Activities
 {

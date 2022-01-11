@@ -12,7 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         private const string ThisClassName = "\n\nSeedEmploymentCheckTestDataOrchestrator";
         public const string ErrorMessagePrefix = "[*** ERROR ***]";
-        private ILogger<SeedEmploymentCheckTestDataOrchestrator> _logger;
+        private readonly ILogger<SeedEmploymentCheckTestDataOrchestrator> _logger;
 
         public SeedEmploymentCheckTestDataOrchestrator(
             ILogger<SeedEmploymentCheckTestDataOrchestrator> logger)

@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Application.Interfaces.LearnerData;
 using SFA.DAS.EmploymentCheck.Application.Clients.LearnerData;
 using SFA.DAS.EmploymentCheck.Application.Interfaces.PaymentsCompliance;
 using SFA.DAS.EmploymentCheck.Domain.Entities;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
 {

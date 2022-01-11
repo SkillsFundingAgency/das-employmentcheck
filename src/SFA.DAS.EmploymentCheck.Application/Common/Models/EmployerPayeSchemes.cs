@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SFA.DAS.EmploymentCheck.Domain.Entities
+namespace SFA.DAS.EmploymentCheck.Application.Common.Models
 {
     public class EmployerPayeSchemes
     {

@@ -14,7 +14,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         #region Private members
         private const string ThisClassName = "\n\nEmploymentChecksOrchestrator";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
-        private ILogger<EmploymentChecksOrchestrator> _logger;
+        private readonly ILogger<EmploymentChecksOrchestrator> _logger;
         #endregion Private members
 
         #region Constructors

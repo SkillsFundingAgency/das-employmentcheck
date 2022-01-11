@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 using SFA.DAS.EmploymentCheck.Application.Interfaces.LearnerData;
 using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetNiNumbers;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

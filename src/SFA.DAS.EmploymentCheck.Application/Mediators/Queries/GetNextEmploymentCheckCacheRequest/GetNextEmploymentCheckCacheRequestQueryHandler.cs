@@ -9,7 +9,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetNextEmploymen
         : IRequestHandler<GetNextEmploymentCheckCacheRequestQueryRequest,
             GetNextEmploymentCheckCacheRequestQueryResult>
     {
-        private IPaymentsComplianceClient _paymentsComplianceClient;
+        private readonly IPaymentsComplianceClient _paymentsComplianceClient;
 
         public GetNextEmploymentCheckCacheRequestQueryHandler(
             IPaymentsComplianceClient paymentsComplianceClient)

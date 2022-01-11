@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 using SFA.DAS.EmploymentCheck.Application.Interfaces.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +12,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount
         : IEmployerAccountClient
     {
         #region Private members
-        private ILogger<IEmployerAccountClient> _logger;
-        private IEmployerAccountService _employerAccountService;
+        private readonly ILogger<IEmployerAccountClient> _logger;
+        private readonly IEmployerAccountService _employerAccountService;
 
         #endregion Private members
 

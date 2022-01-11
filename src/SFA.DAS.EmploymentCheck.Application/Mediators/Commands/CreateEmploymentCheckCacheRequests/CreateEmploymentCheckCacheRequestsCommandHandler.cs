@@ -13,8 +13,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
         #region Private members
         private const string ThisClassName = "\n\nCreateEmploymentCheckCacheRequestsCommandHandler";
 
-        private ILogger<CreateEmploymentCheckCacheRequestsCommandHandler> _logger;
-        private IPaymentsComplianceClient _complianceClient;
+        private readonly ILogger<CreateEmploymentCheckCacheRequestsCommandHandler> _logger;
+        private readonly IPaymentsComplianceClient _paymentsComplianceClient;
         #endregion Private members
 
         #region Constructors
@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
             ILogger<CreateEmploymentCheckCacheRequestsCommandHandler> logger)
         {
             _logger = logger;
-            _complianceClient = complianceClient;
+            _paymentsComplianceClient = complianceClient;
         }
         #endregion Constructors
 
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
                     request.EmploymentCheckData != null)
                 {
                     // Call the application client to create the employment check cache requests
-                    await _complianceClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
+                    await _paymentsComplianceClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
                 }
                 else
                 {

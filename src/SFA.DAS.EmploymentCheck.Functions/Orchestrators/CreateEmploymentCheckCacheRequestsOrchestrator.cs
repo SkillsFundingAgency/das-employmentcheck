@@ -8,6 +8,7 @@ using System.Threading;
 using SFA.DAS.EmploymentCheck.Domain.Entities;
 using SFA.DAS.EmploymentCheck.Domain.Common.Dtos;
 using SFA.DAS.EmploymentCheck.Functions.Activities;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -17,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         private const string ThisClassName = "\n\nCreateEmploymentCheckRequestsOrchestrator";
         private const string ErrorMessagePrefix = "[*** ERROR ***]";
 
-        private ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
+        private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
         #endregion Private members
 
         #region Constructors

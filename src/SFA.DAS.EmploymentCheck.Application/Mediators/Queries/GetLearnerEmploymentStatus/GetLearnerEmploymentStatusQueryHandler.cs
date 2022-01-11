@@ -14,14 +14,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetLearnerEmploy
     {
         private const string ThisClassName = "\n\nGetHmrcEmploymentStatusQueryHandler";
 
-        private IEmploymentCheckClient _hmrcClient;
-        private ILogger<GetLearnerEmploymentStatusQueryHandler> _logger;
+        private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly ILogger<GetLearnerEmploymentStatusQueryHandler> _logger;
 
         public GetLearnerEmploymentStatusQueryHandler(
             IEmploymentCheckClient hmrcClient,
             ILogger<GetLearnerEmploymentStatusQueryHandler> logger)
         {
-            _hmrcClient = hmrcClient;
+            _employmentCheckClient = hmrcClient;
             _logger = logger;
         }
 
@@ -37,12 +37,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetLearnerEmploy
                 if (request != null &&
                     request.EmploymentCheckCacheRequest != null)
                 {
-                    // Call the application client to store the employment check queue messages
-                    employmentCheckCacheRequest = await _hmrcClient.CheckEmploymentStatus(request.EmploymentCheckCacheRequest);
+                    employmentCheckCacheRequest = await _employmentCheckClient.CheckEmploymentStatus(request.EmploymentCheckCacheRequest);
                 }
                 else
                 {
-                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: No employment check data was supplied to create the queue messages.");
+                    _logger.LogInformation($"{DateTime.UtcNow} {thisMethodName}: The EmploymentCheckCacheRequest input paramter is null.");
                 }
             }
             catch (Exception ex)

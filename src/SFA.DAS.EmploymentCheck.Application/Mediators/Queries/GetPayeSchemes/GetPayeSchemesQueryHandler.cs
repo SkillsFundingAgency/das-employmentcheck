@@ -1,12 +1,12 @@
 ﻿using Ardalis.GuardClauses;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 using SFA.DAS.EmploymentCheck.Application.Interfaces.EmployerAccount;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetPayeSchemes
 {
@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetPayeSchemes
             GetPayeSchemesQueryResult>
     {
         #region Private members
-        private ILogger<GetPayeSchemesQueryHandler> _logger;
+        private readonly ILogger<GetPayeSchemesQueryHandler> _logger;
         private readonly IEmployerAccountClient _employerAccountClient;
         #endregion Private members
 

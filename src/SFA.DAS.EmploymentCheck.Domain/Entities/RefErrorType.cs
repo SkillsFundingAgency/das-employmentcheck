@@ -23,8 +23,6 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
             MaxRetries = maxRetries;
         }
 
-        public long Id { get; set; }
-
         public long EmploymentCheckId { get; set; }
 
         public string Source { get; set; }

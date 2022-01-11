@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SFA.DAS.EmploymentCheck.Domain.Entities
+namespace SFA.DAS.EmploymentCheck.Application.Common.Models
 {
     public class LearnerNiNumber
     {

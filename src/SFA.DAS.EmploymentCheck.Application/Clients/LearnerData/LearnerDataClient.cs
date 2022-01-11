@@ -1,7 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 using SFA.DAS.EmploymentCheck.Application.Interfaces.LearnerData;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

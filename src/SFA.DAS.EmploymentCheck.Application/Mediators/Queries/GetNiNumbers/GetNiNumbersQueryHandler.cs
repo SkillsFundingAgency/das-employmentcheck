@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetNiNumbers
 {

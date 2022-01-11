@@ -290,7 +290,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                                     try
                                     {
                                         var parameter = new DynamicParameters();
-                                        parameter.Add("@EmploymentCheckId", accountsResponse.EmploymentCheckId, DbType.Int64);
+                                        parameter.Add("@employmentCheckId", accountsResponse.EmploymentCheckId, DbType.Int64);
                                         parameter.Add("@correlationId", accountsResponse.CorrelationId, DbType.Guid);
                                         parameter.Add("@accountId", accountsResponse.AccountId, DbType.Int64);
                                         parameter.Add("@payeSchemes", accountsResponse.PayeSchemes, DbType.String);
@@ -300,8 +300,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
                                         var id = await sqlConnection.ExecuteScalarAsync(
                                             "INSERT [Cache].[AccountsResponse] " +
-                                            "       ( ApprenticeEmploymentCheckId,  CorrelationId,  AccountId,  PayeSchemes,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
-                                            "VALUES (@apprenticeEmploymentCheckId, @correlationId, @accountId, @payeSchemes, @httpResponse, @httpStatusCode, @createdOn)",
+                                            "       ( EmploymentCheckId,  CorrelationId,  AccountId,  PayeSchemes,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
+                                            "VALUES (@employmentCheckId, @correlationId, @accountId, @payeSchemes, @httpResponse, @httpStatusCode, @createdOn)",
                                             parameter,
                                             commandType: CommandType.Text);
                                     }

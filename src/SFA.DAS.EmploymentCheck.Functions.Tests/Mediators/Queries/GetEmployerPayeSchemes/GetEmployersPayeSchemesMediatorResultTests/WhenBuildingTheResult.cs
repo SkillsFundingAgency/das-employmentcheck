@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetPayeSchemes;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResultTests
 {

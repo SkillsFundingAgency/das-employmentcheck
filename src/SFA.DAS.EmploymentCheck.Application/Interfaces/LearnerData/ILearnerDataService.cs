@@ -1,4 +1,5 @@
-﻿using SFA.DAS.EmploymentCheck.Domain.Entities;
+﻿using SFA.DAS.EmploymentCheck.Application.Common.Models;
+using SFA.DAS.EmploymentCheck.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

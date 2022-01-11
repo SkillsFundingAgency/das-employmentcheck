@@ -10,7 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Mediators.Commands.StoreEmployment
     public class StoreEmploymentCheckResultCommandHandler
         : IRequestHandler<StoreEmploymentCheckResultCommand>
     {
-        private IPaymentsComplianceClient _paymentsComplianceClient;
+        private readonly IPaymentsComplianceClient _paymentsComplianceClient;
 
         public StoreEmploymentCheckResultCommandHandler(IPaymentsComplianceClient paymentsComplianceClient)
         {

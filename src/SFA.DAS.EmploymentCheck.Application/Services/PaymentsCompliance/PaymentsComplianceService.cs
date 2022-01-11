@@ -104,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                     "WHERE  AEC.Id >        ( " +
                                     "                           SELECT  ISNULL(MAX(EmploymentCheckId), 0) " +
                                     "                           FROM    [Cache].[EmploymentCheckCacheRequest] ECCR " +
-                                    "                           WHERE   (ECCR.RequestCompletionStatus IS NULL OR ECCR.RequestCompletionStatus = 0) " +
+                                    "                           WHERE   ECCR.RequestCompletionStatus IS NULL " +
                                     "                       ) " +
                                     "AND    AEC.Id NOT IN   (" +
                                     "                           SELECT  ISNULL(EmploymentCheckId, 0) " +
@@ -193,15 +193,35 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                             {
                                 // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                                 _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} No national insurance number found for apprentice Uln: [{employmentCheck.Uln}].");
+
+                                // Set the completion status of the request to error
+                                await UpdateEmploymentCheck(new EmploymentCheckCacheRequest
+                                {
+                                    EmploymentCheckId = employmentCheck.Id,
+                                    Employed = null,
+                                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Failed_NinoNotFound,
+                                    LastUpdatedOn = DateTime.Now
+                                });
+
                                 continue;
                             }
 
-                            // Lookup the National Insurance Number for this apprentice in the employment check data
+                            // Lookup the Paye Schemes for this employer account id in the employment check data
                             var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.Where(ps => ps.EmployerAccountId == employmentCheck.AccountId).FirstOrDefault();
                             if (employerPayeSchemes == null)
                             {
                                 // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                                 _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} No PAYE schemes found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
+
+                                // Set the completion status of the request to error
+                                await UpdateEmploymentCheck(new EmploymentCheckCacheRequest
+                                {
+                                    EmploymentCheckId = employmentCheck.Id,
+                                    Employed = null,
+                                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Failed_PayeSchemeNotFound,
+                                    LastUpdatedOn = DateTime.Now
+                                });
+
                                 continue;
                             }
 
@@ -211,6 +231,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                 {
                                     // An empty paye scheme so we're not able to do an employment check and will need to skip this
                                     _logger.LogInformation($"{thisMethodName}: {ErrorMessagePrefix} An empty PAYE scheme was found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
+
                                     continue;
                                 }
 
@@ -331,7 +352,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                             try
                             {
                                 var parameter = new DynamicParameters();
-                                parameter.Add("@EmploymentCheckId", employmentCheckCacheRequest.EmploymentCheckId, DbType.Int64);
+                                parameter.Add("@employmentCheckId", employmentCheckCacheRequest.EmploymentCheckId, DbType.Int64);
+                                parameter.Add("@existingEmploymentCheckId", employmentCheckCacheRequest.EmploymentCheckId, DbType.Int64);
                                 parameter.Add("@correlationId", employmentCheckCacheRequest.CorrelationId, DbType.Guid);
                                 parameter.Add("@Nino", employmentCheckCacheRequest.Nino, DbType.String);
                                 parameter.Add("@payeScheme", employmentCheckCacheRequest.PayeScheme, DbType.String);
@@ -341,9 +363,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                 parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
                                 await sqlConnection.ExecuteAsync(
+                                    "IF NOT EXISTS (SELECT EmploymentCheckID FROM [Cache].[EmploymentCheckCacheRequest] WHERE EmploymentCheckId = @existingEmploymentCheckId) " +
                                     "INSERT [Cache].[EmploymentCheckCacheRequest] " +
-                                    "       ( ApprenticeEmploymentCheckId,  CorrelationId,  Nino,  PayeScheme,  MinDate,  MaxDate,  Employed,  CreatedOn) " +
-                                    "VALUES (@ApprenticeEmploymentCheckId, @correlationId, @Nino, @payeScheme, @minDate, @maxDate, @employed, @createdOn) ",
+                                    "       ( EmploymentCheckId,  CorrelationId,  Nino,  PayeScheme,  MinDate,  MaxDate,  Employed,  CreatedOn) " +
+                                    "VALUES (@employmentCheckId, @correlationId, @Nino, @payeScheme, @minDate, @maxDate, @employed, @createdOn) " ,
                                     parameter,
                                     commandType: CommandType.Text);
                             }
@@ -471,7 +494,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                             try
                             {
                                 var parameter = new DynamicParameters();
-                                parameter.Add("@EmploymentCheckId", employmentCheckCacheRequest.EmploymentCheckId, DbType.Int64);
+                                parameter.Add("@employmentCheckId", employmentCheckCacheRequest.EmploymentCheckId, DbType.Int64);
                                 parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
                                 parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
                                 parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
@@ -479,7 +502,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Compliance
                                 await sqlConnection.ExecuteAsync(
                                     "UPDATE [Business].[EmploymentCheck] " +
                                     "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                                    "WHERE Id = @EmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
+                                    "WHERE Id = @employmentCheckId AND (Employed IS NULL OR Employed = 0) ",
                                     parameter,
                                     commandType: CommandType.Text);
                             }

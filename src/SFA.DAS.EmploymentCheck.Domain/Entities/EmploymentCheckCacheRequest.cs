@@ -8,8 +8,6 @@ namespace SFA.DAS.EmploymentCheck.Domain.Entities
     public class EmploymentCheckCacheRequest
         : Entity
     {
-        public long Id { get; set; }
-
         public long EmploymentCheckId { get; set; }
 
         public Guid? CorrelationId { get; set; }

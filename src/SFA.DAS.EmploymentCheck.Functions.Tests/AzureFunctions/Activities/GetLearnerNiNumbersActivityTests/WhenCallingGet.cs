@@ -7,8 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Domain.Entities;
 using SFA.DAS.EmploymentCheck.Application.Mediators.Queries.GetNiNumbers;
+using SFA.DAS.EmploymentCheck.Application.Common.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetLearnerNiNumbersActivityTests
 {
