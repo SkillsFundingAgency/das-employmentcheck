@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentCheckCacheRequest;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -26,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         {
             var processEmploymentCheckCacheRequestQueryResult = await _mediator.Send(new ProcessEmploymentCheckCacheRequestQueryRequest());
 
-            return processEmploymentCheckCacheRequestQueryResult.EmploymentCheckCacheRequest;
+            return processEmploymentCheckCacheRequestQueryResult?.EmploymentCheckCacheRequest;
         }
     }
 }

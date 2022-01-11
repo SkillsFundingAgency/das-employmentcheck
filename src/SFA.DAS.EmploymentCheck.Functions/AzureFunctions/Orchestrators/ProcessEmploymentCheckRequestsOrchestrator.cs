@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // Get the next message off the message queue
                 var employmentCheckMessage = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
 
-                if (employmentCheckMessage.Id != 0)
+                if (employmentCheckMessage != null)
                 {
                     // Do the employment status check on this message
                     var updatedEmploymentCheckMessage =

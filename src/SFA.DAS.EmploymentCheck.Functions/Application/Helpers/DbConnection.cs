@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
 
             var sqlConnection = new SqlConnection(connectionString);
 
-            if (!string.IsNullOrEmpty(azureResource))
+            if (!string.IsNullOrEmpty(azureResource) && azureServiceTokenProvider != null)
             {
                 sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(azureResource);
             }

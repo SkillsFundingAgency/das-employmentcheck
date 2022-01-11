@@ -80,7 +80,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             var hashedAccountId = _hashingService.HashValue(apprenticeEmploymentCheck.AccountId);
             var url = $"api/accounts/{hashedAccountId}/payeschemes";
 
-
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
             await AddAuthenticationHeader(httpRequestMessage);
 
@@ -89,8 +88,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             {
                 // The API call didn't return a response
                 // Log it and throw and exception to skip the rest of the processing
-                _logger.LogInformation(
-                    $"\n\n{thisMethodName}: response code received from Employer Accounts API is NULL");
+                _logger.LogError(
+                    $"\n\n{thisMethodName}: response received from Employer Accounts API is NULL");
 
                 await StoreAccountsResponse(new AccountsResponse(
                     apprenticeEmploymentCheck.Id,

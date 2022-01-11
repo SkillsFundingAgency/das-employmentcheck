@@ -93,7 +93,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 
         private async Task<LearnerNiNumber> SendIndividualRequest(Models.EmploymentCheck learner, AuthResult token)
         {
-            var thisMethodName = $"{nameof(LearnerService)}.SendIndividualRequest()";
+            var thisMethodName = $"{nameof(LearnerService)}.SendIndividualRequest";
 
             using var client = _httpFactory.CreateClient("LearnerNiApi");
             client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
@@ -116,7 +116,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                 throw new ArgumentNullException(nameof(response));
             }
 
-            response.EnsureSuccessStatusCode(); // throws an exception if IsSuccessStatusCode property is false
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 await StoreDataCollectionsResponse(new DataCollectionsResponse(
@@ -160,7 +159,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             }
 
             var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
-            _logger.LogError($"\n\n{thisMethodName}: deserialised response content NiNumber for Uln [{learner.Uln}] received from Data Collections.");
 
             await StoreDataCollectionsResponse(new DataCollectionsResponse(
                 learner.Id,
