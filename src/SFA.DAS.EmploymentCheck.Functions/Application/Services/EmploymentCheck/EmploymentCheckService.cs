@@ -96,7 +96,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 commandType: CommandType.Text,
                                 transaction: transaction)).ToList();
 
-                        // Set the RequestCompletionStatus to 'HasBeenChecked' on the batch that has just read so that
+                        // Set the RequestCompletionStatus to 'Started' on the batch that has just read so that
                         // these employment checks don't get read next time around if there's an exception due to the RequestCompletionStatus still being set to null
                         if (employmentChecksBatch != null && employmentChecksBatch.Count > 0)
                         {
@@ -104,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             {
                                 var parameter = new DynamicParameters();
                                 parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
-                                parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.HasBeenChecked, DbType.Int16);  // Set to to mimick the behaviour of the Dec release which had the 'HasBeenChecked'
+                                parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
                                 parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
                                 await sqlConnection.ExecuteAsync(
@@ -228,22 +228,59 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
+            EmploymentCheckCacheRequest employmentCheckCacheRequest = null;
             await sqlConnection.OpenAsync();
+            {
+                var transaction = sqlConnection.BeginTransaction();
 
-            var employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
-                sql: "SELECT TOP(1)[Id] " +
-                     ",[ApprenticeEmploymentCheckId] " +
-                     ",[CorrelationId] " +
-                     ",[Nino] " +
-                     ",[PayeScheme] " +
-                     ",[MinDate] " +
-                     ",[MaxDate] " +
-                     ",[Employed] " +
-                     ",[RequestCompletionStatus] " +
-                     "FROM [Cache].[EmploymentCheckCacheRequest] " +
-                     "WHERE (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 0)" +
-                     "ORDER BY Id",
-                commandType: CommandType.Text)).FirstOrDefault();
+                // Get a batch of employment checks that do not already have a matching pending EmploymentCheckCacheRequest
+                var parameters = new DynamicParameters();
+                parameters.Add("@batchSize", _batchSize);
+
+                employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
+                    sql: "SELECT TOP(1)[Id] " +
+                         ",[ApprenticeEmploymentCheckId] " +
+                         ",[CorrelationId] " +
+                         ",[Nino] " +
+                         ",[PayeScheme] " +
+                         ",[MinDate] " +
+                         ",[MaxDate] " +
+                         ",[Employed] " +
+                         ",[RequestCompletionStatus] " +
+                         "FROM [Cache].[EmploymentCheckCacheRequest] " +
+                         "WHERE (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 0)" +
+                         "ORDER BY Id",
+                    commandType: CommandType.Text,
+                    transaction: transaction)).FirstOrDefault();
+
+                // Set the RequestCompletionStatus to 'Started' so that this request doesn't get read next time around
+                if (employmentCheckCacheRequest != null)
+                {
+                    try
+                    {
+                        var parameter = new DynamicParameters();
+                        parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
+                        parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
+                        parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                        await sqlConnection.ExecuteAsync(
+                            "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
+                            "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                            "WHERE Id = @Id ",
+                            parameter,
+                            commandType: CommandType.Text,
+                            transaction: transaction);
+
+                        transaction.Commit();
+
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
 
             return employmentCheckCacheRequest;
         }
