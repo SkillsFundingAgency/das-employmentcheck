@@ -103,9 +103,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             var response = await client.GetAsync(url);
             if (response == null)
             {
-                _logger.LogInformation(
-                    $"\n\n{thisMethodName}: response code received from Data Collections API is NULL");
-
                 await StoreDataCollectionsResponse(new DataCollectionsResponse(
                     learner.Id,
                     learner.CorrelationId,
@@ -113,10 +110,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     "NULL", // NiNumber
                     "NULL", // HttpResponse
                     0)); // HttpStatusCode
-                throw new ArgumentNullException(nameof(response));
+                throw new ArgumentNullException(
+                    $"\n\n{thisMethodName}: response received from Data Collections API is NULL");
             }
 
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (!response.IsSuccessStatusCode)
             {
                 await StoreDataCollectionsResponse(new DataCollectionsResponse(
                     learner.Id,
@@ -125,14 +123,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     "NULL", // NiNumber
                     response.ToString(),
                     (short) response.StatusCode));
-                throw new ArgumentOutOfRangeException(nameof(response.StatusCode));
+                throw new ArgumentException(
+                    $"\n\n{thisMethodName}: Data Collections API call failed");
             }
 
             var content = await response.Content.ReadAsStreamAsync();
             if (content == null || content.Length == 0)
             {
-                _logger.LogError($"\n\n{thisMethodName}: response content received from Data Collections is NULL or zero length");
-
                 await StoreDataCollectionsResponse(new DataCollectionsResponse(
                     learner.Id,
                     learner.CorrelationId,
@@ -140,14 +137,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     "NULL", // NiNumber
                     response.ToString(),
                     (short) response.StatusCode));
-                throw new ArgumentNullException(nameof(content));
             }
 
             var learnerNiNumbers = await JsonSerializer.DeserializeAsync<List<LearnerNiNumber>>(content);
             if (learnerNiNumbers == null)
             {
-                _logger.LogError($"\n\n{thisMethodName}: deserialised response content received from Data Collections is NULL or zero length");
-
                 await StoreDataCollectionsResponse(new DataCollectionsResponse(
                     learner.Id,
                     learner.CorrelationId,
@@ -155,7 +149,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     "NULL", // NiNumber
                     response.ToString(),
                     (short) response.StatusCode));
-                throw new ArgumentNullException(nameof(learnerNiNumbers));
+                throw new ArgumentNullException($"\n\n{thisMethodName}: deserialised response content received from Data Collections is NULL or zero length");
             }
 
             var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
