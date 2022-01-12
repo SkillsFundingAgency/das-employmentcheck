@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         #region Constructors
         public HmrcService(
             ITokenServiceApiClient tokenService,
-            IApprenticeshipLevyApiClient apprenticeshipLevyService, 
+            IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
             ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider
@@ -87,7 +87,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 else
                 {
                     _logger.LogError($"{thisMethodName}: The result value returned from the GetEmploymentStatus call returned null.");
-                    
+
                     request.Employed = null;
                     request.RequestCompletionStatus = 500;
                 }
@@ -101,11 +101,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
-                    null,           // Employed
-                    string.Empty,   // FoundOnPaye
-                    true,           // ProcessingComplete
-                    1,               // Count
-                    "(Not Found)",
+                    null,                   // Employed
+                    string.Empty,           // FoundOnPaye
+                    true,                   // ProcessingComplete
+                    1,                      // Count
+                    e.ResponseBody,         // Response
                     (short)e.HttpCode));
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
@@ -116,11 +116,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
-                    null,           // Employed
-                    string.Empty,   // FoundOnPaye
-                    false,           // ProcessingComplete
-                    1,               // Count
-                    "(Too Many Requests)",
+                    null,                   // Employed
+                    string.Empty,           // FoundOnPaye
+                    false,                  // ProcessingComplete
+                    1,                      // Count
+                    e.ResponseBody,         // Response
                     (short)e.HttpCode));
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
@@ -131,11 +131,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
-                    null,           // Employed
-                    string.Empty,   // FoundOnPaye
-                    false,           // ProcessingComplete
-                    1,               // Count
-                    "(Bad Request)",
+                    null,                   // Employed
+                    string.Empty,           // FoundOnPaye
+                    false,                  // ProcessingComplete
+                    1,                      // Count
+                    e.ResponseBody,         // Response
                     (short)e.HttpCode));
             }
 
@@ -147,11 +147,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
-                    null,           // Employed
-                    string.Empty,   // FoundOnPaye
-                    false,           // ProcessingComplete
-                    1,               // Count
-                    $"{e.HttpCode} ({(HttpStatusCode)e.HttpCode} {e.ResourceUri})",
+                    null,                   // Employed
+                    string.Empty,           // FoundOnPaye
+                    false,                  // ProcessingComplete
+                    1,                      // Count
+                    e.ResponseBody,         // Response
                     (short)e.HttpCode));
             }
             catch (Exception e)
@@ -162,10 +162,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
-                    null,           // Employed
-                    string.Empty,   // FoundOnPaye
-                    false,           // ProcessingComplete
-                    1,               // Count
+                    null,                   // Employed
+                    string.Empty,           // FoundOnPaye
+                    false,                  // ProcessingComplete
+                    1,                      // Count
                     $"HMRC API CALL ERROR {e.Message}",
                     500));
             }
