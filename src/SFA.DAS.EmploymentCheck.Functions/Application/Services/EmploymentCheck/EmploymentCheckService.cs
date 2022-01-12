@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -55,34 +56,77 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 _azureServiceTokenProvider))
             {
                 await sqlConnection.OpenAsync();
+                {
+                    var transaction = sqlConnection.BeginTransaction();
 
-                // Get a batch of employment checks that do not already have a matching pending EmploymentCheckCacheRequest
-                var parameters = new DynamicParameters();
-                parameters.Add("@batchSize", _batchSize);
+                    try
+                    {
+                        // Get a batch of employment checks that do not already have a matching pending EmploymentCheckCacheRequest
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@batchSize", _batchSize);
 
-                employmentChecksBatch = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
-                    sql: "SELECT TOP (@batchSize)" +
-                         "[Id], " +
-                         "[CorrelationId], " +
-                         "[CheckType], " +
-                         "[Uln], " +
-                         "[ApprenticeshipId], " +
-                         "[AccountId], " +
-                         "[MinDate], " +
-                         "[MaxDate], " +
-                         "[Employed], " +
-                         "[CreatedOn], " +
-                         "[LastUpdatedOn] " +
-                         "FROM [Business].[EmploymentCheck] AEC " +
-                         "WHERE AEC.Id > (SELECT ISNULL(MAX(ApprenticeEmploymentCheckId), 0) FROM [Cache].[EmploymentCheckCacheRequest]) " +
-                         "AND AEC.Id NOT IN (SELECT ApprenticeEmploymentCheckId FROM [Cache].[EmploymentCheckCacheRequest] WHERE (RequestCompletionStatus = 0 OR RequestCompletionStatus IS NULL)) " +
-                         "ORDER BY AEC.Id ",
-                    param: parameters,
-                    commandType: CommandType.Text)).ToList();
+                        employmentChecksBatch = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
+                                sql: "SELECT TOP (@batchSize) " +
+                                    "[Id], " +
+                                    "[CorrelationId], " +
+                                    "[CheckType], " +
+                                    "[Uln], " +
+                                    "[ApprenticeshipId], " +
+                                    "[AccountId], " +
+                                    "[MinDate], " +
+                                    "[MaxDate], " +
+                                    "[Employed], " +
+                                    "[RequestCompletionStatus], " +
+                                    "[CreatedOn], " +
+                                    "[LastUpdatedOn] " +
+                                    "FROM [Business].[EmploymentCheck] AEC " +
+                                    "WHERE AEC.RequestCompletionStatus IS NULL OR AEC.RequestCompletionStatus = 0 " +
+                                    "AND  AEC.Id >          ( " +
+                                    "                           SELECT  ISNULL(MAX(ApprenticeEmploymentCheckId), 0) " +
+                                    "                           FROM    [Cache].[EmploymentCheckCacheRequest] ECCR " +
+                                    "                           WHERE   ECCR.RequestCompletionStatus IS NULL " +
+                                    "                       ) " +
+                                    "AND    AEC.Id NOT IN   (" +
+                                    "                           SELECT  ISNULL(ApprenticeEmploymentCheckId, 0) " +
+                                    "                           FROM    [Cache].[EmploymentCheckCacheRequest] " +
+                                    "                           WHERE   (AEC.RequestCompletionStatus IS NULL OR AEC.RequestCompletionStatus = 0) " +
+                                    "                       ) " +
+                                    "ORDER BY AEC.Id ",
+                                param: parameters,
+                                commandType: CommandType.Text,
+                                transaction: transaction)).ToList();
 
+                        // Set the RequestCompletionStatus to 'HasBeenChecked' on the batch that has just read so that
+                        // these employment checks don't get read next time around if there's an exception due to the RequestCompletionStatus still being set to null
+                        if (employmentChecksBatch != null && employmentChecksBatch.Count > 0)
+                        {
+                            foreach (var employmentCheck in employmentChecksBatch)
+                            {
+                                var parameter = new DynamicParameters();
+                                parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
+                                parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.HasBeenChecked, DbType.Int16);  // Set to to mimick the behaviour of the Dec release which had the 'HasBeenChecked'
+                                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                                await sqlConnection.ExecuteAsync(
+                                    "UPDATE [Business].[EmploymentCheck] " +
+                                    "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                                    "WHERE Id = @Id ",
+                                    parameter,
+                                    commandType: CommandType.Text,
+                                    transaction: transaction);
+                            }
+
+                            transaction.Commit();
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback(); // rollback the whole batch rather than individual employment checks
+                        throw;
+                    }
+                }
             }
 
-            Guard.Against.Null(employmentChecksBatch, nameof(employmentChecksBatch));
             return employmentChecksBatch;
         }
         #endregion GetEmploymentChecksBatch
@@ -173,7 +217,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
         #endregion CreateEmploymentCheckCacheRequest
 
-        #region ProcessEmploymentCheckCacheRequest
+        #region GetEmploymentCheckCacheRequest
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             var dbConnection = new DbConnection();
@@ -198,12 +242,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                      ",[RequestCompletionStatus] " +
                      "FROM [Cache].[EmploymentCheckCacheRequest] " +
                      "WHERE Employed IS NULL " +
+                     "AND   (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 0)" +
                      "ORDER BY Id",
                 commandType: CommandType.Text)).FirstOrDefault();
 
             return employmentCheckCacheRequest;
         }
-        #endregion ProcessEmploymentCheckCacheRequest
+        #endregion GetEmploymentCheckCacheRequest
 
         #region StoreEmploymentCacheRequest
 
@@ -310,11 +355,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var parameter = new DynamicParameters();
             parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
             parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
+            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
             parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             await sqlConnection.ExecuteAsync(
                 "UPDATE [Business].[EmploymentCheck] " +
-                "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
+                "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
                 "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
                 parameter,
                 commandType: CommandType.Text);
