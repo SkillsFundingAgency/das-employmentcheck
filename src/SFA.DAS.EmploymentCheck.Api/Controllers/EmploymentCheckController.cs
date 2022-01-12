@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.EmploymentCheck.Api.Commands;
+using SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand;
 using SFA.DAS.EmploymentCheck.Api.Responses;
 
 namespace SFA.DAS.EmploymentCheck.Api.Controllers
@@ -29,10 +30,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Controllers
             [FromQuery] DateTime minDate,
             [FromQuery] DateTime maxDate)
         {
-            var commandResponse = await _mediator.Send(new PostRegisterCheckCommand
+            var commandResponse = await _mediator.Send(new RegisterCheckCommand
             {
                 CorrelationId = correlationId,
-                CheckType = checkType,
+                CheckType = checkType ?? "",
                 Uln = uln,
                 ApprenticeshipAccountId = apprenticeshipAccountId,
                 ApprenticeshipId = apprenticeshipId,
@@ -40,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Controllers
                 MaxDate = maxDate
             });
 
-            var response = new RegisterCheckResponse();
+            var response = new Responses.RegisterCheckResponse();
 
             if (commandResponse.VersionId != "0")
             {

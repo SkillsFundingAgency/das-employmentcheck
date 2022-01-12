@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Api.Commands
+﻿namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
 {
     public class RegisterCheckResult
     {

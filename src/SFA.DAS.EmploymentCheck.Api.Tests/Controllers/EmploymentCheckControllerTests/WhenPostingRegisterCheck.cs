@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Commands;
+using SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand;
 using SFA.DAS.EmploymentCheck.Api.Controllers;
 using SFA.DAS.EmploymentCheck.Api.Responses;
 
@@ -22,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
         private long? _apprenticeshipId;
         private DateTime _minDate;
         private DateTime _maxDate;
-        private PostRegisterCheckResponse _response;
+        private RegisterCheckResult _response;
 
         [SetUp]
         public void Setup()
@@ -37,15 +38,16 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
             _minDate = DateTime.Today.AddDays(-1);
             _maxDate = DateTime.Today.AddDays(1);
 
-            _response = new PostRegisterCheckResponse
-                {ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = "1"};
+            _response = new RegisterCheckResult
+                {
+                ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = "1"};
         }
         [Test]
         public async Task Then_The_Request_Is_Passed_To_Mediator()
         {
             //Arrange
             
-            _mediator.Setup(x => x.Send(It.Is<PostRegisterCheckCommand>(command => 
+            _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command => 
                     command.CorrelationId == _correlationId &&
                     command.CheckType == _checkType &&
                     command.Uln == _uln &&
@@ -64,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
                 _maxDate);
 
             //Assert
-            _mediator.Verify(x => x.Send(It.IsAny<PostRegisterCheckCommand>(), CancellationToken.None), Times.Once);
+            _mediator.Verify(x => x.Send(It.IsAny<RegisterCheckCommand>(), CancellationToken.None), Times.Once);
         }
 
         [Test]
@@ -72,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
         {
             //Arrange
 
-            _mediator.Setup(x => x.Send(It.Is<PostRegisterCheckCommand>(command =>
+            _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _correlationId &&
                         command.CheckType == _checkType &&
                         command.Uln == _uln &&
@@ -90,7 +92,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
             var result = await sut.RegisterCheck(_correlationId, _checkType, _uln, _apprenticeshipAccountId, _apprenticeshipId, _minDate,
                 _maxDate) as OkObjectResult;
 
-            var model = result.Value as RegisterCheckResponse;
+            var model = result.Value as Responses.RegisterCheckResponse;
 
             //Assert
             Assert.AreEqual(result.StatusCode.Value, (int)HttpStatusCode.OK);
@@ -103,7 +105,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
             //Arrange
             _response.VersionId = "0";
 
-            _mediator.Setup(x => x.Send(It.Is<PostRegisterCheckCommand>(command =>
+            _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _correlationId &&
                         command.CheckType == _checkType &&
                         command.Uln == _uln &&
@@ -121,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
             var result = await sut.RegisterCheck(_correlationId, _checkType, _uln, _apprenticeshipAccountId, _apprenticeshipId, _minDate,
                 _maxDate) as BadRequestObjectResult;
 
-            var model = result.Value as RegisterCheckResponse;
+            var model = result.Value as Responses.RegisterCheckResponse;
 
             //Assert
             Assert.AreEqual(result.StatusCode.Value, (int)HttpStatusCode.BadRequest);

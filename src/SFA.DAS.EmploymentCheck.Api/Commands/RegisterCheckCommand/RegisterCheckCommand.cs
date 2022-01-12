@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Windows.Input;
 using MediatR;
 
-namespace SFA.DAS.EmploymentCheck.Api.Commands
+namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
 {
     public class RegisterCheckCommand : IRequest<RegisterCheckResult>
     {
