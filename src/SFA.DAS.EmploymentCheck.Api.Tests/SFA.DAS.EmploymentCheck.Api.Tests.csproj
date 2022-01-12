@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Commands\RegisterCheckCommand\" />
     <Folder Include="Controllers\EmploymentCheckControllerTests\" />
-    <Folder Include="Commands\" />
   </ItemGroup>
 
   <ItemGroup>
