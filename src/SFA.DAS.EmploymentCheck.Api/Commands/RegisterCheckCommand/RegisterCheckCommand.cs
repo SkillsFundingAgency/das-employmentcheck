@@ -4,7 +4,7 @@ using MediatR;
 
 namespace SFA.DAS.EmploymentCheck.Api.Commands
 {
-    public class PostRegisterCheckCommand : IRequest<PostRegisterCheckResponse>
+    public class RegisterCheckCommand : IRequest<RegisterCheckResult>
     {
         public Guid CorrelationId { get; set; }
         public string CheckType { get; set; }

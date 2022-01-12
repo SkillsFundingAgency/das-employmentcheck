@@ -14,8 +14,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
 {
     public class WhenPostingRegisterCheck
     {
-        //happy path
-        //sad path
         private Mock<IMediator> _mediator;
         private Guid _correlationId;
         private string _checkType;
