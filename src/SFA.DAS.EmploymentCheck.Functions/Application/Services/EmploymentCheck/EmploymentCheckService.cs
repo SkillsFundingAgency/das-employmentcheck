@@ -241,8 +241,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                      ",[Employed] " +
                      ",[RequestCompletionStatus] " +
                      "FROM [Cache].[EmploymentCheckCacheRequest] " +
+                     //"WHERE (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 0)" +
                      "WHERE Employed IS NULL " +
-                     "AND   (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 0)" +
                      "ORDER BY Id",
                 commandType: CommandType.Text)).FirstOrDefault();
 
