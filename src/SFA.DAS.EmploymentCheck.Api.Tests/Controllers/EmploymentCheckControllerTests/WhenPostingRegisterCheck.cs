@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
 
             _response = new RegisterCheckResult
                 {
-                ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = "1"};
+                ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = 1};
         }
         [Test]
         public async Task Then_The_Request_Is_Passed_To_Mediator()
@@ -103,7 +103,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControlle
         public async Task And_The_VersionId_Is_Not_Present_Then_Errors_And_400_Is_Returned()
         {
             //Arrange
-            _response.VersionId = "0";
+            _response.VersionId = 0;
 
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _correlationId &&

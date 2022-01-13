@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\RegisterCheckCommand\" />
     <Folder Include="Controllers\EmploymentCheckControllerTests\" />
   </ItemGroup>
 

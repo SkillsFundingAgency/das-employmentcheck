@@ -2,7 +2,7 @@
 {
     public class RegisterCheckResult
     {
-        public string? VersionId { get; set; }
+        public int? VersionId { get; set; }
         public string? ErrorType { get; set; }
         public string? ErrorMessage { get; set; }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
 {
-    public class RegisterCheckCommandValidator
+    public class RegisterCheckCommandValidator : IRegisterCheckCommandValidator
     {
         public RegisterCheckResult Validate(RegisterCheckCommand command)
         {
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
                 {
                     ErrorMessage = responseErrorMessages,
                     ErrorType = responseErrorTypes,
-                    VersionId = "0"
+                    VersionId = 0
                 };
             }
             
