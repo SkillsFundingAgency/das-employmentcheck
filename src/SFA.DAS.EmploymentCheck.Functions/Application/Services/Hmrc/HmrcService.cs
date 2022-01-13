@@ -71,7 +71,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 if (result != null)
                 {
                     request.Employed = result.Employed;
-                    //request.RequestCompletionStatus = 200;
 
                     await StoreHmrcResponse(new EmploymentCheckCacheResponse(
                         request.ApprenticeEmploymentCheckId,

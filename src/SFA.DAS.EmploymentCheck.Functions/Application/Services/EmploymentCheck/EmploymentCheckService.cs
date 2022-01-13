@@ -375,7 +375,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             await sqlConnection.ExecuteAsync(
                 "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
                 // TODO: setting the completion status after the initial setting of it to 'started' is to be done under story 183
-                //"SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
                 "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
                 "WHERE Id = @Id ",
                 parameter,
@@ -411,7 +410,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             await sqlConnection.ExecuteAsync(
                 "UPDATE [Business].[EmploymentCheck] " +
                 // TODO: setting the completion status after the initial setting of it to 'started' is to be done under story 183
-                //"SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
                 "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
                 "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
                 parameter,
