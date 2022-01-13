@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
-    public class EmploymentCheckCacheResponseRepository
+    public class EmploymentCheckCacheResponseRepository : IEmploymentCheckCacheResponseRepository
     {
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
