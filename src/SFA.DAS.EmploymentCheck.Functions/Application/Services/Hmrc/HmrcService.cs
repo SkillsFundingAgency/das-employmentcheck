@@ -71,7 +71,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 if (result != null)
                 {
                     request.Employed = result.Employed;
-                    request.RequestCompletionStatus = 200;
 
                     await StoreHmrcResponse(new EmploymentCheckCacheResponse(
                         request.ApprenticeEmploymentCheckId,
@@ -216,8 +215,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             {
                 Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
+                // There is a constraint to stop duplicates but this check avoids the exception causing a problem later in the code
                 await sqlConnection.OpenAsync();
                 var parameter = new DynamicParameters();
+                parameter.Add("@existingApprenticeEmploymentCheckId", employmentCheckCacheResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+                parameter.Add("@existingEmploymentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
+                parameter.Add("@existingCorrelationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
+                parameter.Add("@existingFoundOnPaye", employmentCheckCacheResponse.FoundOnPaye, DbType.String);
+
                 parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheResponse.ApprenticeEmploymentCheckId, DbType.Int64);
                 parameter.Add("@employmentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
                 parameter.Add("@correlationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
@@ -230,11 +235,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
                 await sqlConnection.ExecuteScalarAsync(
+                "IF NOT EXISTS " +
+                "( " +
+                "   SELECT  [ApprenticeEmploymentCheckId] " +
+                "   FROM    [Cache].[EmploymentCheckCacheResponse] " +
+                "   WHERE   [ApprenticeEmploymentCheckId] = @existingApprenticeEmploymentCheckId " +
+                "   AND     [EmploymentCheckCacheRequestId] = @existingEmploymentCheckCacheRequestId " +
+                "   AND     [CorrelationId] = @existingCorrelationId " +
+                "   AND     [FoundOnPaye] = @existingFoundOnPaye " +
+                ") " +
+                "BEGIN " +
                     "INSERT [Cache].[EmploymentCheckCacheResponse] " +
                     "       ( ApprenticeEmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
-                    "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
-                    parameter,
-                    commandType: CommandType.Text);
+                    "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)" +
+                "END ",
+                parameter,
+                commandType: CommandType.Text);
             }
 
             return await Task.FromResult(0);

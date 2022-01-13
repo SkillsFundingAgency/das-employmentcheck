@@ -195,6 +195,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             await sqlConnection.OpenAsync();
 
             var parameter = new DynamicParameters();
+            parameter.Add("@existingApprenticeEmploymentCheckId", dataCollectionsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+            parameter.Add("@existingCorrelationId", dataCollectionsResponse.CorrelationId, DbType.Guid);
+            parameter.Add("@existingUln", dataCollectionsResponse.Uln, DbType.Int64);
+            parameter.Add("@existingNiNumber", dataCollectionsResponse.NiNumber, DbType.String);
+
             parameter.Add("@apprenticeEmploymentCheckId", dataCollectionsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
             parameter.Add("@correlationId", dataCollectionsResponse.CorrelationId, DbType.Guid);
             parameter.Add("@uln", dataCollectionsResponse.Uln, DbType.Int64);
@@ -203,12 +208,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             parameter.Add("@httpStatusCode", dataCollectionsResponse.HttpStatusCode, DbType.Int16);
             parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
-            await sqlConnection.ExecuteAsync(
-                "INSERT [Cache].[DataCollectionsResponse] " +
-                "       ( ApprenticeEmploymentCheckId,  CorrelationId,  Uln,  NiNumber,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
-                "VALUES (@apprenticeEmploymentCheckId, @correlationId, @uln, @niNumber, @httpResponse, @httpStatusCode, @createdOn)",
-                parameter,
-                commandType: CommandType.Text);
+            // There is a constraint to stop duplicates but this check avoids the exception causing a problem later in the code            await sqlConnection.ExecuteAsync(
+          await sqlConnection.ExecuteAsync(
+            "IF NOT EXISTS " +
+            "( " +
+            "   SELECT  [ApprenticeEmploymentCheckId] " +
+            "   FROM    [Cache].[DataCollectionsResponse] " +
+            "   WHERE   [ApprenticeEmploymentCheckId] = @existingApprenticeEmploymentCheckId " +
+            "   AND     [CorrelationId] = @existingCorrelationId " +
+            "   AND     [Uln] = @existingUln " +
+            "   AND     [NiNumber] = @existingNiNumber " +
+            ") " +
+            "BEGIN " +
+            "   INSERT [Cache].[DataCollectionsResponse] " +
+            "           ( ApprenticeEmploymentCheckId,  CorrelationId,  Uln,  NiNumber,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
+            "   VALUES  (@apprenticeEmploymentCheckId, @correlationId, @uln, @niNumber, @httpResponse, @httpStatusCode, @createdOn) " +
+            "END ",
+            parameter,
+            commandType: CommandType.Text);
 
             return await Task.FromResult(0);
         }
