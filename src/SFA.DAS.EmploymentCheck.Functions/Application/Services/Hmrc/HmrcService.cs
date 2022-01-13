@@ -15,6 +15,7 @@ using System.Data;
 using System.Net;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
@@ -30,6 +31,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private readonly IEmploymentCheckCacheResponseRepository _repository;
+
         #endregion Private members
 
         #region Constructors
@@ -38,13 +41,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider
+            AzureServiceTokenProvider azureServiceTokenProvider,
+            IEmploymentCheckCacheResponseRepository repository,
             )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
+            _repository = repository;
             _connectionString = applicationSettings.DbConnectionString;
             _cachedToken = null;
         }
@@ -110,8 +115,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
             {
-                _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
-
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
@@ -120,13 +123,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     string.Empty,           // FoundOnPaye
                     false,                  // ProcessingComplete
                     1,                      // Count
-                    e.ResponseBody,         // Response
+                    e.ResourceUri,         // Response
                     (short)e.HttpCode));
             }
             catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
             {
-                _logger.LogError("HMRC API returned {e.HttpCode} (Bad Request)");
-
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
@@ -135,14 +136,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     string.Empty,           // FoundOnPaye
                     false,                  // ProcessingComplete
                     1,                      // Count
-                    e.ResponseBody,         // Response
+                    e.ResourceUri,         // Response
                     (short)e.HttpCode));
             }
 
             catch (ApiHttpException e)
             {
-                _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
@@ -151,13 +150,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     string.Empty,           // FoundOnPaye
                     false,                  // ProcessingComplete
                     1,                      // Count
-                    e.ResponseBody,         // Response
+                    e.ResourceUri,         // Response
                     (short)e.HttpCode));
             }
             catch (Exception e)
             {
-                _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
-
                 await StoreHmrcResponse(new EmploymentCheckCacheResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
@@ -166,7 +163,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     string.Empty,           // FoundOnPaye
                     false,                  // ProcessingComplete
                     1,                      // Count
-                    $"HMRC API CALL ERROR {e.Message}",
+                    $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}",
                     500));
             }
 
@@ -200,46 +197,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         }
 
         #endregion RetrieveAuthenticationToken
-
-        #region StoreHmrcResponse
-
-        public async Task<int> StoreHmrcResponse(
-            EmploymentCheckCacheResponse employmentCheckCacheResponse)
-        {
-            if (employmentCheckCacheResponse == null) return await Task.FromResult(0);
-
-            var dbConnection = new DbConnection();
-            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                AzureResource,
-                _azureServiceTokenProvider))
-            {
-                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-                await sqlConnection.OpenAsync();
-                var parameter = new DynamicParameters();
-                parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheResponse.ApprenticeEmploymentCheckId, DbType.Int64);
-                parameter.Add("@employmentCheckCacheRequestId", employmentCheckCacheResponse.EmploymentCheckCacheRequestId, DbType.Int64);
-                parameter.Add("@correlationId", employmentCheckCacheResponse.CorrelationId, DbType.Guid);
-                parameter.Add("@employed", employmentCheckCacheResponse.Employed, DbType.Boolean);
-                parameter.Add("@foundOnPaye", employmentCheckCacheResponse.FoundOnPaye, DbType.String);
-                parameter.Add("@processingComplete", employmentCheckCacheResponse.ProcessingComplete, DbType.Boolean);
-                parameter.Add("@count", employmentCheckCacheResponse.Count, DbType.Int32);
-                parameter.Add("@httpResponse", employmentCheckCacheResponse.HttpResponse, DbType.String);
-                parameter.Add("@httpStatusCode", employmentCheckCacheResponse.HttpStatusCode, DbType.Int16);
-                parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
-
-                await sqlConnection.ExecuteScalarAsync(
-                    "INSERT [Cache].[EmploymentCheckCacheResponse] " +
-                    "       ( ApprenticeEmploymentCheckId,  EmploymentCheckCacheRequestId,  CorrelationId,  Employed,  FoundOnPaye,  ProcessingComplete, count,   httpResponse,  HttpStatusCode,  CreatedOn) " +
-                    "VALUES (@apprenticeEmploymentCheckId, @EmploymentCheckCacheRequestId, @correlationId, @employed, @foundOnPaye, @processingComplete, @count, @httpResponse, @httpStatusCode, @createdOn)",
-                    parameter,
-                    commandType: CommandType.Text);
-            }
-
-            return await Task.FromResult(0);
-        }
-
-        #endregion StoreHmrcResponse
     }
 }
