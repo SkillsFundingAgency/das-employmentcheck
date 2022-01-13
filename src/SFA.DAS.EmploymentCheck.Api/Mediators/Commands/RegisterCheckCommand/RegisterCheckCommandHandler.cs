@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.EmploymentCheck.Api.Services;
 
-namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
+namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 {
     public class RegisterCheckCommandHandler : IRequestHandler<RegisterCheckCommand, RegisterCheckResult>
     {

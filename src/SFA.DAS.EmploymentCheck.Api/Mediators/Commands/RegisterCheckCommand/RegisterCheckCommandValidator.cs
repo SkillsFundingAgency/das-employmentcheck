@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
+namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 {
     public class RegisterCheckCommandValidator : IRegisterCheckCommandValidator
     {

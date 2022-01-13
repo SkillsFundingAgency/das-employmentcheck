@@ -3,16 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand;
+using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 using SFA.DAS.EmploymentCheck.Api.Services;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 {
     public class WhenHandlingRegisterCheckCommand
     {
-        //calls insert and happy path
-        private Api.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
+        private Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
         private Mock<IEmploymentCheckService> _employmentCheckService;
         private Mock<IRegisterCheckCommandValidator> _commandValidator;
 
@@ -22,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
             _employmentCheckService = new Mock<IEmploymentCheckService>();
             _commandValidator = new Mock<IRegisterCheckCommandValidator>();
 
-            _command = new Api.Commands.RegisterCheckCommand.RegisterCheckCommand
+            _command = new Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand
             {
                 ApprenticeshipAccountId = 1,
                 ApprenticeshipId = 2,

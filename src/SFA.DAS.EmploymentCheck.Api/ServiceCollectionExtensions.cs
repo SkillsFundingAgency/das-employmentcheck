@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand;
+using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
