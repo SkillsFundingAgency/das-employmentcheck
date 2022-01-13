@@ -80,17 +80,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                     "[CreatedOn], " +
                                     "[LastUpdatedOn] " +
                                     "FROM [Business].[EmploymentCheck] AEC " +
-                                    "WHERE (AEC.RequestCompletionStatus IS NULL OR AEC.RequestCompletionStatus = 0) " +
-                                    "AND  AEC.Id >          ( " +
-                                    "                           SELECT  ISNULL(MAX(ApprenticeEmploymentCheckId), 0) " +
-                                    "                           FROM    [Cache].[EmploymentCheckCacheRequest] ECCR " +
-                                    "                           WHERE   ECCR.RequestCompletionStatus IS NULL " +
-                                    "                       ) " +
-                                    "AND    AEC.Id NOT IN   (" +
-                                    "                           SELECT  ISNULL(ApprenticeEmploymentCheckId, 0) " +
-                                    "                           FROM    [Cache].[EmploymentCheckCacheRequest] " +
-                                    "                           WHERE   (AEC.RequestCompletionStatus IS NULL OR AEC.RequestCompletionStatus = 0) " +
-                                    "                       ) " +
+                                    "WHERE (AEC.RequestCompletionStatus IS NULL) " +
                                     "ORDER BY AEC.Id ",
                                 param: parameters,
                                 commandType: CommandType.Text,
@@ -241,7 +231,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
                         sql: "SELECT    TOP(1) * " +
                              "FROM      [Cache].[EmploymentCheckCacheRequest] " +
-                             "WHERE     (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 0)" +
+                             "WHERE     (RequestCompletionStatus IS NULL)" +
                              "ORDER BY  Id",
                         commandType: CommandType.Text,
                         transaction: transaction)).FirstOrDefault();
