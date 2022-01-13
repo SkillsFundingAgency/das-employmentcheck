@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
             
             //Insert new EmploymentCheck into the db
 
-            var employmentCheck = CreateNewEmploymentCheck(command, validationResult.VersionId);
+            var employmentCheck = await CreateNewEmploymentCheck(command, validationResult.VersionId);
 
             _employmentCheckService.InsertEmploymentCheck(employmentCheck);
 
@@ -45,9 +45,9 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
             return validationResult;
         }
 
-        private Functions.Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command, int? versionId)
+        private async Task<Functions.Application.Models.EmploymentCheck> CreateNewEmploymentCheck(RegisterCheckCommand command, int? versionId)
         {
-            var lastId = _employmentCheckService.GetLastId();
+            var lastId = await _employmentCheckService.GetLastId();
 
             return new Functions.Application.Models.EmploymentCheck
             {
