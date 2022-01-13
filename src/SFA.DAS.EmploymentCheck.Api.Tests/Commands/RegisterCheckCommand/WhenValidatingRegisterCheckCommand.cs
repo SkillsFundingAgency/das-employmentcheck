@@ -1,18 +1,18 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand;
+using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 {
     public class WhenValidatingRegisterCheckCommand
     {
-        private Api.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
+        private Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
 
         [SetUp]
         public void Setup()
         {
-            _command = new Api.Commands.RegisterCheckCommand.RegisterCheckCommand
+            _command = new Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand
             {
                 ApprenticeshipAccountId = 1,
                 ApprenticeshipId = 2,

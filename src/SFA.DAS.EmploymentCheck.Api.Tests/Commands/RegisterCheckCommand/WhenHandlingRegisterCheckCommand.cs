@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Api.Application.Services;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
-using SFA.DAS.EmploymentCheck.Api.Services;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 {

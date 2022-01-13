@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using SFA.DAS.EmploymentCheck.Api.Services;
+using SFA.DAS.EmploymentCheck.Api.Application.Services;
 
 namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 {

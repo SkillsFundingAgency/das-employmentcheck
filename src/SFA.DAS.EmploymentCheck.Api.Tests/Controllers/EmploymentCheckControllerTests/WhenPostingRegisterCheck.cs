@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Api.Controllers;
+using SFA.DAS.EmploymentCheck.Api.Application.Controllers;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Controllers.EmploymentCheckControllerTests

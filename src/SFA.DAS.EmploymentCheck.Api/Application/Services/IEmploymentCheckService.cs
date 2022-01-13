@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Api.Services
+namespace SFA.DAS.EmploymentCheck.Api.Application.Services
 {
     public interface IEmploymentCheckService
     {

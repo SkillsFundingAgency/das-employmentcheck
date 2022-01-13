@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
-namespace SFA.DAS.EmploymentCheck.Api.Controllers
+namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 {
     [ApiController]
     [Route("api/[controller]/")]
