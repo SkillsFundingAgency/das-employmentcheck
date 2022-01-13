@@ -1,6 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Api.Commands;
-
-namespace SFA.DAS.EmploymentCheck.Api.Responses
+﻿namespace SFA.DAS.EmploymentCheck.Api.Responses
 {
     public class RegisterCheckResponse
     {

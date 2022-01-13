@@ -6,11 +6,11 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Application.Services;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
+namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckCommand
 {
     public class WhenHandlingRegisterCheckCommand
     {
-        private Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
+        private Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
         private Mock<IEmploymentCheckService> _employmentCheckService;
         private Mock<IRegisterCheckCommandValidator> _commandValidator;
 
@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
             _employmentCheckService = new Mock<IEmploymentCheckService>();
             _commandValidator = new Mock<IRegisterCheckCommandValidator>();
 
-            _command = new Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand
+            _command = new Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand
             {
                 ApprenticeshipAccountId = 1,
                 ApprenticeshipId = 2,
