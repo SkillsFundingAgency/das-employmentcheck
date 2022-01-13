@@ -5,7 +5,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
 {
     public class RegisterCheckCommandValidator
     {
-        public RegisterCheckResult Validate(RegisterCheckCommand command, int version)
+        public RegisterCheckResult Validate(RegisterCheckCommand command)
         {
             var errorTypes = new List<string>();
             var errorMessages = new List<string>();
@@ -47,9 +47,8 @@ namespace SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand
                     VersionId = "0"
                 };
             }
-
-            var newVersion = version += 1;
-            return new RegisterCheckResult {VersionId = $"{newVersion}"};
+            
+            return new RegisterCheckResult();
         }
     }
 }

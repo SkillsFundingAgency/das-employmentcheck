@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Commands.RegisterCheckCommand;
 
@@ -33,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 
             //Act
 
-            var result = sut.Validate(_command, 0);
+            var result = sut.Validate(_command);
 
             //Assert
 
@@ -50,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 
             //Act
 
-            var result = sut.Validate(_command, 0);
+            var result = sut.Validate(_command);
 
             //Assert
 
@@ -68,7 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 
             //Act
 
-            var result = sut.Validate(_command, 0);
+            var result = sut.Validate(_command);
 
             //Assert
 
@@ -86,7 +87,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 
             //Act
 
-            var result = sut.Validate(_command, 0);
+            var result = sut.Validate(_command);
 
             //Assert
 
@@ -104,7 +105,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 
             //Act
 
-            var result = sut.Validate(_command, 0);
+            var result = sut.Validate(_command);
 
             //Assert
 
@@ -123,12 +124,29 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Commands.RegisterCheckCommand
 
             //Act
 
-            var result = sut.Validate(_command, 0);
+            var result = sut.Validate(_command);
 
             //Assert
 
             Assert.AreEqual(result.ErrorMessage, "Missing data not supplied, Min date must be before Max date");
             Assert.AreEqual(result.ErrorType, "Bad_Data, Bad_DateRange");
+        }
+
+        [Test]
+        public void And_There_Are_No_Validation_Errors_Then_A_Blank_RegisterCheckResult_Is_Returned()
+        {
+            //Arrange
+
+            var sut = new RegisterCheckCommandValidator();
+
+            //Act
+
+            var result = sut.Validate(_command);
+
+            //Assert
+
+            result.Should().BeEquivalentTo(new RegisterCheckResult());
+
         }
     }
 }
