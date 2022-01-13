@@ -32,7 +32,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         #endregion Private memebers
@@ -210,7 +209,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 

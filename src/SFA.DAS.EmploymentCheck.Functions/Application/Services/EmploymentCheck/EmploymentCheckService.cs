@@ -20,7 +20,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly EmploymentCheckDataValidator _employmentCheckDataValidator;
 
-        private const string AzureResource = "https://database.windows.net/";
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
@@ -52,7 +51,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider))
             {
                 await sqlConnection.OpenAsync();
@@ -224,7 +222,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
@@ -260,7 +257,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
@@ -310,7 +306,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
 
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
@@ -344,7 +339,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
 
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
