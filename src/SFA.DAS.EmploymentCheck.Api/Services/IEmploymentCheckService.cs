@@ -1,0 +1,12 @@
+﻿using System;
+using System.Threading.Tasks;
+
+namespace SFA.DAS.EmploymentCheck.Api.Services
+{
+    public interface IEmploymentCheckService
+    {
+        public Task<Functions.Application.Models.EmploymentCheck> CheckForExistingEmploymentCheck(Guid correlationId);
+        public void InsertEmploymentCheck(Functions.Application.Models.EmploymentCheck employmentCheck);
+        public int GetLastId();
+    }
+}
