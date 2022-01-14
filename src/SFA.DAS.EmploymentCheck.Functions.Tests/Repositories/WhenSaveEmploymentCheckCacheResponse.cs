@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Repositories
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Repositories
 {
     public class WhenSaveEmploymentCheckCacheResponse : RepositoryTestBase
     {

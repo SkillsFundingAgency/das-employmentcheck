@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmploymentChecksBatchActivityTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmploymentChecksBatchActivityTests
 {
     public class WhenCallingGet
     {

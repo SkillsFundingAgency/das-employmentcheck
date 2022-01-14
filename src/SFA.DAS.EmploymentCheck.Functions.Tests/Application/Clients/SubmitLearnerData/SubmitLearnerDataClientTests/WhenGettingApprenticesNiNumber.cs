@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
 {
     public class WhenGettingLearnersNiNumber
     {

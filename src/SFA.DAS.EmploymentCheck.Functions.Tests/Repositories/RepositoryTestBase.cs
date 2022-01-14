@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Repositories
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Repositories
 {
     public class RepositoryTestBase
     {

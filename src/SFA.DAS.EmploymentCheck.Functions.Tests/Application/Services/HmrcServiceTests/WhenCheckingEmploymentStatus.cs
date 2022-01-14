@@ -15,7 +15,7 @@ using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcServiceTests
 {
     public class WhenCheckingEmploymentStatus
     {

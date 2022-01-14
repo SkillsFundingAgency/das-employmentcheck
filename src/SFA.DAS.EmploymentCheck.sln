@@ -9,7 +9,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.EmploymentCheck.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions", "SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj", "{5E0EACCB-983C-4431-985B-97246E23BFDB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.Tests", "SFA.DAS.EmploymentCheck.Functions.Tests\SFA.DAS.EmploymentCheck.Functions.Tests.csproj", "{FD29D029-6564-4EF6-880F-03D627CAA4DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.UnitTests", "SFA.DAS.EmploymentCheck.Functions.Tests\SFA.DAS.EmploymentCheck.Functions.UnitTests.csproj", "{FD29D029-6564-4EF6-880F-03D627CAA4DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.TestHarness", "SFA.DAS.EmploymentCheck.TestHarness\SFA.DAS.EmploymentCheck.TestHarness.csproj", "{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}"
 EndProject
@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Tok
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.DataSeeder", "SFA.DAS.EmploymentCheck.DataSeeder\SFA.DAS.EmploymentCheck.DataSeeder.csproj", "{2876F123-8DAF-4409-9CBF-5A94D2CEF947}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.DataSeeder", "SFA.DAS.EmploymentCheck.DataSeeder\SFA.DAS.EmploymentCheck.DataSeeder.csproj", "{2876F123-8DAF-4409-9CBF-5A94D2CEF947}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

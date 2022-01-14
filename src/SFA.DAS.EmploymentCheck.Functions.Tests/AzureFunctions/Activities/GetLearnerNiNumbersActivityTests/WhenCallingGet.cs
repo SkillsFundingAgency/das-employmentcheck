@@ -9,7 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetLearnerNiNumbersActivityTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetLearnerNiNumbersActivityTests
 {
     public class WhenCallingGet
     {
