@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Repositories
     {
         private EmploymentCheckCacheResponseRepository _sut;
 
-        [Test]
+        [Test, Ignore("todo: switch to in-memory database")]
         public async Task CanSave()
         {
             // Arrange
