@@ -28,26 +28,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 
             var employerPayeSchemes = new List<EmployerPayeSchemes>();
 
-            if (apprenticeEmploymentChecks != null && apprenticeEmploymentChecks.Any())
+            if (apprenticeEmploymentChecks?.Any() == true)
             {
                 foreach (var apprenticeEmploymentCheck in apprenticeEmploymentChecks)
                 {
                     var resourceList = await _employerAccountService.GetPayeSchemes(apprenticeEmploymentCheck);
 
-                    if (resourceList != null && resourceList.Any())
+                    if (resourceList?.Any() == true)
                     {
                         employerPayeSchemes.Add(new EmployerPayeSchemes(apprenticeEmploymentCheck.AccountId,
-                            resourceList.Select(x => x.Id).ToList()));
+                            resourceList.Select(x => x.Id.Trim().ToUpper()).ToList()));
                     }
                     else
                     {
-                        _logger.LogError($"{thisMethodName}: ERROR: resourceList parameter is NULL, no employer PAYE schemes retrieved");
+                        _logger.LogError($"{thisMethodName}: resourceList parameter is NULL, no employer PAYE schemes retrieved");
                     }
                 }
             }
             else
             {
-                _logger.LogError($"{thisMethodName}: ERROR: the resourceList input parameter is NULL, no employer PAYE schemes retrieved");
+                _logger.LogError($"{thisMethodName}: the apprenticeEmploymentChecks input parameter is NULL or empty, no employer PAYE schemes retrieved");
             }
 
             return employerPayeSchemes;
