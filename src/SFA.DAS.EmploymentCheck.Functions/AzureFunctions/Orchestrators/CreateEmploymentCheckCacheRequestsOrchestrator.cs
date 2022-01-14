@@ -62,8 +62,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     // Wait for the asynchronous NI number and PAYE scheme(s) API calls to finish
                     await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
 
-                    // Create an EmploymentCheckCacheRequest for each combination of Nino, Payescheme, MinDate and MaxDate
-                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheckBatch, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+                    // Get the Nino and PayeSchemes from the asynchronous tasks
+                    var learnerNiNumbers = getLearnerNiNumbersActivityTask.Result;
+                    var employerPayeSchemes = employerPayeSchemesTask.Result;
+
+                    // Create an EmploymentCheckCacheRequest for each combination of an employment check Nino, Payescheme, MinDate and MaxDate
+                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheckBatch, learnerNiNumbers, employerPayeSchemes));
                 }
                 else
                 {

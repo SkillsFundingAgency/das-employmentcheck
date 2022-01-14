@@ -73,6 +73,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return serviceCollection;
         }
 
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
+            return serviceCollection;
+        }
 
         public static IServiceCollection AddNLog(this IServiceCollection serviceCollection)
         {

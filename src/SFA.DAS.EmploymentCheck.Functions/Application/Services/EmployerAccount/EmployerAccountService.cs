@@ -32,7 +32,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         #endregion Private memebers
@@ -45,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             IHashingService hashingService,
             IHttpClientFactory httpClientFactory,
             IWebHostEnvironment hostingEnvironment,
-            IAzureClientCredentialHelper azureClientCredentialHelper, 
+            IAzureClientCredentialHelper azureClientCredentialHelper,
             AzureServiceTokenProvider azureServiceTokenProvider)
         {
             _logger = logger;
@@ -123,7 +122,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                         nameof(response)); // TODO: Create a custom business exception for this condition
             }
 
-           
+
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (string.IsNullOrEmpty(json))
             {
@@ -210,13 +209,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
             await sqlConnection.OpenAsync();
 
             var parameter = new DynamicParameters();
+            parameter.Add("@existingApprenticeEmploymentCheckId", accountsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
+            parameter.Add("@existingCorrelationId", accountsResponse.CorrelationId, DbType.Guid);
+            parameter.Add("@existingAccountId", accountsResponse.AccountId, DbType.Int64);
+            parameter.Add("@existingPayeSchemes", accountsResponse.PayeSchemes, DbType.String);
+
             parameter.Add("@apprenticeEmploymentCheckId", accountsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
             parameter.Add("@correlationId", accountsResponse.CorrelationId, DbType.Guid);
             parameter.Add("@accountId", accountsResponse.AccountId, DbType.Int64);
@@ -225,10 +228,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             parameter.Add("@httpStatusCode", accountsResponse.HttpStatusCode, DbType.Int16);
             parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
 
+            // There is a constraint to stop duplicates but this check avoids the exception causing a problem later in the code
             await sqlConnection.ExecuteScalarAsync(
-                "INSERT [Cache].[AccountsResponse] " +
-                "       ( ApprenticeEmploymentCheckId,  CorrelationId,  AccountId,  PayeSchemes,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
-                "VALUES (@apprenticeEmploymentCheckId, @correlationId, @accountId, @payeSchemes, @httpResponse, @httpStatusCode, @createdOn)",
+                "IF NOT EXISTS " +
+                "( " +
+                "   SELECT  [ApprenticeEmploymentCheckId] " +
+                "   FROM    [Cache].[AccountsResponse] " +
+                "   WHERE   [ApprenticeEmploymentCheckId] = @existingApprenticeEmploymentCheckId " +
+                "   AND     [CorrelationId] = @existingCorrelationId " +
+                "   AND     [AccountId] = @existingAccountId " +
+                "   AND     [PayeSchemes] = @existingPayeSchemes " +
+                ") " +
+                "BEGIN " +
+                "   INSERT [Cache].[AccountsResponse] " +
+                "          ( ApprenticeEmploymentCheckId,  CorrelationId,  AccountId,  PayeSchemes,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
+                "   VALUES (@apprenticeEmploymentCheckId, @correlationId, @accountId, @payeSchemes, @httpResponse, @httpStatusCode, @createdOn) " +
+                "END ",
                 parameter,
                 commandType: CommandType.Text);
 
