@@ -28,7 +28,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             Count = count;
             HttpResponse = httpResponse;
             HttpStatusCode = httpStatusCode;
+            CreatedOn = DateTime.Now;
         }
+
+        [Key]
+        public long Id { get; set; }
 
         public long? ApprenticeEmploymentCheckId { get; set; }
 
@@ -47,5 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public string HttpResponse { get; set; }
 
         public short HttpStatusCode { get; set; }
+
+        public DateTime CreatedOn { get; set; }
     }
 }

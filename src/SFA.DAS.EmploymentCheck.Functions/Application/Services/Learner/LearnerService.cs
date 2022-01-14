@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -29,7 +28,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         private readonly IHttpClientFactory _httpFactory;
         private readonly DcApiSettings _dcApiSettings;
 
-        private const string AzureResource = "https://database.windows.net/"; // TODO: move to config
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
@@ -188,7 +186,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                AzureResource,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 

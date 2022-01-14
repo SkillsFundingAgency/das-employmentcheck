@@ -7,18 +7,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
 {
     public class DbConnection
     {
+        private const string AzureResource = "https://database.windows.net/";
+        
         public async Task<SqlConnection> CreateSqlConnection(
             string connectionString,
-            string azureResource,
             AzureServiceTokenProvider azureServiceTokenProvider)
         {
             VerifyConnectionString(connectionString);
 
             var sqlConnection = new SqlConnection(connectionString);
 
-            if (!string.IsNullOrEmpty(azureResource) && azureServiceTokenProvider != null)
+            if (azureServiceTokenProvider != null)
             {
-                sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(azureResource);
+                sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(AzureResource);
             }
 
             return sqlConnection;

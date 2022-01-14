@@ -81,7 +81,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services
                 .AddApprenticeshipLevyApiClient()
                 .AddHashingService()
-                .AddEmploymentCheckService(config["EnvironmentName"]);
+                .AddEmploymentCheckService(config["EnvironmentName"])
+                .AddPersistenceServices()
+                ;
         }
     }
 }
