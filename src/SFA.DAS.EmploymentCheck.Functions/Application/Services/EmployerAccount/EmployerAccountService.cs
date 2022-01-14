@@ -94,16 +94,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                     apprenticeEmploymentCheck.Id,
                     apprenticeEmploymentCheck.CorrelationId,
                     apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
-                    "NULL", // HttpResponse
+                    null, // payeSchemes
+                    null, // HttpResponse
                     0)); // HttpStatusCode
-                throw new ArgumentNullException(nameof(response));
             }
 
             // throws an exception if the IsSuccessStatusCode property is false
             // so we check the IsSuccessStatsCode directly to avoid the exception
             // enabling us to store the response
-            if (response.IsSuccessStatusCode == false)
+            if (response?.IsSuccessStatusCode == false)
             {
                 // The API call returned an none successful code
                 // Log it and throw and exception to skip the rest of the processing
@@ -114,14 +113,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                     apprenticeEmploymentCheck.Id,
                     apprenticeEmploymentCheck.CorrelationId,
                     apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
+                    null, // payeSchemes
                     response.ToString(),
                     (short) response.StatusCode));
-                throw
-                    new InvalidOperationException(
-                        nameof(response)); // TODO: Create a custom business exception for this condition
             }
-
 
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (string.IsNullOrEmpty(json))
@@ -134,12 +129,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                     apprenticeEmploymentCheck.Id,
                     apprenticeEmploymentCheck.CorrelationId,
                     apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
+                    null, // payeSchemes
                     response.ToString(),
                     (short) response.StatusCode));
-                throw
-                    new InvalidOperationException(
-                        nameof(response)); // TODO: Create a custom business exception for this condition
             }
 
             // Deserialise the content
@@ -153,12 +145,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                     apprenticeEmploymentCheck.Id,
                     apprenticeEmploymentCheck.CorrelationId,
                     apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
+                    null, // payeSchemes
                     response.ToString(),
                     (short) response.StatusCode));
-                throw
-                    new InvalidOperationException(
-                        nameof(response)); // TODO: Create a custom business exception for this condition
             }
 
             // get the resource list

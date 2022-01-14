@@ -105,8 +105,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     learner.Id,
                     learner.CorrelationId,
                     learner.Uln,
-                    "NULL", // NiNumber
-                    "NULL", // HttpResponse
+                    null, // NiNumber
+                    null, // HttpResponse
                     0)); // HttpStatusCode
                 throw new ArgumentNullException(
                     $"\n\n{thisMethodName}: response received from Data Collections API is NULL");
@@ -118,11 +118,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     learner.Id,
                     learner.CorrelationId,
                     learner.Uln,
-                    "NULL", // NiNumber
+                    null, // NiNumber
                     response.ToString(),
                     (short) response.StatusCode));
-                throw new ArgumentException(
-                    $"\n\n{thisMethodName}: Data Collections API call failed");
             }
 
             var content = await response.Content.ReadAsStreamAsync();
@@ -132,7 +130,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     learner.Id,
                     learner.CorrelationId,
                     learner.Uln,
-                    "NULL", // NiNumber
+                    null, // NiNumber
                     response.ToString(),
                     (short) response.StatusCode));
             }
@@ -144,13 +142,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                     learner.Id,
                     learner.CorrelationId,
                     learner.Uln,
-                    "NULL", // NiNumber
+                    null, // NiNumber
                     response.ToString(),
                     (short) response.StatusCode));
-                throw new ArgumentNullException($"\n\n{thisMethodName}: deserialised response content received from Data Collections is NULL or zero length");
             }
 
-            var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
+            var learnerNiNumber = learnerNiNumbers?.FirstOrDefault();
 
             await StoreDataCollectionsResponse(new DataCollectionsResponse(
                 learner.Id,
