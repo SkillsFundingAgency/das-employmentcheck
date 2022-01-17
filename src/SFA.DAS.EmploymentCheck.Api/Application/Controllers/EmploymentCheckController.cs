@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.EmploymentCheck.Api.Application.Models;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
 namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
@@ -19,24 +20,17 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
         [HttpPost]
         [Route("RegisterCheck")]
-        public async Task<IActionResult> RegisterCheck(
-            [FromQuery] Guid correlationId,
-            [FromQuery] string checkType,
-            [FromQuery] long uln,
-            [FromQuery] int apprenticeshipAccountId,
-            [FromQuery] long? apprenticeshipId,
-            [FromQuery] DateTime minDate,
-            [FromQuery] DateTime maxDate)
+        public async Task<IActionResult> RegisterCheck(RegisterCheckDto registerCheckDto)
         {
             var commandResponse = await _mediator.Send(new RegisterCheckCommand
             {
-                CorrelationId = correlationId,
-                CheckType = checkType ?? "",
-                Uln = uln,
-                ApprenticeshipAccountId = apprenticeshipAccountId,
-                ApprenticeshipId = apprenticeshipId,
-                MinDate = minDate,
-                MaxDate = maxDate
+                CorrelationId = registerCheckDto.CorrelationId,
+                CheckType = registerCheckDto.CheckType ?? "",
+                Uln = registerCheckDto.Uln,
+                ApprenticeshipAccountId = registerCheckDto.ApprenticeshipAccountId,
+                ApprenticeshipId = registerCheckDto.ApprenticeshipId,
+                MinDate = registerCheckDto.MinDate,
+                MaxDate = registerCheckDto.MaxDate
             });
 
             var response = new Responses.RegisterCheckResponse();
