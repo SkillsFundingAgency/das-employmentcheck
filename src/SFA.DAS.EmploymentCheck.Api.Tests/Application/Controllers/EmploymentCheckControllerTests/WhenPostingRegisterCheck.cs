@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Application.Controllers;
+using SFA.DAS.EmploymentCheck.Api.Application.Models;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCheckControllerTests
@@ -14,6 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
     public class WhenPostingRegisterCheck
     {
         private Mock<IMediator> _mediator;
+        private RegisterCheckDto _registerCheckDto;
         private Guid _correlationId;
         private string _checkType;
         private long _uln;
@@ -27,32 +29,31 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         public void Setup()
         {
             _mediator = new Mock<IMediator>();
-
-            _correlationId = new Guid();
-            _checkType = "CheckType";
-            _uln = 1000001;
-            _apprenticeshipAccountId = 1;
-            _apprenticeshipId = 2;
-            _minDate = DateTime.Today.AddDays(-1);
-            _maxDate = DateTime.Today.AddDays(1);
-
-            _response = new RegisterCheckResult
-                {
-                ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = 1};
+            _registerCheckDto = new RegisterCheckDto
+            {
+                CorrelationId = new Guid(),
+                CheckType = "CheckType",
+                Uln = 1000001,
+                ApprenticeshipAccountId = 1,
+                ApprenticeshipId = 2,
+                MinDate = DateTime.Today.AddDays(-1),
+                MaxDate = DateTime.Today.AddDays(1),
+            };
+            _response = new RegisterCheckResult {ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = 1};
         }
         [Test]
         public async Task Then_The_Request_Is_Passed_To_Mediator()
         {
             //Arrange
-            
-            _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command => 
-                    command.CorrelationId == _correlationId &&
-                    command.CheckType == _checkType &&
-                    command.Uln == _uln &&
-                    command.ApprenticeshipAccountId == _apprenticeshipAccountId &&
-                    command.ApprenticeshipId == _apprenticeshipId &&
-                    command.MinDate == _minDate &&
-                    command.MaxDate == _maxDate), 
+
+            _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
+                        command.CorrelationId == _registerCheckDto.CorrelationId &&
+                        command.CheckType == _registerCheckDto.CheckType &&
+                        command.Uln == _registerCheckDto.Uln &&
+                        command.ApprenticeshipAccountId == _registerCheckDto.ApprenticeshipAccountId &&
+                        command.ApprenticeshipId == _registerCheckDto.ApprenticeshipId &&
+                        command.MinDate == _registerCheckDto.MinDate &&
+                        command.MaxDate == _registerCheckDto.MaxDate),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_response);
 
@@ -60,8 +61,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 
             //Act
 
-            await sut.RegisterCheck(_correlationId, _checkType, _uln, _apprenticeshipAccountId, _apprenticeshipId, _minDate,
-                _maxDate);
+            await sut.RegisterCheck(_registerCheckDto);
 
             //Assert
             _mediator.Verify(x => x.Send(It.IsAny<RegisterCheckCommand>(), CancellationToken.None), Times.Once);
@@ -73,13 +73,13 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
             //Arrange
 
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
-                        command.CorrelationId == _correlationId &&
-                        command.CheckType == _checkType &&
-                        command.Uln == _uln &&
-                        command.ApprenticeshipAccountId == _apprenticeshipAccountId &&
-                        command.ApprenticeshipId == _apprenticeshipId &&
-                        command.MinDate == _minDate &&
-                        command.MaxDate == _maxDate),
+                        command.CorrelationId == _registerCheckDto.CorrelationId &&
+                        command.CheckType == _registerCheckDto.CheckType &&
+                        command.Uln == _registerCheckDto.Uln &&
+                        command.ApprenticeshipAccountId == _registerCheckDto.ApprenticeshipAccountId &&
+                        command.ApprenticeshipId == _registerCheckDto.ApprenticeshipId &&
+                        command.MinDate == _registerCheckDto.MinDate &&
+                        command.MaxDate == _registerCheckDto.MaxDate),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_response);
 
@@ -87,8 +87,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 
             //Act
 
-            var result = await sut.RegisterCheck(_correlationId, _checkType, _uln, _apprenticeshipAccountId, _apprenticeshipId, _minDate,
-                _maxDate) as OkObjectResult;
+            var result = await sut.RegisterCheck(_registerCheckDto) as OkObjectResult;
 
             var model = result.Value as Responses.RegisterCheckResponse;
 
@@ -104,13 +103,13 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
             _response.VersionId = 0;
 
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
-                        command.CorrelationId == _correlationId &&
-                        command.CheckType == _checkType &&
-                        command.Uln == _uln &&
-                        command.ApprenticeshipAccountId == _apprenticeshipAccountId &&
-                        command.ApprenticeshipId == _apprenticeshipId &&
-                        command.MinDate == _minDate &&
-                        command.MaxDate == _maxDate),
+                        command.CorrelationId == _registerCheckDto.CorrelationId &&
+                        command.CheckType == _registerCheckDto.CheckType &&
+                        command.Uln == _registerCheckDto.Uln &&
+                        command.ApprenticeshipAccountId == _registerCheckDto.ApprenticeshipAccountId &&
+                        command.ApprenticeshipId == _registerCheckDto.ApprenticeshipId &&
+                        command.MinDate == _registerCheckDto.MinDate &&
+                        command.MaxDate == _registerCheckDto.MaxDate),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_response);
 
@@ -118,8 +117,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 
             //Act
 
-            var result = await sut.RegisterCheck(_correlationId, _checkType, _uln, _apprenticeshipAccountId, _apprenticeshipId, _minDate,
-                _maxDate) as BadRequestObjectResult;
+            var result = await sut.RegisterCheck(_registerCheckDto) as BadRequestObjectResult;
 
             var model = result.Value as Responses.RegisterCheckResponse;
 
