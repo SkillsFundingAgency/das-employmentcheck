@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
     {
         private Mock<IEmployerAccountService> _employerAccountService;
         private Mock<ILogger<IEmploymentCheckClient>> _logger;
-        private List<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private List<Functions.Application.Models.EmploymentCheck> _employmentCheckBatch;
         private Fixture _fixture;
 
         [SetUp]
@@ -27,52 +27,58 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
             _logger = new Mock<ILogger<IEmploymentCheckClient>>();
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck> {_fixture.Create<Functions.Application.Models.EmploymentCheck>()};
+            _employmentCheckBatch = new List<Functions.Application.Models.EmploymentCheck> {_fixture.Create<Functions.Application.Models.EmploymentCheck>()};
         }
 
         [Test]
         public async Task Then_The_EmployerAccountService_Is_Called()
         {
             //Arrange
-            _employerAccountService.Setup(x => x.GetPayeSchemes(_apprentices[0]))
-                .ReturnsAsync(_fixture.Create<ResourceList>());
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]))
+                .ReturnsAsync(_fixture.Create<EmployerPayeSchemes>());
 
-            var sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
+            var sut = new EmployerAccountClient(_employerAccountService.Object);
 
             //Act
 
-            await sut.GetEmployersPayeSchemes(_apprentices);
+            await sut.GetEmployersPayeSchemes(_employmentCheckBatch);
 
             //Assert
 
-            _employerAccountService.Verify(x => x.GetPayeSchemes(_apprentices[0]), Times.Exactly(1));
+            _employerAccountService.Verify(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]), Times.Exactly(1));
         }
 
         [Test]
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_Uppercased()
         {
             //Arrange
-            var resource = new ResourceViewModel
+            //var resource = new ResourceViewModel
+            //{
+            //    Href = "href",
+            //    Id = "id"
+            //};
+
+            var employerPayeSchemes = new EmployerPayeSchemes
             {
-                Href = "href",
-                Id = "id"
+                EmployerAccountId = 1,
+                PayeSchemes = new List<string>()
             };
 
-            var accountDetail = new ResourceList(new List<ResourceViewModel> { resource });
+            //var accountDetail = new ResourceList(new List<ResourceViewModel> { resource });
 
-            _employerAccountService.Setup(x => x.GetPayeSchemes(_apprentices[0]))
-                .ReturnsAsync(accountDetail);
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]))
+                .ReturnsAsync(employerPayeSchemes);
 
-            var sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
+            var sut = new EmployerAccountClient(_employerAccountService.Object);
 
 
             //Act
 
-            var result = await sut.GetEmployersPayeSchemes(_apprentices);
+            var result = await sut.GetEmployersPayeSchemes(_employmentCheckBatch);
 
             //Assert
 
-            result.First().PayeSchemes.First().Should().BeEquivalentTo(resource.Id.ToUpper());
+            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First());
         }
 
         [Test]
@@ -80,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
         {
             //Arrange
 
-            var sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
+            var sut = new EmployerAccountClient(_employerAccountService.Object);
 
 
             //Act
@@ -97,7 +103,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
         {
             //Arrange
 
-            var sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
+            var sut = new EmployerAccountClient(_employerAccountService.Object);
 
 
             //Act
@@ -108,6 +114,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
 
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
         }
-        
+
     }
 }

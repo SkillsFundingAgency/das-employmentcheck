@@ -43,6 +43,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         {
             var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
 
+            // setup a default template 'response' to store the api response
+            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
+                    request.ApprenticeEmploymentCheckId,
+                    request.Id,
+                    request.CorrelationId,
+                    null,           // Employed
+                    null,           // FoundOnPayee,
+                    true,           // ProcessingComplete
+                    1,              // Count
+                    string.Empty,   // Response
+                    -1);            // HttpStatusCode
+
             try
             {
                 if (_cachedToken == null) await RetrieveAuthenticationToken();
@@ -60,23 +72,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     request.Employed = result.Employed;
                     request.RequestCompletionStatus = 200;
 
-                    await _repository.Save(new EmploymentCheckCacheResponse(
-                        request.ApprenticeEmploymentCheckId,
-                        request.Id,
-                        request.CorrelationId,
-                        request.Employed,
-                        request.PayeScheme,
-                        true,
-                        1,
-                        "OK",
-                        200));
+                    employmentCheckCacheResponse.Employed = result.Employed;
+                    employmentCheckCacheResponse.FoundOnPaye = result.Empref;
+                    employmentCheckCacheResponse.HttpResponse = "OK (200)";
+                    employmentCheckCacheResponse.HttpStatusCode = 200;
+                    await _repository.Save(employmentCheckCacheResponse);
                 }
                 else
                 {
-                    _logger.LogError($"{thisMethodName}: The result value returned from the GetEmploymentStatus call returned null.");
-
-                    request.Employed = null;
+                    employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
                     request.RequestCompletionStatus = 500;
+                    await _repository.Save(employmentCheckCacheResponse);
+
+                    _logger.LogError($"{thisMethodName}: [{employmentCheckCacheResponse.HttpResponse}]");
                 }
             }
             catch (ApiHttpException e) when (
@@ -84,43 +92,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 e.HttpCode == (int)HttpStatusCode.RequestTimeout
                 )
             {
-                // Note: We don't have access to the actual API response (it's within the levy service GetEmploymentStatus() call) so the response is populated with the description related to the HttpStatusCode
-                await _repository.Save(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
-                    request.Id,
-                    request.CorrelationId,
-                    null,                   // Employed
-                    string.Empty,           // FoundOnPaye
-                    false,                   // ProcessingComplete
-                    1,                      // Count
-                    e.ResourceUri,         // Response
-                    (short)e.HttpCode));
+                employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
+                employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
+                await _repository.Save(employmentCheckCacheResponse);
             }
             catch (ApiHttpException e)
             {
-                await _repository.Save(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
-                    request.Id,
-                    request.CorrelationId,
-                    null,                   // Employed
-                    string.Empty,           // FoundOnPaye
-                    true,                  // ProcessingComplete
-                    1,                      // Count
-                    e.ResourceUri,         // Response
-                    (short)e.HttpCode));
+                employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
+                employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
+                await _repository.Save(employmentCheckCacheResponse);
             }
             catch (Exception e)
             {
-                await _repository.Save(new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
-                    request.Id,
-                    request.CorrelationId,
-                    null,                   // Employed
-                    string.Empty,           // FoundOnPaye
-                    false,                  // ProcessingComplete
-                    1,                      // Count
-                    $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}",
-                    500));
+                employmentCheckCacheResponse.HttpResponse = $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}";
+                employmentCheckCacheResponse.HttpStatusCode = 500;
+                await _repository.Save(employmentCheckCacheResponse);
             }
 
             return request;

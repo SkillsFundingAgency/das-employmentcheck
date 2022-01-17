@@ -62,9 +62,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}: Completed.");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                _logger.LogError($"\n\n{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)} Exception caught: {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"\n\n{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
             }
             finally
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Ardalis.GuardClauses;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
@@ -10,47 +11,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 {
     public class EmployerAccountClient : IEmployerAccountClient
     {
-        private readonly ILogger<IEmploymentCheckClient> _logger;
         private readonly IEmployerAccountService _employerAccountService;
-        public EmployerAccountClient(
-            ILogger<IEmploymentCheckClient> logger,
-            IEmployerAccountService employerAccountService
-            )
+        public EmployerAccountClient(IEmployerAccountService employerAccountService)
         {
             _employerAccountService = employerAccountService;
-            _logger = logger;
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Models.EmploymentCheck> apprenticeEmploymentChecks)
+            IList<Models.EmploymentCheck> employmentChecksBatch)
         {
-            var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes";
+            Guard.Against.NullOrEmpty(employmentChecksBatch, nameof(employmentChecksBatch));
 
-            var employerPayeSchemes = new List<EmployerPayeSchemes>();
-
-            if (apprenticeEmploymentChecks != null && apprenticeEmploymentChecks.Any())
+            var employersPayeSchemes = new List<EmployerPayeSchemes>();
+            foreach (var employmentCheck in employmentChecksBatch)
             {
-                foreach (var apprenticeEmploymentCheck in apprenticeEmploymentChecks)
-                {
-                    var resourceList = await _employerAccountService.GetPayeSchemes(apprenticeEmploymentCheck);
-
-                    if (resourceList != null && resourceList.Any())
-                    {
-                        employerPayeSchemes.Add(new EmployerPayeSchemes(apprenticeEmploymentCheck.AccountId,
-                            resourceList.Select(x => x.Id).ToList()));
-                    }
-                    else
-                    {
-                        _logger.LogError($"{thisMethodName}: ERROR: resourceList parameter is NULL, no employer PAYE schemes retrieved");
-                    }
-                }
-            }
-            else
-            {
-                _logger.LogError($"{thisMethodName}: ERROR: the resourceList input parameter is NULL, no employer PAYE schemes retrieved");
+                var employerPayeScheme = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
+                employersPayeSchemes.Add(employerPayeScheme);
             }
 
-            return employerPayeSchemes;
+            return employersPayeSchemes;
         }
     }
 }
