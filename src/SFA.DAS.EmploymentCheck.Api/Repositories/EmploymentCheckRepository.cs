@@ -29,12 +29,12 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-            var lastCheck = sqlConnection.GetAllAsync<Application.Models.EmploymentCheck>().Result.Select(x => x)
-                .Where(x => x.CorrelationId == correlationId).OrderBy(x => x.CorrelationId);
+            var checks = sqlConnection.GetAllAsync<Application.Models.EmploymentCheck>().Result.Select(x => x)
+                .Where(x => x.CorrelationId == correlationId).OrderBy(x => x.VersionId).ToList();
             
-            if (lastCheck.Count() != 0)
+            if (checks.Count != 0)
             {
-                return lastCheck.Select(x => x).Last();
+                return checks.Select(x => x).Last();
             }
             return new Application.Models.EmploymentCheck();
         }
