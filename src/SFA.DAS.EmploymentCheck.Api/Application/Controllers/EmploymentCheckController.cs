@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
         [HttpPost]
         [Route("RegisterCheck")]
-        public async Task<IActionResult> RegisterCheck(RegisterCheckDto registerCheckDto)
+        public async Task<IActionResult> RegisterCheck(RegisterCheckRequest registerCheckDto)
         {
             var commandResponse = await _mediator.Send(new RegisterCheckCommand
             {

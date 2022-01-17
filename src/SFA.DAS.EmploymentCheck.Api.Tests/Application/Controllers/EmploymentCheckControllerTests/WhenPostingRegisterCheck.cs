@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
     public class WhenPostingRegisterCheck
     {
         private Mock<IMediator> _mediator;
-        private RegisterCheckDto _registerCheckDto;
+        private RegisterCheckRequest _registerCheckDto;
         private Guid _correlationId;
         private string _checkType;
         private long _uln;
@@ -29,7 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         public void Setup()
         {
             _mediator = new Mock<IMediator>();
-            _registerCheckDto = new RegisterCheckDto
+            _registerCheckDto = new RegisterCheckRequest
             {
                 CorrelationId = new Guid(),
                 CheckType = "CheckType",
