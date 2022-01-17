@@ -45,11 +45,11 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
             return validationResult;
         }
 
-        private async Task<Functions.Application.Models.EmploymentCheck> CreateNewEmploymentCheck(RegisterCheckCommand command, int? versionId)
+        private async Task<Application.Models.EmploymentCheck> CreateNewEmploymentCheck(RegisterCheckCommand command, int? versionId)
         {
             var lastId = await _employmentCheckService.GetLastId();
 
-            return new Functions.Application.Models.EmploymentCheck
+            return new Application.Models.EmploymentCheck
             {
                 AccountId = command.ApprenticeshipAccountId,
                 ApprenticeshipId = command.ApprenticeshipId,

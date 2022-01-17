@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
             //Arrange
 
             _employmentCheckRepository.Setup(x => x.GetEmploymentCheck(_correlationId))
-                .ReturnsAsync((Functions.Application.Models.EmploymentCheck) null);
+                .ReturnsAsync((Api.Application.Models.EmploymentCheck) null);
 
             var sut = new Api.Application.Services.EmploymentCheckService(_employmentCheckRepository.Object);
 
@@ -58,7 +58,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
         {
             //Arrange
 
-            var employmentCheck = new Mock<Functions.Application.Models.EmploymentCheck>();
+            var employmentCheck = new Mock<Api.Application.Models.EmploymentCheck>();
 
             _employmentCheckRepository.Setup(x => x.GetEmploymentCheck(_correlationId))
                 .ReturnsAsync(employmentCheck.Object);

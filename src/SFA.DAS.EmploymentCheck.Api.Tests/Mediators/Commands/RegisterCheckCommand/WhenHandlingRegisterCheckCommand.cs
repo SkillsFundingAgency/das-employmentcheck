@@ -61,7 +61,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
             _employmentCheckService.Setup(x => x.CheckForExistingEmploymentCheck(_command.CorrelationId))
-                .ReturnsAsync((Functions.Application.Models.EmploymentCheck) null);
+                .ReturnsAsync((Api.Application.Models.EmploymentCheck) null);
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
 
@@ -83,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
-            var employmentCheck = new Functions.Application.Models.EmploymentCheck
+            var employmentCheck = new Api.Application.Models.EmploymentCheck
             {
                 AccountId = 1, 
                 ApprenticeshipId = 2, 
@@ -124,7 +124,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
             _employmentCheckService.Setup(x => x.CheckForExistingEmploymentCheck(_command.CorrelationId))
-                .ReturnsAsync((Functions.Application.Models.EmploymentCheck)null);
+                .ReturnsAsync((Api.Application.Models.EmploymentCheck)null);
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
 
@@ -134,7 +134,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             //Assert
 
-            _employmentCheckService.Verify(x => x.InsertEmploymentCheck(It.IsAny<Functions.Application.Models.EmploymentCheck>()), Times.Once);
+            _employmentCheckService.Verify(x => x.InsertEmploymentCheck(It.IsAny<Api.Application.Models.EmploymentCheck>()), Times.Once);
         }
     }
 }

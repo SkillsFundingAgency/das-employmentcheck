@@ -13,14 +13,14 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Services
             _employmentCheckRepository = employmentCheckRepository;
         }
 
-        public async Task<Functions.Application.Models.EmploymentCheck> CheckForExistingEmploymentCheck(Guid correlationId)
+        public async Task<Models.EmploymentCheck> CheckForExistingEmploymentCheck(Guid correlationId)
         {
             var existingEmploymentCheck = await _employmentCheckRepository.GetEmploymentCheck(correlationId);
 
             return existingEmploymentCheck;
         }
 
-        public void InsertEmploymentCheck(Functions.Application.Models.EmploymentCheck employmentCheck)
+        public void InsertEmploymentCheck(Models.EmploymentCheck employmentCheck)
         {
             _employmentCheckRepository.Insert(employmentCheck);
         }

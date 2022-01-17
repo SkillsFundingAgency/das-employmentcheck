@@ -8,13 +8,13 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
     public class WhenInsertingAnEmploymentCheck
     {
         private Mock<IEmploymentCheckRepository> _employmentCheckRepository;
-        private Mock<Functions.Application.Models.EmploymentCheck> _employmentCheck;
+        private Mock<Api.Application.Models.EmploymentCheck> _employmentCheck;
 
         [SetUp]
         public void Setup()
         {
             _employmentCheckRepository = new Mock<IEmploymentCheckRepository>();
-            _employmentCheck = new Mock<Functions.Application.Models.EmploymentCheck>();
+            _employmentCheck = new Mock<Api.Application.Models.EmploymentCheck>();
         }
 
         [Test]
