@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 {
@@ -24,26 +25,30 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 
             if (errorTypes.Count > 0)
             {
-                var responseErrorTypes = "";
+                var responseErrorTypes = new StringBuilder();
                 foreach (var errorType in errorTypes)
                 {
-                    responseErrorTypes += $"{errorType}, ";
+                    if (responseErrorTypes.Length > 0)
+                    {
+                        responseErrorTypes.Append(", ");
+                    }
+                    responseErrorTypes.Append($"{errorType}");
                 }
-                responseErrorTypes = responseErrorTypes.Trim();
-                responseErrorTypes = responseErrorTypes.Trim(',');
 
-                var responseErrorMessages = "";
+                var responseErrorMessages = new StringBuilder();
                 foreach (var errorMessage in errorMessages)
                 {
-                    responseErrorMessages += $"{errorMessage}, ";
+                    if (responseErrorMessages.Length > 0)
+                    {
+                        responseErrorMessages.Append(", ");
+                    }
+                    responseErrorMessages.Append($"{errorMessage}");
                 }
-                responseErrorMessages = responseErrorMessages.Trim();
-                responseErrorMessages = responseErrorMessages.Trim(',');
 
                 return new RegisterCheckResult
                 {
-                    ErrorMessage = responseErrorMessages,
-                    ErrorType = responseErrorTypes
+                    ErrorMessage = responseErrorMessages.ToString(),
+                    ErrorType = responseErrorTypes.ToString()
                 };
             }
             
