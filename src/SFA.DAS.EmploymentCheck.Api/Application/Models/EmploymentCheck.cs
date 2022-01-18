@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
 
         public long Id { get; set; }
 
-        public Guid? CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public string CheckType { get; set; }
 
