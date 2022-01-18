@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
         {
             var existingEmploymentCheck = await _employmentCheckService.CheckForExistingEmploymentCheck(command.CorrelationId);
 
-            validationResult.VersionId = (short?) (existingEmploymentCheck?.VersionId + 1 ?? 1);
+            validationResult.VersionId = (short) (existingEmploymentCheck?.VersionId + 1 ?? 1);
         }
 
         private Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command, short? versionId)
@@ -51,6 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
                 AccountId = command.ApprenticeshipAccountId,
                 ApprenticeshipId = command.ApprenticeshipId,
                 CheckType = command.CheckType,
+                Uln = command.Uln,
                 CorrelationId = command.CorrelationId,
                 CreatedOn = DateTime.Now,
                 Employed = null,
