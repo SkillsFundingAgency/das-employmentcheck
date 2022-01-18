@@ -111,7 +111,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == response.Employed
-                        //&& x.FoundOnPaye == _request.PayeScheme
+                        && x.FoundOnPaye == response.Empref
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == "OK"
@@ -177,7 +177,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        //&& x.FoundOnPaye == string.Empty
+                        && x.FoundOnPaye == null
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -220,7 +220,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        //&& x.FoundOnPaye == string.Empty
+                        && x.FoundOnPaye == null
                         && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -263,7 +263,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        //&& x.FoundOnPaye == string.Empty
+                        && x.FoundOnPaye == null
                         && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -306,7 +306,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        //&& x.FoundOnPaye == string.Empty
+                        && x.FoundOnPaye == null
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -341,7 +341,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        //&& x.FoundOnPaye == string.Empty
+                        && x.FoundOnPaye == null
                         && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.Message
