@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
             var response = new Responses.RegisterCheckResponse();
 
-            if (commandResponse.VersionId != null)
+            if (commandResponse.VersionId != 0)
             {
                 response.VersionId = commandResponse.VersionId;
 
@@ -44,7 +44,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
             response.ErrorMessage = commandResponse.ErrorMessage;
             response.ErrorType = commandResponse.ErrorType;
-            response.VersionId = commandResponse.VersionId;
 
             return BadRequest(response);
         }

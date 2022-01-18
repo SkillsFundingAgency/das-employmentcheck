@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
         [Test]
         public void And_The_CheckType_Is_Missing_Then_An_Error_Is_Returned_And_The_Version_Is_Set_To_Zero()
@@ -58,7 +58,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Min date must be before Max date", result.ErrorMessage);
             Assert.AreEqual("Bad_DateRange", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied, Min date must be before Max date", result.ErrorMessage);
             Assert.AreEqual("Bad_Data, Bad_DateRange", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]

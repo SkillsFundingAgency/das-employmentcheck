@@ -50,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("ErrorMessage", result.ErrorMessage);
             Assert.AreEqual("ErrorType", result.ErrorType);
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
