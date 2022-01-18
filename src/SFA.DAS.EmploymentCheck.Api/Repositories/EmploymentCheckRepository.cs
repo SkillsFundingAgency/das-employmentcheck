@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Api.Repositories
 {
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
                 .OrderByDescending(x => x.VersionId)
                 .FirstOrDefault();
 
-            return lastCheck ?? new Application.Models.EmploymentCheck();
+            return lastCheck;
         }
 
         public async Task Insert(Application.Models.EmploymentCheck employmentCheck)

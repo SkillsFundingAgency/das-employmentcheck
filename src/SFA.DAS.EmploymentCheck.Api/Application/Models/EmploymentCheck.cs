@@ -6,38 +6,20 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
     [Table("Business.EmploymentCheck")]
     public class EmploymentCheck
     {
-        public EmploymentCheck()
+        public EmploymentCheck(Guid correlationId, string checkType, long uln, long? apprenticeshipId, int apprenticeshipAccountId, DateTime minDate, DateTime maxDate, short versionId)
         {
-        }
-        public EmploymentCheck(
-            long id,
-            Guid correlationId,
-            string checkType,
-            long uln,
-            long? apprenticeshipId,
-            long accountId,
-            DateTime minDate,
-            DateTime maxDate,
-            bool? employed,
-            short? requestCompletionStatus,
-            short versionId,
-            DateTime lastUpdatedOn,
-            DateTime createdOn)
-        {
-            Id = id;
             CorrelationId = correlationId;
             CheckType = checkType;
             Uln = uln;
             ApprenticeshipId = apprenticeshipId;
-            AccountId = accountId;
+            AccountId = apprenticeshipAccountId;
             MinDate = minDate;
             MaxDate = maxDate;
-            Employed = employed;
-            RequestCompletionStatus = requestCompletionStatus;
             VersionId = versionId;
-            LastUpdatedOn = lastUpdatedOn;
-            CreatedOn = createdOn;
+            LastUpdatedOn = DateTime.Now;
+            CreatedOn = DateTime.Now;
         }
+
         public long Id { get; set; }
 
         public Guid? CorrelationId { get; set; }
@@ -57,6 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
         public bool? Employed { get; set; }
 
         public short? RequestCompletionStatus { get; set; }
+
         public short VersionId { get; set; }
 
         public DateTime LastUpdatedOn { get; set; }

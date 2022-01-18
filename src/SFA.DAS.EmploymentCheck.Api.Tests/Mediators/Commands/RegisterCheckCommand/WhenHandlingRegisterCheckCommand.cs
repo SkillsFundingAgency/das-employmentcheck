@@ -60,7 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
-            _employmentCheckService.Setup(x => x.CheckForExistingEmploymentCheck(_command.CorrelationId))
+            _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
                 .ReturnsAsync((Api.Application.Models.EmploymentCheck) null);
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
@@ -100,7 +100,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
                 VersionId = 2
             };
             
-            _employmentCheckService.Setup(x => x.CheckForExistingEmploymentCheck(_command.CorrelationId))
+            _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
                 .ReturnsAsync(employmentCheck);
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
@@ -123,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
-            _employmentCheckService.Setup(x => x.CheckForExistingEmploymentCheck(_command.CorrelationId))
+            _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
                 .ReturnsAsync((Api.Application.Models.EmploymentCheck)null);
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);

@@ -1,8 +1,7 @@
-﻿using System;
+﻿using MediatR;
+using SFA.DAS.EmploymentCheck.Api.Application.Services;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using SFA.DAS.EmploymentCheck.Api.Application.Services;
 
 namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 {
@@ -30,36 +29,33 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
             return result;
         }
 
-        private void Save(RegisterCheckCommand command, RegisterCheckResult validationResult)
+        private void Save(RegisterCheckCommand command, RegisterCheckResult result)
         {
-            var employmentCheck = CreateNewEmploymentCheck(command, validationResult.VersionId);
+            var employmentCheck = CreateNewEmploymentCheck(command, result.VersionId);
 
             _employmentCheckService.InsertEmploymentCheck(employmentCheck);
         }
 
-        private async Task GetNextVersionId(RegisterCheckCommand command, RegisterCheckResult validationResult)
+        private async Task GetNextVersionId(RegisterCheckCommand command, RegisterCheckResult result)
         {
-            var existingEmploymentCheck = await _employmentCheckService.CheckForExistingEmploymentCheck(command.CorrelationId);
+            var existingEmploymentCheck = await _employmentCheckService.GetLastEmploymentCheck(command.CorrelationId);
 
-            validationResult.VersionId = (short?) (existingEmploymentCheck?.VersionId + 1 ?? 1);
+            result.VersionId = (short) (existingEmploymentCheck?.VersionId + 1 ?? 1);
         }
 
-        private Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command, short? versionId)
+        private static Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command,
+            short versionId)
         {
-            return new Application.Models.EmploymentCheck
-            {
-                AccountId = command.ApprenticeshipAccountId,
-                ApprenticeshipId = command.ApprenticeshipId,
-                CheckType = command.CheckType,
-                CorrelationId = command.CorrelationId,
-                CreatedOn = DateTime.Now,
-                Employed = null,
-                LastUpdatedOn = DateTime.Now,
-                MinDate = command.MinDate,
-                MaxDate = command.MaxDate,
-                RequestCompletionStatus = null,
-                VersionId = versionId ?? 1
-            };
+            return new Application.Models.EmploymentCheck(
+                command.CorrelationId,
+                command.CheckType,
+                command.Uln,
+                command.ApprenticeshipId,
+                command.ApprenticeshipAccountId,
+                command.MinDate,
+                command.MaxDate,
+                versionId
+            );
         }
     }
 }

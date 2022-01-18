@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
 
             //Act
 
-            await sut.CheckForExistingEmploymentCheck(_correlationId);
+            await sut.GetLastEmploymentCheck(_correlationId);
 
             //Assert
 
@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
 
             //Act
 
-            var result = await sut.CheckForExistingEmploymentCheck(_correlationId);
+            var result = await sut.GetLastEmploymentCheck(_correlationId);
 
             //Assert
 
@@ -67,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
 
             //Act
 
-            var result = await sut.CheckForExistingEmploymentCheck(_correlationId);
+            var result = await sut.GetLastEmploymentCheck(_correlationId);
 
             //Assert
 
