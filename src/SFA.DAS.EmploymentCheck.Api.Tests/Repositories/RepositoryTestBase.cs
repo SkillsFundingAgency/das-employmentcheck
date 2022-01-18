@@ -7,14 +7,14 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Api.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 {
     public class RepositoryTestBase
     {
         protected Fixture Fixture;
-        protected ApplicationSettings Settings;
+        protected EmploymentCheckSettings Settings;
         private const string AzureResource = "https://database.windows.net/";
 
         [SetUp]
@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json", optional: false).Build();
             
-            Settings = new ApplicationSettings();
+            Settings = new EmploymentCheckSettings();
             config.Bind(Settings);
         }
         public async Task<T> Get<T>(object id) where T : class
