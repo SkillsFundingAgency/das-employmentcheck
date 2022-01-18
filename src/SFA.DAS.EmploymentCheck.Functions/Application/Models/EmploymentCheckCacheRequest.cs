@@ -23,7 +23,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public bool? Employed { get; set; }
 
         public short? RequestCompletionStatus { get; set; }
-
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
     }
 }

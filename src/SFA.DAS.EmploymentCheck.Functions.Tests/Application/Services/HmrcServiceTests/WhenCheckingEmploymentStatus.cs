@@ -52,12 +52,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         public async Task Then_The_TokenServiceApiClient_Is_Called()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ReturnsAsync(_fixture.Create<EmploymentStatus>());
 
             // Act
@@ -71,12 +67,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         public async Task Then_The_TokenServiceApiClient_Is_CalledWhenExpired()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ThrowsAsync(new UnauthorizedAccessException());
 
             // Act
@@ -92,12 +84,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         {
             // Arrange
             var response = _fixture.Create<EmploymentStatus>();
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ReturnsAsync(response);
 
             // Act
@@ -111,12 +99,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == response.Employed
-                        && x.FoundOnPaye == response.Empref
+                        && x.FoundOnPaye == _request.PayeScheme
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == "OK"
                         && x.HttpStatusCode == 200
                 )
+
             ), Times.Once);
         }
 
@@ -124,12 +113,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         public async Task Then_a_null_response_is_handled()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ReturnsAsync((EmploymentStatus)null);
 
             // Act
@@ -138,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             // Assert
             _repository.Verify(r => r.Save(
                 It.IsAny<EmploymentCheckCacheResponse>()
-            ), Times.Once);
+            ), Times.Never);
 
             result.Employed.Should().BeNull();
             result.RequestCompletionStatus.Should().Be(500);
@@ -158,12 +143,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
@@ -177,7 +158,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        && x.FoundOnPaye == null
+                        && x.FoundOnPaye == string.Empty
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -201,12 +182,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
@@ -220,7 +197,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        && x.FoundOnPaye == null
+                        && x.FoundOnPaye == string.Empty
                         && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -244,12 +221,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
@@ -263,7 +236,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        && x.FoundOnPaye == null
+                        && x.FoundOnPaye == string.Empty
                         && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -287,12 +260,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
@@ -306,7 +275,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        && x.FoundOnPaye == null
+                        && x.FoundOnPaye == string.Empty
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
@@ -322,12 +291,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             // Arrange
             var exception = _fixture.Create<Exception>();
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(_token.AccessCode, _request.PayeScheme,
+                    _request.Nino, _request.MinDate, _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
@@ -341,7 +306,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                         && x.EmploymentCheckCacheRequestId == _request.Id
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
-                        && x.FoundOnPaye == null
+                        && x.FoundOnPaye == string.Empty
                         && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.Message

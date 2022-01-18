@@ -75,12 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
         public static IServiceCollection AddPersistenceServices(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<IEmploymentCheckRepository, EmploymentCheckRepository>();
-            serviceCollection.AddSingleton<IDataCollectionsResponseRepository, DataCollectionsResponseRepository>();
-            serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
-            serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
-
             return serviceCollection;
         }
 

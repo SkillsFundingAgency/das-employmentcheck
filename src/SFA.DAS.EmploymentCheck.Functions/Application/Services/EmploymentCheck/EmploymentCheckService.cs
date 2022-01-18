@@ -11,23 +11,19 @@ using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
     public class EmploymentCheckService
         : IEmploymentCheckService
     {
-        #region Private members
         private readonly ILogger<IEmploymentCheckService> _logger;
+        private readonly EmploymentCheckDataValidator _employmentCheckDataValidator;
+
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-        private readonly IEmploymentCheckRepository _employmentCheckRepository;
-        private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
-        #endregion Private members
 
-        #region Constructors
         /// <summary>
         /// The EmploymentCheckService contains the methods to read and save Employment Checks
         /// </summary>
@@ -37,19 +33,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         public EmploymentCheckService(
             ILogger<IEmploymentCheckService> logger,
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider,
-            IEmploymentCheckRepository employmentCheckRepositoryrepository,
-            IEmploymentCheckCacheRequestRepository employmentCheckCashRequestRepositoryrepository
-        )
+            AzureServiceTokenProvider azureServiceTokenProvider)
         {
             _logger = logger;
             _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
-            _employmentCheckRepository = employmentCheckRepositoryrepository;
-            _employmentCheckCashRequestRepository = employmentCheckCashRequestRepositoryrepository;
+            _employmentCheckDataValidator = new EmploymentCheckDataValidator();
         }
-        #endregion Constructors
 
         #region GetEmploymentChecksBatch
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
@@ -116,10 +107,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                             transaction.Commit();
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         transaction.Rollback(); // rollback the whole batch rather than individual employment checks
-                        _logger.LogError($"EmploymentCheckService.GetEmploymentChecksBatch(): ERROR: An error occurred reading the employment checks. Exception [{e}]");
                         throw;
                     }
                 }
@@ -139,114 +129,75 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
             Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
 
-            // Validate that the employmentCheckData lists have data
-            var employmentCheckDataValidator = new EmploymentCheckDataValidator();
-            var employmentCheckDataValidatorResult = await employmentCheckDataValidator.ValidateAsync(employmentCheckData);
-
-            // EmploymentCheckData validation - failed
-            // Log the validation errors
-            if (!employmentCheckDataValidatorResult.IsValid)
-            {
-                foreach (var error in employmentCheckDataValidatorResult.Errors)
-                {
-                    _logger.LogError($"{thisMethodName}: ERROR - EmploymentCheckData: {error.ErrorMessage}");
-                }
-
-                return await Task.FromResult(new List<EmploymentCheckCacheRequest>());  // caller should check for an empty list of EmploymentCheckCacheRequests
-            }
-
-            // EmploymentCheckData validation - succeeded
-            // Create an EmploymentCheckCacheRequest for each unique combination of Uln, National Insurance Number, PayeScheme, MinDate and MaxDate
-            // e.g. if an apprentices employer has 900 paye schemes then we need to create 900 messages for the given Uln, National Insurance Number, PayeScheme, MinDate and MaxDate
-            var employmentCheckValidator = new EmploymentCheckValidator();
             IList<EmploymentCheckCacheRequest> employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
-            foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
+            var apprenticeEmploymentCheckValidator = new ApprenticeEmploymentCheckValidator();
+                var employmentCheckValidatorResult = _employmentCheckDataValidator.Validate(employmentCheckData);
+                Guard.Against.Null(employmentCheckValidatorResult, nameof(employmentCheckValidatorResult));
+
+            if (employmentCheckValidatorResult.IsValid)
             {
-                // Validate the employmentCheck fields are not empty
-                var employmentCheckValidatorResult = await employmentCheckValidator.ValidateAsync(employmentCheck);
-
-                // EmploymentCheck validation - failed
-                // Log the validation errors
-                if (!employmentCheckValidatorResult.IsValid)
+                // Create an EmploymentCheckCacheRequest for each combination of Uln, National Insurance Number and PayeScheme.
+                // e.g. if an apprentices employer has 900 paye schemes then we need to create 900 messages for the given Uln and National Insurance Number
+                foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
                 {
-                    foreach (var error in employmentCheckValidatorResult.Errors)
+                    var validationResult = await apprenticeEmploymentCheckValidator.ValidateAsync(employmentCheck);
+
+                    if (validationResult is {IsValid: true})
                     {
-                        _logger.LogError($"{thisMethodName}: ERROR - EmploymentCheck: {error.ErrorMessage}");
+                        // Lookup the National Insurance Number for this apprentice in the employment check data
+                        var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.Uln == employmentCheck.Uln)?.NiNumber;
+                        if (string.IsNullOrEmpty(nationalInsuranceNumber))
+                        {
+                            // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
+                            _logger.LogError($"{thisMethodName}: No national insurance number found for apprentice Uln: [{employmentCheck.Uln}].");
+                            continue;
+                        }
+
+                        // Lookup the National Insurance Number for this apprentice in the employment check data
+                        var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == employmentCheck.AccountId);
+                        if (employerPayeSchemes == null)
+                        {
+                            // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
+                            _logger.LogError($"{thisMethodName}: No PAYE schemes found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
+                            continue;
+                        }
+
+                        foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
+                        {
+                            if (string.IsNullOrEmpty(payeScheme))
+                            {
+                                // An empty paye scheme so we're not able to do an employment check and will need to skip this
+                                _logger.LogError($"{thisMethodName}: An empty PAYE scheme was found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
+                                continue;
+                            }
+
+                            // Create the individual EmploymentCheckCacheRequest combinations for each paye scheme
+                            var employmentCheckCacheRequest = new EmploymentCheckCacheRequest();
+                            employmentCheckCacheRequest.ApprenticeEmploymentCheckId = employmentCheck.Id;
+                            employmentCheckCacheRequest.CorrelationId = employmentCheck.CorrelationId;
+                            employmentCheckCacheRequest.Nino = nationalInsuranceNumber;
+                            employmentCheckCacheRequest.PayeScheme = payeScheme;
+                            employmentCheckCacheRequest.MinDate = employmentCheck.MinDate;
+                            employmentCheckCacheRequest.MaxDate = employmentCheck.MaxDate;
+
+                            // Store the individual EmploymentCheckCacheRequest combinations for each paye scheme
+                            await StoreEmploymentCheckCacheRequest(employmentCheckCacheRequest);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var error in validationResult.Errors)
+                        {
+                            _logger.LogError($"{thisMethodName}: EmploymentCheckRequest: {error.ErrorMessage}");
+                        }
                     }
                 }
-
-                // EmploymentCheckData validation - succeeded
-                // Lookup the National Insurance Number for this apprentice in the employment check data
-                var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.Uln == employmentCheck.Uln)?.NiNumber;
-                if (string.IsNullOrEmpty(nationalInsuranceNumber))
+            }
+            else
+            {
+                foreach (var error in employmentCheckValidatorResult.Errors)
                 {
-                    // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
-                    _logger.LogError($"{thisMethodName}: ERROR - No national insurance number found for apprentice Uln: [{employmentCheck.Uln}].");
-
-                    // Update the status of the 'stored' employment check with the request completion status so that we can see that this Nino was not found
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_NinoNotFound;
-                    try
-                    {
-                        await _employmentCheckRepository.Save(employmentCheck);
-                    }
-                    catch(Exception e)
-                    {
-                        _logger.LogError($"EmploymentCheckService.CreateEmploymentCheckCacheRequests(): ERROR: the EmploymentCheck repository Save() method threw an Exception during the check for missing ninos [{e}]");
-                    }
-
-                    continue;
-                }
-
-                // Lookup the PayeSchemes for this apprentice in the employment check data
-                var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == employmentCheck.AccountId);
-                if (employerPayeSchemes == null)
-                {
-                    // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
-                    _logger.LogError($"{thisMethodName}: ERROR - No PAYE schemes found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
-
-                    // Update the status of the 'stored' employment check with the request completion status so that we can see that this PayeScheme was not found
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_PayeSchemeNotFound;
-                    try
-                    {
-                        await _employmentCheckRepository.Save(employmentCheck);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError($"EmploymentCheckService.CreateEmploymentCheckCacheRequests(): ERROR: the EmploymentCheck repository Save() method threw an Exception during the check for missing paye schemes [{e}]");
-                    }
-
-                    continue;
-                }
-
-                // Create the individual EmploymentCheckCacheRequest combinations for each paye scheme
-                foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
-                {
-                    if (string.IsNullOrEmpty(payeScheme))
-                    {
-                        // An empty paye scheme so we're not able to do an employment check and will need to skip this
-                        _logger.LogError($"{thisMethodName}: An empty PAYE scheme was found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
-                        continue;
-                    }
-
-                    var employmentCheckCacheRequest = new EmploymentCheckCacheRequest();
-                    employmentCheckCacheRequest.ApprenticeEmploymentCheckId = employmentCheck.Id;
-                    employmentCheckCacheRequest.CorrelationId = employmentCheck.CorrelationId;
-                    employmentCheckCacheRequest.Nino = nationalInsuranceNumber;
-                    employmentCheckCacheRequest.PayeScheme = payeScheme;
-                    employmentCheckCacheRequest.MinDate = employmentCheck.MinDate;
-                    employmentCheckCacheRequest.MaxDate = employmentCheck.MaxDate;
-
-                    employmentCheckRequests.Add(employmentCheckCacheRequest);
-
-                    // Store the individual EmploymentCheckCacheRequest combinations for each paye scheme
-                    try
-                    {
-                        await _employmentCheckCashRequestRepository.Save(employmentCheckCacheRequest);
-                    }
-                    catch(Exception e)
-                    {
-                        _logger.LogError($"EmploymentCheckService.CreateEmploymentCheckCacheRequests(): ERROR: the EmploymentCheckCashRequest repository Save() method threw an Exception during the storing of the EmploymentCheckCacheRequest [{e}]");
-                    }
+                    _logger.LogError($"{thisMethodName}: EmploymentCheckMode {error.ErrorMessage}");
                 }
             }
 
@@ -312,6 +263,63 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return employmentCheckCacheRequest;
         }
         #endregion GetEmploymentCheckCacheRequest
+
+        #region StoreEmploymentCacheRequest
+
+        private async Task StoreEmploymentCheckCacheRequest(
+            EmploymentCheckCacheRequest employmentCheckCacheRequest)
+        {
+            Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
+
+            var dbConnection = new DbConnection();
+
+            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                _azureServiceTokenProvider);
+            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+            await sqlConnection.OpenAsync();
+
+            var parameter = new DynamicParameters();
+            parameter.Add("@existingApprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
+            parameter.Add("@existingCorrelationId", employmentCheckCacheRequest.CorrelationId, DbType.Guid);
+            parameter.Add("@existingNino", employmentCheckCacheRequest.Nino, DbType.String);
+            parameter.Add("@existingPayeScheme", employmentCheckCacheRequest.PayeScheme, DbType.String);
+            parameter.Add("@existingMinDate", employmentCheckCacheRequest.MinDate, DbType.DateTime);
+            parameter.Add("@existingMaxDate", employmentCheckCacheRequest.MaxDate, DbType.DateTime);
+
+            parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
+            parameter.Add("@correlationId", employmentCheckCacheRequest.CorrelationId, DbType.Guid);
+            parameter.Add("@nino", employmentCheckCacheRequest.Nino, DbType.String);
+            parameter.Add("@payeScheme", employmentCheckCacheRequest.PayeScheme, DbType.String);
+            parameter.Add("@minDate", employmentCheckCacheRequest.MinDate, DbType.DateTime);
+            parameter.Add("@maxDate", employmentCheckCacheRequest.MaxDate, DbType.DateTime);
+            parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
+            parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
+
+            // There is a constraint to stop duplicates but this check avoids the exception causing a problem later in the code
+            await sqlConnection.ExecuteAsync(
+                "IF NOT EXISTS " +
+                "( " +
+                "   SELECT  [ApprenticeEmploymentCheckId] " +
+                "   FROM    [Cache].[EmploymentCheckCacheRequest] " +
+                "   WHERE   [ApprenticeEmploymentCheckId] = @existingApprenticeEmploymentCheckId " +
+                "   AND     [CorrelationId] = @existingCorrelationId " +
+                "   AND     [Nino] = @existingNino " +
+                "   AND     [PayeScheme] = @existingPayeScheme " +
+                "   AND     [MinDate] =   @existingMinDate " +
+                "   AND     [MaxDate] = @existingMaxDate " +
+                ") " +
+                "BEGIN " +
+                "   INSERT [Cache].[EmploymentCheckCacheRequest] " +
+                "           ( ApprenticeEmploymentCheckId,  CorrelationId,  Nino,  PayeScheme,  MinDate,  MaxDate,  Employed,  CreatedOn) " +
+                "   VALUES (@apprenticeEmploymentCheckId, @correlationId, @nino, @payeScheme, @minDate, @maxDate, @employed, @createdOn) " +
+                "END ",
+                parameter,
+                commandType: CommandType.Text);
+        }
+
+        #endregion StoreEmploymentCacheRequest
 
         #region StoreEmploymentCheckResult
 
