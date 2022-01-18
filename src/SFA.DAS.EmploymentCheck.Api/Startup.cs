@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -23,10 +25,17 @@ namespace SFA.DAS.EmploymentCheck.Api
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
             });
 
-            services.AddHandlers();
+            services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
+            services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
+
+            services
+                .AddRepositories()
+                .AddServices()
+                .AddHandlers()
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
