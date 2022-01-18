@@ -33,8 +33,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private readonly string _connectionString;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly IAccountsResponseRepository _repository;
         #endregion Private memebers
 
@@ -47,29 +45,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             IHttpClientFactory httpClientFactory,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
-            AzureServiceTokenProvider azureServiceTokenProvider,
             IAccountsResponseRepository repository
         )
         {
             _logger = logger;
-            _connectionString = applicationSettings.DbConnectionString;
             _configuration = apiConfiguration;
             _hashingService = hashingService;
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);
             _hostingEnvironment = hostingEnvironment;
             _azureClientCredentialHelper = azureClientCredentialHelper;
-            _azureServiceTokenProvider = azureServiceTokenProvider;
             _repository = repository;
         }
         #endregion Constructors
 
+        #region GetEmployerPayeSchemes
         public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentChecksBatch)
         {
             Guard.Against.Null(employmentChecksBatch, nameof(employmentChecksBatch));
 
             var resourceList = await Get<ResourceList>(employmentChecksBatch);
-            if (!resourceList.GetType().Equals(typeof(ResourceList)))
+            if (resourceList.GetType() != typeof(ResourceList))
             {
                 // no PayeScheme found, return an empty EmployerPayeScheme (caller should check for empty EmployerPayeScheme
                 return new EmployerPayeSchemes(employmentChecksBatch.AccountId, new List<string>());
@@ -78,7 +74,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return new EmployerPayeSchemes(employmentChecksBatch.AccountId, resourceList.Select(x => x.Id).ToList());
         }
 
-        #region GetEmployerPayeSchemes
         public async Task<TResponse> Get<TResponse>(Models.EmploymentCheck employmentCheckBatch)
         {
             var hashedAccountId = _hashingService.HashValue(employmentCheckBatch.AccountId);
@@ -108,6 +103,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 content = JsonConvert.DeserializeObject<TResponse>(json);
                 var resourceList = new ResourceList((IEnumerable<ResourceViewModel>)await Task.FromResult(content));
                 employerPayeSchemes = new EmployerPayeSchemes(employmentCheckBatch.AccountId, resourceList.Select(x => x.Id).ToList());
+                var allEmployerPayeSchemes = new StringBuilder();
+                foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
+                {
+                    allEmployerPayeSchemes.Append($", {payeScheme}");
+                }
+
+                // trim the comma at start of string
+                responsePayeSchemes = allEmployerPayeSchemes.ToString();
+                responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
+
+                accountsResponse.PayeSchemes = responsePayeSchemes;
+                accountsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: Get() - The call to the Accounts API returned no response data.";
+                accountsResponse.HttpStatusCode = (short)response.StatusCode;
             }
             catch (Exception e)
             {
@@ -119,25 +127,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             {
                 try
                 {
-                    var allEmployerPayeSchemes = new StringBuilder();
-                    foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
-                    {
-                        allEmployerPayeSchemes.Append($", {payeScheme}");
-                    }
-
-                    // trim the comma at start of string
-                    responsePayeSchemes = allEmployerPayeSchemes.ToString();
-                    responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
-
-                    accountsResponse.PayeSchemes = responsePayeSchemes;
-                    accountsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: Get() - The call to the Accounts API returned no response data.";
-                    accountsResponse.HttpStatusCode = (short)response.StatusCode;
-
                     await _repository.Save(accountsResponse);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"LearnerService.SendIndividualRequest(): ERROR: the AccountsRepository Save() method threw an Exception [{e}]");
+                    _logger.LogError($"EmployerAccountService.SendIndividualRequest(): ERROR: the AccountsRepository Save() method threw an Exception [{e}]");
                 }
             }
 

@@ -117,6 +117,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                 var content = await response.Content.ReadAsStreamAsync();
                 learnerNiNumbers = await JsonSerializer.DeserializeAsync<List<LearnerNiNumber>>(content);
                 learnerNiNumber = learnerNiNumbers.FirstOrDefault();
+
+                dataCollectionsResponse.NiNumber = learnerNiNumber != null ? learnerNiNumber.NiNumber : string.Empty;
+                dataCollectionsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: LearnerService.SendIndividualRequest() - The call to the Data Collections API returned no response data.";
+                dataCollectionsResponse.HttpStatusCode = (short)response.StatusCode;
             }
             catch (Exception e)
             {
@@ -127,10 +131,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             {
                 try
                 {
-                    dataCollectionsResponse.NiNumber = learnerNiNumber != null ? learnerNiNumber.NiNumber : string.Empty;
-                    dataCollectionsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: SendIndividualRequest() - The call to the Data Collections API returned no response data.";
-                    dataCollectionsResponse.HttpStatusCode = (short)response.StatusCode;
-
                     await _repository.Save(dataCollectionsResponse);
                 }
                 catch (Exception e)

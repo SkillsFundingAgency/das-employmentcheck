@@ -119,6 +119,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     catch (Exception e)
                     {
                         transaction.Rollback(); // rollback the whole batch rather than individual employment checks
+                        _logger.LogError($"EmploymentCheckService.GetEmploymentChecksBatch(): ERROR: An error occurred reading the employment checks. Exception [{e}]");
                         throw;
                     }
                 }
