@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -27,28 +28,29 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         private readonly IDcTokenService _dcTokenService;
         private readonly IHttpClientFactory _httpFactory;
         private readonly DcApiSettings _dcApiSettings;
-
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-
+        private readonly IDataCollectionsResponseRepository _repository;
         #endregion Private members
 
         #region Constructors
         public LearnerService(
             ILogger<LearnerService> logger,
             IDcTokenService dcTokenService,
-            IHttpClientFactory httpFactory,
+            IHttpClientFactory httpClientFactory,
             IOptions<DcApiSettings> dcApiSettings,
             AzureServiceTokenProvider azureServiceTokenProvider,
-            ApplicationSettings applicationSettings
-            )
+            ApplicationSettings applicationSettings,
+            IDataCollectionsResponseRepository repository
+        )
         {
             _logger = logger;
             _connectionString = applicationSettings.DbConnectionString;
             _dcTokenService = dcTokenService;
-            _httpFactory = httpFactory;
+            _httpFactory = httpClientFactory;
             _dcApiSettings = dcApiSettings.Value;
             _azureServiceTokenProvider = azureServiceTokenProvider;
+            _repository = repository;
         }
         #endregion Constructors
 
@@ -91,76 +93,53 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 
         private async Task<LearnerNiNumber> SendIndividualRequest(Models.EmploymentCheck learner, AuthResult token)
         {
-            var thisMethodName = $"{nameof(LearnerService)}.SendIndividualRequest";
-
             using var client = _httpFactory.CreateClient("LearnerNiApi");
             client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
             var url = LearnersNiUrl + learner.Uln;
 
-            var response = await client.GetAsync(url);
-            if (response == null)
-            {
-                await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                    learner.Id,
-                    learner.CorrelationId,
-                    learner.Uln,
-                    "NULL", // NiNumber
-                    "NULL", // HttpResponse
-                    0)); // HttpStatusCode
-                throw new ArgumentNullException(
-                    $"\n\n{thisMethodName}: response received from Data Collections API is NULL");
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                    learner.Id,
-                    learner.CorrelationId,
-                    learner.Uln,
-                    "NULL", // NiNumber
-                    response.ToString(),
-                    (short) response.StatusCode));
-                throw new ArgumentException(
-                    $"\n\n{thisMethodName}: Data Collections API call failed");
-            }
-
-            var content = await response.Content.ReadAsStreamAsync();
-            if (content == null || content.Length == 0)
-            {
-                await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                    learner.Id,
-                    learner.CorrelationId,
-                    learner.Uln,
-                    "NULL", // NiNumber
-                    response.ToString(),
-                    (short) response.StatusCode));
-            }
-
-            var learnerNiNumbers = await JsonSerializer.DeserializeAsync<List<LearnerNiNumber>>(content);
-            if (learnerNiNumbers == null)
-            {
-                await StoreDataCollectionsResponse(new DataCollectionsResponse(
-                    learner.Id,
-                    learner.CorrelationId,
-                    learner.Uln,
-                    "NULL", // NiNumber
-                    response.ToString(),
-                    (short) response.StatusCode));
-                throw new ArgumentNullException($"\n\n{thisMethodName}: deserialised response content received from Data Collections is NULL or zero length");
-            }
-
-            var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
-
-            await StoreDataCollectionsResponse(new DataCollectionsResponse(
+            // setup a default template 'response' to store the api response
+            var dataCollectionsResponse = new DataCollectionsResponse(
                 learner.Id,
                 learner.CorrelationId,
                 learner.Uln,
-                learnerNiNumber?.NiNumber,
-                response.ToString(),
-                (short) response.StatusCode));
+                string.Empty,   // NiNumber
+                string.Empty,   // Response
+                -1);            // Http Status Code
 
-            return learnerNiNumber;
+            // Call the DC api
+            HttpResponseMessage response = null;
+            IList<LearnerNiNumber> learnerNiNumbers = null;
+            LearnerNiNumber learnerNiNumber = null;
+            try
+            {
+                response = await client.GetAsync(url);
+                var content = await response.Content.ReadAsStreamAsync();
+                learnerNiNumbers = await JsonSerializer.DeserializeAsync<List<LearnerNiNumber>>(content);
+                learnerNiNumber = learnerNiNumbers.FirstOrDefault();
+
+                dataCollectionsResponse.NiNumber = learnerNiNumber != null ? learnerNiNumber.NiNumber : string.Empty;
+                dataCollectionsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: LearnerService.SendIndividualRequest() - The call to the Data Collections API returned no response data.";
+                dataCollectionsResponse.HttpStatusCode = (short)response.StatusCode;
+            }
+            catch (Exception e)
+            {
+                dataCollectionsResponse.HttpResponse = e.Message;
+                _logger.LogError($"LearnerService.SendIndividualRequest(): ERROR: {dataCollectionsResponse.HttpResponse}");
+            }
+            finally
+            {
+                try
+                {
+                    await _repository.Save(dataCollectionsResponse);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"LearnerService.SendIndividualRequest(): ERROR: the DataCollections repository Save() method threw an Exception [{e}]");
+                }
+            }
+
+            return learnerNiNumber != null ? learnerNiNumber : new LearnerNiNumber();
         }
 
         private async Task<AuthResult> GetDcToken()
@@ -176,57 +155,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         }
 
         #endregion GetNiNumbers
-
-        #region StoreDataCollectionsResponse
-
-        public async Task<int> StoreDataCollectionsResponse(DataCollectionsResponse dataCollectionsResponse)
-        {
-            if (dataCollectionsResponse == null) return await Task.FromResult(0);
-
-            var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            await sqlConnection.OpenAsync();
-
-            var parameter = new DynamicParameters();
-            parameter.Add("@existingApprenticeEmploymentCheckId", dataCollectionsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@existingCorrelationId", dataCollectionsResponse.CorrelationId, DbType.Guid);
-            parameter.Add("@existingUln", dataCollectionsResponse.Uln, DbType.Int64);
-            parameter.Add("@existingNiNumber", dataCollectionsResponse.NiNumber, DbType.String);
-
-            parameter.Add("@apprenticeEmploymentCheckId", dataCollectionsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@correlationId", dataCollectionsResponse.CorrelationId, DbType.Guid);
-            parameter.Add("@uln", dataCollectionsResponse.Uln, DbType.Int64);
-            parameter.Add("@niNumber", dataCollectionsResponse.NiNumber, DbType.String);
-            parameter.Add("@httpResponse", dataCollectionsResponse.HttpResponse, DbType.String);
-            parameter.Add("@httpStatusCode", dataCollectionsResponse.HttpStatusCode, DbType.Int16);
-            parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
-
-            // There is a constraint to stop duplicates but this check avoids the exception causing a problem later in the code            await sqlConnection.ExecuteAsync(
-          await sqlConnection.ExecuteAsync(
-            "IF NOT EXISTS " +
-            "( " +
-            "   SELECT  [ApprenticeEmploymentCheckId] " +
-            "   FROM    [Cache].[DataCollectionsResponse] " +
-            "   WHERE   [ApprenticeEmploymentCheckId] = @existingApprenticeEmploymentCheckId " +
-            "   AND     [CorrelationId] = @existingCorrelationId " +
-            "   AND     [Uln] = @existingUln " +
-            "   AND     [NiNumber] = @existingNiNumber " +
-            ") " +
-            "BEGIN " +
-            "   INSERT [Cache].[DataCollectionsResponse] " +
-            "           ( ApprenticeEmploymentCheckId,  CorrelationId,  Uln,  NiNumber,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
-            "   VALUES  (@apprenticeEmploymentCheckId, @correlationId, @uln, @niNumber, @httpResponse, @httpStatusCode, @createdOn) " +
-            "END ",
-            parameter,
-            commandType: CommandType.Text);
-
-            return await Task.FromResult(0);
-        }
-
-        #endregion StoreDataCollectionsResponse
     }
 }

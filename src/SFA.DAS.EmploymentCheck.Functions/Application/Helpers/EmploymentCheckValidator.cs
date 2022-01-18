@@ -2,10 +2,10 @@
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
 {
-    public class ApprenticeEmploymentCheckValidator
+    public class EmploymentCheckValidator
         : AbstractValidator<Models.EmploymentCheck>
     {
-        public ApprenticeEmploymentCheckValidator()
+        public EmploymentCheckValidator()
         {
             RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.Id).NotEmpty();
             RuleFor(apprenticeEmploymentCheck => apprenticeEmploymentCheck.CheckType).NotEmpty();

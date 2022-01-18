@@ -2,7 +2,9 @@
 {
     public enum ProcessingCompletionStatus
     {
-        Completed = 0,
-        Started = 10
+        Started = 10,
+        ProcessingError_NinoNotFound = 101,
+        ProcessingError_PayeSchemeNotFound = 102,
+        Completed = 200
     }
 }

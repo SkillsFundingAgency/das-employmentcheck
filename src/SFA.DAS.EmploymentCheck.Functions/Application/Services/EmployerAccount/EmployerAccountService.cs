@@ -1,19 +1,16 @@
 ﻿using Ardalis.GuardClauses;
-using Dapper;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -32,158 +29,103 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
-        private readonly string _connectionString;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private readonly IAccountsResponseRepository _repository;
         #endregion Private memebers
 
         #region Constructors
         public EmployerAccountService(
             ILogger<EmployerAccountService> logger,
             EmployerAccountApiConfiguration apiConfiguration,
-            ApplicationSettings applicationSettings,
             IHashingService hashingService,
             IHttpClientFactory httpClientFactory,
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper,
-            AzureServiceTokenProvider azureServiceTokenProvider)
+            IAccountsResponseRepository repository
+        )
         {
             _logger = logger;
-            _connectionString = applicationSettings.DbConnectionString;
             _configuration = apiConfiguration;
             _hashingService = hashingService;
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);
             _hostingEnvironment = hostingEnvironment;
             _azureClientCredentialHelper = azureClientCredentialHelper;
-            _azureServiceTokenProvider = azureServiceTokenProvider;
+            _repository = repository;
         }
         #endregion Constructors
 
-        #region GetPayeSchemes
-
-        public async Task<ResourceList> GetPayeSchemes(Models.EmploymentCheck apprenticeEmploymentCheck)
+        #region GetEmployerPayeSchemes
+        public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentChecksBatch)
         {
-            var resourceList = await Get<ResourceList>(apprenticeEmploymentCheck);
+            Guard.Against.Null(employmentChecksBatch, nameof(employmentChecksBatch));
 
-            return resourceList;
+            var resourceList = await Get<ResourceList>(employmentChecksBatch);
+            if (resourceList.GetType() != typeof(ResourceList))
+            {
+                // no PayeScheme found, return an empty EmployerPayeScheme (caller should check for empty EmployerPayeScheme
+                return new EmployerPayeSchemes(employmentChecksBatch.AccountId, new List<string>());
+            }
+
+            return new EmployerPayeSchemes(employmentChecksBatch.AccountId, resourceList.Select(x => x.Id).ToList());
         }
 
-        #endregion GetPayeSchemes
-
-        #region Get
-
-        public async Task<TResponse> Get<TResponse>(Models.EmploymentCheck apprenticeEmploymentCheck)
+        public async Task<TResponse> Get<TResponse>(Models.EmploymentCheck employmentCheckBatch)
         {
-            const string thisMethodName = "EmployerAccountApiClient.Get";
-
-            var hashedAccountId = _hashingService.HashValue(apprenticeEmploymentCheck.AccountId);
+            var hashedAccountId = _hashingService.HashValue(employmentCheckBatch.AccountId);
             var url = $"api/accounts/{hashedAccountId}/payeschemes";
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
             await AddAuthenticationHeader(httpRequestMessage);
 
-            var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
-            if (response == null)
+            // setup a default template 'response' to store the api response
+            var accountsResponse = new AccountsResponse(
+                employmentCheckBatch.Id,
+                employmentCheckBatch.CorrelationId,
+                employmentCheckBatch.AccountId,
+                string.Empty,   // PayeSchemes,
+                string.Empty,   // Response
+                -1);            // Http Status Code
+
+            // Call the Accounts API
+            TResponse content;
+            try
             {
-                // The API call didn't return a response
-                // Log it and throw and exception to skip the rest of the processing
-                _logger.LogError(
-                    $"\n\n{thisMethodName}: response received from Employer Accounts API is NULL");
+                var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                content = JsonConvert.DeserializeObject<TResponse>(json);
+                var resourceList = new ResourceList((IEnumerable<ResourceViewModel>)await Task.FromResult(content));
+                var employerPayeSchemes = new EmployerPayeSchemes(employmentCheckBatch.AccountId, resourceList.Select(x => x.Id).ToList());
+                var allEmployerPayeSchemes = new StringBuilder();
+                foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
+                {
+                    allEmployerPayeSchemes.Append($", {payeScheme}");
+                }
 
-                await StoreAccountsResponse(new AccountsResponse(
-                    apprenticeEmploymentCheck.Id,
-                    apprenticeEmploymentCheck.CorrelationId,
-                    apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
-                    "NULL", // HttpResponse
-                    0)); // HttpStatusCode
-                throw new ArgumentNullException(nameof(response));
+                // trim the comma at start of string
+                var responsePayeSchemes = allEmployerPayeSchemes.ToString();
+                responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
+
+                accountsResponse.PayeSchemes = responsePayeSchemes;
+                accountsResponse.HttpResponse = response.ToString();
+                accountsResponse.HttpStatusCode = (short)response.StatusCode;
             }
-
-            // throws an exception if the IsSuccessStatusCode property is false
-            // so we check the IsSuccessStatsCode directly to avoid the exception
-            // enabling us to store the response
-            if (response.IsSuccessStatusCode == false)
+            catch (Exception e)
             {
-                // The API call returned an none successful code
-                // Log it and throw and exception to skip the rest of the processing
-                _logger.LogError(
-                    $"\n\n{thisMethodName}: response IsSuccessStatusCode returned from the Employer Accounts API is false the status code is [{response.StatusCode}]");
-
-                await StoreAccountsResponse(new AccountsResponse(
-                    apprenticeEmploymentCheck.Id,
-                    apprenticeEmploymentCheck.CorrelationId,
-                    apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
-                    response.ToString(),
-                    (short) response.StatusCode));
-                throw
-                    new InvalidOperationException(
-                        nameof(response)); // TODO: Create a custom business exception for this condition
+                accountsResponse.HttpResponse = e.Message;
+                content = (TResponse)new object();
+                _logger.LogError($"EmployerAccountService.Get(): ERROR: {accountsResponse.HttpResponse}");
             }
-
-
-            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            if (string.IsNullOrEmpty(json))
+            finally
             {
-                // read of content failed
-                _logger.LogError(
-                    $"\n\n{thisMethodName}: converting the response Content to string returned an Empty/Null string (the status code is [{response.StatusCode}])");
-
-                await StoreAccountsResponse(new AccountsResponse(
-                    apprenticeEmploymentCheck.Id,
-                    apprenticeEmploymentCheck.CorrelationId,
-                    apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
-                    response.ToString(),
-                    (short) response.StatusCode));
-                throw
-                    new InvalidOperationException(
-                        nameof(response)); // TODO: Create a custom business exception for this condition
+                try
+                {
+                    await _repository.Save(accountsResponse);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"EmployerAccountService.Get(): ERROR: the AccountsResponseRepository Save() method threw an Exception [{e}]");
+                }
             }
-
-            // Deserialise the content
-            var content = JsonConvert.DeserializeObject<TResponse>(json);
-            if (content == null)
-            {
-                // Deserialisation of content failed
-                _logger.LogError($"\n\n{thisMethodName}: deseriaising content failed.)");
-
-                await StoreAccountsResponse(new AccountsResponse(
-                    apprenticeEmploymentCheck.Id,
-                    apprenticeEmploymentCheck.CorrelationId,
-                    apprenticeEmploymentCheck.AccountId,
-                    "NULL", // payeSchemes
-                    response.ToString(),
-                    (short) response.StatusCode));
-                throw
-                    new InvalidOperationException(
-                        nameof(response)); // TODO: Create a custom business exception for this condition
-            }
-
-            // get the resource list
-            var resourceList = new ResourceList((IEnumerable<ResourceViewModel>) await Task.FromResult(content));
-
-            var payeSchemes = new EmployerPayeSchemes(apprenticeEmploymentCheck.AccountId,
-                resourceList.Select(x => x.Id).ToList());
-
-            var allPayeSchemes = new StringBuilder();
-            foreach (var payeScheme in payeSchemes.PayeSchemes)
-            {
-                allPayeSchemes.Append($", {payeScheme}");
-            }
-
-            // remove comma at start of string
-            var responsePayeSchemes = allPayeSchemes.ToString();
-            responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
-
-            await StoreAccountsResponse(new AccountsResponse(
-                apprenticeEmploymentCheck.Id,
-                apprenticeEmploymentCheck.CorrelationId,
-                apprenticeEmploymentCheck.AccountId,
-                responsePayeSchemes,
-                response.ToString(),
-                (short) response.StatusCode));
 
             return content;
         }
@@ -196,61 +138,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             }
         }
-
-        #endregion Get
-
-        #region StoreAccountsResponse
-
-        public async Task<int> StoreAccountsResponse(
-            AccountsResponse accountsResponse)
-        {
-            Guard.Against.Null(accountsResponse, nameof(accountsResponse));
-
-            var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            await sqlConnection.OpenAsync();
-
-            var parameter = new DynamicParameters();
-            parameter.Add("@existingApprenticeEmploymentCheckId", accountsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@existingCorrelationId", accountsResponse.CorrelationId, DbType.Guid);
-            parameter.Add("@existingAccountId", accountsResponse.AccountId, DbType.Int64);
-            parameter.Add("@existingPayeSchemes", accountsResponse.PayeSchemes, DbType.String);
-
-            parameter.Add("@apprenticeEmploymentCheckId", accountsResponse.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@correlationId", accountsResponse.CorrelationId, DbType.Guid);
-            parameter.Add("@accountId", accountsResponse.AccountId, DbType.Int64);
-            parameter.Add("@payeSchemes", accountsResponse.PayeSchemes, DbType.String);
-            parameter.Add("@httpResponse", accountsResponse.HttpResponse, DbType.String);
-            parameter.Add("@httpStatusCode", accountsResponse.HttpStatusCode, DbType.Int16);
-            parameter.Add("@createdOn", DateTime.Now, DbType.DateTime);
-
-            // There is a constraint to stop duplicates but this check avoids the exception causing a problem later in the code
-            await sqlConnection.ExecuteScalarAsync(
-                "IF NOT EXISTS " +
-                "( " +
-                "   SELECT  [ApprenticeEmploymentCheckId] " +
-                "   FROM    [Cache].[AccountsResponse] " +
-                "   WHERE   [ApprenticeEmploymentCheckId] = @existingApprenticeEmploymentCheckId " +
-                "   AND     [CorrelationId] = @existingCorrelationId " +
-                "   AND     [AccountId] = @existingAccountId " +
-                "   AND     [PayeSchemes] = @existingPayeSchemes " +
-                ") " +
-                "BEGIN " +
-                "   INSERT [Cache].[AccountsResponse] " +
-                "          ( ApprenticeEmploymentCheckId,  CorrelationId,  AccountId,  PayeSchemes,  HttpResponse,  HttpStatusCode,  CreatedOn) " +
-                "   VALUES (@apprenticeEmploymentCheckId, @correlationId, @accountId, @payeSchemes, @httpResponse, @httpStatusCode, @createdOn) " +
-                "END ",
-                parameter,
-                commandType: CommandType.Text);
-
-            return await Task.FromResult(0);
-        }
-
-        #endregion StoreAccountsResponse
-
+        #endregion GetEmployerPayeSchemes
     }
 }

@@ -8,6 +8,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,46 +29,45 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
             _logger = new Mock<ILogger<IEmploymentCheckClient>>();
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck> {_fixture.Create<Functions.Application.Models.EmploymentCheck>()};
+            _apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
 
-            _sut = new EmployerAccountClient(_logger.Object, _employerAccountService.Object);
+            _sut = new EmployerAccountClient(_employerAccountService.Object);
         }
 
         [Test]
         public async Task Then_The_EmployerAccountService_Is_Called()
         {
             //Arrange
-            _employerAccountService.Setup(x => x.GetPayeSchemes(_apprentices[0]))
-                .ReturnsAsync(_fixture.Create<ResourceList>());
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
+                .ReturnsAsync(_fixture.Create<EmployerPayeSchemes>());
 
             //Act
             await _sut.GetEmployersPayeSchemes(_apprentices);
 
             //Assert
-            _employerAccountService.Verify(x => x.GetPayeSchemes(_apprentices[0]), Times.Exactly(1));
+            _employerAccountService.Verify(x => x.GetEmployerPayeSchemes(_apprentices[0]), Times.Exactly(1));
         }
 
         [Test]
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_Uppercased()
         {
             //Arrange
-            var resource = new ResourceViewModel
+            var employerPayeSchemes = new EmployerPayeSchemes
             {
-                Href = "href",
-                Id = "id"
+                EmployerAccountId = 1,
+                PayeSchemes = new List<string> { " paye " }
             };
 
-            var accountDetail = new ResourceList(new List<ResourceViewModel> { resource });
-
-            _employerAccountService.Setup(x => x.GetPayeSchemes(_apprentices[0]))
-                .ReturnsAsync(accountDetail);
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
+                .ReturnsAsync(employerPayeSchemes);
 
             //Act
             var result = await _sut.GetEmployersPayeSchemes(_apprentices);
 
             //Assert
-            result.First().PayeSchemes.First().Should().BeEquivalentTo(resource.Id.ToUpper());
+            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First().ToString());
         }
+
 
         [Test]
         public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_List_Is_Returned()
@@ -80,30 +80,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
         }
 
         [Test]
-        public async Task And_Null_Is_Passed_In_Then_An_Empty_List_Is_Returned()
+        public Task And_Null_Is_Passed_In_Then_A_NullReference_Exception_Occurs()
         {
-            //Act
-            var result = await _sut.GetEmployersPayeSchemes(null);
-
             //Assert
-            result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
+            Assert.ThrowsAsync<NullReferenceException>(async () => await _sut.GetEmployersPayeSchemes(null));
+            return Task.CompletedTask;
         }
-
 
         [Test]
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_UpperCased_and_Trimmed_of_WhiteSpace()
         {
             //Arrange
-            var resource = new ResourceViewModel
+            var employerPayeSchemes = new EmployerPayeSchemes
             {
-                Href = "href",
-                Id = " paye"
+                EmployerAccountId = 1,
+                PayeSchemes = new List<string> { " paye " }
             };
 
-            var accountDetail = new ResourceList(new List<ResourceViewModel> { resource });
-
-            _employerAccountService.Setup(x => x.GetPayeSchemes(_apprentices[0]))
-                .ReturnsAsync(accountDetail);
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
+                .ReturnsAsync(employerPayeSchemes);
 
             //Act
             var result = await _sut.GetEmployersPayeSchemes(_apprentices);
@@ -111,6 +106,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             //Assert
             result.First().PayeSchemes.First().Should().BeEquivalentTo("PAYE");
         }
-
     }
 }
