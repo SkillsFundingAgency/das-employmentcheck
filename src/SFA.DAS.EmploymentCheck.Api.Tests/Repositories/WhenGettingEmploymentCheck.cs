@@ -85,8 +85,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
             var actual = await _sut.GetEmploymentCheck(correlationId);
 
             //Assert
-            actual.Should().NotBeNull();
-            actual.CorrelationId.Should().BeNull();
+            actual.Should().BeNull();
         }
     }
 }
