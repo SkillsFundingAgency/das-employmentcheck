@@ -20,17 +20,17 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
         [HttpPost]
         [Route("RegisterCheck")]
-        public async Task<IActionResult> RegisterCheck(RegisterCheckRequest registerCheckDto)
+        public async Task<IActionResult> RegisterCheck(RegisterCheckRequest registerCheckRequest)
         {
             var commandResponse = await _mediator.Send(new RegisterCheckCommand
             {
-                CorrelationId = registerCheckDto.CorrelationId,
-                CheckType = registerCheckDto.CheckType ?? "",
-                Uln = registerCheckDto.Uln,
-                ApprenticeshipAccountId = registerCheckDto.ApprenticeshipAccountId,
-                ApprenticeshipId = registerCheckDto.ApprenticeshipId,
-                MinDate = registerCheckDto.MinDate,
-                MaxDate = registerCheckDto.MaxDate
+                CorrelationId = registerCheckRequest.CorrelationId,
+                CheckType = registerCheckRequest.CheckType ?? "",
+                Uln = registerCheckRequest.Uln,
+                ApprenticeshipAccountId = registerCheckRequest.ApprenticeshipAccountId,
+                ApprenticeshipId = registerCheckRequest.ApprenticeshipId,
+                MinDate = registerCheckRequest.MinDate,
+                MaxDate = registerCheckRequest.MaxDate
             });
 
             var response = new Responses.RegisterCheckResponse();
