@@ -82,6 +82,32 @@
         "utcValue": {
             "type": "string",
             "defaultValue": "[utcNow()]"
+        },
+       "SharedSQLAuditLogsTableName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "retentionDays": {
+            "type": "string",
+            "defaultValue": "365",
+            "metadata": {
+               "description": "The SQL audit logs will be stored for maximum of 1 year"
+           }
+        },
+        "SharedStorageAccountKey": {
+            "type": "securestring"
+        },
+        "SharedStorageAccountName": {
+            "type": "string"
+        },
+        "SharedStorageAccountSecondaryKey": {
+            "type": "securestring"
+        },
+        "SharedStorageAccountSubscriptionId": {
+            "type": "string"
+        },
+        "SharedStorageTableEndpoint": {
+            "type": "string"
         }
     },
     "variables": {
@@ -300,6 +326,33 @@
                     },
                     "logAnalyticsWorkspaceName": {
                         "value": "[parameters('logAnalyticsWorkspaceName')]"
+                    },
+                    "auditLogsTableName": {
+                        "value" : "[parameters('SharedSQLAuditLogsTableName')]"
+                    },
+                    "fullAuditLogsTableName": {
+                        "value": "[parameters('SharedSQLAuditLogsTableName')]"
+                    },
+                    "retentionDays": {
+                        "value": "[parameters('retentionDays')]"
+                    },
+                    "storageAccountKey": {
+                        "value": "[parameters('SharedStorageAccountKey')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[parameters('SharedStorageAccountName')]"
+                    },
+                    "storageAccountResourceGroupName": {
+                        "value": "[parameters('sharedManagementResourceGroup')]"
+                    },
+                    "storageAccountSecondaryKey": {
+                        "value": "[parameters('SharedStorageAccountSecondaryKey')]"
+                    },
+                    "storageAccountSubscriptionId": {
+                        "value": "[parameters('SharedStorageAccountSubscriptionId')]"
+                    },
+                    "storageTableEndpoint": {
+                        "value": "[parameters('SharedStorageTableEndpoint')]"
                     }
                 }
             }
