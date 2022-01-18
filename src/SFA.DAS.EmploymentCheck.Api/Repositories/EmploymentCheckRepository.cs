@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
                 .OrderByDescending(x => x.VersionId)
                 .FirstOrDefault();
 
-            return lastCheck ?? new Application.Models.EmploymentCheck();
+            return lastCheck;
         }
 
         public async Task Insert(Application.Models.EmploymentCheck employmentCheck)
