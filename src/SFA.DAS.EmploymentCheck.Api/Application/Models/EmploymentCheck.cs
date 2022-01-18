@@ -6,6 +6,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
     [Table("Business.EmploymentCheck")]
     public class EmploymentCheck
     {
+        public EmploymentCheck() { }
         public EmploymentCheck(Guid correlationId, string checkType, long uln, long? apprenticeshipId, int apprenticeshipAccountId, DateTime minDate, DateTime maxDate, short versionId)
         {
             CorrelationId = correlationId;
@@ -19,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
             LastUpdatedOn = DateTime.Now;
             CreatedOn = DateTime.Now;
         }
-
+        
         public long Id { get; set; }
 
         public Guid CorrelationId { get; set; }

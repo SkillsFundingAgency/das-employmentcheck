@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
         }
 
         private static Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command,
-            short versionId)
+            short? versionId)
         {
             return new Application.Models.EmploymentCheck(
                 command.CorrelationId,
@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
                 command.ApprenticeshipAccountId,
                 command.MinDate,
                 command.MaxDate,
-                versionId
+                versionId ?? 1
             );
         }
     }
