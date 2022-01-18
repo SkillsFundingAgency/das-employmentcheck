@@ -53,9 +53,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Completed.");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError($"{thisMethodName}: Exception caught - {e.Message}. {e.StackTrace}");
+                _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
             }
         }
         #endregion EmploymentChecksOrchestrator

@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Repositories
 {
     public class WhenSaveEmploymentCheckCacheResponse : RepositoryTestBase
     {
-        private Functions.Repositories.EmploymentCheckCacheResponseRepository _sut;
+        private EmploymentCheckCacheResponseRepository _sut;
 
         [Test]
         public async Task CanSave()
@@ -29,7 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Repositories
                 .Single(x => x.CorrelationId == expected.CorrelationId);
 
 
-            actual.Should().BeEquivalentTo(expected,
+            actual.Should().BeEquivalentTo(expected, 
                 opts => opts
                     .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)

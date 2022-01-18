@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
             Console.WriteLine("Confirm these settings are correct by pressing [enter]:");
             Console.ReadLine();
         }
-
+      
         public async Task DoTheWork()
         {
             Console.WriteLine("Seeding data...");
@@ -64,10 +64,10 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
+                Console.WriteLine(ex);
             }
         }
 

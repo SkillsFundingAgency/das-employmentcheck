@@ -1,5 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
@@ -11,27 +10,47 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
 {
     public class EmployerAccountClient : IEmployerAccountClient
     {
+        private readonly ILogger<IEmploymentCheckClient> _logger;
         private readonly IEmployerAccountService _employerAccountService;
-        public EmployerAccountClient(IEmployerAccountService employerAccountService)
+        public EmployerAccountClient(
+            ILogger<IEmploymentCheckClient> logger,
+            IEmployerAccountService employerAccountService
+            )
         {
             _employerAccountService = employerAccountService;
+            _logger = logger;
         }
 
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Models.EmploymentCheck> employmentChecksBatch)
+            IList<Models.EmploymentCheck> apprenticeEmploymentChecks)
         {
-            var employersPayeSchemes = new List<EmployerPayeSchemes>();
-            foreach (var employmentCheck in employmentChecksBatch)
+            var thisMethodName = $"{nameof(EmployerAccountClient)}.GetEmployersPayeSchemes";
+
+            var employerPayeSchemes = new List<EmployerPayeSchemes>();
+
+            if (apprenticeEmploymentChecks?.Any() == true)
             {
-                var employerPayeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
-                for (int i = 0; i < employerPayeSchemes.PayeSchemes.Count; i++)
+                foreach (var apprenticeEmploymentCheck in apprenticeEmploymentChecks)
                 {
-                    employerPayeSchemes.PayeSchemes[i] = employerPayeSchemes.PayeSchemes[i].Trim().ToUpper();
+                    var resourceList = await _employerAccountService.GetPayeSchemes(apprenticeEmploymentCheck);
+
+                    if (resourceList?.Any() == true)
+                    {
+                        employerPayeSchemes.Add(new EmployerPayeSchemes(apprenticeEmploymentCheck.AccountId,
+                            resourceList.Select(x => x.Id.Trim().ToUpper()).ToList()));
+                    }
+                    else
+                    {
+                        _logger.LogError($"{thisMethodName}: resourceList parameter is NULL, no employer PAYE schemes retrieved");
+                    }
                 }
-                employersPayeSchemes.Add(employerPayeSchemes);
+            }
+            else
+            {
+                _logger.LogError($"{thisMethodName}: the apprenticeEmploymentChecks input parameter is NULL or empty, no employer PAYE schemes retrieved");
             }
 
-            return employersPayeSchemes;
+            return employerPayeSchemes;
         }
     }
 }
