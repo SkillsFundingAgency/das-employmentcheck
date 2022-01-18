@@ -2,10 +2,10 @@
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Api.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Api.Repositories
 {
@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public EmploymentCheckRepository(
-            ApplicationSettings applicationSettings,
+            EmploymentCheckSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider = null)
         {
             _azureServiceTokenProvider = azureServiceTokenProvider;
