@@ -48,9 +48,9 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             //Assert
 
-            Assert.AreEqual(result.ErrorMessage, "ErrorMessage");
-            Assert.AreEqual(result.ErrorType, "ErrorType");
-            Assert.IsNull(result.VersionId);
+            Assert.AreEqual("ErrorMessage", result.ErrorMessage);
+            Assert.AreEqual("ErrorType", result.ErrorType);
+            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             //Assert
 
-            Assert.AreEqual(result.VersionId, 1);
+            Assert.AreEqual(1, result.VersionId);
             Assert.IsNull(result.ErrorMessage);
             Assert.IsNull(result.ErrorType);
         }
@@ -83,22 +83,15 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
-            var employmentCheck = new Api.Application.Models.EmploymentCheck
-            {
-                AccountId = 1, 
-                ApprenticeshipId = 2, 
-                CheckType = "CheckType", 
-                CorrelationId = Guid.NewGuid(),
-                CreatedOn = DateTime.Today, 
-                Employed = null, 
-                Id = 1, 
-                LastUpdatedOn = DateTime.Today,
-                MinDate = DateTime.Today.AddDays(-1), 
-                MaxDate = DateTime.Today.AddDays(1),
-                RequestCompletionStatus = null, 
-                Uln = 10000001, 
-                VersionId = 2
-            };
+            var employmentCheck = new Api.Application.Models.EmploymentCheck(
+                Guid.NewGuid(),
+                "CheckType",
+                1000001,
+                1,
+                2,
+                DateTime.Today.AddDays(-1),
+                DateTime.Today.AddDays(1),
+                2);
             
             _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
                 .ReturnsAsync(employmentCheck);
@@ -111,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             //Assert
 
-            Assert.AreEqual(result.VersionId, 3);
+            Assert.AreEqual(3, result.VersionId);
             Assert.IsNull(result.ErrorMessage);
             Assert.IsNull(result.ErrorType);
         }
