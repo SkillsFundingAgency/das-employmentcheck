@@ -1,20 +1,16 @@
 ﻿using Ardalis.GuardClauses;
-using Dapper;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -40,7 +36,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         public EmployerAccountService(
             ILogger<EmployerAccountService> logger,
             EmployerAccountApiConfiguration apiConfiguration,
-            ApplicationSettings applicationSettings,
             IHashingService hashingService,
             IHttpClientFactory httpClientFactory,
             IWebHostEnvironment hostingEnvironment,
@@ -92,17 +87,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 -1);            // Http Status Code
 
             // Call the Accounts API
-            HttpResponseMessage response = null;
-            EmployerPayeSchemes employerPayeSchemes = null;
-            string responsePayeSchemes = string.Empty;
             TResponse content;
             try
             {
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
+                var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
                 var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 content = JsonConvert.DeserializeObject<TResponse>(json);
                 var resourceList = new ResourceList((IEnumerable<ResourceViewModel>)await Task.FromResult(content));
-                employerPayeSchemes = new EmployerPayeSchemes(employmentCheckBatch.AccountId, resourceList.Select(x => x.Id).ToList());
+                var employerPayeSchemes = new EmployerPayeSchemes(employmentCheckBatch.AccountId, resourceList.Select(x => x.Id).ToList());
                 var allEmployerPayeSchemes = new StringBuilder();
                 foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                 {
@@ -110,11 +102,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 }
 
                 // trim the comma at start of string
-                responsePayeSchemes = allEmployerPayeSchemes.ToString();
+                var responsePayeSchemes = allEmployerPayeSchemes.ToString();
                 responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
 
                 accountsResponse.PayeSchemes = responsePayeSchemes;
-                accountsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: Get() - The call to the Accounts API returned no response data.";
+                accountsResponse.HttpResponse = response.ToString();
                 accountsResponse.HttpStatusCode = (short)response.StatusCode;
             }
             catch (Exception e)
@@ -131,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"EmployerAccountService.SendIndividualRequest(): ERROR: the AccountsRepository Save() method threw an Exception [{e}]");
+                    _logger.LogError($"EmployerAccountService.Get(): ERROR: the AccountsResponseRepository Save() method threw an Exception [{e}]");
                 }
             }
 
