@@ -20,13 +20,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
             IList<Models.EmploymentCheck> employmentChecksBatch)
         {
-            Guard.Against.NullOrEmpty(employmentChecksBatch, nameof(employmentChecksBatch));
-
             var employersPayeSchemes = new List<EmployerPayeSchemes>();
             foreach (var employmentCheck in employmentChecksBatch)
             {
-                var employerPayeScheme = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
-                employersPayeSchemes.Add(employerPayeScheme);
+                var employerPayeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
+                for (int i = 0; i < employerPayeSchemes.PayeSchemes.Count; i++)
+                {
+                    employerPayeSchemes.PayeSchemes[i] = employerPayeSchemes.PayeSchemes[i].Trim().ToUpper();
+                }
+                employersPayeSchemes.Add(employerPayeSchemes);
             }
 
             return employersPayeSchemes;

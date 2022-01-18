@@ -8,6 +8,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
     {
         private Mock<IEmployerAccountService> _employerAccountService;
         private Mock<ILogger<IEmploymentCheckClient>> _logger;
-        private List<Functions.Application.Models.EmploymentCheck> _employmentCheckBatch;
+        private List<Functions.Application.Models.EmploymentCheck> _apprentices;
         private Fixture _fixture;
         private EmployerAccountClient _sut;
 
@@ -28,23 +29,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
             _logger = new Mock<ILogger<IEmploymentCheckClient>>();
-            _employmentCheckBatch = new List<Functions.Application.Models.EmploymentCheck> {_fixture.Create<Functions.Application.Models.EmploymentCheck>()};
+            _apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
+
+            _sut = new EmployerAccountClient(_employerAccountService.Object);
         }
 
         [Test]
         public async Task Then_The_EmployerAccountService_Is_Called()
         {
             //Arrange
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]))
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
                 .ReturnsAsync(_fixture.Create<EmployerPayeSchemes>());
 
-            var sut = new EmployerAccountClient(_employerAccountService.Object);
-
             //Act
-            await sut.GetEmployersPayeSchemes(_employmentCheckBatch);
+            await _sut.GetEmployersPayeSchemes(_apprentices);
 
             //Assert
-            _employerAccountService.Verify(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]), Times.Exactly(1));
+            _employerAccountService.Verify(x => x.GetEmployerPayeSchemes(_apprentices[0]), Times.Exactly(1));
         }
 
         [Test]
@@ -54,21 +55,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             var employerPayeSchemes = new EmployerPayeSchemes
             {
                 EmployerAccountId = 1,
-                PayeSchemes = new List<string>()
+                PayeSchemes = new List<string> { " paye " }
             };
 
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]))
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
                 .ReturnsAsync(employerPayeSchemes);
 
-            var sut = new EmployerAccountClient(_employerAccountService.Object);
-
-
             //Act
-            var result = await sut.GetEmployersPayeSchemes(_employmentCheckBatch);
+            var result = await _sut.GetEmployersPayeSchemes(_apprentices);
 
             //Assert
-            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First());
+            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First().ToString());
         }
+
 
         [Test]
         public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_List_Is_Returned()
@@ -76,19 +75,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             //Act
             var result = await _sut.GetEmployersPayeSchemes(new List<Functions.Application.Models.EmploymentCheck>());
 
-            var sut = new EmployerAccountClient(_employerAccountService.Object);
-        }
-
-        [Test]
-        public async Task And_Null_Is_Passed_In_Then_An_Empty_List_Is_Returned()
-        {
-            //Act
-            var result = await _sut.GetEmployersPayeSchemes(null);
-
             //Assert
             result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
         }
 
+        [Test]
+        public Task And_Null_Is_Passed_In_Then_A_NullReference_Exception_Occurs()
+        {
+            //Assert
+            Assert.ThrowsAsync<NullReferenceException>(async () => await _sut.GetEmployersPayeSchemes(null));
+            return Task.CompletedTask;
+        }
 
         [Test]
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_UpperCased_and_Trimmed_of_WhiteSpace()
@@ -97,14 +94,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             var employerPayeSchemes = new EmployerPayeSchemes
             {
                 EmployerAccountId = 1,
-                PayeSchemes = new List<string>()
+                PayeSchemes = new List<string> { " paye " }
             };
 
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheckBatch[0]))
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
                 .ReturnsAsync(employerPayeSchemes);
 
             //Act
-            var result = await _sut.GetEmployersPayeSchemes(_employmentCheckBatch);
+            var result = await _sut.GetEmployersPayeSchemes(_apprentices);
 
             //Assert
             result.First().PayeSchemes.First().Should().BeEquivalentTo("PAYE");

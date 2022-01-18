@@ -74,14 +74,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
                     employmentCheckCacheResponse.Employed = result.Employed;
                     employmentCheckCacheResponse.FoundOnPaye = result.Empref;
-                    employmentCheckCacheResponse.HttpResponse = "OK (200)";
+                    employmentCheckCacheResponse.HttpResponse = "OK";
                     employmentCheckCacheResponse.HttpStatusCode = 200;
                     await _repository.Save(employmentCheckCacheResponse);
                 }
                 else
                 {
-                    employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
+                    request.Employed = null;
                     request.RequestCompletionStatus = 500;
+
+                    employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
                     await _repository.Save(employmentCheckCacheResponse);
 
                     _logger.LogError($"{thisMethodName}: [{employmentCheckCacheResponse.HttpResponse}]");
@@ -92,18 +94,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 e.HttpCode == (int)HttpStatusCode.RequestTimeout
                 )
             {
+                employmentCheckCacheResponse.ProcessingComplete = false;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
                 await _repository.Save(employmentCheckCacheResponse);
             }
             catch (ApiHttpException e)
             {
+                employmentCheckCacheResponse.ProcessingComplete = true;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
                 await _repository.Save(employmentCheckCacheResponse);
             }
             catch (Exception e)
             {
+                employmentCheckCacheResponse.ProcessingComplete = false;
                 employmentCheckCacheResponse.HttpResponse = $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}";
                 employmentCheckCacheResponse.HttpStatusCode = 500;
                 await _repository.Save(employmentCheckCacheResponse);
