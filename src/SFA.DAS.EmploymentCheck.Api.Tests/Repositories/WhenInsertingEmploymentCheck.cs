@@ -10,7 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 {
     public class WhenInsertingEmploymentCheck : RepositoryTestBase
     {
-        private EmploymentCheckRepository _sut;
+        private IEmploymentCheckRepository _sut;
 
         [Test]
         public async Task Then_The_Check_Should_Be_Saved()
