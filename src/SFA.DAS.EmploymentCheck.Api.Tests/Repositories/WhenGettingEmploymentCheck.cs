@@ -53,7 +53,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 
             actual.Should().BeEquivalentTo(last,
                 opts => opts
-                    .Excluding(x => x.Id)
                     .Excluding(x => x.MinDate)
                     .Excluding(x => x.MaxDate)
                     .Excluding(x => x.CreatedOn)
@@ -63,7 +62,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
             actual.MaxDate.Should().BeCloseTo(last.MaxDate, TimeSpan.FromSeconds(1));
             actual.CreatedOn.Should().BeCloseTo(last.CreatedOn, TimeSpan.FromSeconds(1));
             actual.LastUpdatedOn.Should().BeCloseTo(last.LastUpdatedOn, TimeSpan.FromSeconds(1));
-            actual.Id.Should().BeGreaterThan(0);
         }
 
         [Test]

@@ -47,18 +47,5 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
 
             await sqlConnection.InsertAsync(employmentCheck);
         }
-
-        public async Task<int> GetLastId()
-        {
-            var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            var lastCheck = sqlConnection.GetAllAsync<Application.Models.EmploymentCheck>().Result.Select(x => x).Last();
-
-            return (int)lastCheck.Id;
-        }
     }
 }

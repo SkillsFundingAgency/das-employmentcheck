@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
             var response = new Responses.RegisterCheckResponse();
 
-            if (commandResponse.VersionId != 0)
+            if (commandResponse.VersionId != null)
             {
                 response.VersionId = commandResponse.VersionId;
 

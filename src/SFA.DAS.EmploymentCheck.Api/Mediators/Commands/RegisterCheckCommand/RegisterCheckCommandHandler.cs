@@ -17,38 +17,35 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
             _commandValidator = commandValidator;
         }
 
-        public async Task<RegisterCheckResult> Handle(RegisterCheckCommand command,
-            CancellationToken cancellationToken)
+        public async Task<RegisterCheckResult> Handle(RegisterCheckCommand command, CancellationToken cancellationToken)
         {
-            //Validate the command
+            var result = _commandValidator.Validate(command);
 
-            var validationResult = _commandValidator.Validate(command);
+            if (result.Invalid()) return result;
 
-            if (!string.IsNullOrEmpty(validationResult.ErrorType) && !string.IsNullOrEmpty(validationResult.ErrorMessage))
-            {
-                return validationResult;
-            }
+            await GetNextVersionId(command, result);
 
-            //Get VersionId if row is present and increment it if it is
-            
-            var existingEmploymentCheck = await _employmentCheckService.CheckForExistingEmploymentCheck(command.CorrelationId);
+            Save(command, result);
 
-            validationResult.VersionId = existingEmploymentCheck != null ? (existingEmploymentCheck.VersionId += 1): 1;
-            
-            //Insert new EmploymentCheck into the db
-
-            var employmentCheck = await CreateNewEmploymentCheck(command, validationResult.VersionId);
-
-            _employmentCheckService.InsertEmploymentCheck(employmentCheck);
-
-            //Return the VersionId
-            return validationResult;
+            return result;
         }
 
-        private async Task<Application.Models.EmploymentCheck> CreateNewEmploymentCheck(RegisterCheckCommand command, int? versionId)
+        private void Save(RegisterCheckCommand command, RegisterCheckResult validationResult)
         {
-            var lastId = await _employmentCheckService.GetLastId();
+            var employmentCheck = CreateNewEmploymentCheck(command, validationResult.VersionId);
 
+            _employmentCheckService.InsertEmploymentCheck(employmentCheck);
+        }
+
+        private async Task GetNextVersionId(RegisterCheckCommand command, RegisterCheckResult validationResult)
+        {
+            var existingEmploymentCheck = await _employmentCheckService.CheckForExistingEmploymentCheck(command.CorrelationId);
+
+            validationResult.VersionId = (short?) (existingEmploymentCheck?.VersionId + 1 ?? 1);
+        }
+
+        private Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command, short? versionId)
+        {
             return new Application.Models.EmploymentCheck
             {
                 AccountId = command.ApprenticeshipAccountId,
@@ -57,12 +54,11 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
                 CorrelationId = command.CorrelationId,
                 CreatedOn = DateTime.Now,
                 Employed = null,
-                Id = lastId + 1,
                 LastUpdatedOn = DateTime.Now,
                 MinDate = command.MinDate,
                 MaxDate = command.MaxDate,
                 RequestCompletionStatus = null,
-                VersionId = (short)versionId
+                VersionId = versionId ?? 1
             };
         }
     }

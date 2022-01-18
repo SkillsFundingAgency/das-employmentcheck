@@ -100,7 +100,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         public async Task And_The_VersionId_Is_Not_Present_Then_Errors_And_400_Is_Returned()
         {
             //Arrange
-            _response.VersionId = 0;
+            _response.VersionId = null;
 
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _registerCheckDto.CorrelationId &&

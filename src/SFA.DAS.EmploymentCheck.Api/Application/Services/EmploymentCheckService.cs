@@ -24,12 +24,5 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Services
         {
             _employmentCheckRepository.Insert(employmentCheck);
         }
-
-        public async Task<int> GetLastId()
-        {
-            var lastId = await _employmentCheckRepository.GetLastId();
-
-            return lastId;
-        }
     }
 }

@@ -7,6 +7,5 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Services
     {
         public Task<Models.EmploymentCheck> CheckForExistingEmploymentCheck(Guid correlationId);
         public void InsertEmploymentCheck(Models.EmploymentCheck employmentCheck);
-        public Task<int> GetLastId();
     }
 }

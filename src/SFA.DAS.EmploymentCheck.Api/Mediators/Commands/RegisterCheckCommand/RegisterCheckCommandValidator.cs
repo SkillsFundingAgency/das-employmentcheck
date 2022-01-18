@@ -43,8 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
                 return new RegisterCheckResult
                 {
                     ErrorMessage = responseErrorMessages,
-                    ErrorType = responseErrorTypes,
-                    VersionId = 0
+                    ErrorType = responseErrorTypes
                 };
             }
             
