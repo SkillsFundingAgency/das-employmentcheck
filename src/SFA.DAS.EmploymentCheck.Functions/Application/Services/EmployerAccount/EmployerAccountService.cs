@@ -209,7 +209,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 
             // Get the EmployerPayeSchemes from the ResourceList
             var employerPayeSchemes = new EmployerPayeSchemes(accountsResponse.AccountId, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList());
+#pragma warning disable S2583 // Conditionally executed code should be reachable
             if (employerPayeSchemes == null)
+#pragma warning restore S2583 // Conditionally executed code should be reachable
             {
                 // No employerPayeSchemes data, store the accounts response and return an empty EmployerPayeSchemes
                 await Save(accountsResponse);
