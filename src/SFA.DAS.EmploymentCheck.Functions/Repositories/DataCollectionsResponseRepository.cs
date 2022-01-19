@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             {
                 result = await sqlConnection.GetAsync<DataCollectionsResponse>(dataCollectionsResponse.ApprenticeEmploymentCheckId);
             }
-            catch(Exception e)
+            catch
             {
                 // TODO: logging
             }

@@ -407,7 +407,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             {
                 await _employmentCheckRepository.Save(employmentCheck);
             }
-            catch (Exception e)
+            catch
             {
                 // No logging, we're not interested in storing errors about duplicates at the moment
             }
