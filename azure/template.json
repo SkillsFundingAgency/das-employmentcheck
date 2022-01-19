@@ -110,7 +110,7 @@
         }
     },
     "variables": {
-        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/DASD9357/audit_db_settings/templates/",
+        "deploymentUrlBase": "https://github.com/SkillsFundingAgency/das-platform-building-blocks/tree/DASD9357/sql-auditing-settings/templates",
         "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
