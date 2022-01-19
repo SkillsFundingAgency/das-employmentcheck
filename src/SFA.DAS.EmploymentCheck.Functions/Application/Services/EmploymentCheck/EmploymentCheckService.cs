@@ -181,13 +181,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 if (string.IsNullOrEmpty(nationalInsuranceNumber))
                 {
                     // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
-                    _logger.LogError($"{thisMethodName}: ERROR - No national insurance number found for apprentice Uln: [{employmentCheck.Uln}].");
+                    _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (Nino not found).");
 
                     // Update the status of the 'stored' employment check with the request completion status so that we can see that this Nino was not found
                     employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_NinoNotFound;
                     try
                     {
-                        await _employmentCheckRepository.Save(employmentCheck);
+                        await SaveEmploymentCheck(employmentCheck);
                     }
                     catch(Exception e)
                     {
@@ -202,13 +202,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 if (employerPayeSchemes == null)
                 {
                     // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
-                    _logger.LogError($"{thisMethodName}: ERROR - No PAYE schemes found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
+                    _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (PayeScheme not found).");
 
                     // Update the status of the 'stored' employment check with the request completion status so that we can see that this PayeScheme was not found
                     employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_PayeSchemeNotFound;
                     try
                     {
-                        await _employmentCheckRepository.Save(employmentCheck);
+                        await SaveEmploymentCheck(employmentCheck);
                     }
                     catch (Exception e)
                     {
@@ -393,5 +393,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
 
         #endregion UpdateEmploymentCheck
+
+        private async Task SaveEmploymentCheck(Models.EmploymentCheck employmentCheck)
+        {
+            if (employmentCheck == null)
+            {
+                _logger.LogError($"LearnerService.Save(): ERROR: The employmentCheck model is null.");
+                return;
+            }
+
+            // Temporary work-around try/catch for handling duplicate inserts until we switch to single message processing
+            try
+            {
+                await _employmentCheckRepository.Save(employmentCheck);
+            }
+            catch (Exception e)
+            {
+                // No logging, we're not interested in storing errors about duplicates at the moment
+            }
+        }
     }
 }

@@ -24,10 +24,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             foreach (var employmentCheck in employmentChecksBatch)
             {
                 var employerPayeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
-                for (int i = 0; i < employerPayeSchemes.PayeSchemes.Count; i++)
-                {
-                    employerPayeSchemes.PayeSchemes[i] = employerPayeSchemes.PayeSchemes[i].Trim().ToUpper();
-                }
                 employersPayeSchemes.Add(employerPayeSchemes);
             }
 

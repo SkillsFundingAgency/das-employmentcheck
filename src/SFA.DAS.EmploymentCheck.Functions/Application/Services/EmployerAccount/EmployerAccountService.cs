@@ -1,21 +1,18 @@
 ﻿using Ardalis.GuardClauses;
-using Dapper;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.HashingService;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -27,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         : IEmployerAccountService
     {
         #region Private memebers
-        private readonly ILogger<EmployerAccountService> _logger;
+        private readonly ILogger<IEmployerAccountService> _logger;
         private readonly IHashingService _hashingService;
         private readonly HttpClient _httpClient;
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -38,9 +35,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 
         #region Constructors
         public EmployerAccountService(
-            ILogger<EmployerAccountService> logger,
+            ILogger<IEmployerAccountService> logger,
             EmployerAccountApiConfiguration apiConfiguration,
-            ApplicationSettings applicationSettings,
             IHashingService hashingService,
             IHttpClientFactory httpClientFactory,
             IWebHostEnvironment hostingEnvironment,
@@ -60,84 +56,187 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         #endregion Constructors
 
         #region GetEmployerPayeSchemes
-        public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentChecksBatch)
+        public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentCheck)
         {
-            Guard.Against.Null(employmentChecksBatch, nameof(employmentChecksBatch));
+            // Setup config for Accounts Api call
+            HttpRequestMessage httpRequestMessage = await SetupAccountsApiConfig(employmentCheck);
 
-            var resourceList = await Get<ResourceList>(employmentChecksBatch);
-            if (resourceList.GetType() != typeof(ResourceList))
-            {
-                // no PayeScheme found, return an empty EmployerPayeScheme (caller should check for empty EmployerPayeScheme
-                return new EmployerPayeSchemes(employmentChecksBatch.AccountId, new List<string>());
-            }
+            // Call the Accounts Api to get the PayeSchemes
+            var payeSchemes = await ExecuteAccountsApiCall(employmentCheck, httpRequestMessage).ConfigureAwait(false);
 
-            return new EmployerPayeSchemes(employmentChecksBatch.AccountId, resourceList.Select(x => x.Id).ToList());
+            // Return the paye schemes to the caller
+            return payeSchemes ?? new EmployerPayeSchemes();
         }
+        #endregion GetEmployerPayeSchemes
 
-        public async Task<TResponse> Get<TResponse>(Models.EmploymentCheck employmentCheckBatch)
+        #region SetupAccountsApiConfig
+        private async Task<HttpRequestMessage> SetupAccountsApiConfig(Models.EmploymentCheck employmentCheck)
         {
-            var hashedAccountId = _hashingService.HashValue(employmentCheckBatch.AccountId);
+            var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
             var url = $"api/accounts/{hashedAccountId}/payeschemes";
-
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
             await AddAuthenticationHeader(httpRequestMessage);
+            return httpRequestMessage;
+        }
+        #endregion SetupAccountsApiConfig
 
-            // setup a default template 'response' to store the api response
-            var accountsResponse = new AccountsResponse(
-                employmentCheckBatch.Id,
-                employmentCheckBatch.CorrelationId,
-                employmentCheckBatch.AccountId,
-                string.Empty,   // PayeSchemes,
-                string.Empty,   // Response
-                -1);            // Http Status Code
-
-            // Call the Accounts API
-            HttpResponseMessage response = null;
+        #region ExecuteGetPayeSchemesApiCall
+        private async Task<EmployerPayeSchemes> ExecuteAccountsApiCall(Models.EmploymentCheck employmentCheck, HttpRequestMessage httpRequestMessage)
+        {
             EmployerPayeSchemes employerPayeSchemes = null;
-            string responsePayeSchemes = string.Empty;
-            TResponse content;
             try
             {
-                response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
-                var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                content = JsonConvert.DeserializeObject<TResponse>(json);
-                var resourceList = new ResourceList((IEnumerable<ResourceViewModel>)await Task.FromResult(content));
-                employerPayeSchemes = new EmployerPayeSchemes(employmentCheckBatch.AccountId, resourceList.Select(x => x.Id).ToList());
-                var allEmployerPayeSchemes = new StringBuilder();
-                foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
-                {
-                    allEmployerPayeSchemes.Append($", {payeScheme}");
-                }
+                // Call the Accounts Api
+                var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
 
-                // trim the comma at start of string
-                responsePayeSchemes = allEmployerPayeSchemes.ToString();
-                responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
-
-                accountsResponse.PayeSchemes = responsePayeSchemes;
-                accountsResponse.HttpResponse = response != null ? response.ToString() : "ERROR: Get() - The call to the Accounts API returned no response data.";
-                accountsResponse.HttpStatusCode = (short)response.StatusCode;
+                // Get the EmployerPayeSchemes from the response
+                employerPayeSchemes = await GetApiResponsePayeSchemes(employmentCheck, response);
             }
             catch (Exception e)
             {
-                accountsResponse.HttpResponse = e.Message;
-                content = (TResponse)new object();
-                _logger.LogError($"EmployerAccountService.Get(): ERROR: {accountsResponse.HttpResponse}");
-            }
-            finally
-            {
-                try
-                {
-                    await _repository.Save(accountsResponse);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError($"EmployerAccountService.SendIndividualRequest(): ERROR: the AccountsRepository Save() method threw an Exception [{e}]");
-                }
+                await HandleException(employmentCheck, e);
             }
 
-            return content;
+            // Return the EmployerPayeSchemes
+            return employerPayeSchemes;
         }
+        #endregion ExecuteGetPayeSchemesApiCall
 
+        #region GetApiResponsePayeSchemes
+        private async Task<EmployerPayeSchemes> GetApiResponsePayeSchemes(
+            Models.EmploymentCheck employmentCheck,
+            HttpResponseMessage httpResponseMessage
+        )
+        {
+            // This has already been null checked earlier in the call-chain so should not be null
+            Guard.Against.Null(employmentCheck, nameof(employmentCheck));
+
+            // Create an 'AccountsResponse' model to hold the api response data to store in the database
+            var accountsResponse = await InitialiseAccountResponseModel(employmentCheck);
+
+            // Check we have response data
+            if (httpResponseMessage == null)
+            {
+                await Save(accountsResponse);
+                return await Task.FromResult(new EmployerPayeSchemes());
+            }
+
+            // Store the api response data in the accounts response model
+            accountsResponse.HttpResponse = httpResponseMessage.ToString();
+            accountsResponse.HttpStatusCode = (short)httpResponseMessage.StatusCode;
+
+            // Check the response success status code to determine if the api call succeeded
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                // The call wasn't successful, save the api response data and return an empty EmployerPayeSchemes
+                await Save(accountsResponse);
+                return await Task.FromResult(new EmployerPayeSchemes());
+            }
+
+            // The api call was succesful, read the response content
+            var jsonContent = await ReadResponseContent(httpResponseMessage, accountsResponse);
+
+            // Deserialise the employer paye schemes from the content
+            var employerPayeSchemes = await DeserialiseContent(jsonContent, accountsResponse);
+
+            // return the employer schemes to the caller
+            return employerPayeSchemes;
+        }
+        #endregion GetApiResponsePayeSchemes
+
+        #region InitialiseAccountResponseModel
+        private async Task<AccountsResponse> InitialiseAccountResponseModel(Models.EmploymentCheck employmentCheck)
+        {
+            return await Task.FromResult(new AccountsResponse(
+                employmentCheck.Id,
+                employmentCheck.CorrelationId,
+                employmentCheck.AccountId,
+                string.Empty,                                   // PayeSchemes,
+                string.Empty,                                   // Response
+                (short)HttpStatusCode.InternalServerError));    // Http Status Code
+        }
+        #endregion InitialiseAccountResponseModel
+
+        #region ReadResponseContent
+        private async Task<string> ReadResponseContent(
+            HttpResponseMessage httpResponseMessage,
+            AccountsResponse accountsResponse
+        )
+        {
+            // This has already been null checked earlier in the call-chain so should not be null
+            Guard.Against.Null(accountsResponse, nameof(accountsResponse));
+
+            // This has already been null checked earlier in the call-chain so should not be null
+            Guard.Against.Null(httpResponseMessage, nameof(httpResponseMessage));
+
+            // Read the content
+            var json = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (string.IsNullOrEmpty(json))
+            {
+                // Nothing to read, store the accounts response and return an empty 'content' string
+                await Save(accountsResponse);
+                return string.Empty;
+            }
+
+            return json;
+        }
+        #endregion ReadResponseContent
+
+        #region DeserialiseContent
+        private async Task<EmployerPayeSchemes> DeserialiseContent(
+            string jsonContent,
+            AccountsResponse accountsResponse
+        )
+        {
+            // Check the jsonContent has a value
+            if (string.IsNullOrEmpty(jsonContent))
+            {
+                await Save(accountsResponse);
+                return await Task.FromResult(new EmployerPayeSchemes());
+            }
+
+            // This has already been null checked earlier in the call-chain so should not be null
+            Guard.Against.Null(accountsResponse, nameof(accountsResponse));
+
+            // Deserialise the json content
+            var resourceList = JsonConvert.DeserializeObject<ResourceList>(jsonContent);
+            if (resourceList == null || !resourceList.Any())
+            {
+                // Nothing to deserialise, store the accounts response and return an empty EmployerPayeSchemes
+                await Save(accountsResponse);
+                return await Task.FromResult(new EmployerPayeSchemes());
+            }
+
+            // Get the EmployerPayeSchemes from the ResourceList
+            var employerPayeSchemes = new EmployerPayeSchemes(accountsResponse.AccountId, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList());
+            if (employerPayeSchemes == null)
+            {
+                // No employerPayeSchemes data, store the accounts response and return an empty EmployerPayeSchemes
+                await Save(accountsResponse);
+                return await Task.FromResult(new EmployerPayeSchemes());
+            }
+
+            // Concatenate the list of PayeSchemes into a string for storing in the accounts response table
+            var allEmployerPayeSchemes = new StringBuilder();
+            foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
+            {
+                allEmployerPayeSchemes.Append($", {payeScheme}");
+            }
+
+            // Remove the leading comma
+            var responsePayeSchemes = allEmployerPayeSchemes.ToString();
+            responsePayeSchemes = responsePayeSchemes.Remove(0, 1);
+
+            // store the paye schemes string in the accountsResponse and save the accountsResponse to the database
+            accountsResponse.PayeSchemes = responsePayeSchemes;
+            await Save(accountsResponse);
+
+            // Return the employer paye schemes to the caller
+            return employerPayeSchemes;
+        }
+        #endregion DeserialiseContent
+
+        #region AddAuthenticationHeader
         private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
             if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
@@ -146,6 +245,39 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             }
         }
-        #endregion GetEmployerPayeSchemes
+        #endregion AddAuthenticationHeader
+
+        #region Save
+        private async Task Save(AccountsResponse accountsResponse)
+        {
+            if (accountsResponse == null)
+            {
+                _logger.LogError($"LearnerService.Save(): ERROR: The accountsResponse model is null.");
+                return;
+            }
+
+            // Temporary work-around try/catch for handling duplicate inserts until we switch to single message processing
+            try
+            {
+                await _repository.Save(accountsResponse);
+            }
+            catch(Exception e)
+            {
+                // No logging, we're not interested in storing errors about duplicates at the moment
+            }
+        }
+        #endregion Save
+
+        #region HandleException
+        private async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)
+        {
+            // Create an 'AccountsResponse' model to hold the api response data to store in the database
+            var accountsResponse = await InitialiseAccountResponseModel(employmentCheck);
+
+            // Store the exception message in the AccountsResponse model and store in the database
+            accountsResponse.HttpResponse = e.Message;
+            await Save(accountsResponse);
+        }
+        #endregion HandleException
     }
 }

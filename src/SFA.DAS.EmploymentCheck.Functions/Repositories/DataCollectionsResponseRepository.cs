@@ -4,6 +4,7 @@ using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
@@ -31,6 +32,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
 
             await sqlConnection.InsertAsync(dataCollectionsResponse);
+        }
+
+        public async Task<DataCollectionsResponse> Get(DataCollectionsResponse dataCollectionsResponse)
+        {
+            var dbConnection = new DbConnection();
+            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                _azureServiceTokenProvider);
+            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+            DataCollectionsResponse result = null;
+            try
+            {
+                result = await sqlConnection.GetAsync<DataCollectionsResponse>(dataCollectionsResponse.ApprenticeEmploymentCheckId);
+            }
+            catch(Exception e)
+            {
+                // TODO: logging
+            }
+
+            return result;
         }
     }
 }

@@ -5,6 +5,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 {
     public interface IEmployerAccountService
     {
-        Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentChecksBatch);
+        Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentCheck);
     }
 }
