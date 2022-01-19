@@ -80,9 +80,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                _logger.LogError($"{thisMethodName}: Exception caught - {e.Message}. {e.StackTrace}");
             }
             finally
             {
