@@ -88,11 +88,7 @@
             "defaultValue": ""
         },
         "retentionDays": {
-            "type": "string",
-            "defaultValue": "365",
-            "metadata": {
-               "description": "The SQL audit logs will be stored for maximum of 1 year"
-           }
+            "type": "int"
         },
         "SharedStorageAccountKey": {
             "type": "securestring"
