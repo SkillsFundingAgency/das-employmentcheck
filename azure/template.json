@@ -89,7 +89,7 @@
         },
         "retentionDays": {
             "type": "string",
-            "defaultValue": "360"
+            "defaultValue": "365"
         },
         "SharedStorageAccountKey": {
             "type": "securestring"
