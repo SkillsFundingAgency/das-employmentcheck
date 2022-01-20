@@ -25,18 +25,16 @@ namespace SFA.DAS.EmploymentCheck.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHealthChecks();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
             });
 
-            var serviceProvider = services.BuildServiceProvider();
-
-            var configuration = serviceProvider.GetService<IConfiguration>();
 
             var configBuilder = new ConfigurationBuilder()
-                .AddConfiguration(configuration)
+                .AddConfiguration(Configuration)
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
@@ -83,6 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/ping");
             });
         }
     }
