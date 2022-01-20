@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
@@ -13,47 +12,30 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     public class AdjustEmploymentCheckRateLimiterOptionsActivity
     {
         private readonly IHmrcApiOptionsRepository _optionsRepository;
-        private readonly ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> _logger;
         private readonly HmrcApiRateLimiterOptions _options;
 
         public AdjustEmploymentCheckRateLimiterOptionsActivity(
-            IHmrcApiOptionsRepository optionsRepository,
-            ILogger<AdjustEmploymentCheckRateLimiterOptionsActivity> logger)
+            IHmrcApiOptionsRepository optionsRepository)
         {
             _optionsRepository = optionsRepository;
-            _options =  _optionsRepository.GetHmrcRateLimiterOptions().Result;
-            _logger = logger;
+            _options = _optionsRepository.GetHmrcRateLimiterOptions().Result;
         }
 
         [FunctionName(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity))]
-        public async Task<TimeSpan> AdjustEmploymentCheckRateLimiterOptionsActivityTask([ActivityTrigger] ApprenticeEmploymentCheckMessageModel input)
+        public async Task<TimeSpan> AdjustEmploymentCheckRateLimiterOptionsActivityTask([ActivityTrigger] EmploymentCheckCacheRequest input)
         {
-            var thisMethodName = $"{nameof(AdjustEmploymentCheckRateLimiterOptionsActivity)}.AdjustEmploymentCheckRateLimiterOptionsActivity()";
+            var tooManyRequests = input.RequestCompletionStatus == (short) HttpStatusCode.TooManyRequests;
 
-            try
+            if (tooManyRequests)
             {
-                if (input.ReturnCode != null)
-                {
-                    var tooManyRequests = input.ReturnCode.Contains(HttpStatusCode.TooManyRequests.ToString(),
-                        StringComparison.InvariantCultureIgnoreCase);
-
-                    if (tooManyRequests)
-                    {
-                        await _optionsRepository.IncreaseDelaySetting(_options);
-                    }
-                    else
-                    {
-                        await _optionsRepository.ReduceDelaySetting(_options);
-                    }
-                }
-
-                return await Task.FromResult(TimeSpan.FromMilliseconds(_options.DelayInMs));
+                await _optionsRepository.IncreaseDelaySetting(_options);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError($"{thisMethodName} Exception caught - {ex.Message}. {ex.StackTrace}");
-                throw;
+                await _optionsRepository.ReduceDelaySetting(_options);
             }
+
+            return await Task.FromResult(TimeSpan.FromMilliseconds(_options.DelayInMs));
         }
     }
 }

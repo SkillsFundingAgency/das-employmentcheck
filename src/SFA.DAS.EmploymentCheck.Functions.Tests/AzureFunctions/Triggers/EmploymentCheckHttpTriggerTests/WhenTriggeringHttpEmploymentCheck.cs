@@ -6,7 +6,7 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
 {
@@ -23,42 +23,42 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
             _logger = new Mock<ILogger>();
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_Instance_Id_Is_Created()
         {
             //Arrange
             const string instanceId = "test";
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator), null))
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
                 .ReturnsAsync(instanceId);
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, instanceId, false))
                 .Returns(response);
 
             //Act
-            var result = await EmploymentCheckHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
             
-            Assert.Equal(response, result);
+            Assert.AreEqual(response, result);
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_Status_Code_Is_Returned()
         {
             //Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ApprenticeEmploymentChecksOrchestrator), null))
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
                 .ReturnsAsync("");
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, It.IsAny<string>(), false))
                 .Returns(response);
 
             //Act
-            var result = await EmploymentCheckHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
-            Assert.Equal(response.StatusCode, result.StatusCode);
+            Assert.AreEqual(response.StatusCode, result.StatusCode);
         }
     }
 }

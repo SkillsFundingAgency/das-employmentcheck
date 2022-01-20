@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using Xunit;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
+using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResultTests
 {
     public class WhenBuildingTheResult
     {
-        [Fact]
+        [Test]
         public void Then_The_Result_Is_Built_Successfully()
         {
             //Arrange
@@ -16,11 +17,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Act
 
-            var result = new Functions.Mediators.Queries.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResult(payeSchemes);
+            var result = new GetPayeSchemesQueryResult(payeSchemes);
 
             //Assert
 
-            Assert.Equal(payeSchemes, result.EmployersPayeSchemes);
+            Assert.AreEqual(payeSchemes, result.EmployersPayeSchemes);
         }
     }
 }

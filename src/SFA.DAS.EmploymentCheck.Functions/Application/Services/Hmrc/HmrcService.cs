@@ -3,12 +3,12 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
@@ -18,109 +18,131 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;
         private readonly ILogger<HmrcService> _logger;
+        private readonly IEmploymentCheckCacheResponseRepository _repository;
         private PrivilegedAccessToken _cachedToken;
 
-        public HmrcService(ITokenServiceApiClient tokenService, IApprenticeshipLevyApiClient apprenticeshipLevyService, ILogger<HmrcService> logger)
+        #region Constructors
+        public HmrcService(
+            ITokenServiceApiClient tokenService,
+            IApprenticeshipLevyApiClient apprenticeshipLevyService,
+            ILogger<HmrcService> logger,
+            IEmploymentCheckCacheResponseRepository repository
+            )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
+            _repository = repository;
             _cachedToken = null;
         }
+        #endregion Constructors
 
-        public async Task<ApprenticeEmploymentCheckMessageModel> IsNationalInsuranceNumberRelatedToPayeScheme(
-            ApprenticeEmploymentCheckMessageModel request)
+        #region IsNationalInsuranceNumberRelatedToPayeScheme
+        public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(
+            EmploymentCheckCacheRequest request)
         {
+            var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
+
+            // setup a default template 'response' to store the api response
+            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
+                    request.ApprenticeEmploymentCheckId,
+                    request.Id,
+                    request.CorrelationId,
+                    null,           // Employed
+                    null,           // FoundOnPayee,
+                    true,           // ProcessingComplete
+                    1,              // Count
+                    string.Empty,   // Response
+                    -1);            // HttpStatusCode
+
             try
             {
-                request.EmploymentCheckedDateTime = DateTime.UtcNow;
-
-                if (ValidateRequest(request) == false) return request;
-
                 if (_cachedToken == null) await RetrieveAuthenticationToken();
 
                 var policy = Policy
-                    .Handle<ApiHttpException>(e => e.HttpCode == (int) HttpStatusCode.Unauthorized)
+                    .Handle<UnauthorizedAccessException>()
                     .RetryAsync(
                         retryCount: 1,
-                        onRetryAsync: async (ex, retryNumber, context) =>
-                        {
-                            _logger.LogError($"HMRC API returned 401 (Unauthorized)");
-                            await RetrieveAuthenticationToken();
-                        });
+                        onRetryAsync: async (outcome, retryNumber, context) => await RetrieveAuthenticationToken());
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
-                request.IsEmployed = result.Employed;
-                request.ReturnCode = "200 (OK)";
+
+                if (result != null)
+                {
+                    request.Employed = result.Employed;
+                    request.RequestCompletionStatus = 200;
+
+                    employmentCheckCacheResponse.Employed = result.Employed;
+                    employmentCheckCacheResponse.FoundOnPaye = result.Empref;
+                    employmentCheckCacheResponse.HttpResponse = "OK";
+                    employmentCheckCacheResponse.HttpStatusCode = 200;
+                    await _repository.Save(employmentCheckCacheResponse);
+                }
+                else
+                {
+                    request.Employed = null;
+                    request.RequestCompletionStatus = 500;
+
+                    employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
+                    await _repository.Save(employmentCheckCacheResponse);
+
+                    _logger.LogError($"{thisMethodName}: [{employmentCheckCacheResponse.HttpResponse}]");
+                }
             }
-            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.NotFound)
+            catch (ApiHttpException e) when (
+                e.HttpCode == (int) HttpStatusCode.TooManyRequests ||
+                e.HttpCode == (int)HttpStatusCode.RequestTimeout
+                )
             {
-                _logger.LogInformation($"HMRC API returned {e.HttpCode} (Not Found)");
-                request.IsEmployed = false;
-                request.ReturnCode = $"{e.HttpCode} (Not Found)";
-                request.ReturnMessage = e.ResourceUri;
-            }
-            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.TooManyRequests)
-            {
-                _logger.LogError($"HMRC API returned {e.HttpCode} (Too Many Requests)");
-                request.ReturnCode = $"{e.HttpCode} (Too Many Requests)";
-                request.ReturnMessage = e.ResourceUri;
-            }
-            catch (ApiHttpException e) when (e.HttpCode == (int) HttpStatusCode.BadRequest)
-            {
-                _logger.LogError($"HMRC API returned {e.HttpCode} (Bad Request)");
-                request.ReturnCode = $"{e.HttpCode} (Bad Request)";
-                request.ReturnMessage = e.ResourceUri;
+                employmentCheckCacheResponse.ProcessingComplete = false;
+                employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
+                employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
+                await _repository.Save(employmentCheckCacheResponse);
             }
             catch (ApiHttpException e)
             {
-                _logger.LogError($"HMRC API unhandled exception: {e.HttpCode} {e.Message}");
-                request.ReturnCode = $"{e.HttpCode} ({(HttpStatusCode) e.HttpCode})";
-                request.ReturnMessage = e.ResourceUri;
+                employmentCheckCacheResponse.ProcessingComplete = true;
+                employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
+                employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
+                await _repository.Save(employmentCheckCacheResponse);
             }
             catch (Exception e)
             {
-                _logger.LogError($"HMRC API unhandled exception: {e.Message} {e.StackTrace}");
-                request.ReturnCode = "HMRC API CALL ERROR";
-                request.ReturnMessage = e.Message;
+                employmentCheckCacheResponse.ProcessingComplete = false;
+                employmentCheckCacheResponse.HttpResponse = $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}";
+                employmentCheckCacheResponse.HttpStatusCode = 500;
+                await _repository.Save(employmentCheckCacheResponse);
             }
 
             return request;
+
         }
+        #endregion IsNationalInsuranceNumberRelatedToPayeScheme
 
-        private static bool ValidateRequest(ApprenticeEmploymentCheckMessageModel request)
+        #region GetEmploymentStatus
+
+        private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
-            var valid = true;
-            var sb = new StringBuilder();
-            if (request.NationalInsuranceNumber == null)
-            {
-                valid = false;
-                sb.Append("NationalInsuranceNumber is null");
-            }
-
-            if (request.PayeScheme == null)
-            {
-                valid = false;
-                if (sb.Length > 0) sb.Append("|");
-                sb.Append("PayeScheme is null");
-            }
-
-            request.ReturnMessage = sb.ToString();
-
-            return valid;
-        }
-
-        private async Task<EmploymentStatus> GetEmploymentStatus(ApprenticeEmploymentCheckMessageModel request)
-        {
-            return await _apprenticeshipLevyService.GetEmploymentStatus(
+            var employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
                 _cachedToken.AccessCode,
                 request.PayeScheme,
-                request.NationalInsuranceNumber,
-                request.StartDateTime,
-                request.EndDateTime
+                request.Nino,
+                request.MinDate,
+                request.MaxDate
             );
+
+            return employmentStatus;
         }
 
-        private async Task RetrieveAuthenticationToken() => _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
+        #endregion GetEmploymentStatus
+
+        #region RetrieveAuthenticationToken
+
+        private async Task RetrieveAuthenticationToken()
+        {
+            _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
+        }
+
+        #endregion RetrieveAuthenticationToken
     }
 }

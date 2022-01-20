@@ -1,88 +1,89 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.SubmitLearnerData;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models.Domain;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetApprenticesNiNumbers;
+using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprenticesNiNumbers.GetApprenticesNiNumbersMediatorHandlerTests
 {
     public class WhenHandlingTheRequest
     {
-        private readonly Mock<ISubmitLearnerDataClient> _submitLearnerDataClient;
-        private readonly Mock<ILogger<GetApprenticesNiNumbersMediatorHandler>> _logger;
+        private Mock<ILearnerClient> _submitLearnerDataClient;
+        private Mock<ILogger<GetNiNumbersQueryHandler>> _logger;
 
-        public WhenHandlingTheRequest()
+        [SetUp]
+        public void SetUp()
         {
-            _submitLearnerDataClient = new Mock<ISubmitLearnerDataClient>();
-            _logger = new Mock<ILogger<GetApprenticesNiNumbersMediatorHandler>>();
+            _submitLearnerDataClient = new Mock<ILearnerClient>();
+            _logger = new Mock<ILogger<GetNiNumbersQueryHandler>>();
         }
 
-        [Fact]
+        [Test]
         public async Task Then_The_SubmitLearnerDataClient_Is_Called()
         {
             //Arrange
-            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheckModel>());
+            var request = new GetNiNumbersQueryRequest(new List<Functions.Application.Models.EmploymentCheck>());
 
-            _submitLearnerDataClient.Setup(x => x.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck))
-                .ReturnsAsync(new List<ApprenticeNiNumber>());
+            _submitLearnerDataClient.Setup(x => x.GetNiNumbers(request.EmploymentCheckBatch))
+                .ReturnsAsync(new List<LearnerNiNumber>());
 
-            var sut = new GetApprenticesNiNumbersMediatorHandler(_submitLearnerDataClient.Object, _logger.Object);
+            var sut = new GetNiNumbersQueryHandler(_submitLearnerDataClient.Object, _logger.Object);
 
             //Act
 
-            await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheckModel>()), CancellationToken.None);
+            await sut.Handle(new GetNiNumbersQueryRequest(new List<Functions.Application.Models.EmploymentCheck>()), CancellationToken.None);
 
             //Assert
 
-            _submitLearnerDataClient.Verify(x => x.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck), Times.Exactly(1));
+            _submitLearnerDataClient.Verify(x => x.GetNiNumbers(request.EmploymentCheckBatch), Times.Exactly(1));
         }
 
-        [Fact]
+        [Test]
         public async Task And_The_SubmitLearnerDataClient_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
-            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheckModel>());
+            var request = new GetNiNumbersQueryRequest(new List<Functions.Application.Models.EmploymentCheck>());
 
-            _submitLearnerDataClient.Setup(x => x.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck))
-                .ReturnsAsync((List<ApprenticeNiNumber>)null);
+            _submitLearnerDataClient.Setup(x => x.GetNiNumbers(request.EmploymentCheckBatch))
+                .ReturnsAsync((List<LearnerNiNumber>)null);
 
-            var sut = new GetApprenticesNiNumbersMediatorHandler(_submitLearnerDataClient.Object, _logger.Object);
+            var sut = new GetNiNumbersQueryHandler(_submitLearnerDataClient.Object, _logger.Object);
 
             //Act
 
-            var result = await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheckModel>()), CancellationToken.None);
+            var result = await sut.Handle(new GetNiNumbersQueryRequest(new List<Functions.Application.Models.EmploymentCheck>()), CancellationToken.None);
 
             //Assert
 
-            result.ApprenticesNiNumber.Should().BeEquivalentTo(new List<ApprenticeNiNumber>());
+            result.LearnerNiNumber.Should().BeEquivalentTo(new List<LearnerNiNumber>());
         }
 
-        [Fact]
-        public async Task And_The_SubmitLearnerDataClient_Returns_ApprenticeNiNumbers_Then_They_Are_Returned()
+        [Test]
+        public async Task And_The_SubmitLearnerDataClient_Returns_LearnerNiNumbers_Then_They_Are_Returned()
         {
             //Arrange
-            var request = new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheckModel>());
+            var request = new GetNiNumbersQueryRequest(new List<Functions.Application.Models.EmploymentCheck>());
 
-            var niNumber = new ApprenticeNiNumber(1000001, "1000001");
-            var niNumbers = new List<ApprenticeNiNumber> { niNumber };
+            var niNumber = new LearnerNiNumber(1000001, "1000001");
+            var niNumbers = new List<LearnerNiNumber> { niNumber };
 
-            _submitLearnerDataClient.Setup(x => x.GetApprenticesNiNumber(request.ApprenticeEmploymentCheck))
+            _submitLearnerDataClient.Setup(x => x.GetNiNumbers(request.EmploymentCheckBatch))
                 .ReturnsAsync(niNumbers);
 
-            var sut = new GetApprenticesNiNumbersMediatorHandler(_submitLearnerDataClient.Object, _logger.Object);
+            var sut = new GetNiNumbersQueryHandler(_submitLearnerDataClient.Object, _logger.Object);
 
             //Act
 
-            var result = await sut.Handle(new GetApprenticesNiNumberMediatorRequest(new List<ApprenticeEmploymentCheckModel>()), CancellationToken.None);
+            var result = await sut.Handle(new GetNiNumbersQueryRequest(new List<Functions.Application.Models.EmploymentCheck>()), CancellationToken.None);
 
             //Assert
 
-            result.ApprenticesNiNumber.Should().BeEquivalentTo(niNumbers);
+            result.LearnerNiNumber.Should().BeEquivalentTo(niNumbers);
         }
     }
 }
