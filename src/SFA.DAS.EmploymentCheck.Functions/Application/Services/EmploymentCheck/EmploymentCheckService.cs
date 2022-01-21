@@ -16,10 +16,10 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
     public class EmploymentCheckService
-        : IEmploymentCheckService
+        : IEmploymentCheckClient
     {
         #region Private members
-        private readonly ILogger<IEmploymentCheckService> _logger;
+        private readonly ILogger<IEmploymentCheckClient> _logger;
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="azureServiceTokenProvider"></param>
         /// <param name="logger"></param>
         public EmploymentCheckService(
-            ILogger<IEmploymentCheckService> logger,
+            ILogger<IEmploymentCheckClient> logger,
             ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider,
             IEmploymentCheckRepository employmentCheckRepositoryrepository,
@@ -394,6 +394,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
         #endregion UpdateEmploymentCheck
 
+        #region Save
         private async Task SaveEmploymentCheck(Models.EmploymentCheck employmentCheck)
         {
             if (employmentCheck == null)
@@ -412,5 +413,46 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 // No logging, we're not interested in storing errors about duplicates at the moment
             }
         }
+        #endregion Save
+
+        #region AbandonRelatedRequests
+        public async Task AbandonRelatedRequests(Models.EmploymentCheckCacheRequest request)
+        {
+            var dbConnection = new DbConnection();
+
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                _azureServiceTokenProvider)
+            )
+            {
+                await sqlConnection.OpenAsync();
+                {
+                    try
+                    {
+                        // Set the RequestCompletionStatus to 'Abandoned'
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@Id", request.ApprenticeEmploymentCheckId, DbType.Int64);
+                        parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Abandoned, DbType.Int16);
+                        parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                        await sqlConnection.ExecuteAsync(
+                            "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
+                            "SET    RequestCompletionStatus = 20 " +
+                            "WHERE  ApprenticeEmploymentCheckId = @apprenticeEmploymentCheckId " +
+                            "AND    Employed IS NULL " +
+                            "AND    (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 10) ",
+                            parameters,
+                            commandType: CommandType.Text);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"EmploymentCheckService.AbandonRelatedEmploymentCheckCacheRequests(): ERROR: An error occurred abandoning the existing HMRC Employment Checks. Exception [{ex}]");
+                        throw;
+                    }
+                }
+            }
+        }
+        #endregion AbandonRelatedRequests
+
     }
 }

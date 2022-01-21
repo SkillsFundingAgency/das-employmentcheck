@@ -9,11 +9,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
     public class EmploymentCheckClient : IEmploymentCheckClient
     {
-        private readonly IEmploymentCheckService _employmentCheckService;
+        private readonly Services.EmploymentCheck.IEmploymentCheckClient _employmentCheckService;
 
         public EmploymentCheckClient(
             ILogger<IEmploymentCheckClient> logger,
-            IEmploymentCheckService employmentCheckService)
+            Services.EmploymentCheck.IEmploymentCheckClient employmentCheckService)
         {
             _employmentCheckService = employmentCheckService;
         }
@@ -43,6 +43,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
+        }
+
+        public async Task AbandonRelatedRequests(Models.EmploymentCheckCacheRequest request)
+        {
+            await _employmentCheckService.AbandonRelatedRequests(request);
         }
     }
 }

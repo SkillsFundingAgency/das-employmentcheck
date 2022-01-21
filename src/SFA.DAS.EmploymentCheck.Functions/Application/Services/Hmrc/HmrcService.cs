@@ -4,6 +4,7 @@ using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
@@ -19,6 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private readonly ITokenServiceApiClient _tokenService;
         private readonly ILogger<HmrcService> _logger;
         private readonly IEmploymentCheckCacheResponseRepository _repository;
+        private readonly IEmploymentCheckClient _employmentCheckClient;
         private PrivilegedAccessToken _cachedToken;
 
         #region Constructors
@@ -26,14 +28,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository
-            )
+            IEmploymentCheckCacheResponseRepository repository,
+            IEmploymentCheckClient employmentCheckClient
+        )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _repository = repository;
             _cachedToken = null;
+            _employmentCheckClient = employmentCheckClient;
         }
         #endregion Constructors
 
@@ -77,6 +81,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     employmentCheckCacheResponse.HttpResponse = "OK";
                     employmentCheckCacheResponse.HttpStatusCode = 200;
                     await _repository.Save(employmentCheckCacheResponse);
+
+                    // If the Api result was 'Employed' abandon any other EmploymentCheckCacheRequests for this employment check
+                    if (result.Employed)
+                    {
+                        await AbandonRelatedEmploymentCheckCacheRequests(request);
+                    }
                 }
                 else
                 {
@@ -144,5 +154,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         }
 
         #endregion RetrieveAuthenticationToken
+
+        #region AbandonRelatedRequests
+        private async Task AbandonRelatedEmploymentCheckCacheRequests(Models.EmploymentCheckCacheRequest request)
+        {
+            // Confirm that the Employed status is true on this request before abandoning related requests
+            if (request.Employed == true)
+            {
+                await _employmentCheckClient.AbandonRelatedRequests(request);
+            }
+        }
+        #endregion AbandonRelatedRequests
     }
 }
