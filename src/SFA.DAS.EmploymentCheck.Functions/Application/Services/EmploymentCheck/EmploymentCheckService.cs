@@ -16,10 +16,10 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
     public class EmploymentCheckService
-        : IEmploymentCheckClient
+        : IEmploymentCheckService
     {
         #region Private members
-        private readonly ILogger<IEmploymentCheckClient> _logger;
+        private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         /// <param name="azureServiceTokenProvider"></param>
         /// <param name="logger"></param>
         public EmploymentCheckService(
-            ILogger<IEmploymentCheckClient> logger,
+            ILogger<IEmploymentCheckService> logger,
             ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider,
             IEmploymentCheckRepository employmentCheckRepositoryrepository,

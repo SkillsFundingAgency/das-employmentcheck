@@ -3,6 +3,7 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -14,7 +15,8 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
-    public class HmrcService : IHmrcService
+    public class HmrcService
+        : IHmrcService
     {
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;

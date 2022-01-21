@@ -4,7 +4,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
-    public interface IEmploymentCheckClient
+    public interface IEmploymentCheckService
     {
         Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
 

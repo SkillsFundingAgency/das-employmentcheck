@@ -49,7 +49,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            //_sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object, _employmentCheckService.Object);
             _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object, null);
         }
 
