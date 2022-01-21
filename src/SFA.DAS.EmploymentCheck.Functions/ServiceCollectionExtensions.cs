@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
             serviceCollection.AddHttpClient();
-            serviceCollection.AddTransient<Application.Clients.EmploymentCheck.IEmploymentCheckClient, EmploymentCheckClient>();
+            serviceCollection.AddTransient<IEmploymentCheckClient, EmploymentCheckClient>();
             serviceCollection.AddTransient<ILearnerClient, LearnerClient>();
             serviceCollection.AddTransient<IEmployerAccountClient, EmployerAccountClient>();
             serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             });
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
-            serviceCollection.AddTransient<Application.Services.EmploymentCheck.IEmploymentCheckClient, EmploymentCheckService>();
+            serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
             serviceCollection.AddTransient<ILearnerService, LearnerService>();
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();

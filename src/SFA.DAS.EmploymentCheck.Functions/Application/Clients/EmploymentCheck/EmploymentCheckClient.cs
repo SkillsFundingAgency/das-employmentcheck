@@ -9,11 +9,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
     public class EmploymentCheckClient : IEmploymentCheckClient
     {
-        private readonly Services.EmploymentCheck.IEmploymentCheckClient _employmentCheckService;
+        private readonly IEmploymentCheckService _employmentCheckService;
 
         public EmploymentCheckClient(
             ILogger<IEmploymentCheckClient> logger,
-            Services.EmploymentCheck.IEmploymentCheckClient employmentCheckService)
+            IEmploymentCheckService employmentCheckService)
         {
             _employmentCheckService = employmentCheckService;
         }
