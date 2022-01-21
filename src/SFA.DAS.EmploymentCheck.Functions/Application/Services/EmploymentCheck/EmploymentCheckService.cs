@@ -430,29 +430,47 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     try
                     {
                         // Set the RequestCompletionStatus to 'Abandoned'
+                        // Criteria for abandoning other related requests is that their ApprenticeshipId, Nino, MinDate and MaxDate match and the Employed flag is null
                         var parameters = new DynamicParameters();
-                        parameters.Add("@Id", request.ApprenticeEmploymentCheckId, DbType.Int64);
+
+                        // Crriteria to match on
+                        parameters.Add("@ApprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
+                        parameters.Add("@nino"                       , request.Nino                       , DbType.String);
+                        parameters.Add("@minDate"                    , request.MinDate                    , DbType.DateTime);
+                        parameters.Add("@maxDate"                    , request.MaxDate                    , DbType.DateTime);
+
+                        // Update the values for these columns
                         parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Abandoned, DbType.Int16);
-                        parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+                        parameters.Add("@lastUpdatedOn"          , DateTime.Now, DbType.DateTime);
 
                         await sqlConnection.ExecuteAsync(
+                            // Update this table
                             "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                            "SET    RequestCompletionStatus = 20 " +
+
+                            // with this data
+                            "SET    RequestCompletionStatus = @requestCompletionStatus, " +
+                            "       LastUpdatedOn           = @lastUpdatedOn " +
+
+                            // for this criteria
                             "WHERE  ApprenticeEmploymentCheckId = @apprenticeEmploymentCheckId " +
-                            "AND    Employed IS NULL " +
-                            "AND    (RequestCompletionStatus IS NULL OR RequestCompletionStatus = 10) ",
+                            "AND    Nino                        = @nino " +
+                            "AND    MinDate                     = @minDate " +
+                            "AND    MaxDate                     = @maxDate " +
+                            "AND    Employed                    IS NULL " +
+
+                            // and the Request has not been processed yet
+                            "AND    RequestCompletionStatus     IS NULL ",
                             parameters,
                             commandType: CommandType.Text);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"EmploymentCheckService.AbandonRelatedEmploymentCheckCacheRequests(): ERROR: An error occurred abandoning the existing HMRC Employment Checks. Exception [{ex}]");
+                        _logger.LogError($"EmploymentCheckService.AbandonRelatedRequests(): ERROR: An error occurred abandoning the existing HMRC Employment Checks matching EmploymentCheckCacheRequest Id [{request.Id}] Exception: [{ex}]");
                         throw;
                     }
                 }
             }
         }
         #endregion AbandonRelatedRequests
-
     }
 }
