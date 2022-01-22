@@ -89,12 +89,6 @@
         },
         "SharedStorageAccountKey": {
             "type": "securestring"
-        },
-        "SharedStorageAccountName": {
-            "type": "string"
-        },
-        "SharedStorageEndpoint": {
-            "type": "string"
         }
     },
     "variables": {
@@ -320,14 +314,8 @@
                     "storageAccountAccessKey": {
                         "value": "[parameters('SharedStorageAccountKey')]"
                     },
-                    "storageAccountName": {
-                        "value": "[parameters('SharedStorageAccountName')]"
-                    },
                     "storageAccountSubscriptionId": {
                         "value": "[subscription().subscriptionId]"
-                    },
-                    "storageTableEndpoint": {
-                        "value": "[parameters('SharedStorageEndpoint')]"
                     }
                 }
             }
