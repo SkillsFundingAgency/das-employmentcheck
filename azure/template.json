@@ -83,13 +83,9 @@
             "type": "string",
             "defaultValue": "[utcNow()]"
         },
-       "SharedSQLAuditLogsTableName": {
-            "type": "string",
-            "defaultValue": ""
-        },
         "retentionDays": {
-            "type": "string",
-            "defaultValue": "365"
+            "type": "int",
+            "defaultValue": 365
         },
         "SharedStorageAccountKey": {
             "type": "securestring"
@@ -97,10 +93,7 @@
         "SharedStorageAccountName": {
             "type": "string"
         },
-        "SharedStorageAccountSecondaryKey": {
-            "type": "securestring"
-        },
-        "SharedStorageTableEndpoint": {
+        "SharedStorageEndpoint": {
             "type": "string"
         }
     },
@@ -321,32 +314,20 @@
                     "logAnalyticsWorkspaceName": {
                         "value": "[parameters('logAnalyticsWorkspaceName')]"
                     },
-                    "auditLogsTableName": {
-                        "value" : "[parameters('SharedSQLAuditLogsTableName')]"
-                    },
-                    "fullAuditLogsTableName": {
-                        "value": "[parameters('SharedSQLAuditLogsTableName')]"
-                    },
                     "retentionDays": {
                         "value": "[parameters('retentionDays')]"
                     },
-                    "storageAccountKey": {
+                    "storageAccountAccessKey": {
                         "value": "[parameters('SharedStorageAccountKey')]"
                     },
                     "storageAccountName": {
                         "value": "[parameters('SharedStorageAccountName')]"
                     },
-                    "storageAccountResourceGroupName": {
-                        "value": "[parameters('sharedManagementResourceGroup')]"
-                    },
-                    "storageAccountSecondaryKey": {
-                        "value": "[parameters('SharedStorageAccountSecondaryKey')]"
-                    },
                     "storageAccountSubscriptionId": {
                         "value": "[subscription().subscriptionId]"
                     },
                     "storageTableEndpoint": {
-                        "value": "[parameters('SharedStorageTableEndpoint')]"
+                        "value": "[parameters('SharedStorageEndpoint')]"
                     }
                 }
             }
