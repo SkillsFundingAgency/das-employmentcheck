@@ -15,17 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Tok
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.TestHarness", "SFA.DAS.EmploymentCheck.TestHarness\SFA.DAS.EmploymentCheck.TestHarness.csproj", "{CD58C8E3-703B-4B6E-9609-195BBDDC47B9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.TokenServiceStub", "SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj", "{AAE799FC-AA2E-4652-B1AD-592DDC7EDAEC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.DataSeeder", "SFA.DAS.EmploymentCheck.DataSeeder\SFA.DAS.EmploymentCheck.DataSeeder.csproj", "{2876F123-8DAF-4409-9CBF-5A94D2CEF947}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.DataSeeder", "SFA.DAS.EmploymentCheck.DataSeeder\SFA.DAS.EmploymentCheck.DataSeeder.csproj", "{2876F123-8DAF-4409-9CBF-5A94D2CEF947}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.UnitTests", "SFA.DAS.EmploymentCheck.Functions.UnitTests\SFA.DAS.EmploymentCheck.Functions.UnitTests.csproj", "{0D4E1F2A-C536-497D-B645-179F42E50CB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Data.IntegrationTests", "SFA.DAS.EmploymentCheck.Data.IntegrationTests\SFA.DAS.EmploymentCheck.Data.IntegrationTests.csproj", "{34D3C0FB-9612-4357-9457-16412607CACF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Data.IntegrationTests", "SFA.DAS.EmploymentCheck.Data.IntegrationTests\SFA.DAS.EmploymentCheck.Data.IntegrationTests.csproj", "{34D3C0FB-9612-4357-9457-16412607CACF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,7 +62,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2876F123-8DAF-4409-9CBF-5A94D2CEF947} = {5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}
 		{2876F123-8DAF-4409-9CBF-5A94D2CEF947} = {5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}
 		{0D4E1F2A-C536-497D-B645-179F42E50CB8} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{34D3C0FB-9612-4357-9457-16412607CACF} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
