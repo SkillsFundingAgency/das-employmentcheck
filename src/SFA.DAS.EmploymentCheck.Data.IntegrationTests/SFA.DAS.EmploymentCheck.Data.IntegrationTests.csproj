@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -24,6 +24,10 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </None>
+        <None Update="Config.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </None>
     </ItemGroup>
 
