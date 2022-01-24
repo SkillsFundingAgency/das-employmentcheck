@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             Employed = employed;
             RequestCompletionStatus = requestCompletionStatus;
             LastUpdatedOn = lastUpdatedOn;
-            CreatedOn = createdOn;
+            CreatedOn = DateTime.Now;
         }
 
         public long Id { get; set; }

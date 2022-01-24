@@ -7,11 +7,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Repositories
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
     public class WhenSaveEmploymentCheckCacheResponse : RepositoryTestBase
     {
-        private EmploymentCheckCacheResponseRepository _sut;
+        private IEmploymentCheckCacheResponseRepository _sut;
+        private EmploymentCheckCacheResponse _actual;
 
         [Test]
         public async Task CanSave()
@@ -25,18 +26,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Repositories
             await _sut.Save(expected);
 
             // Assert
-            var actual = (await GetAll<EmploymentCheckCacheResponse>())
+            _actual = (await GetAll<EmploymentCheckCacheResponse>())
                 .Single(x => x.CorrelationId == expected.CorrelationId);
 
 
-            actual.Should().BeEquivalentTo(expected, 
+            _actual.Should().BeEquivalentTo(expected,
                 opts => opts
                     .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)
                 );
-            actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            actual.Id.Should().BeGreaterThan(0);
+            _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
+            _actual.Id.Should().BeGreaterThan(0);
         }
+
+        [TearDown]
+        public new async Task CleanUp()
+        {
+            await Delete(_actual);
+            await base.CleanUp();
+        }
+
     }
 }
 
