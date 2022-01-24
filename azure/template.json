@@ -84,11 +84,7 @@
             "defaultValue": "[utcNow()]"
         },
         "retentionDays": {
-            "type": "int",
-            "defaultValue": 365
-        },
-        "sharedStorageAccountKey": {
-            "type": "securestring"
+            "type": "int"
         },
         "sharedStorageEndPoint": {
             "type": "string"
@@ -313,9 +309,6 @@
                     },
                     "retentionDays": {
                         "value": "[parameters('retentionDays')]"
-                    },
-                    "storageAccountAccessKey": {
-                        "value": "[parameters('sharedStorageAccountKey')]"
                     },
                     "storageAccountSubscriptionId": {
                         "value": "[subscription().subscriptionId]"
