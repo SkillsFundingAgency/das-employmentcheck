@@ -32,7 +32,6 @@ jobs:
               LoggingRedisConnectionString: $(LoggingRedisConnectionString)
               ConfigurationStorageConnectionString: $(ConfigurationStorageConnectionString)
               SharedStorageAccountConnectionString: $(SharedStorageAccountConnectionString)
-              SharedStorageAccountKey: $(SharedStorageAccountKey)
         - template: azure-pipelines-templates/deploy/step/generate-config.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
