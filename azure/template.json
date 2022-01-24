@@ -87,10 +87,10 @@
             "type": "int",
             "defaultValue": 365
         },
-        "SharedStorageAccountKey": {
+        "sharedStorageAccountKey": {
             "type": "securestring"
         },
-        "SharedStorageEndPoint": {
+        "sharedStorageEndPoint": {
             "type": "string"
         }
     },
@@ -315,13 +315,13 @@
                         "value": "[parameters('retentionDays')]"
                     },
                     "storageAccountAccessKey": {
-                        "value": "[parameters('SharedStorageAccountKey')]"
+                        "value": "[parameters('sharedStorageAccountKey')]"
                     },
                     "storageAccountSubscriptionId": {
                         "value": "[subscription().subscriptionId]"
                     },
                     "storageEndpoint": {
-                        "value": "[parameters('SharedStorageEndPoint')]"
+                        "value": "[parameters('sharedStorageEndPoint')]"
                     }
                 }
             }
