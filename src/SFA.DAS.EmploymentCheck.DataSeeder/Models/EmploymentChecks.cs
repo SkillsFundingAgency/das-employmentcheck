@@ -15,5 +15,6 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder.Models
         public DateTime MaxDate { get; set; }
         public bool? Employed { get; set; }
         public DateTime CreatedOn { get; set; }
+        public int? VersionId { get; set; }
     }
 }

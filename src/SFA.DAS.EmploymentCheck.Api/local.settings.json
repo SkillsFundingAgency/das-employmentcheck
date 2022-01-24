@@ -1,0 +1,6 @@
+{
+  "EmploymentCheckSettings": {
+    "DbConnectionString":
+      "Server=PF2RZXTY\\SQLEXPRESS;Database=SFA.DAS.EmploymentCheck.Database;Trusted_Connection=True;"
+  }
+}
