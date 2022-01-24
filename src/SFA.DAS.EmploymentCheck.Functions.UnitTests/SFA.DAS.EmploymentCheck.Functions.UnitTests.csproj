@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
     <Compile Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
     <Compile Remove="Mediators\Queries\GetApprenticesToVerify\**" />
     <EmbeddedResource Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
@@ -30,9 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
