@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,9 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
     {
         private readonly IEmploymentCheckService _employmentCheckService;
 
-        public EmploymentCheckClient(
-            ILogger<IEmploymentCheckClient> logger,
-            IEmploymentCheckService employmentCheckService)
+        public EmploymentCheckClient(IEmploymentCheckService employmentCheckService)
         {
             _employmentCheckService = employmentCheckService;
         }
