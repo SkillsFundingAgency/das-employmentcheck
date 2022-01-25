@@ -25,7 +25,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private readonly IEmploymentCheckClient _employmentCheckClient;
         private PrivilegedAccessToken _cachedToken;
 
-        #region Constructors
         public HmrcService(
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
@@ -41,9 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             _cachedToken = null;
             _employmentCheckClient = employmentCheckClient;
         }
-        #endregion Constructors
 
-        #region IsNationalInsuranceNumberRelatedToPayeScheme
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(
             EmploymentCheckCacheRequest request)
         {
@@ -84,10 +81,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     employmentCheckCacheResponse.HttpStatusCode = 200;
                     await _repository.Save(employmentCheckCacheResponse);
 
-                    // If the Api result was 'Employed' abandon any other EmploymentCheckCacheRequests for this employment check
                     if (result.Employed)
                     {
-                        await AbandonRelatedEmploymentCheckCacheRequests(request);
+                        await _employmentCheckClient.UpdateRelatedRequests(request);
                     }
                 }
                 else
@@ -129,9 +125,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             return request;
 
         }
-        #endregion IsNationalInsuranceNumberRelatedToPayeScheme
-
-        #region GetEmploymentStatus
 
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
@@ -146,26 +139,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             return employmentStatus;
         }
 
-        #endregion GetEmploymentStatus
-
-        #region RetrieveAuthenticationToken
-
         private async Task RetrieveAuthenticationToken()
         {
             _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
         }
-
-        #endregion RetrieveAuthenticationToken
-
-        #region AbandonRelatedRequests
-        private async Task AbandonRelatedEmploymentCheckCacheRequests(Models.EmploymentCheckCacheRequest request)
-        {
-            // Confirm that the Employed status is true on this request before abandoning related requests
-            if (request.Employed == true)
-            {
-                await _employmentCheckClient.AbandonRelatedRequests(request);
-            }
-        }
-        #endregion AbandonRelatedRequests
     }
 }

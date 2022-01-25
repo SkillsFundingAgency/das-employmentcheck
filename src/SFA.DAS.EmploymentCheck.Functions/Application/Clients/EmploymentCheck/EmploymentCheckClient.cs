@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             return employmentCheckRequests;
         }
 
-        public async Task<EmploymentCheckCacheRequest> ProcessEmploymentCheckCacheRequest()
+        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             var employmentCheckCacheRequest = await _employmentCheckService.GetEmploymentCheckCacheRequest();
 
@@ -46,9 +46,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
         }
 
-        public async Task AbandonRelatedRequests(Models.EmploymentCheckCacheRequest request)
+        public async Task UpdateRelatedRequests(Models.EmploymentCheckCacheRequest request)
         {
-            await _employmentCheckService.AbandonRelatedRequests(request);
+            await _employmentCheckService.UpdateRelatedRequests(request);
         }
     }
 }

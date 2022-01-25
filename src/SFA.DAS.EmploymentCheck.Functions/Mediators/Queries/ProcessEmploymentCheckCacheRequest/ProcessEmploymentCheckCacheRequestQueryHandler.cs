@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentC
             ProcessEmploymentCheckCacheRequestQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var employmentCheckCacheRequest = await _employmentCheckClient.ProcessEmploymentCheckCacheRequest();
+            var employmentCheckCacheRequest = await _employmentCheckClient.GetEmploymentCheckCacheRequest();
 
             return new ProcessEmploymentCheckCacheRequestQueryResult(employmentCheckCacheRequest);
         }

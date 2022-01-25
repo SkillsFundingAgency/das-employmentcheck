@@ -31,4 +31,10 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Repositories\EmploymentCheckCacheRequest\" />
+      <Folder Include="Repositories\AccountsResponse\" />
+      <Folder Include="Repositories\DataCollectionsResponse\" />
+    </ItemGroup>
+
 </Project>

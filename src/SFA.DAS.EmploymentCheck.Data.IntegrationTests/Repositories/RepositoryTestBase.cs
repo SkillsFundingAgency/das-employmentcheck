@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         {
             foreach (var entity in ToBeDeleted)
             {
-                await Delete(entity);
+               // await Delete(entity);
             }
         }
 
@@ -81,5 +81,29 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         {
             return new SqlConnection { ConnectionString = Settings.DbConnectionString, AccessToken = Settings.DbConnectionString.Contains("Integrated Security") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
         }
+
+        // How do we test the additional methods we use in our repository that are not
+        // the standard Dapper one's?
+
+        // e.g. the InsertOrUpdate (SUpdate) as shown below:
+        //public async Task SUpdate(Models.EmploymentCheck check)
+        //{
+        //    var dbConnection = new DbConnection();
+        //    await using var sqlConnection = await dbConnection.CreateSqlConnection(
+        //        _connectionString,
+        //        _azureServiceTokenProvider);
+
+        //    await using var tran = await sqlConnection.BeginTransactionAsync();
+        //    var existingItem = await sqlConnection.GetAsync<Models.EmploymentCheck>(check.Id);
+        //    if (existingItem != null) await sqlConnection.UpdateAsync(check);
+        //    else await sqlConnection.InsertAsync(check);
+
+        //    await tran.CommitAsync();
+        //}
+
+        // Is it ok to just reference the repository from here?
+
+
+
     }
 }
