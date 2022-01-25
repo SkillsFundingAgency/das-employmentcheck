@@ -35,25 +35,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             await sqlConnection.InsertAsync(check);
         }
 
-        public async Task SUpdate(Models.EmploymentCheck check)
+        public async Task InsertOrUpdate(Models.EmploymentCheck check)
         {
             var dbConnection = new DbConnection();
-            await using (var sqlConnection = await dbConnection.CreateSqlConnection
+            await using var sqlConnection = await dbConnection.CreateSqlConnection
             (
                 _connectionString,
                 _azureServiceTokenProvider
-            ))
-            {
-                await using var tran = await sqlConnection.BeginTransactionAsync();
-                var existingItem = await sqlConnection.GetAsync<Models.EmploymentCheck>(check.Id);
-                if (existingItem != null)
-                {
-                    await sqlConnection.UpdateAsync(check);
-                }
-                else await sqlConnection.InsertAsync(check);
+            );
 
-                await tran.CommitAsync();
-            }
+            await sqlConnection.OpenAsync();
+
+            await using var transaction = sqlConnection.BeginTransaction();
+            var existingItem = await sqlConnection.GetAsync<Models.EmploymentCheck>(check.Id, transaction);
+
+            if (existingItem != null) await sqlConnection.UpdateAsync(check, transaction);
+            else await sqlConnection.InsertAsync(check, transaction);
+
+            transaction.Commit();
         }
     }
 }

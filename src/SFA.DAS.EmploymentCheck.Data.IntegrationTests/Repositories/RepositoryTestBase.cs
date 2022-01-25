@@ -85,8 +85,8 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         // How do we test the additional methods we use in our repository that are not
         // the standard Dapper one's?
 
-        // e.g. the InsertOrUpdate (SUpdate) as shown below:
-        //public async Task SUpdate(Models.EmploymentCheck check)
+        // e.g. the InsertOrUpdate (InsertOrUpdate) as shown below:
+        //public async Task InsertOrUpdate(Models.EmploymentCheck check)
         //{
         //    var dbConnection = new DbConnection();
         //    await using var sqlConnection = await dbConnection.CreateSqlConnection(

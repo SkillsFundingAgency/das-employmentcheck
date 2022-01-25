@@ -80,7 +80,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             expected.MinDate = DateTime.Now;
             expected.MaxDate = DateTime.Now;
 
-            await _sut.SUpdate(expected);
+            await _sut.InsertOrUpdate(expected);
 
             // Assert
             _actual = (await GetAll<Models.EmploymentCheck>())
