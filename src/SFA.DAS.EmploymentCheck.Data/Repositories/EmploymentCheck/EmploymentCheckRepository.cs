@@ -10,22 +10,22 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
     public class EmploymentCheckRepository : IEmploymentCheckRepository
     {
-        private readonly string _connectionString;
+        private readonly ApplicationSettings _applicationSettings;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public EmploymentCheckRepository(
-            ApplicationSettings applicationSettings,
+            ApplicationSettings applicationApplicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider = null)
         {
             _azureServiceTokenProvider = azureServiceTokenProvider;
-            _connectionString = applicationSettings.DbConnectionString;
+            _applicationSettings = applicationApplicationSettings;
         }
 
         public async Task Save(Models.EmploymentCheck employmentCheck)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 

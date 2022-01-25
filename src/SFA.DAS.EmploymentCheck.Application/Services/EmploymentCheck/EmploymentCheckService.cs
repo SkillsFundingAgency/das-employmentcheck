@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         : IEmploymentCheckService
     {
         private readonly ILogger<IEmploymentCheckService> _logger;
-        private readonly string _connectionString;
+        private readonly ApplicationSettings _applicationSettings;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         )
         {
             _logger = logger;
-            _connectionString = applicationSettings.DbConnectionString;
+            _applicationSettings = applicationSettings;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
             _employmentCheckRepository = employmentCheckRepository;
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             var dbConnection = new DbConnection();
 
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                             _connectionString,
+                             _applicationSettings,
                              _azureServiceTokenProvider))
             {
                 await sqlConnection.OpenAsync();
@@ -253,7 +253,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             var dbConnection = new DbConnection();
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
@@ -320,7 +320,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             var dbConnection = new DbConnection();
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
 
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
@@ -349,7 +349,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             var dbConnection = new DbConnection();
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
 
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));

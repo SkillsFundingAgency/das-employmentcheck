@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Services.AppAuthentication;
@@ -59,16 +58,13 @@ namespace SFA.DAS.EmploymentCheck.Api
             services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
-            if (Configuration["Environment"] != "Development")
-            {
-                services.AddSingleton(new AzureServiceTokenProvider());
-            }
-
             services
-                .AddRepositories()
-                .AddServices()
                 .AddHandlers()
+                .AddServices()
+                .AddRepositories()
                 ;
+
+            services.AddSingleton(new AzureServiceTokenProvider());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

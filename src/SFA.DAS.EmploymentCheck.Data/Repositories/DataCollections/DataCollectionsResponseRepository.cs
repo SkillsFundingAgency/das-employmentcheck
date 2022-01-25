@@ -2,15 +2,14 @@
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using System;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
     public class DataCollectionsResponseRepository : IDataCollectionsResponseRepository
     {
-        private readonly string _connectionString;
+        private readonly ApplicationSettings _applicationSettings;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public DataCollectionsResponseRepository(
@@ -18,14 +17,14 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             AzureServiceTokenProvider azureServiceTokenProvider = null)
         {
             _azureServiceTokenProvider = azureServiceTokenProvider;
-            _connectionString = applicationSettings.DbConnectionString;
+            _applicationSettings = applicationSettings;
         }
 
         public async Task Save(DataCollectionsResponse dataCollectionsResponse)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
@@ -37,19 +36,12 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                _applicationSettings,
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-            DataCollectionsResponse result = null;
-            try
-            {
-                result = await sqlConnection.GetAsync<DataCollectionsResponse>(dataCollectionsResponse.ApprenticeEmploymentCheckId);
-            }
-            catch
-            {
-                // TODO: logging
-            }
+            var result = await sqlConnection.GetAsync<DataCollectionsResponse>(dataCollectionsResponse
+                    .ApprenticeEmploymentCheckId);
 
             return result;
         }

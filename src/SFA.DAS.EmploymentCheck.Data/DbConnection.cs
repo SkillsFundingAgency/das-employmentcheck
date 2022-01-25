@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Data
 {
@@ -10,14 +11,14 @@ namespace SFA.DAS.EmploymentCheck.Data
         private const string AzureResource = "https://database.windows.net/";
         
         public async Task<SqlConnection> CreateSqlConnection(
-            string connectionString,
+            ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider)
         {
-            VerifyConnectionString(connectionString);
+            VerifyConnectionString(applicationSettings.DbConnectionString);
 
-            var sqlConnection = new SqlConnection(connectionString);
+            var sqlConnection = new SqlConnection(applicationSettings.DbConnectionString);
 
-            if (azureServiceTokenProvider != null)
+            if (azureServiceTokenProvider != null && applicationSettings.EnvironmentName != "LOCAL")
             {
                 sqlConnection.AccessToken = await azureServiceTokenProvider.GetAccessTokenAsync(AzureResource);
             }
