@@ -2,8 +2,8 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmploymentStatus;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 // Get a batch of employment checks
-                var employmentCheckBatch = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
+                var employmentCheckBatch = await context.CallActivityAsync<IList<EmploymentCheck.Data.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
 
                 // Get the Nino's and PAYE schemes for the employment checks batch
                 if (employmentCheckBatch.Count > 0)

@@ -4,24 +4,25 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
-using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Application.Clients.Hmrc;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using TokenServiceApiClientConfiguration = SFA.DAS.TokenService.Api.Client.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {

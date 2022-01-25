@@ -8,17 +8,16 @@
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
-
+    
   <ItemGroup>
-    <Folder Include="Responses\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Commands\SFA.DAS.EmploymentCheck.Commands.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Data\SFA.DAS.EmploymentCheck.Data.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Infrastructure\SFA.DAS.EmploymentCheck.Infrastructure.csproj" />
   </ItemGroup>
 
 

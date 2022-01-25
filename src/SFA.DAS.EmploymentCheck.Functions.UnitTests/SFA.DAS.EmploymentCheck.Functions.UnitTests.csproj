@@ -8,11 +8,8 @@
 
     <ItemGroup>
     <Compile Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
-    <Compile Remove="Mediators\Queries\GetApprenticesToVerify\**" />
     <EmbeddedResource Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
-    <EmbeddedResource Remove="Mediators\Queries\GetApprenticesToVerify\**" />
     <None Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
-    <None Remove="Mediators\Queries\GetApprenticesToVerify\**" />
   </ItemGroup>
 
   <ItemGroup>

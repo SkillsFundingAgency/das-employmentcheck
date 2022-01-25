@@ -7,8 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Application.Controllers;
-using SFA.DAS.EmploymentCheck.Api.Application.Models;
-using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
+using SFA.DAS.EmploymentCheck.Commands.RegisterCheck;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCheckControllerTests
 {
@@ -85,6 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
             var model = result?.Value as Responses.RegisterCheckResponse;
 
             //Assert
+            // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual(result?.StatusCode.Value, (int)HttpStatusCode.OK);
             Assert.AreEqual(model?.VersionId, _response.VersionId);
         }
@@ -115,6 +115,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
             var model = result?.Value as Responses.RegisterCheckResponse;
 
             //Assert
+            // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual(result?.StatusCode.Value, (int)HttpStatusCode.BadRequest);
             Assert.AreEqual(model?.ErrorMessage, _response.ErrorMessage);
             Assert.AreEqual(model?.ErrorType, _response.ErrorType);

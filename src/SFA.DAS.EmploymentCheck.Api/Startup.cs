@@ -1,6 +1,7 @@
-using System.IO;
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -8,7 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.EmploymentCheck.Api.Configuration;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System.IO;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -32,27 +34,35 @@ namespace SFA.DAS.EmploymentCheck.Api
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
             });
 
-
             var configBuilder = new ConfigurationBuilder()
                 .AddConfiguration(Configuration)
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            //configBuilder.AddAzureTableStorage(options =>
-            //{
-            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            //    options.EnvironmentName = configuration["EnvironmentName"];
-            //    options.PreFixConfigurationKeys = false;
-            //});
+            if (Configuration["Environment"] != "Development")
+            {
+                configBuilder.AddAzureTableStorage(options =>
+                {
+                    options.ConfigurationKeys = Configuration["ConfigNames"].Split(",");
+                    options.StorageConnectionString = Configuration["ConfigurationStorageConnectionString"];
+                    options.EnvironmentName = Configuration["EnvironmentName"];
+                    options.PreFixConfigurationKeys = false;
+                });
+            }
 
-            configBuilder.AddJsonFile("local.settings.json", optional: true);
+            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
 
             var config = configBuilder.Build();
             services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
 
-            services.Configure<EmploymentCheckSettings>(Configuration.GetSection("EmploymentCheckSettings"));
-            services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
+            // Application Configuration
+            services.Configure<ApplicationSettings>(config.GetSection("ApplicationSettings"));
+            services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
+
+            if (Configuration["Environment"] != "Development")
+            {
+                services.AddSingleton(new AzureServiceTokenProvider());
+            }
 
             services
                 .AddRepositories()

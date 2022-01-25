@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.EmploymentCheck.Api.Application.Models;
-using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
+using SFA.DAS.EmploymentCheck.Commands.RegisterCheck;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
+using SFA.DAS.EmploymentCheck.Queries.GetEmploymentChecksBatch;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetEmploymentChecksBatchActivity))]
-        public async Task<IList<Application.Models.EmploymentCheck>> Get(
+        public async Task<IList<EmploymentCheck.Data.Models.EmploymentCheck>> Get(
             [ActivityTrigger] object input)
         {
             var result = await _mediator.Send(new GetEmploymentCheckBatchQueryRequest());

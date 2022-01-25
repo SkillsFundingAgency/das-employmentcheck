@@ -1,8 +1,8 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Net;
 using System.Threading.Tasks;

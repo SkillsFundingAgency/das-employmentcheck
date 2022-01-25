@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
