@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.CreateEmploymentCheckCacheRequests(employmentCheckData))
                 .ReturnsAsync(new List<EmploymentCheckCacheRequest>());
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             await sut.CreateEmploymentCheckCacheRequests(employmentCheckData);
@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.CreateEmploymentCheckCacheRequests(employmentCheckData))
                 .ReturnsAsync((List<EmploymentCheckCacheRequest>)null);
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             var result = await sut.CreateEmploymentCheckCacheRequests(employmentCheckData);
@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.CreateEmploymentCheckCacheRequests(employmentCheckData))
                 .ReturnsAsync(new List<EmploymentCheckCacheRequest>());
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             var result = await sut.CreateEmploymentCheckCacheRequests(employmentCheckData);
@@ -103,7 +103,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.CreateEmploymentCheckCacheRequests(employmentCheckData))
                 .ReturnsAsync(employmentCheckCacheRequests);
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             var result = await sut.CreateEmploymentCheckCacheRequests(employmentCheckData);

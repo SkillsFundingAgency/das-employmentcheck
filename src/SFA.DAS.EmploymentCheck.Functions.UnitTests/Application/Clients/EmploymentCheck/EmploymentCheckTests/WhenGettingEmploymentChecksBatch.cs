@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync(new List<Models.EmploymentCheck>());
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             await sut.GetEmploymentChecksBatch();
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync(new List<Models.EmploymentCheck>());
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             var result = await sut.GetEmploymentChecksBatch();
@@ -64,7 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync((List<Models.EmploymentCheck>)null);
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             var result = await sut.GetEmploymentChecksBatch();
@@ -99,7 +99,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync(employmentChecks);
 
-            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
             var result = await sut.GetEmploymentChecksBatch();
