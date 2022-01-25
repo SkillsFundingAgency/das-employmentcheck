@@ -5,12 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequests;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentChecksBatch;
-using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using System.IO;
 using SFA.DAS.EmploymentCheck.Queries.GetNiNumbers;
 using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
+using System.IO;
 using TokenServiceApiClientConfiguration = SFA.DAS.TokenService.Api.Client.TokenServiceApiClientConfiguration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
@@ -53,6 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddMediatR(typeof(GetEmploymentCheckBatchQueryRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetNiNumbersQueryRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(CreateEmploymentCheckCacheCommand).Assembly);
 
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));

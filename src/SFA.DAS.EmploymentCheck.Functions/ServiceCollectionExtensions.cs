@@ -89,9 +89,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             var nLogConfiguration = new NLogConfiguration();
 
-            serviceCollection.AddLogging((options) =>
+            serviceCollection.AddLogging(options =>
             {
-                options.AddFilter("SFA.DAS", LogLevel.Information); // this is because all logging is filtered out by defualt
+                options.AddFilter("SFA.DAS", LogLevel.Information);
                 options.SetMinimumLevel(LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {
