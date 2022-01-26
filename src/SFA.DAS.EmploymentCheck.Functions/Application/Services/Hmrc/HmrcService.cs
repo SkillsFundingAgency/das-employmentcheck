@@ -106,7 +106,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e)
             {
-                _logger.LogError($"{thisMethodName}: [{e}]");
+                _logger.LogError($"{thisMethodName}: ApiHttpException occurred [{e}]");
                 employmentCheckCacheResponse.ProcessingComplete = true;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
@@ -114,6 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (Exception e)
             {
+                _logger.LogError($"{thisMethodName}: Exception occurred [{e}]");
                 employmentCheckCacheResponse.ProcessingComplete = false;
                 employmentCheckCacheResponse.HttpResponse = $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}";
                 employmentCheckCacheResponse.HttpStatusCode = 500;
@@ -121,8 +122,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
 
             return request;
-
         }
+
         #endregion IsNationalInsuranceNumberRelatedToPayeScheme
 
         #region GetEmploymentStatus
