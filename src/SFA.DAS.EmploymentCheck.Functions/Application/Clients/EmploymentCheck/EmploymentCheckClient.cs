@@ -1,12 +1,13 @@
 ﻿using Ardalis.GuardClauses;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
-    public class EmploymentCheckClient : IEmploymentCheckClient
+    public class EmploymentCheckClient
+        : IEmploymentCheckClient
     {
         private readonly IEmploymentCheckService _employmentCheckService;
 
@@ -30,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             return employmentCheckRequests;
         }
 
-        public async Task<EmploymentCheckCacheRequest> ProcessEmploymentCheckCacheRequest()
+        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             var employmentCheckCacheRequest = await _employmentCheckService.GetEmploymentCheckCacheRequest();
 
@@ -40,6 +41,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
+        }
+
+        public async Task UpdateRelatedRequests(Models.EmploymentCheckCacheRequest request)
+        {
+            await _employmentCheckService.UpdateRelatedRequests(request);
         }
     }
 }

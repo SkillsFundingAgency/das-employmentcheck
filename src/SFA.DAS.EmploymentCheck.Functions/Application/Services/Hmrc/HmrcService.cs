@@ -3,7 +3,9 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
@@ -13,31 +15,32 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
-    public class HmrcService : IHmrcService
+    public class HmrcService
+        : IHmrcService
     {
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;
         private readonly ILogger<HmrcService> _logger;
         private readonly IEmploymentCheckCacheResponseRepository _repository;
+        private readonly IEmploymentCheckClient _employmentCheckClient;
         private PrivilegedAccessToken _cachedToken;
 
-        #region Constructors
         public HmrcService(
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository
-            )
+            IEmploymentCheckCacheResponseRepository repository,
+            IEmploymentCheckClient employmentCheckClient
+        )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _repository = repository;
             _cachedToken = null;
+            _employmentCheckClient = employmentCheckClient;
         }
-        #endregion Constructors
 
-        #region IsNationalInsuranceNumberRelatedToPayeScheme
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(
             EmploymentCheckCacheRequest request)
         {
@@ -77,6 +80,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     employmentCheckCacheResponse.HttpResponse = "OK";
                     employmentCheckCacheResponse.HttpStatusCode = 200;
                     await _repository.Save(employmentCheckCacheResponse);
+
+                    if (result.Employed)
+                    {
+                        await _employmentCheckClient.UpdateRelatedRequests(request);
+                    }
                 }
                 else
                 {
@@ -117,9 +125,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             return request;
 
         }
-        #endregion IsNationalInsuranceNumberRelatedToPayeScheme
-
-        #region GetEmploymentStatus
 
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
@@ -134,15 +139,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             return employmentStatus;
         }
 
-        #endregion GetEmploymentStatus
-
-        #region RetrieveAuthenticationToken
-
         private async Task RetrieveAuthenticationToken()
         {
             _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
         }
-
-        #endregion RetrieveAuthenticationToken
     }
 }

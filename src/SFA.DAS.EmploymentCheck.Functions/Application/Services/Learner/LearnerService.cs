@@ -23,7 +23,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
     public class LearnerService
         : ILearnerService
     {
-        #region Private members
         private const string LearnersNiUrl = "/api/v1/ilr-data/learnersNi/2122?ulns=";
         private readonly ILogger<ILearnerService> _logger;
         private readonly IDcTokenService _dcTokenService;
@@ -32,9 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly IDataCollectionsResponseRepository _repository;
-        #endregion Private members
 
-        #region Constructors
         public LearnerService(
             ILogger<ILearnerService> logger,
             IDcTokenService dcTokenService,
@@ -53,9 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _repository = repository;
         }
-        #endregion Constructors
 
-        #region GetNiNumbers
         public async Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Models.EmploymentCheck> employmentCheckBatch)
         {
             Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
@@ -90,7 +85,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 
             return checkedLearners;
         }
-        #endregion GetNiNumbers
 
         private async Task<LearnerNiNumber> SendIndividualRequest(Models.EmploymentCheck employmentCheck, AuthResult token)
         {
@@ -115,7 +109,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             url = LearnersNiUrl + employmentCheck.Uln;
         }
 
-        #region ExecuteDataCollectionsApiCall
         private async Task<LearnerNiNumber> ExecuteDataCollectionsApiCall(Models.EmploymentCheck employmentCheck, HttpClient client, string url)
         {
             LearnerNiNumber learnerNiNumber = null;
@@ -136,9 +129,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return learnerNiNumber ?? new LearnerNiNumber();
         }
 
-        #endregion ExecuteDataCollectionsApiCall
-
-        #region GetApiResponseNiNumber
         private async Task<LearnerNiNumber> GetApiResponseNiNumber(
             Models.EmploymentCheck employmentCheck,
             HttpResponseMessage httpResponseMessage
@@ -178,9 +168,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             // return the employer schemes to the caller
             return learnerNiNumber;
         }
-        #endregion GetApiResponseNiNumber
 
-        #region InitialiseDataCollectionsResponseModel
         private async Task<DataCollectionsResponse> InitialiseDataCollectionsResponseModel(Models.EmploymentCheck employmentCheck)
         {
             // Create a 'DataCollectionsResponse' model to hold the api response data to store in the database
@@ -192,9 +180,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                 string.Empty,                                   // Response
                 (short)HttpStatusCode.InternalServerError));    // Http Status Code
         }
-        #endregion InitialiseDataCollectionsResponseModel
 
-        #region ReadResponseContent
         private async Task<Stream> ReadResponseContent(
             HttpResponseMessage httpResponseMessage,
             DataCollectionsResponse dataCollectionsResponse
@@ -217,9 +203,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 
             return stream;
         }
-        #endregion ReadResponseContent
 
-        #region DeserialiseContent
         private async Task<LearnerNiNumber> DeserialiseContent(
             Stream stream,
             DataCollectionsResponse dataCollectionsResponse
@@ -253,7 +237,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             // Return the employer paye schemes to the caller
             return learnerNiNumber;
         }
-        #endregion DeserialiseContent
 
         private async Task<AuthResult> GetDcToken()
         {
@@ -267,7 +250,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return result;
         }
 
-        #region Save
         private async Task Save(DataCollectionsResponse dataCollectionsResponse)
         {
             if (dataCollectionsResponse == null)
@@ -286,18 +268,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
                 // No logging, we're not interested in storing errors about duplicates at the moment
             }
         }
-        #endregion Save
 
-        #region HandleException
         private async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)
         {
-            // Create a 'DataCollectionsResponse' model to hold the api response data to store in the database
             var dataCollectionsResponse = await InitialiseDataCollectionsResponseModel(employmentCheck);
 
-            // Store the exception message in the DataCollectionsResponse model and store in the database
             dataCollectionsResponse.HttpResponse = e.Message;
             await Save(dataCollectionsResponse);
         }
-        #endregion HandleException
     }
 }
