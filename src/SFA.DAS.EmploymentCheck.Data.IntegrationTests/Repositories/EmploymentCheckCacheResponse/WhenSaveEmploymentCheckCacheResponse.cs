@@ -1,18 +1,17 @@
-﻿using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
+using FluentAssertions;
+using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
     public class WhenSaveEmploymentCheckCacheResponse : RepositoryTestBase
     {
         private IEmploymentCheckCacheResponseRepository _sut;
-        private EmploymentCheckCacheResponse _actual;
+        private Functions.Application.Models.EmploymentCheckCacheResponse _actual;
 
         [Test]
         public async Task CanSave()
@@ -20,13 +19,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             // Arrange
             _sut = new EmploymentCheckCacheResponseRepository(Settings);
 
-            var expected = Fixture.Create<EmploymentCheckCacheResponse>();
+            var expected = Fixture.Create<Functions.Application.Models.EmploymentCheckCacheResponse>();
 
             // Act
             await _sut.Save(expected);
 
             // Assert
-            _actual = (await GetAll<EmploymentCheckCacheResponse>())
+            _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheResponse>())
                 .Single(x => x.CorrelationId == expected.CorrelationId);
 
 
@@ -40,10 +39,9 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         }
 
         [TearDown]
-        public new async Task CleanUp()
+        public async Task CleanUp()
         {
             await Delete(_actual);
-            await base.CleanUp();
         }
 
     }

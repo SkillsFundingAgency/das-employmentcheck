@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
     public class WhenSaveEmploymentCheck
         : RepositoryTestBase
@@ -103,10 +103,9 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         }
 
         [TearDown]
-        public new async Task CleanUp()
+        public async Task CleanUp()
         {
             await Delete(_actual);
-            await base.CleanUp();
         }
     }
 }

@@ -1,21 +1,19 @@
-﻿using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
+using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
     public class WhenUpdatingRelatedRequestsEmploymentCheckCacheRequest
         : RepositoryTestBase
     {
         private IEmploymentCheckCacheRequestRepository _sut;
-        private IList<EmploymentCheckCacheRequest> _actual;
+        private IList<Functions.Application.Models.EmploymentCheckCacheRequest> _actual;
 
         [Test]
         public async Task CanSave()
@@ -35,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             await _sut.UpdateRelatedRequests(testEmploymentCheckCacheRequestData.FirstOrDefault());
 
             // Assert
-            _actual = (await GetAll<EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
+            _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
 
             for (var i = 1; i < _actual.Count; i++)
             {
@@ -53,16 +51,16 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         }
 
         [TearDown]
-        public new async Task CleanUp()
+        public async Task CleanUp()
         {
             await Delete(_actual);
         }
 
-        private async Task<IList<EmploymentCheckCacheRequest>> CreateTestEmploymentCheckCacheRequestData()
+        private async Task<IList<Functions.Application.Models.EmploymentCheckCacheRequest>> CreateTestEmploymentCheckCacheRequestData()
         {
-            return await Task.FromResult(new List<EmploymentCheckCacheRequest>
+            return await Task.FromResult(new List<Functions.Application.Models.EmploymentCheckCacheRequest>
             {
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 1,
                     ApprenticeEmploymentCheckId = 1,
@@ -76,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                     RequestCompletionStatus = null,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 2,
                     ApprenticeEmploymentCheckId = 1,
@@ -90,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                     RequestCompletionStatus = null,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 3,
                     ApprenticeEmploymentCheckId = 1,
@@ -104,7 +102,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                     RequestCompletionStatus = null,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 4,
                     ApprenticeEmploymentCheckId = 1,
@@ -121,11 +119,11 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             });
         }
 
-        private async Task<IList<EmploymentCheckCacheRequest>> CreateExpectedEmploymentCheckCacheRequestData()
+        private async Task<IList<Functions.Application.Models.EmploymentCheckCacheRequest>> CreateExpectedEmploymentCheckCacheRequestData()
         {
-            return await Task.FromResult(new List<EmploymentCheckCacheRequest>
+            return await Task.FromResult(new List<Functions.Application.Models.EmploymentCheckCacheRequest>
             {
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 1,
                     ApprenticeEmploymentCheckId = 1,
@@ -139,7 +137,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                     RequestCompletionStatus = null,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 2,
                     ApprenticeEmploymentCheckId = 1,
@@ -153,7 +151,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                     RequestCompletionStatus = (short)ProcessingCompletionStatus.Abandoned,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 3,
                     ApprenticeEmploymentCheckId = 1,
@@ -167,7 +165,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                     RequestCompletionStatus = (short)ProcessingCompletionStatus.Abandoned,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new EmploymentCheckCacheRequest
+                new Functions.Application.Models.EmploymentCheckCacheRequest
                 {
                     Id = 4,
                     ApprenticeEmploymentCheckId = 1,
