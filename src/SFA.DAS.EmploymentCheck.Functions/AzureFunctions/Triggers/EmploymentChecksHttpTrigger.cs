@@ -43,13 +43,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
                 log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
                 return starter.CreateCheckStatusResponse(req, instanceId);
             }
-            else
+            return new HttpResponseMessage(HttpStatusCode.Conflict)
             {
-                return new HttpResponseMessage(HttpStatusCode.Conflict)
-                {
-                    Content = new StringContent($"An instance of {nameof(EmploymentChecksOrchestrator)} is already running."),
-                };
-            }
+                Content = new StringContent($"An instance of {nameof(EmploymentChecksOrchestrator)} is already running."),
+            };
         }
     }
 }
