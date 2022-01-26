@@ -65,8 +65,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 var policy = Policy
                     .Handle<UnauthorizedAccessException>()
                     .RetryAsync(
-                        retryCount: 1,
-                        onRetryAsync: async (outcome, retryNumber, context) => await RetrieveAuthenticationToken());
+                        retryCount: 10,
+                        onRetryAsync: async (outcome, retryNumber, context) =>
+                        {
+                            _logger.LogInformation($"{thisMethodName}: UnauthorizedAccessException occurred. Refreshing access token...");
+                            await RetrieveAuthenticationToken();
+                        }
+                    );
 
                 var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
 
@@ -109,6 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e)
             {
+                _logger.LogError($"{thisMethodName}: [{e}]");
                 employmentCheckCacheResponse.ProcessingComplete = true;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
