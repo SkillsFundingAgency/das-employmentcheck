@@ -64,7 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             {
                 var parameters = new DynamicParameters();
 
-                // There is no design for the criteria required to identify 'which' requests to abandon
+                // TODO: Dave to specify the criteria for 'which' requests to skip after an positive employment check
                 parameters.Add("@ApprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
                 parameters.Add("@nino", request.Nino, DbType.String);
                 parameters.Add("@minDate", request.MinDate, DbType.DateTime);
@@ -75,13 +75,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
                 await sqlConnection.ExecuteAsync(
                     "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                    "SET    RequestCompletionStatus = @requestCompletionStatus, " +
-                    "       LastUpdatedOn           = @lastUpdatedOn " +
+                    "SET    RequestCompletionStatus     = @requestCompletionStatus, " +
+                    "       Employed                    = null, " +
+                    "       LastUpdatedOn               = @lastUpdatedOn " +
                     "WHERE  ApprenticeEmploymentCheckId = @apprenticeEmploymentCheckId " +
                     "AND    Nino                        = @nino " +
                     "AND    MinDate                     = @minDate " +
                     "AND    MaxDate                     = @maxDate " +
-                    "AND    Employed                    IS NULL " +
+                    "AND    (Employed                   IS NULL OR Employed = 0) " +
                     "AND    RequestCompletionStatus     IS NULL ",
                     parameters,
                     commandType: CommandType.Text);

@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Repositories\AccountsResponse\**" />
+    <Compile Remove="Repositories\DataCollectionsResponse\**" />
+    <EmbeddedResource Remove="Repositories\AccountsResponse\**" />
+    <EmbeddedResource Remove="Repositories\DataCollectionsResponse\**" />
+    <None Remove="Repositories\AccountsResponse\**" />
+    <None Remove="Repositories\DataCollectionsResponse\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
@@ -25,16 +34,10 @@
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </None>
-        <None Update="Config.json">
+        <None Update="config.json">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
           <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Repositories\EmploymentCheckCacheRequest\" />
-      <Folder Include="Repositories\AccountsResponse\" />
-      <Folder Include="Repositories\DataCollectionsResponse\" />
     </ItemGroup>
 
 </Project>

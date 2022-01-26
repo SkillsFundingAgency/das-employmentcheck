@@ -69,6 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
                 MaxDate = new DateTime(2020, 10, 30, 20, 30, 28),
                 MinDate = new DateTime(2023, 10, 9, 1, 33, 4),
+                Employed = true,
                 RequestCompletionStatus = 220,
                 CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
             };
