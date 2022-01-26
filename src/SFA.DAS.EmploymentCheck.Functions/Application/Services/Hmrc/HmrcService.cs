@@ -114,7 +114,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         {
             var expired = _cachedToken.ExpiryTime < DateTime.Now;
             if (expired) _logger.LogInformation($"[{nameof(HmrcService)}] Access Token has expired, retrieving a new token.");
-            return expired
+            return expired;
         }
 
         private async Task<EmploymentStatus> GetEmploymentStatusWithRetries(EmploymentCheckCacheRequest request, string thisMethodName)
