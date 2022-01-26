@@ -1,14 +1,15 @@
-﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using Moq;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
 {
     public class WhenTriggeringHttpEmploymentCheck
     {
@@ -24,16 +25,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
         }
 
         [Test]
-        public async Task Then_The_Instance_Id_Is_Created()
+        public async Task Then_The_Instance_Id_Is_Created_When_no_other_instances_are_running()
         {
             //Arrange
             const string instanceId = "test";
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(instanceId);
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, instanceId, false))
                 .Returns(response);
+
+            var instances = new OrchestrationStatusQueryResult
+            {
+                DurableOrchestrationState = new List<DurableOrchestrationStatus>(0)
+            };
+
+            _starter.Setup(x => x.ListInstancesAsync(
+                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "EmploymentCheck-")
+                    , System.Threading.CancellationToken.None))
+                .ReturnsAsync(instances);
 
             //Act
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
@@ -41,24 +52,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.Employ
             //Assert
             
             Assert.AreEqual(response, result);
+            Assert.AreEqual(response.StatusCode, result.StatusCode);
         }
 
         [Test]
-        public async Task Then_The_Status_Code_Is_Returned()
+        public async Task Then_The_Instance_Id_Is_Not_Created_When_other_instances_are_running()
         {
             //Arrange
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            const string instanceId = "test";
 
-            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
-                .ReturnsAsync("");
-            _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, It.IsAny<string>(), false))
-                .Returns(response);
+            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), It.IsAny<string>()))
+                .ReturnsAsync(instanceId);
+
+            var instances = new OrchestrationStatusQueryResult
+            {
+                DurableOrchestrationState = new[] { new DurableOrchestrationStatus() }
+            };
+
+            _starter.Setup(x => x.ListInstancesAsync(
+                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "EmploymentCheck-")
+                    , System.Threading.CancellationToken.None))
+                .ReturnsAsync(instances);
 
             //Act
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
-            Assert.AreEqual(response.StatusCode, result.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Conflict, result.StatusCode);
         }
     }
 }
