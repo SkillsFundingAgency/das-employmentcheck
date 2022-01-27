@@ -56,8 +56,7 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
                             MinDate = Convert.ToDateTime(columns[2]),
                             MaxDate = Convert.ToDateTime(columns[3]),
                             Employed = null,
-                            CreatedOn = now,
-                            VersionId = 1
+                            CreatedOn = now
                         };
 
                         var checkId = await _dataAccess.Insert(check);
