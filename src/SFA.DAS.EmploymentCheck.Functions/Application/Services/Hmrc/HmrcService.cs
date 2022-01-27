@@ -3,9 +3,7 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
@@ -15,34 +13,30 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 {
-    public class HmrcService
-        : IHmrcService
+    public class HmrcService : IHmrcService
     {
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;
         private readonly ILogger<HmrcService> _logger;
         private readonly IEmploymentCheckCacheResponseRepository _repository;
-        private readonly IEmploymentCheckClient _employmentCheckClient;
         private PrivilegedAccessToken _cachedToken;
+        private const int UnauthorizedAccessRetryCount = 10;
 
         public HmrcService(
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository,
-            IEmploymentCheckClient employmentCheckClient
-        )
+            IEmploymentCheckCacheResponseRepository repository
+            )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _repository = repository;
             _cachedToken = null;
-            _employmentCheckClient = employmentCheckClient;
         }
 
-        public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(
-            EmploymentCheckCacheRequest request)
+        public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
         {
             var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
 
@@ -60,20 +54,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
             try
             {
-                if (_cachedToken == null) await RetrieveAuthenticationToken();
+                if (_cachedToken == null || AccessTokenHasExpired()) await RetrieveAuthenticationToken();
 
-                var policy = Policy
-                    .Handle<UnauthorizedAccessException>()
-                    .RetryAsync(
-                        retryCount: 10,
-                        onRetryAsync: async (outcome, retryNumber, context) =>
-                        {
-                            _logger.LogInformation($"{thisMethodName}: UnauthorizedAccessException occurred. Refreshing access token...");
-                            await RetrieveAuthenticationToken();
-                        }
-                    );
-
-                var result = await policy.ExecuteAsync(() => GetEmploymentStatus(request));
+                var result = await GetEmploymentStatusWithRetries(request, thisMethodName);
 
                 if (result != null)
                 {
@@ -85,11 +68,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     employmentCheckCacheResponse.HttpResponse = "OK";
                     employmentCheckCacheResponse.HttpStatusCode = 200;
                     await _repository.Save(employmentCheckCacheResponse);
-
-                    if (result.Employed)
-                    {
-                        await _employmentCheckClient.UpdateRelatedRequests(request);
-                    }
                 }
                 else
                 {
@@ -103,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 }
             }
             catch (ApiHttpException e) when (
-                e.HttpCode == (int) HttpStatusCode.TooManyRequests ||
+                e.HttpCode == (int)HttpStatusCode.TooManyRequests ||
                 e.HttpCode == (int)HttpStatusCode.RequestTimeout
                 )
             {
@@ -114,7 +92,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (ApiHttpException e)
             {
-                _logger.LogError($"{thisMethodName}: [{e}]");
+                _logger.LogError($"{thisMethodName}: ApiHttpException occurred [{e}]");
                 employmentCheckCacheResponse.ProcessingComplete = true;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
@@ -122,6 +100,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
             catch (Exception e)
             {
+                _logger.LogError($"{thisMethodName}: Exception occurred [{e}]");
                 employmentCheckCacheResponse.ProcessingComplete = false;
                 employmentCheckCacheResponse.HttpResponse = $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}";
                 employmentCheckCacheResponse.HttpStatusCode = 500;
@@ -129,7 +108,45 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
 
             return request;
+        }
 
+        private bool AccessTokenHasExpired()
+        {
+            var expired = _cachedToken.ExpiryTime < DateTime.Now;
+            if (expired) _logger.LogInformation($"[{nameof(HmrcService)}] Access Token has expired, retrieving a new token.");
+            return expired;
+        }
+
+        private async Task<EmploymentStatus> GetEmploymentStatusWithRetries(EmploymentCheckCacheRequest request, string thisMethodName)
+        {
+            var unauthorizedAccessExceptionRetryPolicy = Policy
+                .Handle<UnauthorizedAccessException>()
+                .RetryAsync(
+                    retryCount: UnauthorizedAccessRetryCount,
+                    onRetryAsync: async (outcome, retryNumber, context) =>
+                    {
+                        _logger.LogInformation(
+                            $"{thisMethodName}: UnauthorizedAccessException occurred. Refreshing access token...");
+                        await RetrieveAuthenticationToken();
+                    }
+                );
+
+            var unauthorizedApiHttpExceptionRetryPolicy = Policy
+                .Handle<ApiHttpException>(e => e.HttpCode == (int)HttpStatusCode.Unauthorized)
+                .RetryAsync(
+                    retryCount: UnauthorizedAccessRetryCount,
+                    onRetryAsync: async (outcome, retryNumber, context) =>
+                    {
+                        _logger.LogInformation(
+                            $"{thisMethodName}: UnauthorizedAccessException occurred. Refreshing access token...");
+                        await RetrieveAuthenticationToken();
+                    }
+                );
+
+            var policyWrap = Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, unauthorizedApiHttpExceptionRetryPolicy);
+
+            var result = await policyWrap.ExecuteAsync(() => GetEmploymentStatus(request));
+            return result;
         }
 
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)

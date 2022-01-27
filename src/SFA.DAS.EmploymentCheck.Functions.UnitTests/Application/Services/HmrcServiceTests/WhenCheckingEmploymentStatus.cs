@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         private PrivilegedAccessToken _token;
         private EmploymentCheckCacheRequest _request;
         private Fixture _fixture;
-        private HmrcService _sut;
+        private IHmrcService _sut;
 
 
         [SetUp]
@@ -72,7 +72,68 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         }
 
         [Test]
-        public async Task Then_The_TokenServiceApiClient_Is_CalledWhenExpired()
+        public async Task Then_Cached_AccessToken_Is_Reused()
+        {
+            // Arrange
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ReturnsAsync(_fixture.Create<EmploymentStatus>());
+
+            var token = new PrivilegedAccessToken
+            {
+                AccessCode = _fixture.Create<string>(),
+                ExpiryTime = DateTime.Now.AddHours(1)
+            };
+
+            _tokenService.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+                .ReturnsAsync(token);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+        }
+
+        [Test]
+        public async Task Then_The_TokenServiceApiClient_Is_Called_Again_When_Token_Expires()
+        {
+            // Arrange
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ReturnsAsync(_fixture.Create<EmploymentStatus>());
+
+            var expiredToken = new PrivilegedAccessToken
+            {
+                AccessCode = _fixture.Create<string>(),
+                ExpiryTime = DateTime.Now.AddSeconds(-1)
+            };
+
+            _tokenService.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+                .ReturnsAsync(expiredToken);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+        }
+
+        [Test]
+        public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccessException_Occurs()
         {
             // Arrange
             _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
@@ -87,7 +148,36 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
+        }
+
+        [Test]
+        public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccess_ApiException_Is_Returned()
+        {
+            // Arrange
+            const short code = (short)HttpStatusCode.Unauthorized;
+
+            var exception = new ApiHttpException(
+                code,
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<Exception>()
+            );
+
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
         }
 
 
