@@ -1,9 +1,11 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 
-namespace SFA.DAS.EmploymentCheck.Domain.Validators
+namespace SFA.DAS.EmploymentCheck.Data.Validators
 {
+    [Obsolete("Use command validators")]
     public class EmploymentCheckValidator
-        : AbstractValidator<EmploymentCheck.Data.Models.EmploymentCheck>
+        : AbstractValidator<Models.EmploymentCheck>
     {
         public EmploymentCheckValidator()
         {

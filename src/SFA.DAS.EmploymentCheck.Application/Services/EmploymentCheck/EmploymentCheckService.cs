@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
-using SFA.DAS.EmploymentCheck.Domain.Validators;
+using SFA.DAS.EmploymentCheck.Data.Validators;
 using System;
 using System.Collections.Generic;
 using System.Data;
