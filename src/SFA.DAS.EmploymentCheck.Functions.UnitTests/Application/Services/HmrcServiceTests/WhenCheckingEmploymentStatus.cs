@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
@@ -13,15 +14,12 @@ using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using FluentAssertions;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
+namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTestss
 {
     public class WhenCheckingEmploymentStatus
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private Mock<IEmploymentCheckClient> _employmentCheckService;
         private Mock<ILogger<HmrcService>> _logger;
         private Mock<IEmploymentCheckCacheResponseRepository> _repository;
         private Mock<ITokenServiceApiClient> _tokenService;
@@ -36,7 +34,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         {
             _fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _employmentCheckService = new Mock<IEmploymentCheckClient>();
             _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
@@ -49,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object, null);
+            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object);
         }
 
         [Test]
