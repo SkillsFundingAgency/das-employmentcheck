@@ -22,29 +22,19 @@ namespace SFA.DAS.EmploymentCheck.Commands.RegisterCheck
 
             if (result.Invalid()) return result;
 
-            await GetNextVersionId(command, result);
-
-            Save(command, result);
+            Save(command);
 
             return result;
         }
 
-        private void Save(RegisterCheckCommand command, RegisterCheckResult result)
+        private void Save(RegisterCheckCommand command )
         {
-            var employmentCheck = CreateNewEmploymentCheck(command, result.VersionId);
+            var employmentCheck = CreateNewEmploymentCheck(command);
 
             _employmentCheckService.InsertEmploymentCheck(employmentCheck);
         }
-
-        private async Task GetNextVersionId(RegisterCheckCommand command, RegisterCheckResult result)
-        {
-            var existingEmploymentCheck = await _employmentCheckService.GetLastEmploymentCheck(command.CorrelationId);
-
-            result.VersionId = (short) (existingEmploymentCheck?.VersionId + 1 ?? 1);
-        }
-
-        private static Data.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command,
-            short? versionId)
+        
+        private static Data.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command)
         {
             return new Data.Models.EmploymentCheck(
                 command.CorrelationId,
@@ -53,8 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.RegisterCheck
                 command.ApprenticeshipId,
                 command.ApprenticeshipAccountId,
                 command.MinDate,
-                command.MaxDate,
-                versionId ?? 1
+                command.MaxDate
             );
         }
     }

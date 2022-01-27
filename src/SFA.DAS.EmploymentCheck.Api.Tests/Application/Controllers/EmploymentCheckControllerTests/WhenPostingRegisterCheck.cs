@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
                 MinDate = DateTime.Today.AddDays(-1),
                 MaxDate = DateTime.Today.AddDays(1),
             };
-            _response = new RegisterCheckResult {ErrorMessage = "ErrorMessage", ErrorType = "ErrorType", VersionId = 1};
+            _response = new RegisterCheckResult {ErrorMessage = "ErrorMessage", ErrorType = "ErrorType"};
         }
         [Test]
         public async Task Then_The_Request_Is_Passed_To_Mediator()
@@ -60,9 +60,12 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         }
 
         [Test]
-        public async Task And_The_VersionId_Is_Present_Then_It_And_200_Is_Returned()
+        public async Task And_The_Command_Is_Accepted_Then_200_Is_Returned()
         {
             //Arrange
+
+            _response.ErrorMessage = null;
+            _response.ErrorType = null;
 
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _registerCheckRequest.CorrelationId &&
@@ -86,14 +89,12 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
             //Assert
             // ReSharper disable once PossibleInvalidOperationException
             Assert.AreEqual(result?.StatusCode.Value, (int)HttpStatusCode.OK);
-            Assert.AreEqual(model?.VersionId, _response.VersionId);
         }
 
         [Test]
-        public async Task And_The_VersionId_Is_Not_Present_Then_Errors_And_400_Is_Returned()
+        public async Task And_The_Command_Is_Not_Accepted_Then_Errors_And_400_Is_Returned()
         {
             //Arrange
-            _response.VersionId = 0;
 
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _registerCheckRequest.CorrelationId &&

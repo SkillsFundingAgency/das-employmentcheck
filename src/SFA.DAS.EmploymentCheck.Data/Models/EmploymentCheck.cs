@@ -15,8 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
             long? apprenticeshipId, 
             int apprenticeshipAccountId, 
             DateTime minDate, 
-            DateTime maxDate, 
-            short versionId)
+            DateTime maxDate)
         {
             CorrelationId = correlationId;
             CheckType = checkType;
@@ -25,7 +24,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
             AccountId = apprenticeshipAccountId;
             MinDate = minDate;
             MaxDate = maxDate;
-            VersionId = versionId;
         }
 
         [Key]
@@ -48,8 +46,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         public bool? Employed { get; set; }
 
         public short? RequestCompletionStatus { get; set; }
-
-        public short VersionId { get; set; }
 
         public DateTime LastUpdatedOn { get; set; }
 
