@@ -55,7 +55,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public bool? Employed { get; set; }
 
         public short? RequestCompletionStatus { get; set; }
-        public short VersionId { get; set; }
 
         public DateTime LastUpdatedOn { get; set; }
 
