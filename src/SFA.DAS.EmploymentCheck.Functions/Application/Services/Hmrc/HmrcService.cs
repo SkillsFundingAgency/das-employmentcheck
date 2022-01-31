@@ -143,7 +143,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     }
                 );
 
-            var policyWrap = Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, unauthorizedApiHttpExceptionRetryPolicy);
+            var apiHttpExceptionRetryPolicy = Policy
+                .Handle<ApiHttpException>(e => e.HttpCode != (int)HttpStatusCode.Unauthorized)
+                .RetryAsync(
+                    retryCount: 1,
+                    onRetryAsync: async (outcome, retryNumber, context) =>
+                    {
+                        _logger.LogInformation(
+                            $"{thisMethodName}: ApiHttpException occurred. $[{outcome}] Refreshing access token...");
+                        await RetrieveAuthenticationToken();
+                    }
+                );
+
+            var policyWrap = Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, unauthorizedApiHttpExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
 
             var result = await policyWrap.ExecuteAsync(() => GetEmploymentStatus(request));
             return result;
