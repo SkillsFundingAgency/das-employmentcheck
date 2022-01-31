@@ -8,7 +8,7 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
-    public class WhenSaveEmploymentCheckCacheResponse : RepositoryTestBase
+    public class WhenSavingEmploymentCheckCacheResponse : RepositoryTestBase
     {
         private IEmploymentCheckCacheResponseRepository _sut;
         private Functions.Application.Models.EmploymentCheckCacheResponse _actual;
@@ -26,13 +26,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheResponse>())
-                .Single(x => x.CorrelationId == expected.CorrelationId);
-
+                .Single(x => x.Id == expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
                     .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)
+                    .Excluding(x => x.LastUpdatedOn)
                 );
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);

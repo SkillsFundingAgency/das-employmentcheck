@@ -10,6 +10,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
         Task Save(EmploymentCheckCacheRequest request);
 
-        Task UpdateRelatedRequests(EmploymentCheckCacheRequest request);
+        Task UpdateReleatedRequestsRequestCompletionStatus(EmploymentCheckCacheRequest request);
     }
 }

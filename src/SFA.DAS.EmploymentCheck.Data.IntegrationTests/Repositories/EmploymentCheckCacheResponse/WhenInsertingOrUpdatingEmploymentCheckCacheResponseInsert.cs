@@ -7,26 +7,27 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheResponse
 {
-    public class WhenInsertOrUpdateEmploymentCheckInsert
+    public class WhenInsertingOrUpdatingEmploymentCheckCacheResponsetInsert
         : RepositoryTestBase
     {
-        private IEmploymentCheckRepository _sut;
-        private Models.EmploymentCheck _actual;
+        private IEmploymentCheckCacheResponseRepository _sut;
+        private Models.EmploymentCheckCacheResponse _actual;
 
         [Test]
         public async Task CanInsert()
         {
             // Arrange
-            _sut = new EmploymentCheckRepository(Settings);
-            var expected = Fixture.Create<Models.EmploymentCheck>();
+            _sut = new EmploymentCheckCacheResponseRepository(Settings);
+            var expected = Fixture.Create<Models.EmploymentCheckCacheResponse>();
 
             // Act
             await _sut.InsertOrUpdate(expected);
 
+
             // Assert
-            _actual = (await GetAll<Models.EmploymentCheck>())
+            _actual = (await GetAll<Models.EmploymentCheckCacheResponse>())
                 .Single(x => x.Id == expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
@@ -34,14 +35,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)
                     .Excluding(x => x.LastUpdatedOn)
-                    .Excluding(x => x.MinDate)
-                    .Excluding(x => x.MaxDate)
                 );
 
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn, TimeSpan.FromSeconds(1));
-            _actual.MinDate.Should().BeCloseTo(expected.MinDate, TimeSpan.FromSeconds(1));
-            _actual.MaxDate.Should().BeCloseTo(expected.MaxDate, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);
         }
 

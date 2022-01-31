@@ -9,7 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
-    public class WhenUpdatingRelatedRequestsEmploymentCheckCacheRequest
+    public class WhenUpdatingReleatedRequestsRequestCompletionStatus
         : RepositoryTestBase
     {
         private IEmploymentCheckCacheRequestRepository _sut;
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 await base.Insert(request);
             }
 
-            await _sut.UpdateRelatedRequests(testEmploymentCheckCacheRequestData.FirstOrDefault());
+            await _sut.UpdateReleatedRequestsRequestCompletionStatus(testEmploymentCheckCacheRequestData.FirstOrDefault());
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();

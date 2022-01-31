@@ -1,33 +1,37 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
-    public class WhenInsertOrUpdateEmploymentCheckInsert
+    public class WhenInsertingOrUpdatingEmploymentCheckCacheRequestUpdate
         : RepositoryTestBase
     {
-        private IEmploymentCheckRepository _sut;
-        private Models.EmploymentCheck _actual;
+        private IEmploymentCheckCacheRequestRepository _sut;
+        private Models.EmploymentCheckCacheRequest _actual;
 
         [Test]
-        public async Task CanInsert()
+        public async Task CanUpdate()
         {
             // Arrange
-            _sut = new EmploymentCheckRepository(Settings);
-            var expected = Fixture.Create<Models.EmploymentCheck>();
+            _sut = new EmploymentCheckCacheRequestRepository(Settings);
+            var saved = Fixture.Create<Models.EmploymentCheckCacheRequest>();
+
+            await Insert(saved);
+
+            var expected = Fixture.Build<Models.EmploymentCheckCacheRequest>()
+                .With(e => e.Id, saved.Id)
+                .Create();
 
             // Act
             await _sut.InsertOrUpdate(expected);
 
             // Assert
-            _actual = (await GetAll<Models.EmploymentCheck>())
-                .Single(x => x.Id == expected.Id);
+            _actual = await Get<Models.EmploymentCheckCacheRequest>(saved.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
@@ -40,8 +44,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
 
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn, TimeSpan.FromSeconds(1));
-            _actual.MinDate.Should().BeCloseTo(expected.MinDate, TimeSpan.FromSeconds(1));
-            _actual.MaxDate.Should().BeCloseTo(expected.MaxDate, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);
         }
 

@@ -4,11 +4,13 @@ using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
-    public class EmploymentCheckCacheResponseRepository : IEmploymentCheckCacheResponseRepository
+    public class EmploymentCheckCacheResponseRepository
+        : IEmploymentCheckCacheResponseRepository
     {
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
@@ -21,7 +23,48 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _connectionString = applicationSettings.DbConnectionString;
         }
 
-        public async Task Save(EmploymentCheckCacheResponse employmentCheckCacheResponse)
+        public async Task InsertOrUpdate(EmploymentCheckCacheResponse response)
+        {
+            Guard.Against.Null(response, nameof(response));
+            var responseType = response.GetType();
+
+            var dbConnection = new DbConnection();
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                _azureServiceTokenProvider)
+            )
+            {
+                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+                await sqlConnection.OpenAsync();
+                using var tran = await sqlConnection.BeginTransactionAsync();
+                try
+                {
+                    var existingItem = await sqlConnection.GetAsync<EmploymentCheckCacheResponse>(response.Id, tran);
+                    if (existingItem != null)
+                    {
+                        // Check there's a LastUpdatedOn property on the object before setting the timestamp
+                        if (responseType.GetProperty("LastUpdatedOn") != null) { response.LastUpdatedOn = DateTime.Now; }
+                        await sqlConnection.UpdateAsync(response, tran);
+                    }
+                    else
+                    {
+                        // Check there's a CreatedOn property on the object before setting the timestamp
+                        if (responseType.GetProperty("CreatedOn") != null) { response.CreatedOn = DateTime.Now; }
+                        await sqlConnection.InsertAsync(response, tran);
+                    }
+
+                    await tran.CommitAsync();
+                }
+                catch
+                {
+                    await tran.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+
+        public async Task Save(EmploymentCheckCacheResponse response)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -29,8 +72,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-
-            await sqlConnection.InsertAsync(employmentCheckCacheResponse);
+            await sqlConnection.InsertAsync(response);
         }
     }
 }

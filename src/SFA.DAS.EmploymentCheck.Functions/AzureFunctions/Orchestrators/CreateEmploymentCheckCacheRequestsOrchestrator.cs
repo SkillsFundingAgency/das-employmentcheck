@@ -43,7 +43,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 var employmentCheckBatch = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
-
                 if (employmentCheckBatch.Count > 0)
                 {
                     var getLearnerNiNumbersActivityTask = context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentCheckBatch);
@@ -57,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: No data found, sleeping for 10 seconds before executing the orchestrator again");
+                    _logger.LogInformation($"{thisMethodName}: Nothing to process, waiting for 10 seconds before retrying");
 
                     // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
 

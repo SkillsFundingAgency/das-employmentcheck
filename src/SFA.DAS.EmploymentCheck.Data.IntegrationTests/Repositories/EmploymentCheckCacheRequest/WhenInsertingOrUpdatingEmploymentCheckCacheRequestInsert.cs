@@ -7,28 +7,28 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
-    public class WhenSaveEmploymentCheck
+    public class WhenInsertingOrUpdatingEmploymentCheckCacheRequestInsert
         : RepositoryTestBase
     {
-        private IEmploymentCheckRepository _sut;
-        private Models.EmploymentCheck _actual;
+        private IEmploymentCheckCacheRequestRepository _sut;
+        private Models.EmploymentCheckCacheRequest _actual;
 
         [Test]
-        public async Task CanSave()
+        public async Task CanInsert()
         {
             // Arrange
-            _sut = new EmploymentCheckRepository(Settings);
-            var expected = Fixture.Create<Models.EmploymentCheck>();
+            _sut = new EmploymentCheckCacheRequestRepository(Settings);
+            var expected = Fixture.Create<Models.EmploymentCheckCacheRequest>();
 
             // Act
-            await _sut.Save(expected);
+            await _sut.InsertOrUpdate(expected);
+
 
             // Assert
-            _actual = (await GetAll<Models.EmploymentCheck>())
-                .Single(x => x.CorrelationId == expected.CorrelationId);
-
+            _actual = (await GetAll<Models.EmploymentCheckCacheRequest>())
+                .Single(x => x.Id == expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts

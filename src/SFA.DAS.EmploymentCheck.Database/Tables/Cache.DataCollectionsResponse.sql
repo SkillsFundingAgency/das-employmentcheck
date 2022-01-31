@@ -7,6 +7,7 @@
 	[HttpResponse] [varchar](8000) NULL,
 	[HttpStatusCode] [smallint] NULL,
 	[CreatedOn] [datetime] NOT NULL,
+	[LastUpdatedOn] [datetime] NULL,
 	CONSTRAINT [PK_Cache_DataCollectionsResponse] PRIMARY KEY CLUSTERED
 	(
 		[Id] ASC

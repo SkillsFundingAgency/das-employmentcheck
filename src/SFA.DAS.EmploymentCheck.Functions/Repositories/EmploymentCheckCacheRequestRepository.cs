@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
-    public class EmploymentCheckCacheRequestRepository : IEmploymentCheckCacheRequestRepository
+    public class EmploymentCheckCacheRequestRepository
+        : IEmploymentCheckCacheRequestRepository
     {
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
@@ -28,6 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         public async Task InsertOrUpdate(EmploymentCheckCacheRequest request)
         {
             Guard.Against.Null(request, nameof(request));
+            var requestType = request.GetType();
 
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -36,37 +38,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             )
             {
                 Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-                if(request.CreatedOn == DateTime.MinValue)
-                {
-                    request.CreatedOn = DateTime.Now;
-                }
-
-                if (request.LastUpdatedOn == DateTime.MinValue)
-                {
-                    request.LastUpdatedOn = DateTime.Now;
-                }
-
                 await sqlConnection.OpenAsync();
-                using var tran = await sqlConnection.BeginTransactionAsync();
-                try
+                using (var tran = await sqlConnection.BeginTransactionAsync())
                 {
-                    var existingItem = await sqlConnection.GetAsync<EmploymentCheckCacheRequest>(request.Id, tran);
-                    if (existingItem != null)
+                    try
                     {
-                        await sqlConnection.UpdateAsync(request, tran);
-                    }
-                    else
-                    {
-                        await sqlConnection.InsertAsync(request, tran);
-                    }
+                        var existingItem = await sqlConnection.GetAsync<EmploymentCheckCacheRequest>(request.Id, tran);
+                        if (existingItem != null)
+                        {
+                            // Check there's a LastUpdatedOn property on the object before setting the timestamp
+                            if (requestType.GetProperty("LastUpdatedOn") != null) { request.LastUpdatedOn = DateTime.Now; }
+                            await sqlConnection.UpdateAsync(request, tran);
+                        }
+                        else
+                        {
+                            // Check there's a CreatedOn property on the object before setting the timestamp
+                            if (requestType.GetProperty("CreatedOn") != null) { request.CreatedOn = DateTime.Now; }
+                            await sqlConnection.InsertAsync(request, tran);
+                        }
 
-                    await tran.CommitAsync();
-                }
-                catch(Exception ex)
-                {
-                    await tran.RollbackAsync();
-                    throw;
+                        await tran.CommitAsync();
+                    }
+                    catch
+                    {
+                        await tran.RollbackAsync();
+                        throw;
+                    }
                 }
             }
         }
@@ -82,8 +79,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             await sqlConnection.InsertAsync(request);
         }
 
-        public async Task UpdateRelatedRequests(EmploymentCheckCacheRequest request)
+        public async Task UpdateReleatedRequestsRequestCompletionStatus(EmploymentCheckCacheRequest request)
         {
+            // 'Related' requests are requests that have the same 'parent' EmploymentCheck
+            // (i.e. the same ApprenticeEmploymentCheckId, which is the foreign key from the EmploymentCheck table)
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
@@ -92,7 +91,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
             await sqlConnection.OpenAsync();
 
-            // TODO: Dave to specify the criteria for 'which' requests to skip after an positive employment check
+            // TODO: Dave to specify the criteria for the 'WHERE' clause to 'skip' the remaining requests
             var parameters = new DynamicParameters();
             parameters.Add("@ApprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
             parameters.Add("@nino", request.Nino, DbType.String);

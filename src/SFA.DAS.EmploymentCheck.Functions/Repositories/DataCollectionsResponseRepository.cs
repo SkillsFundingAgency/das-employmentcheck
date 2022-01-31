@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
-    public class DataCollectionsResponseRepository : IDataCollectionsResponseRepository
+    public class DataCollectionsResponseRepository
+        : IDataCollectionsResponseRepository
     {
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
@@ -22,19 +23,50 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _connectionString = applicationSettings.DbConnectionString;
         }
 
-        public async Task Save(DataCollectionsResponse dataCollectionsResponse)
+
+
+        public async Task InsertOrUpdate(DataCollectionsResponse response)
         {
+            Guard.Against.Null(response, nameof(response));
+            var responseType = response.GetType();
+
             var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+                _azureServiceTokenProvider)
+            )
+            {
+                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
+                await sqlConnection.OpenAsync();
+                using var tran = await sqlConnection.BeginTransactionAsync();
+                try
+                {
+                    var existingItem = await sqlConnection.GetAsync<DataCollectionsResponse>(response.Id, tran);
+                    if (existingItem != null)
+                    {
+                        // Check there's a LastUpdatedOn property on the object before setting the timestamp
+                        if (responseType.GetProperty("LastUpdatedOn") != null) { response.LastUpdatedOn = DateTime.Now; }
+                        await sqlConnection.UpdateAsync(response, tran);
+                    }
+                    else
+                    {
+                        // Check there's a CreatedOn property on the object before setting the timestamp
+                        if (responseType.GetProperty("CreatedOn") != null) { response.CreatedOn = DateTime.Now; }
+                        await sqlConnection.InsertAsync(response, tran);
+                    }
 
-            await sqlConnection.InsertAsync(dataCollectionsResponse);
+                    await tran.CommitAsync();
+                }
+                catch
+                {
+                    await tran.RollbackAsync();
+                    throw;
+                }
+            }
         }
 
-        public async Task<DataCollectionsResponse> Get(DataCollectionsResponse dataCollectionsResponse)
+        public async Task Save(DataCollectionsResponse response)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -42,17 +74,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-            DataCollectionsResponse result = null;
-            try
-            {
-                result = await sqlConnection.GetAsync<DataCollectionsResponse>(dataCollectionsResponse.ApprenticeEmploymentCheckId);
-            }
-            catch
-            {
-                // TODO: logging
-            }
+            await sqlConnection.InsertAsync(response);
+        }
 
-            return result;
+        public async Task<DataCollectionsResponse> Get(DataCollectionsResponse response)
+        {
+            var dbConnection = new DbConnection();
+            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                _azureServiceTokenProvider);
+            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+            return await sqlConnection.GetAsync<DataCollectionsResponse>(response.ApprenticeEmploymentCheckId);
         }
     }
 }

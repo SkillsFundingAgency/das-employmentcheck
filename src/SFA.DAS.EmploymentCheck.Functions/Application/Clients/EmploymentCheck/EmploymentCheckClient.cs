@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
         }
 
-        public async Task UpdateRelatedRequests(Models.EmploymentCheckCacheRequest request)
+        public async Task UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(Models.EmploymentCheckCacheRequest request)
         {
             await _employmentCheckService.UpdateRelatedRequests(request);
         }

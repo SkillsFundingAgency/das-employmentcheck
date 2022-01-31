@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
 {
     public class WhenInsertOrUpdateEmploymentCheckUpdate
         : RepositoryTestBase

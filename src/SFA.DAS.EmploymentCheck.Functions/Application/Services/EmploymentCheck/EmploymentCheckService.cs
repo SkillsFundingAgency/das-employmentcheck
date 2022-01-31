@@ -317,7 +317,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
         public async Task UpdateRelatedRequests(EmploymentCheckCacheRequest request)
         {
-            await _employmentCheckCashRequestRepository.UpdateRelatedRequests(request);
+            await _employmentCheckCashRequestRepository.UpdateReleatedRequestsRequestCompletionStatus(request);
         }
     }
 }

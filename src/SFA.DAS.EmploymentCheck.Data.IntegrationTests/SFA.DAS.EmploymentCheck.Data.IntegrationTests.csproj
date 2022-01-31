@@ -7,15 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Repositories\AccountsResponse\**" />
-    <Compile Remove="Repositories\DataCollectionsResponse\**" />
-    <EmbeddedResource Remove="Repositories\AccountsResponse\**" />
-    <EmbeddedResource Remove="Repositories\DataCollectionsResponse\**" />
-    <None Remove="Repositories\AccountsResponse\**" />
-    <None Remove="Repositories\DataCollectionsResponse\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="SFA.DAS.EmploymentCheck.Data.IntegrationTests.csproj.DotSettings" />
   </ItemGroup>
 

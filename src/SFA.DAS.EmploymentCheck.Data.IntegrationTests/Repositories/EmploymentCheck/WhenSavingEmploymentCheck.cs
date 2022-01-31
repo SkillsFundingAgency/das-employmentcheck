@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
 {
-    public class WhenInsertOrUpdateEmploymentCheckInsert
+    public class WhenSavingEmploymentCheck
         : RepositoryTestBase
     {
         private IEmploymentCheckRepository _sut;
         private Models.EmploymentCheck _actual;
 
         [Test]
-        public async Task CanInsert()
+        public async Task CanSave()
         {
             // Arrange
             _sut = new EmploymentCheckRepository(Settings);
             var expected = Fixture.Create<Models.EmploymentCheck>();
 
             // Act
-            await _sut.InsertOrUpdate(expected);
+            await _sut.Save(expected);
 
             // Assert
             _actual = (await GetAll<Models.EmploymentCheck>())
-                .Single(x => x.Id == expected.Id);
+                .Single(x => x.Id == expected.Id); // Note: The Id is the primary key on this table which is 'unique' for this row, the CorrelationId is can be considered as the Id of a group of rows and may not be 'unique' for this row
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts

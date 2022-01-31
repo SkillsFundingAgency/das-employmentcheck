@@ -10,7 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckCacheRequestTests
 {
     public class WhenCreatingEmploymentCheckCacheRequests
     {

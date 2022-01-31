@@ -36,6 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             CreatedOn = DateTime.Now;
         }
 
+        [Key]
         public long Id { get; set; }
 
         public Guid CorrelationId { get; set; }

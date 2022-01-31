@@ -6,6 +6,7 @@ using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -20,6 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
     public class WhenCheckingEmploymentStatus
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
+        private Mock<IEmploymentCheckClient> _employmentCheckService;
         private Mock<ILogger<HmrcService>> _logger;
         private Mock<IEmploymentCheckCacheResponseRepository> _repository;
         private Mock<ITokenServiceApiClient> _tokenService;
@@ -34,6 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
         {
             _fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
+            _employmentCheckService = new Mock<IEmploymentCheckClient>();
             _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
@@ -46,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object);
+            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object, _employmentCheckService.Object);
         }
 
         [Test]
@@ -195,7 +198,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository.Verify(r => r.InsertOrUpdate(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -229,6 +232,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             // Assert
             _repository.Verify(r => r.Save(
                 It.IsAny<EmploymentCheckCacheResponse>()
+            ), Times.Never);
+            _repository.Verify(r => r.InsertOrUpdate(
+                It.IsAny<EmploymentCheckCacheResponse>()
             ), Times.Once);
 
             result.Employed.Should().BeNull();
@@ -261,7 +267,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository.Verify(r => r.InsertOrUpdate(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -304,7 +310,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository.Verify(r => r.InsertOrUpdate(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -347,7 +353,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository.Verify(r => r.InsertOrUpdate(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -390,7 +396,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository.Verify(r => r.InsertOrUpdate(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -425,7 +431,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository.Verify(r => r.InsertOrUpdate(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId

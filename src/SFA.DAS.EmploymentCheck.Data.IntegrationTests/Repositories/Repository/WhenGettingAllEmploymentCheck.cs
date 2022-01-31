@@ -2,32 +2,33 @@
 using FluentAssertions;
 using NUnit.Framework;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using Repo = SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.Repositories.Interfaces;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.Repository
 {
-    public class WhenInsertOrUpdateEmploymentCheckInsert
+    public class WhenGettingAllEmploymentChecks
         : RepositoryTestBase
     {
-        private IEmploymentCheckRepository _sut;
+        private IRepository<Models.EmploymentCheck> _sut;
         private Models.EmploymentCheck _actual;
 
         [Test]
-        public async Task CanInsert()
+        public async Task CanGetAll()
         {
             // Arrange
-            _sut = new EmploymentCheckRepository(Settings);
+            _sut = new Repo.Repository<Models.EmploymentCheck>(Settings);
             var expected = Fixture.Create<Models.EmploymentCheck>();
 
             // Act
-            await _sut.InsertOrUpdate(expected);
+            await _sut.Save(expected);
 
             // Assert
             _actual = (await GetAll<Models.EmploymentCheck>())
-                .Single(x => x.Id == expected.Id);
+                .Single(x => x.Id == expected.Id); // Note: The Id is the primary key on this table which is 'unique' for this row, the CorrelationId is can be considered as the Id of a group of rows and may not be 'unique' for this row
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts

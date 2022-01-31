@@ -1,12 +1,16 @@
 ﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Repositories.Interfaces;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IDataCollectionsResponseRepository
+   //     : IRepository<DataCollectionsResponse>
     {
-        Task Save(DataCollectionsResponse dataCollectionsResponse);
+        Task InsertOrUpdate(DataCollectionsResponse response);
 
-        Task<DataCollectionsResponse> Get(DataCollectionsResponse dataCollectionsResponse);
+        Task Save(DataCollectionsResponse response);
+
+        Task<DataCollectionsResponse> Get(DataCollectionsResponse response);
     }
 }

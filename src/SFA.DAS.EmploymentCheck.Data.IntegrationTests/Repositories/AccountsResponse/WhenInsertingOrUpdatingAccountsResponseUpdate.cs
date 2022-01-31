@@ -1,47 +1,46 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsResponse
 {
-    public class WhenInsertOrUpdateEmploymentCheckInsert
+    public class WhenInsertingOrUpdatingAccountsResponseUpdate
         : RepositoryTestBase
     {
-        private IEmploymentCheckRepository _sut;
-        private Models.EmploymentCheck _actual;
+        private IAccountsResponseRepository _sut;
+        private Models.AccountsResponse _actual;
 
         [Test]
-        public async Task CanInsert()
+        public async Task CanUpdate()
         {
             // Arrange
-            _sut = new EmploymentCheckRepository(Settings);
-            var expected = Fixture.Create<Models.EmploymentCheck>();
+            _sut = new AccountsResponseRepository(Settings);
+            var saved = Fixture.Create<Models.AccountsResponse>();
+            await Insert(saved);
+
+            var expected = Fixture.Build<Models.AccountsResponse>()
+                .With(e => e.Id, saved.Id)
+                .Create();
 
             // Act
             await _sut.InsertOrUpdate(expected);
 
             // Assert
-            _actual = (await GetAll<Models.EmploymentCheck>())
-                .Single(x => x.Id == expected.Id);
+            _actual = await Get<Models.AccountsResponse>(saved.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
                     .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)
                     .Excluding(x => x.LastUpdatedOn)
-                    .Excluding(x => x.MinDate)
-                    .Excluding(x => x.MaxDate)
                 );
 
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn, TimeSpan.FromSeconds(1));
-            _actual.MinDate.Should().BeCloseTo(expected.MinDate, TimeSpan.FromSeconds(1));
-            _actual.MaxDate.Should().BeCloseTo(expected.MaxDate, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);
         }
 

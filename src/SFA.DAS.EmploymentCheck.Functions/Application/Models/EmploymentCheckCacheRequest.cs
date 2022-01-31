@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Dapper.Contrib.Extensions;
+using KeyAttribute = Dapper.Contrib.Extensions.KeyAttribute;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
@@ -31,15 +33,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             MaxDate = maxDate;
             Employed = employed;
             RequestCompletionStatus = requestCompletionStatus;
-            LastUpdatedOn = lastUpdatedOn;
+            LastUpdatedOn = DateTime.Now;
             CreatedOn = DateTime.Now;
         }
-    public long Id { get; set; }
+
+        [Key]
+        public long Id { get; set; }
 
         public long ApprenticeEmploymentCheckId { get; set; }
 
         public Guid? CorrelationId { get; set; }
 
+        [StringLength(20)] // Column size in db is 20, Autofixture generates string longer than 20 causing an exception in the test
         public string Nino { get; set; }
 
         public string PayeScheme { get; set; }

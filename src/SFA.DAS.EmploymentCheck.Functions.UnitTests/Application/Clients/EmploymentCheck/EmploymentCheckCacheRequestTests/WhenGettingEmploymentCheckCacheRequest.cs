@@ -9,7 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckCacheRequestTests
 {
     public class WhenGettingEmploymentCheckCacheRequest
     {

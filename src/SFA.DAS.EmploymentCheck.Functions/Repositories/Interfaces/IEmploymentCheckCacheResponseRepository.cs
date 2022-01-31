@@ -5,6 +5,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IEmploymentCheckCacheResponseRepository
     {
-        Task Save(EmploymentCheckCacheResponse employmentCheckCacheResponse);
+        Task InsertOrUpdate(EmploymentCheckCacheResponse response);
+
+        Task Save(EmploymentCheckCacheResponse response);
     }
 }
