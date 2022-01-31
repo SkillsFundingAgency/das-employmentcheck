@@ -89,7 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             await sqlConnection.InsertAsync(request);
         }
 
-        public async Task SkipEmploymentChecksForReleatedEmploymentCheckCacheRequests(EmploymentCheckCacheRequest request)
+        public async Task UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(EmploymentCheckCacheRequest request)
         {
             // 'Related' requests are requests that have the same 'parent' EmploymentCheck
             // (i.e. the same ApprenticeEmploymentCheckId, which is the foreign key from the EmploymentCheck table)
@@ -109,7 +109,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             parameters.Add("@minDate", request.MinDate, DbType.DateTime);
             parameters.Add("@maxDate", request.MaxDate, DbType.DateTime);
 
-            parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Abandoned, DbType.Int16);
+            parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Skipped, DbType.Int16);
             parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             await sqlConnection.ExecuteAsync(

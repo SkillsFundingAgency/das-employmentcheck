@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 if (result != null)
                 {
                     request.Employed = result.Employed;
-                    request.RequestCompletionStatus = 200;
+                    request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
                     employmentCheckCacheResponse.Employed = result.Employed;
                     employmentCheckCacheResponse.FoundOnPaye = result.Empref;

@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 
         public async Task UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(Models.EmploymentCheckCacheRequest request)
         {
-            await _employmentCheckService.UpdateRelatedRequests(request);
+            await _employmentCheckService.UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(request);
         }
     }
 }

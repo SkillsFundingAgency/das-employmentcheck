@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 await base.Insert(request);
             }
 
-            await _sut.SkipEmploymentChecksForReleatedEmploymentCheckCacheRequests(testEmploymentCheckCacheRequestData.FirstOrDefault());
+            await _sut.UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(testEmploymentCheckCacheRequestData.FirstOrDefault());
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
@@ -148,7 +148,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     MaxDate = new DateTime(2020, 10, 30, 20, 30, 28),
                     MinDate = new DateTime(2023, 10, 9, 1, 33, 4),
                     Employed = null,
-                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Abandoned,
+                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Skipped,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
                 new Functions.Application.Models.EmploymentCheckCacheRequest
@@ -162,7 +162,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     MaxDate = new DateTime(2020, 10, 30, 20, 30, 28),
                     MinDate = new DateTime(2023, 10, 9, 1, 33, 4),
                     Employed = null,
-                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Abandoned,
+                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Skipped,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
                 new Functions.Application.Models.EmploymentCheckCacheRequest
@@ -176,7 +176,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     MaxDate = new DateTime(2020, 10, 30, 20, 30, 28),
                     MinDate = new DateTime(2023, 10, 9, 1, 33, 4),
                     Employed = null,
-                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Abandoned,
+                    RequestCompletionStatus = (short)ProcessingCompletionStatus.Skipped,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 }
             });
