@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             DateTime maxDate,
             bool? employed,
             short requestCompletionStatus,
-            DateTime lastUpdatedOn,
+            DateTime? lastUpdatedOn,
             DateTime createdOn
         )
         {
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public short? RequestCompletionStatus { get; set; }
 
-        public DateTime LastUpdatedOn { get; set; }
+        public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
     }

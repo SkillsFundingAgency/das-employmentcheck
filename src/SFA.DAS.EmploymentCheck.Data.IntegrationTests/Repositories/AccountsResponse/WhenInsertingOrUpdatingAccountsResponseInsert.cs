@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsRes
                 );
 
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn, TimeSpan.FromSeconds(1));
+            _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);
         }
 

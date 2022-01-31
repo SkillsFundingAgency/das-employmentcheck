@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             string payeSchemes,
             string httpResponse,
             short httpStatusCode,
-            DateTime lastUpdatedOn
+            DateTime? lastUpdatedOn
         )
         {
             Id = id;
@@ -47,6 +47,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public DateTime CreatedOn { get; set; }
 
-        public DateTime LastUpdatedOn { get; set; }
+        public DateTime? LastUpdatedOn { get; set; }
     }
 }

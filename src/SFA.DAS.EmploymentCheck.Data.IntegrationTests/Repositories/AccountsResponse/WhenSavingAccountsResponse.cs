@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsResponse
 {
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsRes
                 );
 
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn, TimeSpan.FromSeconds(1));
+            _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);
         }
 

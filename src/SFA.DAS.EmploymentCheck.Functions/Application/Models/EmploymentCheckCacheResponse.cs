@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             int count,
             string httpResponse,
             short httpStatusCode,
-            DateTime lastUpdatedOn,
+            DateTime? lastUpdatedOn,
             DateTime createdOn
 
         )
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public short HttpStatusCode { get; set; }
 
-        public DateTime LastUpdatedOn { get; set; }
+        public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
     }

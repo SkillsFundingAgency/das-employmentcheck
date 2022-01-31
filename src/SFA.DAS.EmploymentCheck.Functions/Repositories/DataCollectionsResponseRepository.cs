@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
@@ -12,23 +13,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     public class DataCollectionsResponseRepository
         : IDataCollectionsResponseRepository
     {
+        private readonly ILogger<DataCollectionsResponseRepository> _logger;
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public DataCollectionsResponseRepository(
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider = null)
+            AzureServiceTokenProvider azureServiceTokenProvider = null,
+            Logger<DataCollectionsResponseRepository> logger = null
+        )
         {
+            _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
         }
 
-
-
         public async Task InsertOrUpdate(DataCollectionsResponse response)
         {
             Guard.Against.Null(response, nameof(response));
-            var responseType = response.GetType();
 
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -45,15 +47,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                     var existingItem = await sqlConnection.GetAsync<DataCollectionsResponse>(response.Id, tran);
                     if (existingItem != null)
                     {
-                        // Check there's a LastUpdatedOn property on the object before setting the timestamp
-                        if (responseType.GetProperty("LastUpdatedOn") != null) { response.LastUpdatedOn = DateTime.Now; }
+                        response.LastUpdatedOn = DateTime.Now;
                         await sqlConnection.UpdateAsync(response, tran);
                     }
                     else
                     {
-                        // Check there's a CreatedOn property on the object before setting the timestamp
-                        if (responseType.GetProperty("CreatedOn") != null) { response.CreatedOn = DateTime.Now; }
-                        await sqlConnection.InsertAsync(response, tran);
+                        try
+                        {
+                            response.LastUpdatedOn = null;
+                            response.CreatedOn = DateTime.Now;
+                            await sqlConnection.InsertAsync(response, tran);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"{nameof(AccountsResponseRepository)} Exception caught: {ex.Message}. {ex.StackTrace}");
+                            throw;
+                        }
                     }
 
                     await tran.CommitAsync();
@@ -61,7 +70,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 catch
                 {
                     await tran.RollbackAsync();
-                    throw;
                 }
             }
         }

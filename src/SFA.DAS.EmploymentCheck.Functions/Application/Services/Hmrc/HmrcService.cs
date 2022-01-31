@@ -186,7 +186,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
         private async Task SkipRemainingEmploymentStatusChecksForThisApprentice(EmploymentCheckCacheRequest request)
         {
-            request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Abandoned;
             await _employmentCheckClient.UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(request);
         }
 

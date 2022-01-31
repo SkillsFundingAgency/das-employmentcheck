@@ -7,9 +7,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
     [Table("Cache.DataCollectionsResponse")]
     public class DataCollectionsResponse
-    //    : Entity
     {
-        //public DataCollectionsResponse() { }
+        public DataCollectionsResponse() { }
 
         public DataCollectionsResponse(
             long id,
@@ -19,8 +18,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             string niNumber,
             string httpResponse,
             short httpStatusCode,
-            DateTime lastUpdatedOn
-        )// : base (id)
+            DateTime? lastUpdatedOn
+        )
         {
             Id = id;
             ApprenticeEmploymentCheckId = apprenticeEmploymentCheckId;
@@ -51,6 +50,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public DateTime CreatedOn { get; set; }
 
-        public DateTime LastUpdatedOn { get; set; }
+        public DateTime? LastUpdatedOn { get; set; }
     }
 }

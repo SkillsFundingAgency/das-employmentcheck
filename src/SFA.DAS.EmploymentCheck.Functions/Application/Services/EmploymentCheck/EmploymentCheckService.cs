@@ -251,6 +251,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         {
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
 
+            if (employmentCheckCacheRequest.RequestCompletionStatus == (short)ProcessingCompletionStatus.Started)
+            {
+                employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+            }
             await UpdateEmploymentCheckCacheRequest(employmentCheckCacheRequest);
             await UpdateEmploymentCheck(employmentCheckCacheRequest);
 
@@ -274,13 +278,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var parameter = new DynamicParameters();
             parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
             parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
-            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus,
-                DbType.Int16);
+            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
             parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             await sqlConnection.ExecuteAsync(
                 "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
+                "SET Employed = @employed, requestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
                 "WHERE Id = @Id ",
                 parameter,
                 commandType: CommandType.Text);
@@ -292,32 +295,36 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         {
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
 
+            if(employmentCheckCacheRequest.RequestCompletionStatus != null)
+            {
+                employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+            }
+
             var dbConnection = new DbConnection();
-
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                _azureServiceTokenProvider);
+                _azureServiceTokenProvider))
+            {
+                await sqlConnection.OpenAsync();
 
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+                var parameter = new DynamicParameters();
+                parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
+                parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
+                parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
+                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-            await sqlConnection.OpenAsync();
+                await sqlConnection.ExecuteAsync(
+                    "UPDATE [Business].[EmploymentCheck] " +
+                    "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                    "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
+                    parameter,
+                    commandType: CommandType.Text);
+            }
 
-            var parameter = new DynamicParameters();
-            parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
-            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
-            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-            await sqlConnection.ExecuteAsync(
-                "UPDATE [Business].[EmploymentCheck] " +
-                "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
-                "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
-                parameter,
-                commandType: CommandType.Text);
         }
         public async Task UpdateRelatedRequests(EmploymentCheckCacheRequest request)
         {
-            await _employmentCheckCashRequestRepository.UpdateReleatedRequestsRequestCompletionStatus(request);
+            await _employmentCheckCashRequestRepository.SkipEmploymentChecksForReleatedEmploymentCheckCacheRequests(request);
         }
     }
 }
