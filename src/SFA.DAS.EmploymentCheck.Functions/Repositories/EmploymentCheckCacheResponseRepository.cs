@@ -74,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             }
         }
 
-        public async Task Save(EmploymentCheckCacheResponse response)
+        public async Task Insert(EmploymentCheckCacheResponse response)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(

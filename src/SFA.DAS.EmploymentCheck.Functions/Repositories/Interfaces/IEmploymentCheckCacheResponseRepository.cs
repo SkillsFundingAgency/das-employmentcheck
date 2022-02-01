@@ -7,6 +7,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     {
         Task InsertOrUpdate(EmploymentCheckCacheResponse response);
 
-        Task Save(EmploymentCheckCacheResponse response);
+        Task Insert(EmploymentCheckCacheResponse response);
     }
 }
