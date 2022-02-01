@@ -15,9 +15,6 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
-using System;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcServiceTests
 {
@@ -44,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
 
-            _token = new PrivilegedAccessToken {AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7)};
+            _token = new PrivilegedAccessToken { AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7) };
 
             _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
 
@@ -152,35 +149,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             // Assert
             _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
-        }
-
-        [Test]
-        public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccess_ApiException_Is_Returned()
-        {
-            // Arrange
-            const short code = (short)HttpStatusCode.Unauthorized;
-
-            var exception = new ApiHttpException(
-                code,
-                _fixture.Create<string>(),
-                _fixture.Create<string>(),
-                _fixture.Create<string>(),
-                _fixture.Create<Exception>()
-            );
-
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                    _token.AccessCode,
-                    _request.PayeScheme,
-                    _request.Nino,
-                    _request.MinDate,
-                    _request.MaxDate))
-                .ThrowsAsync(exception);
-
-            // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
-
-            // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
@@ -236,7 +204,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.InsertOrUpdate(
+            _repository.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -270,9 +238,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             // Assert
             _repository.Verify(r => r.Save(
                 It.IsAny<EmploymentCheckCacheResponse>()
-            ), Times.Never);
-            _repository.Verify(r => r.InsertOrUpdate(
-                It.IsAny<EmploymentCheckCacheResponse>()
             ), Times.Once);
 
             result.Employed.Should().BeNull();
@@ -283,7 +248,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_NotFound_response_is_saved_as_complete()
         {
             // Arrange
-            const short code = (short) HttpStatusCode.NotFound;
+            const short code = (short)HttpStatusCode.NotFound;
 
             var exception = new ApiHttpException(
                 code,
@@ -305,7 +270,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.InsertOrUpdate(
+            _repository.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -348,7 +313,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.InsertOrUpdate(
+            _repository.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -391,7 +356,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.InsertOrUpdate(
+            _repository.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -469,7 +434,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.InsertOrUpdate(
+            _repository.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -504,7 +469,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.InsertOrUpdate(
+            _repository.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
