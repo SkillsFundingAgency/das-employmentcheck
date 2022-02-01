@@ -1,4 +1,7 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
@@ -16,7 +19,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServiceTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcServiceTests
 {
     public class WhenCheckingEmploymentStatus
     {
@@ -149,6 +152,41 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
 
             // Assert
             _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
+        }
+
+        [Test]
+        public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccess_ApiException_Is_Returned()
+        {
+            // Arrange
+            const short code = (short)HttpStatusCode.Unauthorized;
+
+            var exception = new ApiHttpException(
+                code,
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<Exception>()
+            );
+
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+                _token.AccessCode,
+                _request.PayeScheme,
+                _request.Nino,
+                _request.MinDate,
+                _request.MaxDate), Times.Exactly(11));
         }
 
         [Test]
@@ -368,6 +406,41 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Services.HmrcServi
                 )
 
             ), Times.Once);
+        }
+
+        [Test]
+        public async Task Then_InternalServerError_response_is_retried()
+        {
+            // Arrange
+            const short code = (short)HttpStatusCode.InternalServerError;
+
+            var exception = new ApiHttpException(
+                code,
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<Exception>()
+            );
+
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+                _token.AccessCode,
+                _request.PayeScheme,
+                _request.Nino,
+                _request.MinDate,
+                _request.MaxDate), Times.Exactly(2));
         }
 
         [Test]
