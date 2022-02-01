@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
     public static class ProcessEmploymentChecksHttpTrigger
     {
-        private const string InstanceIdPrefix = "EmploymentCheck-";
+        private const string InstanceIdPrefix = "ProcessEmploymentCheck-";
 
         [FunctionName("ProcessApprenticeEmploymentChecksHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
@@ -37,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             {
                 log.LogInformation($"Triggering {nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}");
                 
-                string instanceId = await starter.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), null);
+                string instanceId = await starter.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
                 
                 log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
                 

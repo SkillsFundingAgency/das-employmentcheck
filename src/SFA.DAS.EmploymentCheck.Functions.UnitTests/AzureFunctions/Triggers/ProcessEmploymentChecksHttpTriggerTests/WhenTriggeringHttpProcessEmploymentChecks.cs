@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -16,9 +17,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
         private readonly Mock<HttpRequestMessage> _request;
         private readonly Mock<IDurableOrchestrationClient> _starter;
         private readonly Mock<ILogger> _logger;
+        private readonly Fixture _fixture;
 
         public WhenTriggeringHttpProcessEmploymentChecks()
         {
+            _fixture = new Fixture();
             _request = new Mock<HttpRequestMessage>();
             _starter = new Mock<IDurableOrchestrationClient>();
             _logger = new Mock<ILogger>();
@@ -28,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
         public async Task Then_The_Instance_Id_Is_Created_When_no_other_instances_are_running()
         {
             //Arrange
-            const string instanceId = "test";
+            string instanceId = _fixture.Create<string>();
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
             _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
@@ -42,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
             };
 
             _starter.Setup(x => x.ListInstancesAsync(
-                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "EmploymentCheck-")
+                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "ProcessEmploymentCheck-")
                     , System.Threading.CancellationToken.None))
                 .ReturnsAsync(instances);
 
@@ -59,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
         public async Task Then_The_Instance_Id_Is_Not_Created_When_other_instances_are_running()
         {
             //Arrange
-            const string instanceId = "test";
+            string instanceId = _fixture.Create<string>();
 
             _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(instanceId);
@@ -70,7 +73,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
             };
 
             _starter.Setup(x => x.ListInstancesAsync(
-                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "EmploymentCheck-")
+                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "ProcessEmploymentCheck-")
                     , System.Threading.CancellationToken.None))
                 .ReturnsAsync(instances);
 

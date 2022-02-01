@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
     public static class CreateEmploymentCheckRequestsOrchestratorTrigger
     {
-        private const string InstanceIdPrefix = "EmploymentCheck-";
+        private const string InstanceIdPrefix = "CreateEmploymentCheck-";
 
         [FunctionName("CreateEmploymentCheckRequestsOrchestratorHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
