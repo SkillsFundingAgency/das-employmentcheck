@@ -18,9 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             DateTime minDate,
             DateTime maxDate,
             bool? employed,
-            short requestCompletionStatus,
-            DateTime? lastUpdatedOn,
-            DateTime createdOn)
+            short requestCompletionStatus)
         {
             Id = id;
             CorrelationId = correlationId;
@@ -32,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             MaxDate = maxDate;
             Employed = employed;
             RequestCompletionStatus = requestCompletionStatus;
-            LastUpdatedOn = lastUpdatedOn;
+            LastUpdatedOn = null;
             CreatedOn = DateTime.Now;
         }
 
