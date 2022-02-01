@@ -17,7 +17,7 @@
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>False</SqlServerVerification>
@@ -63,21 +63,26 @@
     <Folder Include="UserDefinedTypes" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\DAS_SubmissionEvents.sql" />
+    <Build Include="Tables\Business.EmploymentCheck.sql" />
+    <Build Include="Tables\Cache.RefErrorType.sql" />
+    <Build Include="Tables\Cache.EmploymentCheckCacheRequest.sql" />
+    <Build Include="Tables\Cache.DataCollectionsResponse.sql" />
+    <Build Include="Tables\Cache.AccountsResponse.sql" />
+    <Build Include="Tables\Cache.EmploymentCheckCacheResponse.sql" />
     <Build Include="Schemas\employer_check.sql" />
-    <Build Include="StoredProcedures\GetLastKnownProcessedEventId.sql" />
-    <Build Include="StoredProcedures\GetPreviousHandledSubmissionEvents.sql" />
-    <Build Include="UserDefinedTypes\UlnTableType.sql" />
-    <Build Include="StoredProcedures\StoreEmploymentCheckResult.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <Build Include="Tables\LastProcessedEvent.sql" />
-    <Build Include="StoredProcedures\SetProcessedEventId.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmploymentCheck.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Database.publish.xml" />
+    <None Include="Database.LocalDb.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\AzureV12\SqlSchemas\master.dacpac">
+      <HintPath>$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\AzureV12\SqlSchemas\master.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
+    </ArtifactReference>
   </ItemGroup>
 </Project>
