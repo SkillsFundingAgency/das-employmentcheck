@@ -3,7 +3,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -13,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAccount.EmployerAccountClientTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmployerAccount.EmployerAccountClientTests
 {
     public class WhenGettingEmployersPayeSchemes
     {
@@ -65,9 +64,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             var result = await _sut.GetEmployersPayeSchemes(_apprentices);
 
             //Assert
-            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First().ToString());
+            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First());
         }
-
 
         [Test]
         public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_List_Is_Returned()
@@ -87,24 +85,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.EmployerAc
             return Task.CompletedTask;
         }
 
-        [Test]
-        public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_UpperCased_and_Trimmed_of_WhiteSpace()
-        {
-            //Arrange
-            var employerPayeSchemes = new EmployerPayeSchemes
-            {
-                EmployerAccountId = 1,
-                PayeSchemes = new List<string> { " paye " }
-            };
-
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
-                .ReturnsAsync(employerPayeSchemes);
-
-            //Act
-            var result = await _sut.GetEmployersPayeSchemes(_apprentices);
-
-            //Assert
-            result.First().PayeSchemes.First().Should().BeEquivalentTo("PAYE");
-        }
     }
 }

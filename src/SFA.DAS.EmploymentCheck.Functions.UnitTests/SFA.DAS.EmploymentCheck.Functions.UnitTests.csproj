@@ -6,16 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
-    <Compile Remove="Mediators\Queries\GetApprenticesToVerify\**" />
-    <EmbeddedResource Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
-    <EmbeddedResource Remove="Mediators\Queries\GetApprenticesToVerify\**" />
-    <None Remove="AzureFunctions\Activities\GetLearnerApprenticeLearnerApprenticeLearnersActivityTests\**" />
-    <None Remove="Mediators\Queries\GetApprenticesToVerify\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="FluentAssertions" Version="6.2.0" />
     <PackageReference Include="HMRC.ESFA.Levy.Api.Types" Version="2.0.4" />
@@ -30,14 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
