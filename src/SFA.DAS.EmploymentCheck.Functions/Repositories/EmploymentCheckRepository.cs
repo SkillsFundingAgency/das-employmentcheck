@@ -54,7 +54,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                         {
                             try
                             {
-                                check.LastUpdatedOn = null;
                                 check.CreatedOn = DateTime.Now;
                                 await sqlConnection.InsertAsync(check, tran);
                             }

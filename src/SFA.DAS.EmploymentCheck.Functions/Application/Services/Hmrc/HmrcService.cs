@@ -3,8 +3,6 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
@@ -29,23 +27,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository,
-            IEmploymentCheckClient employmentCheckClient
-        )
+            IEmploymentCheckCacheResponseRepository repository
+            )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _repository = repository;
             _cachedToken = null;
-            _employmentCheckClient = employmentCheckClient;
         }
 
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
         {
             var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
 
-            EmploymentCheckCacheResponse employmentCheckCacheResponse = InitialiseEmploymentCheckCacheResponse(request);
+            // setup a default template 'response' to store the api response
+            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
+                    request.ApprenticeEmploymentCheckId,
+                    request.Id,
+                    request.CorrelationId,
+                    null,           // Employed
+                    null,           // FoundOnPayee,
+                    true,           // ProcessingComplete
+                    1,              // Count
+                    string.Empty,   // Response
+                    -1);            // HttpStatusCode
+
             try
             {
                 if (_cachedToken == null || AccessTokenHasExpired()) await RetrieveAuthenticationToken();
@@ -66,7 +73,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 {
 
                     employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
-                    await Save(employmentCheckCacheResponse);
+                    await _repository.Insert(employmentCheckCacheResponse);
 
                     request.Employed = null;
                     request.RequestCompletionStatus = 500;
@@ -163,7 +170,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     }
                 );
 
-            var policyWrap = Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, unauthorizedApiHttpExceptionRetryPolicy);
+            var apiHttpExceptionRetryPolicy = Policy
+                .Handle<ApiHttpException>(e => e.HttpCode != (int)HttpStatusCode.Unauthorized)
+                .RetryAsync(
+                    retryCount: 1,
+                    onRetryAsync: async (outcome, retryNumber, context) =>
+                    {
+                        _logger.LogInformation(
+                            $"{thisMethodName}: ApiHttpException occurred. $[{outcome}] Refreshing access token...");
+                        await RetrieveAuthenticationToken();
+                    }
+                );
+
+            var policyWrap = Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, unauthorizedApiHttpExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
 
             var result = await policyWrap.ExecuteAsync(() => GetEmploymentStatus(request));
             return result;

@@ -147,17 +147,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return learnerNiNumber;
         }
 
-        private async Task<DataCollectionsResponse> InitialiseDataCollectionsResponseModel(Models.EmploymentCheck employmentCheck)
+        private static async Task<DataCollectionsResponse> InitialiseDataCollectionsResponseModel(Models.EmploymentCheck employmentCheck)
         {
             return await Task.FromResult(new DataCollectionsResponse(
-                0,
-                employmentCheck.Id,
-                employmentCheck.CorrelationId,
-                employmentCheck.Uln,
-                string.Empty,                               // NiNumber
-                string.Empty,                               // Response
-                (short)HttpStatusCode.InternalServerError,  // Http Status Code
-                DateTime.Now));
+                    0,
+                    employmentCheck.Id,
+                    employmentCheck.CorrelationId,
+                    employmentCheck.Uln,
+                    string.Empty, // NiNumber
+                    string.Empty, // Response
+                    (short)HttpStatusCode.InternalServerError // Http Status Code
+                )
+            );
         }
 
         private async Task<Stream> ReadResponseContent(

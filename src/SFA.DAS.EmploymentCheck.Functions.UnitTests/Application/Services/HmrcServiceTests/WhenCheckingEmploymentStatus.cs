@@ -9,7 +9,6 @@ using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -21,7 +20,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
     public class WhenCheckingEmploymentStatus
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private Mock<IEmploymentCheckClient> _employmentCheckService;
         private Mock<ILogger<HmrcService>> _logger;
         private Mock<IEmploymentCheckCacheResponseRepository> _repository;
         private Mock<ITokenServiceApiClient> _tokenService;
@@ -30,13 +28,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         private Fixture _fixture;
         private IHmrcService _sut;
 
-
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _employmentCheckService = new Mock<IEmploymentCheckClient>();
             _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
@@ -49,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object, _employmentCheckService.Object);
+            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object);
         }
 
         [Test]
@@ -216,6 +212,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.Count == 1
                         && x.HttpResponse == "OK"
                         && x.HttpStatusCode == 200
+                        && x.LastUpdatedOn == null
                 )
             ), Times.Once);
         }

@@ -17,8 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             long uln,
             string niNumber,
             string httpResponse,
-            short httpStatusCode,
-            DateTime? lastUpdatedOn
+            short httpStatusCode
         )
         {
             Id = id;
@@ -29,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             HttpResponse = httpResponse;
             HttpStatusCode = httpStatusCode;
             CreatedOn = DateTime.Now;
-            LastUpdatedOn = lastUpdatedOn;
+            LastUpdatedOn = null;
         }
 
         [Key]
@@ -41,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public long Uln { get; set; }
 
-        [StringLength(20)] // Column size in db is 20, Autofixture generates string longer than 20 causing an exception in the test
+        [StringLength(20)]
         public string NiNumber { get; set; }
 
         public string HttpResponse { get; set; }

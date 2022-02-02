@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             var expected = Fixture.Create<Functions.Application.Models.EmploymentCheckCacheResponse>();
 
             // Act
-            await _sut.Save(expected);
+            await _sut.Insert(expected);
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheResponse>())

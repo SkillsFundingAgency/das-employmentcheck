@@ -20,14 +20,16 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         {
             // Arrange
             _sut = new EmploymentCheckRepository(Settings);
-            var expected = Fixture.Create<Models.EmploymentCheck>();
+            var expected = Fixture.Build<Models.EmploymentCheck>()
+                .Without(x => x.Id)
+                .Without(x => x.LastUpdatedOn)
+                .Create();
 
             // Act
             await _sut.InsertOrUpdate(expected);
 
             // Assert
-            _actual = (await GetAll<Models.EmploymentCheck>())
-                .Single(x => x.Id == expected.Id);
+            _actual = await Get<Models.EmploymentCheck>(expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
