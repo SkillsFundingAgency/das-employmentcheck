@@ -3,6 +3,8 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
@@ -27,35 +29,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository
-            )
+            IEmploymentCheckCacheResponseRepository repository,
+            IEmploymentCheckClient employmentCheckClient
+        )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _repository = repository;
             _cachedToken = null;
+            _employmentCheckClient = employmentCheckClient;
         }
 
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
         {
             var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
-
-            // setup a default template 'response' to store the api response
-            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
-                    request.Id,
-                    request.CorrelationId,
-                    null,           // Employed
-                    null,           // FoundOnPayee,
-                    true,           // ProcessingComplete
-                    1,              // Count
-                    string.Empty,   // Response
-                    -1);            // HttpStatusCode
+            EmploymentCheckCacheResponse employmentCheckCacheResponse = InitialiseEmploymentCheckCacheResponseModel(request);
 
             try
             {
-                if (_cachedToken == null || AccessTokenHasExpired()) await RetrieveAuthenticationToken();
+                if (_cachedToken == null || AccessTokenHasExpired()) { await RetrieveAuthenticationToken(); }
 
                 var result = await GetEmploymentStatusWithRetries(request, thisMethodName);
 
@@ -71,7 +64,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 }
                 else
                 {
-
                     employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
                     await _repository.Insert(employmentCheckCacheResponse);
 
@@ -117,24 +109,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
             await Save(employmentCheckCacheResponse);
             return request;
-        }
-
-        private static EmploymentCheckCacheResponse InitialiseEmploymentCheckCacheResponse(EmploymentCheckCacheRequest request)
-        {
-            // setup a default template 'response' to store the api response
-            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
-                    request.Id,
-                    request.CorrelationId,
-                    null,           // Employed
-                    null,           // FoundOnPayee,
-                    true,           // ProcessingComplete
-                    1,              // Count
-                    string.Empty,   // Response
-                    -1,             // HttpStatusCode
-                    DateTime.Now,
-                    DateTime.Now);
-            return employmentCheckCacheResponse;
         }
 
         private bool AccessTokenHasExpired()
@@ -220,6 +194,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             }
 
             await _repository.Save(response);
+        }
+
+        private static EmploymentCheckCacheResponse InitialiseEmploymentCheckCacheResponseModel(EmploymentCheckCacheRequest request)
+        {
+
+            // setup the default response values
+            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
+                    request.ApprenticeEmploymentCheckId,
+                    request.Id,
+                    request.CorrelationId,
+                    null,           // Employed
+                    null,           // FoundOnPayee,
+                    true,           // ProcessingComplete
+                    1,              // Count
+                    string.Empty,   // Response
+                    -1);            // HttpStatusCode
+            return employmentCheckCacheResponse;
         }
     }
 }

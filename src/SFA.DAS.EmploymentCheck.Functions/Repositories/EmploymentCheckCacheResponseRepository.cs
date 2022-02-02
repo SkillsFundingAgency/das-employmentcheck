@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _connectionString = applicationSettings.DbConnectionString;
         }
 
-        public async Task InsertOrUpdate(EmploymentCheckCacheResponse response)
+        public async Task Save(EmploymentCheckCacheResponse response)
         {
             Guard.Against.Null(response, nameof(response));
 

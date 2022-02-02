@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 .Create();
 
             // Act
-            await _sut.InsertOrUpdate(expected);
+            await _sut.Save(expected);
 
             // Assert
             _actual = await Get<Models.EmploymentCheckCacheResponse>(saved.Id);
