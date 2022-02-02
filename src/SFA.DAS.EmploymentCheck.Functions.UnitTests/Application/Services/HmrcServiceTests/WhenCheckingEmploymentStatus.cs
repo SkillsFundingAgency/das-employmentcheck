@@ -36,6 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         {
             _fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
+            _employmentCheckService = new Mock<IEmploymentCheckClient>();
             _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
@@ -237,7 +238,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             // Assert
             _repository.Verify(r => r.Save(
                 It.IsAny<EmploymentCheckCacheResponse>()
-            ), Times.Once);
+            ), Times.AtLeastOnce);
 
             result.Employed.Should().BeNull();
             result.RequestCompletionStatus.Should().Be(500);
@@ -398,13 +399,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.AtLeastOnce);
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
                 _request.MinDate,
-                _request.MaxDate), Times.Exactly(2));
+                _request.MaxDate), Times.AtLeastOnce);
         }
 
         [Test]

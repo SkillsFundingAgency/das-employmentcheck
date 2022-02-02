@@ -1,15 +1,15 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IEmploymentCheckCacheRequestRepository
     {
-        Task InsertOrUpdate(EmploymentCheckCacheRequest request);
-
         Task Save(EmploymentCheckCacheRequest request);
 
-        Task SkipEmploymentChecksForReleatedEmploymentCheckCacheRequests(EmploymentCheckCacheRequest request);
+        Task Insert(EmploymentCheckCacheRequest request);
+
+        Task SetReleatedRequestsRequestCompletionStatus(EmploymentCheckCacheRequest request, ProcessingCompletionStatus processingCompletionStatus);
     }
 }

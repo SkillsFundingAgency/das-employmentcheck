@@ -1,17 +1,17 @@
-﻿using Dapper;
+﻿using Ardalis.GuardClauses;
+using Dapper;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Ardalis.GuardClauses;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -183,7 +183,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                     employmentCheckRequests.Add(employmentCheckCacheRequest);
 
-                    await _employmentCheckCashRequestRepository.InsertOrUpdate(employmentCheckCacheRequest);
+                    await _employmentCheckCashRequestRepository.Save(employmentCheckCacheRequest);
                 }
             }
 
@@ -324,7 +324,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         }
         public async Task UpdateRelatedRequests(EmploymentCheckCacheRequest request)
         {
-            await _employmentCheckCashRequestRepository.SkipEmploymentChecksForReleatedEmploymentCheckCacheRequests(request);
+            await _employmentCheckCashRequestRepository.SetReleatedRequestsRequestCompletionStatus(request, ProcessingCompletionStatus.Abandoned);
         }
     }
 }

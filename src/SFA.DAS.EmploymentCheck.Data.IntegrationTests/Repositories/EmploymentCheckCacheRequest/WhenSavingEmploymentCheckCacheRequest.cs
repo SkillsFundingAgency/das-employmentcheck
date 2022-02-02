@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             expected.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
             // Act
-            await _sut.Save(expected);
+            await _sut.Insert(expected);
 
             // Assert
             _actual = (await GetAll<Models.EmploymentCheckCacheRequest>())

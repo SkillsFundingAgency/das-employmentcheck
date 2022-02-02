@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
 
                     // Save the employment status back to the database
-                    await context.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), result);
+                    //await context.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), result);
 
                     // Execute RateLimiter
                     var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);

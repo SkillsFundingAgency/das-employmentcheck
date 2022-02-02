@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 await base.Insert(request);
             }
 
-            await _sut.SkipEmploymentChecksForReleatedEmploymentCheckCacheRequests(testEmploymentCheckCacheRequestData.FirstOrDefault());
+            await _sut.SetReleatedRequestsRequestCompletionStatus(testEmploymentCheckCacheRequestData.FirstOrDefault(), ProcessingCompletionStatus.Abandoned);
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
