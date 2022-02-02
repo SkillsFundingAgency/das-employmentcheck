@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 .WaitAndRetryAsync(
                     retryCount: _settings.TooManyRequestsRetryCount,
                     sleepDurationProvider: _ => TimeSpan.FromMilliseconds(_settings.TransientErrorDelayInMs),
-                    onRetryAsync: (outcome, retryNumber, context) =>
+                    onRetryAsync: (exception, retryNumber, context) =>
                     {
                         _logger.LogInformation(
                             $"{nameof(HmrcApiRetryPolicies)}: TooManyRequests error occurred. Retrying after a delay...");
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 .Handle<UnauthorizedAccessException>()
                 .RetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,
-                    onRetryAsync: async (outcome, retryNumber, context) =>
+                    onRetryAsync: async (exception, retryNumber, context) =>
                     {
                         _logger.LogInformation(
                             $"{nameof(HmrcApiRetryPolicies)}: UnauthorizedAccessException occurred. Refreshing access token...");
@@ -55,15 +55,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 .Handle<ApiHttpException>(e =>
                     e.HttpCode != (int)HttpStatusCode.BadRequest &&
                     e.HttpCode != (int)HttpStatusCode.Forbidden &&
-                    e.HttpCode != (int)HttpStatusCode.NotFound
+                    e.HttpCode != (int)HttpStatusCode.NotFound &&
+                    e.HttpCode != (int)HttpStatusCode.TooManyRequests
                 )
                 .WaitAndRetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,
                     sleepDurationProvider: _ => TimeSpan.FromMilliseconds(_settings.TransientErrorDelayInMs),
-                    onRetryAsync: async (outcome, retryNumber, context) =>
+                    onRetryAsync: async (exception, retryNumber, context) =>
                     {
                         _logger.LogInformation(
-                            $"{nameof(HmrcApiRetryPolicies)}: ApiHttpException occurred. $[{outcome}] Refreshing access token...");
+                            $"{nameof(HmrcApiRetryPolicies)}: ApiHttpException occurred. $[{exception}] Refreshing access token...");
                         await onRetry();
                     }
                 );

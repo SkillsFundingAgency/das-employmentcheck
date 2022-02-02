@@ -328,13 +328,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_TooManyRequests_response_is_retried_10_times()
         {
             // Arrange
+            const short code = (short)HttpStatusCode.TooManyRequests;
+
+            // Arrange
+            var exception = new ApiHttpException(
+                code,
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<Exception>()
+            );
+
             _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
                     _request.MinDate,
                     _request.MaxDate))
-                .ThrowsAsync(new UnauthorizedAccessException());
+                .ThrowsAsync(exception);
 
             // Act
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
