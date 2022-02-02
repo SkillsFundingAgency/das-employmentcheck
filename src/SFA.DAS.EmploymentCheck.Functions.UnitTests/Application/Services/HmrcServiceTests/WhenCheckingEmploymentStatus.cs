@@ -7,6 +7,7 @@ using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -20,21 +21,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
     public class WhenCheckingEmploymentStatus
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private Mock<ILogger<HmrcService>> _logger;
         private Mock<IEmploymentCheckCacheResponseRepository> _repository;
         private Mock<ITokenServiceApiClient> _tokenService;
         private PrivilegedAccessToken _token;
         private EmploymentCheckCacheRequest _request;
         private Fixture _fixture;
         private IHmrcService _sut;
-
+        private HmrcApiRetryPolicySettings _settings;
+        // private Mock<IOptions<HmrcApiRetryPolicySettings>> _settingsMock;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
 
@@ -46,7 +46,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object);
+            _settings = new HmrcApiRetryPolicySettings
+            {
+                TransientErrorDelayInMs = 1,
+                TransientErrorRetryCount = 2,
+                TooManyRequestsRetryCount = 10
+            };
+
+            var retryPolicies = new HmrcApiRetryPolicies(
+                Mock.Of<ILogger<HmrcApiRetryPolicies>>(),
+                new OptionsWrapper<HmrcApiRetryPolicySettings>(_settings));
+
+            _sut = new HmrcService(
+                _tokenService.Object, 
+                _apprenticeshipLevyService.Object, 
+                Mock.Of<ILogger<HmrcService>>(), 
+                _repository.Object,
+                retryPolicies);
         }
 
         [Test]
@@ -130,31 +146,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         }
 
         [Test]
-        public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccessException_Occurs()
-        {
-            // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
-                .ThrowsAsync(new UnauthorizedAccessException());
-
-            // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
-
-            // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate), Times.Exactly(11));
-        }
-
-        [Test]
         public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccess_ApiException_Is_Returned()
         {
             // Arrange
@@ -180,9 +171,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
         }
-
 
         [Test]
         public async Task Then_a_positive_response_is_saved_as_complete()
@@ -242,7 +232,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         }
 
         [Test]
-        public async Task Then_NotFound_response_is_saved_as_complete()
+        public async Task Then_NotFound_response_is_saved_as_complete_without_retrying()
         {
             // Arrange
             const short code = (short) HttpStatusCode.NotFound;
@@ -282,6 +272,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 )
 
             ), Times.Once);
+
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+                _token.AccessCode,
+                _request.PayeScheme,
+                _request.Nino,
+                _request.MinDate,
+                _request.MaxDate), Times.Exactly(1));
         }
 
         [Test]
@@ -328,6 +325,31 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         }
 
         [Test]
+        public async Task Then_TooManyRequests_response_is_retried_10_times()
+        {
+            // Arrange
+            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ThrowsAsync(new UnauthorizedAccessException());
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+                _token.AccessCode,
+                _request.PayeScheme,
+                _request.Nino,
+                _request.MinDate,
+                _request.MaxDate), Times.Exactly(_settings.TooManyRequestsRetryCount + 1));
+        }
+
+        [Test]
         public async Task Then_RequestTimeout_response_is_saved_as_incomplete()
         {
             // Arrange
@@ -370,14 +392,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             ), Times.Once);
         }
 
-        [Test]
-        public async Task Then_InternalServerError_response_is_retried()
+        [TestCase((short)HttpStatusCode.Unauthorized, TestName = "Then_Unauthorized_response_is_retried_2_times")]
+        [TestCase((short)HttpStatusCode.BadGateway, TestName = "Then_BadGateway_response_is_retried_2_times")]
+        [TestCase((short)HttpStatusCode.RequestTimeout, TestName = "Then_RequestTimeout_response_is_retried_2_times")]
+        [TestCase((short)HttpStatusCode.InternalServerError, TestName = "Then_InternalServerError_response_is_retried_2_times")]
+        [TestCase((short)HttpStatusCode.ServiceUnavailable, TestName = "Then_ServiceUnavailable_response_is_retried_2_times")]
+        public async Task Then_Transient_Error_responses_are_retried_2_times(short httpStatusCode)
         {
             // Arrange
-            const short code = (short)HttpStatusCode.InternalServerError;
-
             var exception = new ApiHttpException(
-                code,
+                httpStatusCode,
                 _fixture.Create<string>(),
                 _fixture.Create<string>(),
                 _fixture.Create<string>(),
@@ -396,23 +420,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(3));
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
                 _request.MinDate,
-                _request.MaxDate), Times.Exactly(2));
+                _request.MaxDate), Times.Exactly(3));
         }
 
-        [Test]
-        public async Task Then_BadRequest_response_is_saved_as_complete()
+        [TestCase((short)HttpStatusCode.BadRequest, TestName= "Then_BadRequest_response_is_saved_as_completed_without_retrying")]
+        [TestCase((short)HttpStatusCode.Forbidden, TestName= "Then_Forbidden_response_is_saved_as_completed_without_retrying")]
+        [TestCase((short)HttpStatusCode.NotFound, TestName= "Then_NotFound_response_is_saved_as_completed_without_retrying")]
+        public async Task Then_expected_error_responses_are_saved_as_completed_without_retrying(short httpStatusCode)
         {
             // Arrange
-            const short code = (short)HttpStatusCode.BadRequest;
-
             var exception = new ApiHttpException(
-                code,
+                httpStatusCode,
                 _fixture.Create<string>(),
                 _fixture.Create<string>(),
                 _fixture.Create<string>(),
@@ -442,14 +466,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
-                        && x.HttpStatusCode == code
+                        && x.HttpStatusCode == httpStatusCode
                 )
 
             ), Times.Once);
+
+            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+                _token.AccessCode,
+                _request.PayeScheme,
+                _request.Nino,
+                _request.MinDate,
+                _request.MaxDate), Times.Exactly(1));
         }
 
         [Test]
-        public async Task Then_Error_response_is_saved_as_incomplete()
+        public async Task Then_AnyOtherException_is_saved_as_incomplete()
         {
             // Arrange
             var exception = _fixture.Create<Exception>();
