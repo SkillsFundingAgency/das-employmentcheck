@@ -16,9 +16,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
-            log.LogInformation($"Triggering {nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}");
+            log.LogInformation($"Triggering {nameof(ProcessEmploymentCheckRequestsOrchestrator)}");
 
-            string instanceId = await starter.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), null);
+            string instanceId = await starter.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), null);
 
             log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 

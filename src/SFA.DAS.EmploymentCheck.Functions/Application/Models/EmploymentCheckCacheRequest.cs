@@ -1,5 +1,6 @@
-﻿using System;
-using Dapper.Contrib.Extensions;
+﻿using Dapper.Contrib.Extensions;
+using System;
+using System.Net;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
@@ -25,5 +26,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public short? RequestCompletionStatus { get; set; }
 
         public DateTime CreatedOn { get; set; } = DateTime.Now;
+
+        public void SetEmployed(bool value)
+        {
+            Employed = value;
+            RequestCompletionStatus = (short)HttpStatusCode.OK;
+        }
     }
 }

@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 var getEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), 0);
-                var processEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), 0);
+                var processEmploymentChecksTask = context.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), 0);
 
                 await Task.WhenAll(getEmploymentChecksTask, processEmploymentChecksTask);
 
