@@ -19,21 +19,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
-            ILogger log)
+            ILogger log,
+            ITriggerHelper triggerHelper)
         {
-            log.LogInformation("Checking for running instances of EmploymentCheckOrchestrator");
-
-            var existingInstances = await starter.ListInstancesAsync(new OrchestrationStatusQueryCondition
-            {
-                InstanceIdPrefix = InstanceIdPrefix,
-                RuntimeStatus = new[]
-                {
-                    OrchestrationRuntimeStatus.Pending,
-                    OrchestrationRuntimeStatus.Running,
-                    OrchestrationRuntimeStatus.ContinuedAsNew
-                }
-            }, System.Threading.CancellationToken.None);
-
+            var existingInstances = await triggerHelper.GetRunningInstances(nameof(EmploymentChecksHttpTrigger),
+                InstanceIdPrefix, starter, log);
+            
             if (!existingInstances.DurableOrchestrationState.Any())
             {
                 log.LogInformation($"Triggering {nameof(EmploymentChecksOrchestrator)}");
