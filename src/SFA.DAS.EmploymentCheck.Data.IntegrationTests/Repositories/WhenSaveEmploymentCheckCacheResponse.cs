@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
@@ -26,17 +25,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             await _sut.Save(expected);
 
             // Assert
-            _actual = (await GetAll<EmploymentCheckCacheResponse>())
-                .Single(x => x.CorrelationId == expected.CorrelationId);
-
+            _actual = await Get<EmploymentCheckCacheResponse>(expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
-                    .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)
                 );
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.Id.Should().BeGreaterThan(0);
         }
 
         [TearDown]

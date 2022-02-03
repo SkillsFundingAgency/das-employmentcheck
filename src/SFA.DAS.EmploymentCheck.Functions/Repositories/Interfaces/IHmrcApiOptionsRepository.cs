@@ -8,6 +8,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         Task<HmrcApiRateLimiterOptions> GetHmrcRateLimiterOptions();
         Task ReduceDelaySetting(HmrcApiRateLimiterOptions options);
         Task IncreaseDelaySetting(HmrcApiRateLimiterOptions options);
-        Task CreateDefaultOptions();
     }
 }

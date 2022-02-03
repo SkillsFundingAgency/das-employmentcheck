@@ -9,23 +9,20 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
-    public class ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
+    public class ProcessEmploymentCheckRequestsOrchestrator
     {
-        #region Private members
-        private readonly ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator> _logger;
+        private readonly ILogger<ProcessEmploymentCheckRequestsOrchestrator> _logger;
 
-        public ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator(
-            ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator> logger)
+        public ProcessEmploymentCheckRequestsOrchestrator(
+            ILogger<ProcessEmploymentCheckRequestsOrchestrator> logger)
         {
             _logger = logger;
         }
-        #endregion Private members
 
-        #region ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
-        [FunctionName(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator))]
+        [FunctionName(nameof(ProcessEmploymentCheckRequestsOrchestrator))]
         public async Task ProcessEmploymentChecksWithRateLimiterOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}.ProcessEmploymentChecksWithRateLimiterOrchestratorTask";
+            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsOrchestrator)}.ProcessEmploymentChecksWithRateLimiterOrchestratorTask";
 
             try
             {
@@ -42,13 +39,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                     // Save the employment status back to the database
                     await context.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), result);
-
-                    // Execute RateLimiter
-                    var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
-
-                    // Rate limiter delay between each call
-                    var delay = context.CurrentUtcDateTime.Add(delayTimeSpan);
-                    await context.CreateTimer(delay, CancellationToken.None);
                 }
                 else
                 {
@@ -60,11 +50,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 }
 
                 if (!context.IsReplaying)
-                    _logger.LogInformation($"{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}: Completed.");
+                    _logger.LogInformation($"{nameof(ProcessEmploymentCheckRequestsOrchestrator)}: Completed.");
             }
             catch (Exception e)
             {
-                _logger.LogError($"\n\n{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
+                _logger.LogError($"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
             }
             finally
             {
@@ -80,5 +70,4 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
         }
     }
-    #endregion ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
 }
