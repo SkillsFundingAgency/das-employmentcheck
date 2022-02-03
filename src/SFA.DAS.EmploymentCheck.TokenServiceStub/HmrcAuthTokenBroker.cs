@@ -33,12 +33,13 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
             return GetTokenFromServiceAsync()
                 .ContinueWith((task) =>
                 {
-                    StartTokenBackgroundRefresh(task.Result);
+                    _ = task.Result;
+                    StartTokenBackgroundRefresh();
                     return task.Result;
                 });
         }
 
-        private void StartTokenBackgroundRefresh(OAuthAccessToken token)
+        private void StartTokenBackgroundRefresh()
         {
             DisposeCancellationToken();
         }
