@@ -11,6 +11,7 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
         private readonly ITotpService _totpService;
         private OAuthAccessToken _cachedAccessToken;
         private CancellationTokenSource _cancellationTokenSource;
+        private readonly Task<OAuthAccessToken> _initialiseTask;
 
         public HmrcAuthTokenBroker(
             IOAuthTokenService tokenService,
@@ -18,21 +19,26 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
         {
             _totpService = totpService;
             _tokenService = tokenService;
+            _initialiseTask = InitialiseToken();
         }
 
         public async Task<OAuthAccessToken> GetTokenAsync()
         {
-            await InitialiseToken();
+            await _initialiseTask;
             return _cachedAccessToken;
         }
 
-        private async Task InitialiseToken()
+        private Task<OAuthAccessToken> InitialiseToken()
         {
-            await GetTokenFromServiceAsync();
-            StartTokenBackgroundRefresh();
+            return GetTokenFromServiceAsync()
+                .ContinueWith((task) =>
+                {
+                    StartTokenBackgroundRefresh(task.Result);
+                    return task.Result;
+                });
         }
 
-        private void StartTokenBackgroundRefresh()
+        private void StartTokenBackgroundRefresh(OAuthAccessToken token)
         {
             DisposeCancellationToken();
         }
