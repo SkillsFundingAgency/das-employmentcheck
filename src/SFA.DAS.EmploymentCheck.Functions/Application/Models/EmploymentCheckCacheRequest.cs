@@ -1,6 +1,6 @@
 ﻿using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using System;
-using System.Net;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public void SetEmployed(bool value)
         {
             Employed = value;
-            RequestCompletionStatus = (short)HttpStatusCode.OK;
+            RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
         }
     }
 }
