@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log,
             ITriggerHelper triggerHelper)
-        {
+    {
             var existingInstances = await triggerHelper.GetRunningInstances(nameof(CreateEmploymentCheckRequestsOrchestratorTrigger),
                 InstanceIdPrefix, starter, log);
 

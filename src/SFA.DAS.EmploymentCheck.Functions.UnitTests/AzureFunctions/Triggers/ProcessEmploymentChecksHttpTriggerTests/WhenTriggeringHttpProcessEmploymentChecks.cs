@@ -17,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
         private readonly Mock<HttpRequestMessage> _request;
         private readonly Mock<IDurableOrchestrationClient> _starter;
         private readonly Mock<ILogger> _logger;
+        private readonly Mock<ITriggerHelper> _triggerHelper;
         private readonly Fixture _fixture;
 
         public WhenTriggeringHttpProcessEmploymentChecks()
@@ -24,6 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
             _fixture = new Fixture();
             _request = new Mock<HttpRequestMessage>();
             _starter = new Mock<IDurableOrchestrationClient>();
+            _triggerHelper = new Mock<ITriggerHelper>();
             _logger = new Mock<ILogger>();
         }
 
@@ -44,13 +46,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
                 DurableOrchestrationState = new List<DurableOrchestrationStatus>(0)
             };
 
-            _starter.Setup(x => x.ListInstancesAsync(
-                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "ProcessEmploymentCheck-")
-                    , System.Threading.CancellationToken.None))
-                .ReturnsAsync(instances);
+            _triggerHelper.Setup(x => x.GetRunningInstances(nameof(ProcessEmploymentChecksHttpTrigger),
+                "ProcessEmploymentCheck-", It.IsAny<IDurableOrchestrationClient>(), It.IsAny<ILogger>())).ReturnsAsync(instances);
 
             //Act
-            var result = await ProcessEmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await ProcessEmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object, _triggerHelper.Object);
 
             //Assert
 
@@ -72,13 +72,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
                 DurableOrchestrationState = new[] { new DurableOrchestrationStatus() }
             };
 
-            _starter.Setup(x => x.ListInstancesAsync(
-                    It.Is<OrchestrationStatusQueryCondition>(c => c.InstanceIdPrefix == "ProcessEmploymentCheck-")
-                    , System.Threading.CancellationToken.None))
-                .ReturnsAsync(instances);
+            _triggerHelper.Setup(x => x.GetRunningInstances(nameof(ProcessEmploymentChecksHttpTrigger),
+                "ProcessEmploymentCheck-", It.IsAny<IDurableOrchestrationClient>(), It.IsAny<ILogger>())).ReturnsAsync(instances);
 
             //Act
-            var result = await ProcessEmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await ProcessEmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object, _triggerHelper.Object);
 
             //Assert
             Assert.AreEqual(HttpStatusCode.Conflict, result.StatusCode);
