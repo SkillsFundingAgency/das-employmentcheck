@@ -460,6 +460,14 @@
         "FunctionAppName": {
             "type": "string",
             "value": "[variables('functionAppName')]"
+        },
+        "AppServicePlanName": {
+            "type": "string",
+            "value": "[variables('appServicePlanName')]"
+        },
+        "ApiAppServiceName": {
+            "type": "string",
+            "value": "[variables('apiAppServiceName')]"
         }
     }
 }
