@@ -1,4 +1,3 @@
-using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
-using SFA.DAS.EmploymentCheck.Functions;
+using System.IO;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -48,12 +47,12 @@ namespace SFA.DAS.EmploymentCheck.Api
                 options.PreFixConfigurationKeys = false;
             });
 
-            configBuilder.AddJsonFile("local.settings.json", optional: true);
+            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
 
             var config = configBuilder.Build();
             services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
 
-            services.Configure<EmploymentCheckSettings>(Configuration.GetSection("EmploymentCheckSettings"));
+            services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
 
             services
