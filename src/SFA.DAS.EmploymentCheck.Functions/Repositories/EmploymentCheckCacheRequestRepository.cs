@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
@@ -49,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                         if (existingItem != null) { await sqlConnection.UpdateAsync(employmentCheckCacheRequest, tran); }
                         else { await sqlConnection.InsertAsync(employmentCheckCacheRequest, tran); }
                     }
-                    catch (Exception ex)
+                    catch (SqlException)
                     {
                         tran.Rollback();
                         throw;

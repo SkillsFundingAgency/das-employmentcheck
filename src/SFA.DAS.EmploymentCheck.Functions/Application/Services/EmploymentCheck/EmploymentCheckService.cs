@@ -363,24 +363,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     commandType: CommandType.Text);
             }
         }
-
-        private async Task SaveEmploymentCheck(Models.EmploymentCheck employmentCheck)
-        {
-            if (employmentCheck == null)
-            {
-                _logger.LogError($"LearnerService.Save(): ERROR: The employmentCheck model is null.");
-                return;
-            }
-
-            // Temporary work-around try/catch for handling duplicate inserts until we switch to single message processing
-            try
-            {
-                await _employmentCheckRepository.Save(employmentCheck);
-            }
-            catch
-            {
-                // No logging, we're not interested in storing errors about duplicates at the moment
-            }
-        }
     }
 }
