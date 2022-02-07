@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             var queryResult = await GetTable().ExecuteQuerySegmentedAsync(query, null);
             var record = queryResult.Results.SingleOrDefault(
                 r => r.RowKey == RowKey && r.PartitionKey == _rateLimiterConfiguration.EnvironmentName);
-            
+
             return record ?? GetDefaultOptions();
         }
 
@@ -56,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
             options.DelayInMs = Math.Max(0, options.DelayInMs - options.DelayAdjustmentIntervalInMs);
             options.UpdateDateTime = DateTime.UtcNow;
-            
+
             _logger.LogInformation("[HmrcApiOptionsRepository] Reducing DelayInMs setting to {0}ms", new { options.DelayInMs });
 
             var operation = TableOperation.InsertOrReplace(options);
