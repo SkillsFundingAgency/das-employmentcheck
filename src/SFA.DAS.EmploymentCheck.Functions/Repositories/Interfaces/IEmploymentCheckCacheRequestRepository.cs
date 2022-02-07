@@ -10,6 +10,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     {
         Task Save(EmploymentCheckCacheRequest employmentCheckCacheRequest);
 
-        Task<IList<EmploymentCheckCacheRequest>> SetReleatedRequestsRequestCompletionStatus(Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet);
+        Task<IList<EmploymentCheckCacheRequest>> SetRelatedRequestsCompletionStatus(Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet);
+
+        Task UpdateEmployedAndRequestStatusFields(EmploymentCheckCacheRequest employmentCheckCacheRequest);
+
+        Task<EmploymentCheckCacheRequest> GetNext();
     }
 }

@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     // If an employment check has confirmed that the apprentice is employed on the given PAYE scheme
                     // then we don't need to process any remaining employment check requests for that apprentice
                     // and can set the RequestCompletionStatus for any remaining checks for this apprentice to 'Skipped'
-                    if (result.Employed.Value)
+                    if (result != null && result.Employed.Value)
                     {
                         var relatedEmploymentCheckCacheResults = await context.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity), new Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>(result, ProcessingCompletionStatus.Skipped));
                         CheckRelateRequestsRequestCompletionStatusIsSet(thisMethodName, relatedEmploymentCheckCacheResults);
@@ -94,7 +94,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             {
                 foreach (var request in relatedEmploymentCheckCacheResults)
                 {
-                    if (request.RequestCompletionStatus.Value != (short)ProcessingCompletionStatus.Skipped)
+                    if (request != null && request.RequestCompletionStatus.Value != (short)ProcessingCompletionStatus.Skipped)
                     {
                         _logger.LogError($"{thisMethodName} ERROR: Failed to set the request completion status to 'Skipped' for EmploymentCheckCacheRequest Id = [{request.Id}]");
                     }

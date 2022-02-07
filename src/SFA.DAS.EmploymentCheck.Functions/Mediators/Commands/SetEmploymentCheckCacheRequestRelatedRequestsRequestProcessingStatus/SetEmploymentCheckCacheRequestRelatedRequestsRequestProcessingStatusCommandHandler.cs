@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SetEmploymentChec
             CancellationToken cancellationToken
         )
         {
-            var result = await _employmentCheckClient.SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus(command.EmploymentCheckCacheRequestAndStatusToSet);
+            var result = await _employmentCheckClient.SetCacheRequestRelatedRequestsProcessingStatus(command.EmploymentCheckCacheRequestAndStatusToSet);
 
             return new SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult(result);
         }

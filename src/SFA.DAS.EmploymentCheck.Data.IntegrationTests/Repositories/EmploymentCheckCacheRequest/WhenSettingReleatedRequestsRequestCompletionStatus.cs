@@ -32,10 +32,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             }
 
             var result = new Tuple<Models.EmploymentCheckCacheRequest, ProcessingCompletionStatus>(testEmploymentCheckCacheRequestData.FirstOrDefault(), ProcessingCompletionStatus.Skipped);
-            await _sut.SetReleatedRequestsRequestCompletionStatus(result);
+            await _sut.SetRelatedRequestsCompletionStatus(result);
 
             // Assert
-            _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
+            _actual = (await GetAll<Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
 
             for (var i = 1; i < _actual.Count; i++)
             {
@@ -43,12 +43,11 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
 
                 _actual[i].Should().BeEquivalentTo(expected,
                     opts => opts
-                        .Excluding(x => x.Id)
                         .Excluding(x => x.PayeScheme)
                         .Excluding(x => x.LastUpdatedOn)
                         .Excluding(x => x.CreatedOn));
+                // TODO: comparison of Id's
                 _actual[i].CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-                _actual[i].Id.Should().BeGreaterThan(0);
             }
         }
 
@@ -58,6 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             await Delete(_actual);
         }
 
+        // TODO: Switch to use Build
         private async Task<IList<Functions.Application.Models.EmploymentCheckCacheRequest>> CreateTestEmploymentCheckCacheRequestData()
         {
             return await Task.FromResult(new List<Functions.Application.Models.EmploymentCheckCacheRequest>

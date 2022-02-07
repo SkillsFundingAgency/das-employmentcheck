@@ -6,6 +6,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
@@ -58,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                             response.CreatedOn = DateTime.Now;
                             await sqlConnection.InsertAsync(response, tran);
                         }
-                        catch (Exception ex)
+                        catch (SqlException ex)
                         {
                             _logger.LogError($"{nameof(AccountsResponseRepository)} Exception caught: {ex.Message}. {ex.StackTrace}");
                             throw;
