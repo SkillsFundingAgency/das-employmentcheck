@@ -22,33 +22,29 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private readonly IEmploymentCheckCacheResponseRepository _repository;
         private PrivilegedAccessToken _cachedToken;
         private const int UnauthorizedAccessRetryCount = 10;
-        private readonly IEmploymentCheckClient _employmentCheckClient;
 
         public HmrcService(
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository,
-            IEmploymentCheckClient employmentCheckClient
-        )
+            IEmploymentCheckCacheResponseRepository repository
+            )
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
             _repository = repository;
             _cachedToken = null;
-            _employmentCheckClient = employmentCheckClient;
         }
 
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
         {
             var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
-            EmploymentCheckCacheResponse employmentCheckCacheResponse = InitialiseEmploymentCheckCacheResponseModel(request);
 
             EmploymentCheckCacheResponse employmentCheckCacheResponse = InitialiseEmploymentCheckCacheResponseModel(request);
             try
             {
-                if (_cachedToken == null || AccessTokenHasExpired()) { await RetrieveAuthenticationToken(); }
+                if (_cachedToken == null || AccessTokenHasExpired()) await RetrieveAuthenticationToken();
 
                 var result = await GetEmploymentStatusWithRetries(request, thisMethodName);
 
@@ -65,24 +61,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 }
                 else
                 {
-                    employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
-                    await _repository.Insert(employmentCheckCacheResponse);
-
                     request.Employed = null;
                     request.RequestCompletionStatus = 500;
 
+                    employmentCheckCacheResponse.HttpResponse = "The response value returned from the HMRC GetEmploymentStatus() call is null.";
+                    await _repository.Save(employmentCheckCacheResponse);
+
                     _logger.LogError($"{thisMethodName}: [{employmentCheckCacheResponse.HttpResponse}]");
                 }
-
-                await Save(employmentCheckCacheResponse);
-                await _employmentCheckClient.StoreEmploymentCheckResult(request);
-
-                if (result != null && result.Employed)
-                {
-                    await SkipRemainingEmploymentStatusChecksForThisApprentice(request);
-                }
-
-                return request;
             }
             catch (ApiHttpException e) when (
                 e.HttpCode == (int)HttpStatusCode.TooManyRequests ||
@@ -92,6 +78,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 employmentCheckCacheResponse.ProcessingComplete = false;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
+                await _repository.Save(employmentCheckCacheResponse);
             }
             catch (ApiHttpException e)
             {
@@ -99,6 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 employmentCheckCacheResponse.ProcessingComplete = true;
                 employmentCheckCacheResponse.HttpResponse = e.ResourceUri;
                 employmentCheckCacheResponse.HttpStatusCode = (short)e.HttpCode;
+                await _repository.Save(employmentCheckCacheResponse);
             }
             catch (Exception e)
             {
@@ -106,9 +94,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 employmentCheckCacheResponse.ProcessingComplete = false;
                 employmentCheckCacheResponse.HttpResponse = $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}";
                 employmentCheckCacheResponse.HttpStatusCode = 500;
+                await _repository.Save(employmentCheckCacheResponse);
             }
 
-            await Save(employmentCheckCacheResponse);
             return request;
         }
 

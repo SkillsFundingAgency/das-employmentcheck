@@ -16,62 +16,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     public class EmploymentCheckCacheRequestRepository
         : IEmploymentCheckCacheRequestRepository
     {
-        private readonly ILogger<EmploymentCheckCacheRequestRepository> _logger;
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public EmploymentCheckCacheRequestRepository(
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider = null,
-            Logger<EmploymentCheckCacheRequestRepository> logger = null
-        )
+            AzureServiceTokenProvider azureServiceTokenProvider = null)
         {
-            _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
         }
 
-        public async Task Save(EmploymentCheckCacheRequest request)
-        {
-            Guard.Against.Null(request, nameof(request));
-
-            var dbConnection = new DbConnection();
-            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider)
-            )
-            {
-                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-                await sqlConnection.OpenAsync();
-                using (var tran = await sqlConnection.BeginTransactionAsync())
-                {
-                    try
-                    {
-                        var existingItem = await sqlConnection.GetAsync<EmploymentCheckCacheRequest>(request.Id, tran);
-                        if (existingItem != null)
-                        {
-                            request.LastUpdatedOn = DateTime.Now;
-                            await sqlConnection.UpdateAsync(request, tran);
-                        }
-                        else
-                        {
-                            request.LastUpdatedOn = null;
-                            request.CreatedOn = DateTime.Now;
-                            await sqlConnection.InsertAsync(request, tran);
-                        }
-
-                        await tran.CommitAsync();
-                    }
-                    catch(Exception ex)
-                    {
-                        await tran.RollbackAsync();
-                        _logger.LogError($"{nameof(AccountsResponseRepository)} Exception caught: {ex.Message}. {ex.StackTrace}");
-                    }
-                }
-            }
-        }
-
-        public async Task Insert(EmploymentCheckCacheRequest request)
+        public async Task Save(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -93,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                         if (existingItem != null) { await sqlConnection.UpdateAsync(employmentCheckCacheRequest, tran); }
                         else { await sqlConnection.InsertAsync(employmentCheckCacheRequest, tran); }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         tran.Rollback();
                         throw;
@@ -155,7 +111,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 confirmUpdateParameters.Add("@maxDate", request.MaxDate, DbType.DateTime);
 
                 var updatedRows = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
-                    sql:    "SELECT * FROM [Cache].[EmploymentCheckCacheRequest] " +
+                    sql: "SELECT * FROM [Cache].[EmploymentCheckCacheRequest] " +
                             "WHERE  Id                          <> @Id " +
                             "AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId " +
                             "ORDER BY Id ",

@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentCheckCacheRequest())
                 .ReturnsAsync(new EmploymentCheckCacheRequest());
 
-            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
 
             //Act
             await sut.GetEmploymentCheckCacheRequest();
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentCheckCacheRequest())
                 .ReturnsAsync((EmploymentCheckCacheRequest)null);
 
-            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
 
             //Act
             var result = await sut.GetEmploymentCheckCacheRequest();
@@ -77,7 +77,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employmentCheckService.Setup(x => x.GetEmploymentCheckCacheRequest())
                 .ReturnsAsync(employmentCheckCacheRequest);
 
-            var sut = new EmploymentCheckClient(_employmentCheckService.Object);
+            var sut = new EmploymentCheckClient(_logger.Object, _employmentCheckService.Object);
 
             //Act
             var result = await sut.GetEmploymentCheckCacheRequest();

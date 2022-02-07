@@ -1,17 +1,17 @@
-﻿using Ardalis.GuardClauses;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
@@ -25,20 +25,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
 
+        /// <summary>
+        /// The EmploymentCheckService contains the methods to read and save Employment Checks
+        /// </summary>
+        /// <param name="applicationSettings"></param>
+        /// <param name="azureServiceTokenProvider"></param>
+        /// <param name="logger"></param>
         public EmploymentCheckService(
             ILogger<IEmploymentCheckService> logger,
             ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider,
-            IEmploymentCheckRepository employmentCheckRepository,
-            IEmploymentCheckCacheRequestRepository employmentCheckCashRequestRepository
+            IEmploymentCheckRepository employmentCheckRepositoryrepository,
+            IEmploymentCheckCacheRequestRepository employmentCheckCashRequestRepositoryrepository
         )
         {
             _logger = logger;
             _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
-            _employmentCheckRepository = employmentCheckRepository;
-            _employmentCheckCashRequestRepository = employmentCheckCashRequestRepository;
+            _employmentCheckRepository = employmentCheckRepositoryrepository;
+            _employmentCheckCashRequestRepository = employmentCheckCashRequestRepositoryrepository;
         }
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
@@ -46,6 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             IList<Models.EmploymentCheck> employmentChecksBatch = null;
 
             var dbConnection = new DbConnection();
+
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
                 _azureServiceTokenProvider))
@@ -56,6 +63,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                     try
                     {
+                        // Get a batch of employment checks that do not already have a matching pending EmploymentCheckCacheRequest
                         var parameters = new DynamicParameters();
                         parameters.Add("@batchSize", _batchSize);
 
@@ -80,6 +88,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                                 commandType: CommandType.Text,
                                 transaction: transaction)).ToList();
 
+                        // Set the RequestCompletionStatus to 'Started' on the batch that has just read so that
+                        // these employment checks don't get read next time around if there's an exception due to the RequestCompletionStatus still being set to null
                         if (employmentChecksBatch != null && employmentChecksBatch.Count > 0)
                         {
                             foreach (var employmentCheck in employmentChecksBatch)
@@ -103,7 +113,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     }
                     catch (Exception e)
                     {
-                        transaction.Rollback();
+                        transaction.Rollback(); // rollback the whole batch rather than individual employment checks
                         _logger.LogError($"EmploymentCheckService.GetEmploymentChecksBatch(): ERROR: An error occurred reading the employment checks. Exception [{e}]");
                         throw;
                     }
@@ -113,15 +123,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return employmentChecksBatch;
         }
 
+        /// <summary>
+        /// Creates an EmploymentCheckCacheRequest for each employment check in the given batch of employment checks
+        /// </summary>
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
             EmploymentCheckData employmentCheckData)
         {
             var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
             Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
 
+            // Validate that the employmentCheckData lists have data
             var employmentCheckDataValidator = new EmploymentCheckDataValidator();
             var employmentCheckDataValidatorResult = await employmentCheckDataValidator.ValidateAsync(employmentCheckData);
 
+            // EmploymentCheckData validation - failed
+            // Log the validation errors
             if (!employmentCheckDataValidatorResult.IsValid)
             {
                 foreach (var error in employmentCheckDataValidatorResult.Errors)
@@ -129,14 +145,21 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     _logger.LogError($"{thisMethodName}: ERROR - EmploymentCheckData: {error.ErrorMessage}");
                 }
 
-                return await Task.FromResult(new List<EmploymentCheckCacheRequest>());
+                return await Task.FromResult(new List<EmploymentCheckCacheRequest>());  // caller should check for an empty list of EmploymentCheckCacheRequests
             }
 
+            // EmploymentCheckData validation - succeeded
+            // Create an EmploymentCheckCacheRequest for each unique combination of Uln, National Insurance Number, PayeScheme, MinDate and MaxDate
+            // e.g. if an apprentices employer has 900 paye schemes then we need to create 900 messages for the given Uln, National Insurance Number, PayeScheme, MinDate and MaxDate
             var employmentCheckValidator = new EmploymentCheckValidator();
             IList<EmploymentCheckCacheRequest> employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
             foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
             {
+                // Validate the employmentCheck fields are not empty
                 var employmentCheckValidatorResult = await employmentCheckValidator.ValidateAsync(employmentCheck);
+
+                // EmploymentCheck validation - failed
+                // Log the validation errors
                 if (!employmentCheckValidatorResult.IsValid)
                 {
                     foreach (var error in employmentCheckValidatorResult.Errors)
@@ -145,26 +168,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     }
                 }
 
+                // EmploymentCheckData validation - succeeded
+                // Lookup the National Insurance Number for this apprentice in the employment check data
                 var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.Uln == employmentCheck.Uln)?.NiNumber;
                 if (string.IsNullOrEmpty(nationalInsuranceNumber))
                 {
+                    // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (Nino not found).");
 
                     continue;
                 }
 
+                // Lookup the PayeSchemes for this apprentice in the employment check data
                 var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == employmentCheck.AccountId);
                 if (employerPayeSchemes == null)
                 {
+                    // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (PayeScheme not found).");
 
                     continue;
                 }
 
+                // Create the individual EmploymentCheckCacheRequest combinations for each paye scheme
                 foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
                 {
                     if (string.IsNullOrEmpty(payeScheme))
                     {
+                        // An empty paye scheme so we're not able to do an employment check and will need to skip this
                         _logger.LogError($"{thisMethodName}: An empty PAYE scheme was found for apprentice Uln: [{employmentCheck.Uln}] accountId [{employmentCheck.AccountId}].");
                         continue;
                     }
@@ -181,7 +211,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                     employmentCheckRequests.Add(employmentCheckCacheRequest);
 
-                    await _employmentCheckCashRequestRepository.Save(employmentCheckCacheRequest);
+                    // Store the individual EmploymentCheckCacheRequest combinations for each paye scheme
+                    try
+                    {
+                        await _employmentCheckCashRequestRepository.Save(employmentCheckCacheRequest);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError($"EmploymentCheckService.CreateEmploymentCheckCacheRequests(): ERROR: the EmploymentCheckCashRequest repository Save() method threw an Exception during the storing of the EmploymentCheckCacheRequest [{e}]");
+                    }
                 }
             }
 
@@ -222,6 +260,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                         commandType: CommandType.Text,
                         transaction: transaction)).FirstOrDefault();
 
+                    // Set the RequestCompletionStatus to 'Started' so that this request doesn't get read the next time around
                     if (employmentCheckCacheRequest != null)
                     {
                         var parameter = new DynamicParameters();

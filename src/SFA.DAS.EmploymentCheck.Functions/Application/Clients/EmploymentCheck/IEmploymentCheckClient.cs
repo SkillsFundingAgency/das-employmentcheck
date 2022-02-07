@@ -8,16 +8,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
     public interface IEmploymentCheckClient
     {
-        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
-
         Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
 
-        Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
+        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
         Task<IList<EmploymentCheckCacheRequest>> SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus(Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet);
 
-        Task<EmploymentCheckCacheRequest> ProcessEmploymentCheckCacheRequest();
+        Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
 
-        Task UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(Models.EmploymentCheckCacheRequest request);
+        Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest);
     }
 }
