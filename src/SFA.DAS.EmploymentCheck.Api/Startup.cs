@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
+using SFA.DAS.EmploymentCheck.Functions;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -26,6 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Api
         {
             services.AddControllers();
             services.AddHealthChecks();
+            services.AddNLogForApi();
 
             services.AddSwaggerGen(c =>
             {
