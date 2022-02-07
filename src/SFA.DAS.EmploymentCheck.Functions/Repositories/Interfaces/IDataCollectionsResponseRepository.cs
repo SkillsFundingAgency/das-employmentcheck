@@ -5,8 +5,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IDataCollectionsResponseRepository
     {
-        Task Save(DataCollectionsResponse dataCollectionsResponse);
+        Task InsertOrUpdate(DataCollectionsResponse response);
 
-        Task<DataCollectionsResponse> Get(DataCollectionsResponse dataCollectionsResponse);
+        Task Save(DataCollectionsResponse response);
+
+        Task<DataCollectionsResponse> Get(DataCollectionsResponse response);
     }
 }

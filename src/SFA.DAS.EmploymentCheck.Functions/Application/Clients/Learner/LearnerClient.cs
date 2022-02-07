@@ -11,12 +11,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
     public class LearnerClient
         : ILearnerClient
     {
-        #region Private members
         private readonly ILogger<IEmploymentCheckClient> _logger;
         private readonly ILearnerService _learnerService;
-        #endregion Private members
 
-        #region Constructors
         public LearnerClient(
             ILogger<IEmploymentCheckClient> logger,
             ILearnerService learnerService)
@@ -24,9 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
             _logger = logger;
             _learnerService = learnerService;
         }
-        #endregion Constructors
-
-        #region GetNiNumbers
 
         public async Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Models.EmploymentCheck> apprentices)
         {
@@ -36,7 +30,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
 
             return learnerNiNumbers;
         }
-
-        #endregion GetNiNumbers
     }
 }

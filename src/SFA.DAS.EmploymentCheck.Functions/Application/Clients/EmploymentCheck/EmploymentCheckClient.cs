@@ -6,6 +6,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
@@ -14,9 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
     {
         private readonly IEmploymentCheckService _employmentCheckService;
 
-        public EmploymentCheckClient(
-            ILogger<IEmploymentCheckClient> logger,
-            IEmploymentCheckService employmentCheckService)
+        public EmploymentCheckClient(IEmploymentCheckService employmentCheckService)
         {
             _employmentCheckService = employmentCheckService;
         }
@@ -54,6 +53,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
+        }
+
+        public async Task UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(Models.EmploymentCheckCacheRequest request)
+        {
+            await _employmentCheckService.UpdateRelatedRequests(request);
         }
     }
 }

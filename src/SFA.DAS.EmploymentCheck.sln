@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B5324D91-FA6E-4538-86ED-92A14B602EA5}"
 EndProject
@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.UnitTests", "SFA.DAS.EmploymentCheck.Functions.UnitTests\SFA.DAS.EmploymentCheck.Functions.UnitTests.csproj", "{0D4E1F2A-C536-497D-B645-179F42E50CB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Data.IntegrationTests", "SFA.DAS.EmploymentCheck.Data.IntegrationTests\SFA.DAS.EmploymentCheck.Data.IntegrationTests.csproj", "{34D3C0FB-9612-4357-9457-16412607CACF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Data.IntegrationTests", "SFA.DAS.EmploymentCheck.Data.IntegrationTests\SFA.DAS.EmploymentCheck.Data.IntegrationTests.csproj", "{21BAB1EF-3ABC-47C1-9E7A-B685EE8B7BED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +53,10 @@ Global
 		{0D4E1F2A-C536-497D-B645-179F42E50CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D4E1F2A-C536-497D-B645-179F42E50CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D4E1F2A-C536-497D-B645-179F42E50CB8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34D3C0FB-9612-4357-9457-16412607CACF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34D3C0FB-9612-4357-9457-16412607CACF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34D3C0FB-9612-4357-9457-16412607CACF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34D3C0FB-9612-4357-9457-16412607CACF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21BAB1EF-3ABC-47C1-9E7A-B685EE8B7BED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21BAB1EF-3ABC-47C1-9E7A-B685EE8B7BED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21BAB1EF-3ABC-47C1-9E7A-B685EE8B7BED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21BAB1EF-3ABC-47C1-9E7A-B685EE8B7BED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,7 +64,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{2876F123-8DAF-4409-9CBF-5A94D2CEF947} = {5A89EB66-4C7B-4CEB-93BE-DD8DE0182F60}
 		{0D4E1F2A-C536-497D-B645-179F42E50CB8} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
-		{34D3C0FB-9612-4357-9457-16412607CACF} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{21BAB1EF-3ABC-47C1-9E7A-B685EE8B7BED} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {281C331D-5A42-42E4-AA0A-E82FB88EA18C}

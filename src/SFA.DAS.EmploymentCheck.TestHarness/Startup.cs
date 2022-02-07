@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.TestHarness
                 app.UseDeveloperExceptionPage();
             }
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SFA.DAS.WireMockServiceWeb v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SFA.DAS.EmploymentCheck.TestHarness v1"));
 
             app.UseHttpsRedirection();
 
