@@ -30,4 +30,8 @@
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AzureFunctions\Orchestrators\" />
+  </ItemGroup>
+
 </Project>
