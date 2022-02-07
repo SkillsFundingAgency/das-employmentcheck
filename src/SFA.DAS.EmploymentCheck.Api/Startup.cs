@@ -38,13 +38,13 @@ namespace SFA.DAS.EmploymentCheck.Api
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            //configBuilder.AddAzureTableStorage(options =>
-            //{
-            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            //    options.EnvironmentName = configuration["EnvironmentName"];
-            //    options.PreFixConfigurationKeys = false;
-            //});
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
 
             configBuilder.AddJsonFile("local.settings.json", optional: true);
 
