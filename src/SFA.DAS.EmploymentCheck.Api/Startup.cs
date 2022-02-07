@@ -40,9 +40,9 @@ namespace SFA.DAS.EmploymentCheck.Api
 
             configBuilder.AddAzureTableStorage(options =>
             {
-                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-                options.EnvironmentName = configuration["EnvironmentName"];
+                options.ConfigurationKeys = Configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = Configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = Configuration["EnvironmentName"];
                 options.PreFixConfigurationKeys = false;
             });
 
