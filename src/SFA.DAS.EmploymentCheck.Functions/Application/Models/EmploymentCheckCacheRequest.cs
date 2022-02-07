@@ -19,8 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             DateTime minDate,
             DateTime maxDate,
             bool? employed,
-            short requestCompletionStatus,
-            DateTime? lastUpdatedOn
+            short requestCompletionStatus
         )
         {
             Id = id;
@@ -32,7 +31,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             MaxDate = maxDate;
             Employed = employed;
             RequestCompletionStatus = requestCompletionStatus;
-            LastUpdatedOn = lastUpdatedOn;
             CreatedOn = DateTime.Now;
         }
 
@@ -43,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public Guid? CorrelationId { get; set; }
 
-        [StringLength(20)] // Column size in db is 20, Autofixture generates string longer than 20 causing an exception in the test
+        [StringLength(20)]
         public string Nino { get; set; }
 
         public string PayeScheme { get; set; }
