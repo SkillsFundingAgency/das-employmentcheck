@@ -18,16 +18,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
     public class EmploymentCheckService
         : IEmploymentCheckService
     {
-        #region Private members
         private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
-        #endregion Private members
 
-        #region Constructors
         /// <summary>
         /// The EmploymentCheckService contains the methods to read and save Employment Checks
         /// </summary>
@@ -49,9 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             _employmentCheckRepository = employmentCheckRepositoryrepository;
             _employmentCheckCashRequestRepository = employmentCheckCashRequestRepositoryrepository;
         }
-        #endregion Constructors
 
-        #region GetEmploymentChecksBatch
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
         {
             IList<Models.EmploymentCheck> employmentChecksBatch = null;
@@ -127,9 +122,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             return employmentChecksBatch;
         }
-        #endregion GetEmploymentChecksBatch
 
-        #region CreateEmploymentCheckCacheRequest
         /// <summary>
         /// Creates an EmploymentCheckCacheRequest for each employment check in the given batch of employment checks
         /// </summary>
@@ -183,17 +176,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (Nino not found).");
 
-                    // Update the status of the 'stored' employment check with the request completion status so that we can see that this Nino was not found
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_NinoNotFound;
-                    try
-                    {
-                        await SaveEmploymentCheck(employmentCheck);
-                    }
-                    catch(Exception e)
-                    {
-                        _logger.LogError($"EmploymentCheckService.CreateEmploymentCheckCacheRequests(): ERROR: the EmploymentCheck repository Save() method threw an Exception during the check for missing ninos [{e}]");
-                    }
-
                     continue;
                 }
 
@@ -203,17 +185,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (PayeScheme not found).");
-
-                    // Update the status of the 'stored' employment check with the request completion status so that we can see that this PayeScheme was not found
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_PayeSchemeNotFound;
-                    try
-                    {
-                        await SaveEmploymentCheck(employmentCheck);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError($"EmploymentCheckService.CreateEmploymentCheckCacheRequests(): ERROR: the EmploymentCheck repository Save() method threw an Exception during the check for missing paye schemes [{e}]");
-                    }
 
                     continue;
                 }
@@ -235,6 +206,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                     employmentCheckCacheRequest.PayeScheme = payeScheme;
                     employmentCheckCacheRequest.MinDate = employmentCheck.MinDate;
                     employmentCheckCacheRequest.MaxDate = employmentCheck.MaxDate;
+                    employmentCheckCacheRequest.CreatedOn = DateTime.Now;
+                    employmentCheckCacheRequest.LastUpdatedOn = DateTime.Now;
 
                     employmentCheckRequests.Add(employmentCheckCacheRequest);
 
@@ -252,9 +225,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             return await Task.FromResult(employmentCheckRequests);
         }
-        #endregion CreateEmploymentCheckCacheRequest
 
-        #region GetEmploymentCheckCacheRequest
+        public async Task<IList<EmploymentCheckCacheRequest>> SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus(
+            Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet
+        )
+        {
+            return await _employmentCheckCashRequestRepository.SetReleatedRequestsRequestCompletionStatus(employmentCheckCacheRequestAndStatusToSet);
+        }
+
+
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             var dbConnection = new DbConnection();
@@ -311,22 +290,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
             return employmentCheckCacheRequest;
         }
-        #endregion GetEmploymentCheckCacheRequest
-
-        #region StoreEmploymentCheckResult
 
         public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
 
+            if (employmentCheckCacheRequest.RequestCompletionStatus == (short)ProcessingCompletionStatus.Started)
+            {
+                employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+            }
             await UpdateEmploymentCheckCacheRequest(employmentCheckCacheRequest);
             await UpdateEmploymentCheck(employmentCheckCacheRequest);
-
         }
-
-        #endregion StoreEmploymentCheckResult
-
-        #region UpdateEmploymentCacheRequest
 
         public async Task UpdateEmploymentCheckCacheRequest(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
@@ -334,65 +309,61 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
 
             var dbConnection = new DbConnection();
-
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                _azureServiceTokenProvider);
+                _azureServiceTokenProvider)
+            )
+            {
+                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+                await sqlConnection.OpenAsync();
+                var parameter = new DynamicParameters();
+                parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
+                parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
+                parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
+                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-            await sqlConnection.OpenAsync();
-            var parameter = new DynamicParameters();
-            parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
-            parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
-            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus,
-                DbType.Int16);
-            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-            await sqlConnection.ExecuteAsync(
-                "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                // TODO: setting the completion status after the initial setting of it to 'started' is to be done under story 183
-                "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
-                "WHERE Id = @Id ",
-                parameter,
-                commandType: CommandType.Text);
+                await sqlConnection.ExecuteAsync(
+                    "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
+                    "SET Employed = @employed, requestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                    "WHERE Id = @Id ",
+                    parameter,
+                    commandType: CommandType.Text);
+            }
         }
-
-        #endregion UpdateEmploymentCacheRequest
-
-        #region UpdateEmploymentCheck
 
         public async Task UpdateEmploymentCheck(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
 
+            if (employmentCheckCacheRequest.RequestCompletionStatus != null)
+            {
+                employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+            }
+
             var dbConnection = new DbConnection();
-
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                _azureServiceTokenProvider);
+                _azureServiceTokenProvider)
+            )
+            {
+                await sqlConnection.OpenAsync();
 
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+                var parameter = new DynamicParameters();
+                parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
+                parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
+                parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
+                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-            await sqlConnection.OpenAsync();
-
-            var parameter = new DynamicParameters();
-            parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
-            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
-            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-            await sqlConnection.ExecuteAsync(
-                "UPDATE [Business].[EmploymentCheck] " +
-                // TODO: setting the completion status after the initial setting of it to 'started' is to be done under story 183
-                "SET Employed = @employed, LastUpdatedOn = @lastUpdatedOn " +
-                "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
-                parameter,
-                commandType: CommandType.Text);
+                await sqlConnection.ExecuteAsync(
+                    "UPDATE [Business].[EmploymentCheck] " +
+                    "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                    "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
+                    parameter,
+                    commandType: CommandType.Text);
+            }
         }
-
-        #endregion UpdateEmploymentCheck
 
         private async Task SaveEmploymentCheck(Models.EmploymentCheck employmentCheck)
         {

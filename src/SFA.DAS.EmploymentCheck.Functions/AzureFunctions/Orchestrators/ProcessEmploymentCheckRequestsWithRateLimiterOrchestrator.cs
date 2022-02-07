@@ -1,9 +1,11 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +13,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
     {
-        #region Private members
         private readonly ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator> _logger;
 
         public ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator(
@@ -19,9 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             _logger = logger;
         }
-        #endregion Private members
 
-        #region ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
         [FunctionName(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator))]
         public async Task ProcessEmploymentChecksWithRateLimiterOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
@@ -40,8 +39,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     // Do the employment status check on this request
                     var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
 
-                    // Save the employment status back to the database
+                    // Set the RequestCompletionStatus for both the EmploymentCheck and the EmploymentCheckCacheRequest to 'Completed'
                     await context.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), result);
+
+                    // If an employment check has confirmed that the apprentice is employed on the given PAYE scheme
+                    // then we don't need to process any remaining employment check requests for that apprentice
+                    // and can set the RequestCompletionStatus for any remaining checks for this apprentice to 'Skipped'
+                    if (result.Employed.Value)
+                    {
+                        var relatedEmploymentCheckCacheResults = await context.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity), new Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>(result, ProcessingCompletionStatus.Skipped));
+                        CheckRelateRequestsRequestCompletionStatusIsSet(thisMethodName, relatedEmploymentCheckCacheResults);
+                    }
 
                     // Execute RateLimiter
                     var delayTimeSpan = await context.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), result);
@@ -52,7 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 }
                 else
                 {
-                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
+                    _logger.LogInformation($"{thisMethodName}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
 
                     // No data found so sleep for 10 seconds then execute the orchestrator again
                     var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
@@ -64,7 +72,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
             catch (Exception e)
             {
-                _logger.LogError($"\n\n{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
+                _logger.LogError($"{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
             }
             finally
             {
@@ -79,6 +87,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
 
         }
+
+        private void CheckRelateRequestsRequestCompletionStatusIsSet(string thisMethodName, IList<EmploymentCheckCacheRequest> relatedEmploymentCheckCacheResults)
+        {
+            if (relatedEmploymentCheckCacheResults != null && relatedEmploymentCheckCacheResults.Count > 0)
+            {
+                foreach (var request in relatedEmploymentCheckCacheResults)
+                {
+                    if (request.RequestCompletionStatus.Value != (short)ProcessingCompletionStatus.Skipped)
+                    {
+                        _logger.LogError($"{thisMethodName} ERROR: Failed to set the request completion status to 'Skipped' for EmploymentCheckCacheRequest Id = [{request.Id}]");
+                    }
+                }
+            }
+        }
     }
-    #endregion ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
 }

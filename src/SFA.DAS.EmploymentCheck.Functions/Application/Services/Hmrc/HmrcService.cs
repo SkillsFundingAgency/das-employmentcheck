@@ -3,6 +3,7 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.TokenService.Api.Client;
@@ -40,18 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         {
             var thisMethodName = $"{nameof(HmrcService)}.IsNationalInsuranceNumberRelatedToPayeScheme";
 
-            // setup a default template 'response' to store the api response
-            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
-                    request.ApprenticeEmploymentCheckId,
-                    request.Id,
-                    request.CorrelationId,
-                    null,           // Employed
-                    null,           // FoundOnPayee,
-                    true,           // ProcessingComplete
-                    1,              // Count
-                    string.Empty,   // Response
-                    -1);            // HttpStatusCode
-
+            EmploymentCheckCacheResponse employmentCheckCacheResponse = InitialiseEmploymentCheckCacheResponseModel(request);
             try
             {
                 if (_cachedToken == null || AccessTokenHasExpired()) await RetrieveAuthenticationToken();
@@ -61,12 +51,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 if (result != null)
                 {
                     request.Employed = result.Employed;
-                    request.RequestCompletionStatus = 200;
+                    request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
                     employmentCheckCacheResponse.Employed = result.Employed;
                     employmentCheckCacheResponse.FoundOnPaye = result.Empref;
                     employmentCheckCacheResponse.HttpResponse = "OK";
-                    employmentCheckCacheResponse.HttpStatusCode = 200;
+                    employmentCheckCacheResponse.HttpStatusCode = (short)HttpStatusCode.OK;
                     await _repository.Save(employmentCheckCacheResponse);
                 }
                 else
@@ -177,6 +167,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private async Task RetrieveAuthenticationToken()
         {
             _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
+        }
+
+        private static EmploymentCheckCacheResponse InitialiseEmploymentCheckCacheResponseModel(EmploymentCheckCacheRequest request)
+        {
+
+            // setup the default response values
+            var employmentCheckCacheResponse = new EmploymentCheckCacheResponse(
+                    request.ApprenticeEmploymentCheckId,
+                    request.Id,
+                    request.CorrelationId,
+                    null,           // Employed
+                    null,           // FoundOnPayee,
+                    true,           // ProcessingComplete
+                    1,              // Count
+                    string.Empty,   // Response
+                    -1);            // HttpStatusCode
+            return employmentCheckCacheResponse;
         }
     }
 }

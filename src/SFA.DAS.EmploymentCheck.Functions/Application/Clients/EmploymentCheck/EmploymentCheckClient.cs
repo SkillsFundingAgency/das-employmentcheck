@@ -1,13 +1,16 @@
 ﻿using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 {
-    public class EmploymentCheckClient : IEmploymentCheckClient
+    public class EmploymentCheckClient
+        : IEmploymentCheckClient
     {
         private readonly IEmploymentCheckService _employmentCheckService;
 
@@ -31,6 +34,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             var employmentCheckRequests = await _employmentCheckService.CreateEmploymentCheckCacheRequests(employmentCheckData);
 
             return employmentCheckRequests;
+        }
+
+        public async Task<IList<EmploymentCheckCacheRequest>> SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus(
+            Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet)
+        {
+            Guard.Against.Null(employmentCheckCacheRequestAndStatusToSet, nameof(employmentCheckCacheRequestAndStatusToSet));
+
+            return await _employmentCheckService.SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus(employmentCheckCacheRequestAndStatusToSet);
         }
 
         public async Task<EmploymentCheckCacheRequest> ProcessEmploymentCheckCacheRequest()

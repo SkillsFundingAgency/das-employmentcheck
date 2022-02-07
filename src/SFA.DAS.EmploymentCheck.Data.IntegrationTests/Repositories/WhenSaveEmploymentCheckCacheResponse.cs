@@ -40,12 +40,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         }
 
         [TearDown]
-        public new async Task CleanUp()
+        public async Task CleanUp()
         {
             await Delete(_actual);
-            await base.CleanUp();
         }
-
     }
 }
 
