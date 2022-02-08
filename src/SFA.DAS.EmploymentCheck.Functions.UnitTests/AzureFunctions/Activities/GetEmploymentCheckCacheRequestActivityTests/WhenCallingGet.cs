@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
                 .ReturnsAsync(queryResult);
 
             //Act
-            var result = await sut.GetEmploymentCheckRequestActivityTask(null);
+            var result = await sut.GetEmploymentCheckCacheRequestActivityTask(null);
 
             //Assert
             Assert.NotNull(result);

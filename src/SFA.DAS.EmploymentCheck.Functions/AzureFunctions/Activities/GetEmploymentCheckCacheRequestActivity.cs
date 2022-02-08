@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetEmploymentCheckCacheRequestActivity))]
-        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckRequestActivityTask(
+        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequestActivityTask(
             [ActivityTrigger] object input)
         {
             var processEmploymentCheckCacheRequestQueryResult = await _mediator.Send(new ProcessEmploymentCheckCacheRequestQueryRequest());

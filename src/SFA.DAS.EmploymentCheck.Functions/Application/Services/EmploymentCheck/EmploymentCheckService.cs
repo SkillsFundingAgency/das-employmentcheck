@@ -18,12 +18,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
 
-        /// <summary>
-        /// The EmploymentCheckService contains the methods to read and save Employment Checks
-        /// </summary>
-        /// <param name="applicationSettings"></param>
-        /// <param name="azureServiceTokenProvider"></param>
-        /// <param name="logger"></param>
         public EmploymentCheckService(
             ILogger<IEmploymentCheckService> logger,
             IEmploymentCheckRepository employmentCheckRepository,
@@ -40,9 +34,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return await _employmentCheckRepository.GetEmploymentChecksBatch();
         }
 
-        /// <summary>
-        /// Creates an EmploymentCheckCacheRequest for each employment check in the given batch of employment checks
-        /// </summary>
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
             EmploymentCheckData employmentCheckData)
         {
