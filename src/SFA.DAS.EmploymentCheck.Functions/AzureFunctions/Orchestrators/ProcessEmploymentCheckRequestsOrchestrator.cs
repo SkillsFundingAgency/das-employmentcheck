@@ -35,8 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (employmentCheckCacheRequest != null)
                 {
                     // Do the employment status check on this request
-                    var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
-
+                    await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
                 }
                 else
                 {
