@@ -377,7 +377,7 @@
                         "value": "[parameters('customHostname')]"
                     },
                     "certificateThumbprint": {
-                        "value": "[reference('api-app-service-certificate-charity').outputs.certificateThumbprint.value]"
+                        "value": "[reference('api-app-service-certificate-employmentcheck').outputs.certificateThumbprint.value]"
                     },
                     "ipSecurityRestrictions": {
                         "value": "[parameters('backEndAccessRestrictions')]"
@@ -390,7 +390,7 @@
         },
         {
             "apiVersion": "2021-04-01",
-            "name": "api-app-service-certificate-charity",
+            "name": "api-app-service-certificate-employmentcheck",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
             "properties": {
