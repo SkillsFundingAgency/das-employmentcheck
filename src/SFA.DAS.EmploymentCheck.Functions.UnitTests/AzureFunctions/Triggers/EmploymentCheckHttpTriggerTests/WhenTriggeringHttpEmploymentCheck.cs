@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -17,7 +18,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
         private readonly Mock<HttpRequestMessage> _request;
         private readonly Mock<IDurableOrchestrationClient> _starter;
         private readonly Mock<ILogger> _logger;
-        private readonly Mock<ITriggerHelper> _triggerHelper;
         private readonly Fixture _fixture;
 
         public WhenTriggeringHttpEmploymentCheck()
@@ -25,7 +25,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
             _request = new Mock<HttpRequestMessage>();
             _starter = new Mock<IDurableOrchestrationClient>();
             _logger = new Mock<ILogger>();
-            _triggerHelper = new Mock<ITriggerHelper>();
             _fixture = new Fixture();
         }
 
@@ -46,11 +45,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 DurableOrchestrationState = new List<DurableOrchestrationStatus>(0)
             };
 
-            _triggerHelper.Setup(x => x.GetRunningInstances(nameof(EmploymentChecksHttpTrigger),
-                "EmploymentCheck-", It.IsAny<IDurableOrchestrationClient>(), It.IsAny<ILogger>())).ReturnsAsync(instances);
+            _starter.Setup(x =>
+                    x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None))
+                .ReturnsAsync(instances);
 
             //Act
-            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object, _triggerHelper.Object);
+            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
             
@@ -72,11 +72,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 DurableOrchestrationState = new[] { new DurableOrchestrationStatus() }
             };
 
-            _triggerHelper.Setup(x => x.GetRunningInstances(nameof(EmploymentChecksHttpTrigger),
-                "EmploymentCheck-", It.IsAny<IDurableOrchestrationClient>(), It.IsAny<ILogger>())).ReturnsAsync(instances);
+            _starter.Setup(x =>
+                    x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None))
+                .ReturnsAsync(instances);
 
             //Act
-            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object, _triggerHelper.Object);
+            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
             Assert.AreEqual(HttpStatusCode.Conflict, result.StatusCode);

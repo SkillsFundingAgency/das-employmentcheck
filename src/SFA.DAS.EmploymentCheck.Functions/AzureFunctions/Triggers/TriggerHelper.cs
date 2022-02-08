@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
-    public class TriggerHelper : ITriggerHelper
+    public class TriggerHelper
     {
         public async Task<OrchestrationStatusQueryResult> GetRunningInstances(string orchestratorName, string instanceIdPrefix, IDurableOrchestrationClient starter, ILogger log)
         {
