@@ -37,8 +37,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     // Do the employment status check on this request
                     var result = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
 
-                    // Save the employment status back to the database
-                    await context.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), result);
                 }
                 else
                 {

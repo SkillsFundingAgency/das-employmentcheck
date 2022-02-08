@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.StoreEmploymentCh
     {
         private readonly IEmploymentCheckClient _employmentCheckClient;
 
-        public StoreEmploymentCheckResultCommandHandler(
-            IEmploymentCheckClient employmentCheckClient,
-            ILogger<StoreEmploymentCheckResultCommandHandler> logger)
+        public StoreEmploymentCheckResultCommandHandler(IEmploymentCheckClient employmentCheckClient)
         {
             _employmentCheckClient = employmentCheckClient;
         }

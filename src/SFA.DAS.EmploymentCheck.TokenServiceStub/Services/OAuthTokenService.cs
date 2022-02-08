@@ -15,6 +15,8 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
         {
             _httpClient = httpClient;
             _configuration = configuration.Value;
+
+            _httpClient.AcceptHeaders.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
         }
 
         public async Task<OAuthAccessToken> GetAccessToken(string oneTimePassword)

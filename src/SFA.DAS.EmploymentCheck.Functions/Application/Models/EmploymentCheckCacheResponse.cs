@@ -17,7 +17,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             bool processingComplete,
             int count,
             string httpResponse,
-            short httpStatusCode)
+            short httpStatusCode
+        )
         {
             ApprenticeEmploymentCheckId = apprenticeEmploymentCheckId;
             EmploymentCheckCacheRequestId = employmentCheckCacheRequestId;
@@ -28,6 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             Count = count;
             HttpResponse = httpResponse;
             HttpStatusCode = httpStatusCode;
+            LastUpdatedOn = null;
             CreatedOn = DateTime.Now;
         }
 
@@ -50,6 +52,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public string HttpResponse { get; set; }
 
         public short HttpStatusCode { get; set; }
+
+        public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
 
