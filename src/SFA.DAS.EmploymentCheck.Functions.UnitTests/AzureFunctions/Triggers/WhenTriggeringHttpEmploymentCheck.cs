@@ -1,14 +1,14 @@
-﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using Moq;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers
 {
     public class WhenTriggeringHttpEmploymentCheck
     {
