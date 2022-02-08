@@ -6,27 +6,27 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus
 {
-    public class SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandHandler
-        : IRequestHandler<SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommand,
-            SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult>
+    public class SetCacheRequestRelatedRequestsProcessingStatusCommandHandler
+        : IRequestHandler<SetCacheRequestRelatedRequestsProcessingStatusCommand,
+            SetCacheRequestRelatedRequestsProcessingStatusCommandResult>
     {
         private readonly IEmploymentCheckClient _employmentCheckClient;
 
-        public SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandHandler(
+        public SetCacheRequestRelatedRequestsProcessingStatusCommandHandler(
             IEmploymentCheckClient employmentCheckClient
         )
         {
             _employmentCheckClient = employmentCheckClient;
         }
 
-        public async Task<SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult> Handle(
-            SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommand command,
+        public async Task<SetCacheRequestRelatedRequestsProcessingStatusCommandResult> Handle(
+            SetCacheRequestRelatedRequestsProcessingStatusCommand command,
             CancellationToken cancellationToken
         )
         {
             var result = await _employmentCheckClient.SetCacheRequestRelatedRequestsProcessingStatus(command.EmploymentCheckCacheRequestAndStatusToSet);
 
-            return new SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult(result);
+            return new SetCacheRequestRelatedRequestsProcessingStatusCommandResult(result);
         }
     }
 }

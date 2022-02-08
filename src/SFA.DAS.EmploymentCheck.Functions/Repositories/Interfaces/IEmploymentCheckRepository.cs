@@ -8,7 +8,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     {
         Task Save(Application.Models.EmploymentCheck check);
 
-        Task InsertOrUpdate(Models.EmploymentCheck check);
+        Task Insert(Models.EmploymentCheck check);
 
         Task UpdateEmployedAndRequestStatusFields(Models.EmploymentCheck check);
 

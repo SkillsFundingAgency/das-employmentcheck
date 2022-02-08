@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     // and can set the RequestCompletionStatus for any remaining checks for this apprentice to 'Skipped'
                     if (result != null && result.Employed.Value)
                     {
-                        var relatedEmploymentCheckCacheResults = await context.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity), new Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>(result, ProcessingCompletionStatus.Skipped));
+                        var relatedEmploymentCheckCacheResults = await context.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetCacheRequestRelatedRequestsProcessingStatusActivity), new Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>(result, ProcessingCompletionStatus.Skipped));
                         CheckRelateRequestsRequestCompletionStatusIsSet(thisMethodName, relatedEmploymentCheckCacheResults);
                     }
 

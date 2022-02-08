@@ -199,7 +199,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 return;
             }
 
-            await _repository.InsertOrUpdate(accountsResponse);
+            await _repository.Save(accountsResponse);
         }
 
         private async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)

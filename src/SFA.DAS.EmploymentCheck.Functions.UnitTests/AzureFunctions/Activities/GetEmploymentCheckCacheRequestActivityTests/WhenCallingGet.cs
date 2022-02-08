@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentCheckCacheRequest;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmploymentCheckCacheRequestActivityTests
 {
@@ -26,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         }
 
         [Test]
-        public void Then_The_EmploymentCheckCacheRequest_Is_Returned()
+        public async Task Then_The_EmploymentCheckCacheRequest_Is_Returned()
         {
             //Arrange
             var sut = new GetEmploymentCheckCacheRequestActivity(_mediator.Object, _logger.Object);
@@ -37,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
                 .ReturnsAsync(queryResult);
 
             //Act
-            var result = sut.GetEmploymentCheckRequestActivityTask(null).Result;
+            var result = await sut.GetEmploymentCheckRequestActivityTask(null);
 
             //Assert
             Assert.NotNull(result);

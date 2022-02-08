@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _batchSize = applicationSettings.BatchSize;
         }
 
-        public async Task InsertOrUpdate(Models.EmploymentCheck check)
+        public async Task Save(Models.EmploymentCheck check)
         {
             Guard.Against.Null(check, nameof(check));
 
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             }
         }
 
-        public async Task Save(Models.EmploymentCheck check)
+        public async Task Insert(Models.EmploymentCheck check)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -129,20 +129,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
         {
             IList<Models.EmploymentCheck> employmentChecksBatch = null;
-
             var dbConnection = new DbConnection();
-
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                _azureServiceTokenProvider))
+                _azureServiceTokenProvider)
+            )
             {
                 await sqlConnection.OpenAsync();
+                using (var transaction = await sqlConnection.BeginTransactionAsync())
                 {
-                    var transaction = sqlConnection.BeginTransaction();
-
                     try
                     {
-                        // Get a batch of employment checks that do not already have a matching pending EmploymentCheckCacheRequest
                         var parameters = new DynamicParameters();
                         parameters.Add("@batchSize", _batchSize);
 
@@ -167,8 +164,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                                 commandType: CommandType.Text,
                                 transaction: transaction)).ToList();
 
-                        // Set the RequestCompletionStatus to 'Started' so that the batch
-                        // that has just read doesn't get read next time around
                         if (employmentChecksBatch != null && employmentChecksBatch.Count > 0)
                         {
                             foreach (var employmentCheck in employmentChecksBatch)
@@ -196,10 +191,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                         _logger.LogError($"EmploymentCheckService.GetEmploymentChecksBatch(): ERROR: An error occurred reading the employment checks. Exception [{e}]");
                         throw;
                     }
+
+                    return employmentChecksBatch;
                 }
             }
-
-            return employmentChecksBatch;
         }
     }
 }

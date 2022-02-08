@@ -10,11 +10,12 @@ using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
-    public class WhenSettingReleatedRequestsRequestCompletionStatus
+    public class WhenSettingRelatedRequestsRequestCompletionStatus
         : RepositoryTestBase
     {
+
         private IEmploymentCheckCacheRequestRepository _sut;
-        private IList<Functions.Application.Models.EmploymentCheckCacheRequest> _actual;
+        private IList<Models.EmploymentCheckCacheRequest> _actual;
 
         [Test]
         public async Task CanSave()
@@ -40,14 +41,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             for (var i = 1; i < _actual.Count; i++)
             {
                 var expected = expectedEmploymentCheckCacheRequestData[i];
+                var actual = _actual[i];
 
-                _actual[i].Should().BeEquivalentTo(expected,
+                actual.Should().BeEquivalentTo(expected,
                     opts => opts
-                        .Excluding(x => x.PayeScheme)
+                        .Excluding(x => x.Id) // The Id is the Identity Column from the db so ignore
                         .Excluding(x => x.LastUpdatedOn)
                         .Excluding(x => x.CreatedOn));
-                // TODO: comparison of Id's
-                _actual[i].CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             }
         }
 
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         {
             return await Task.FromResult(new List<Functions.Application.Models.EmploymentCheckCacheRequest>
             {
-                new Functions.Application.Models.EmploymentCheckCacheRequest
+                new Models.EmploymentCheckCacheRequest
                 {
                     Id = 1,
                     ApprenticeEmploymentCheckId = 1,
@@ -76,7 +76,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new Functions.Application.Models.EmploymentCheckCacheRequest
+                new Models.EmploymentCheckCacheRequest
                 {
                     Id = 2,
                     ApprenticeEmploymentCheckId = 1,
@@ -90,7 +90,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     RequestCompletionStatus = null,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new Functions.Application.Models.EmploymentCheckCacheRequest
+                new Models.EmploymentCheckCacheRequest
                 {
                     Id = 3,
                     ApprenticeEmploymentCheckId = 1,
@@ -104,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     RequestCompletionStatus = null,
                     CreatedOn = new DateTime(2020, 10, 2, 23, 45, 53)
                 },
-                new Functions.Application.Models.EmploymentCheckCacheRequest
+                new Models.EmploymentCheckCacheRequest
                 {
                     Id = 4,
                     ApprenticeEmploymentCheckId = 1,

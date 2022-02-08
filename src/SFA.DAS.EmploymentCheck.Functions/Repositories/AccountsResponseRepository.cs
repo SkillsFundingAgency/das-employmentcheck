@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
             ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider = null,
-            Logger<IAccountsResponseRepository> logger = null
+            ILogger<IAccountsResponseRepository> logger = null
         )
         {
             _logger = logger;
@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _connectionString = applicationSettings.DbConnectionString;
         }
 
-        public async Task InsertOrUpdate(AccountsResponse response)
+        public async Task Save(AccountsResponse response)
         {
             Guard.Against.Null(response, nameof(response));
 
@@ -76,7 +76,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             }
         }
 
-        public async Task Save(AccountsResponse response)
+        public async Task Insert(AccountsResponse response)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(

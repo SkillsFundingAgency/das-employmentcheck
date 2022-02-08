@@ -1,36 +1,33 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsResponse
 {
-    public class WhenInsertingOrUpdatingAccountsResponseUpdate
+    public class WhenSavingAccountsResponse_Insert
         : RepositoryTestBase
     {
         private IAccountsResponseRepository _sut;
         private Models.AccountsResponse _actual;
 
         [Test]
-        public async Task CanUpdate()
+        public async Task CanInsert()
         {
             // Arrange
             _sut = new AccountsResponseRepository(Settings);
-            var saved = Fixture.Create<Models.AccountsResponse>();
-            await Insert(saved);
-
-            var expected = Fixture.Build<Models.AccountsResponse>()
-                .With(e => e.Id, saved.Id)
-                .Create();
+            var expected = Fixture.Create<Models.AccountsResponse>();
 
             // Act
-            await _sut.InsertOrUpdate(expected);
+            await _sut.Save(expected);
 
             // Assert
-            _actual = await Get<Models.AccountsResponse>(saved.Id);
+            _actual = (await GetAll<Models.AccountsResponse>())
+                .Single(x => x.Id == expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
@@ -40,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsRes
                 );
 
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
+            _actual.LastUpdatedOn.Should().BeNull();
             _actual.Id.Should().BeGreaterThan(0);
         }
 

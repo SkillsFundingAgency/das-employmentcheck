@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .ReturnsAsync(_employmentCheckCacheRequest);
 
             _context.Setup(a => a.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), It.IsAny<EmploymentCheckCacheRequest>()));
-            _context.Setup(a => a.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity), It.IsAny<Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>>()));
+            _context.Setup(a => a.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetCacheRequestRelatedRequestsProcessingStatusActivity), It.IsAny<Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>>()));
             _context.Setup(a => a.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), It.IsAny<EmploymentCheckCacheRequest>()));
 
             // Act
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), It.IsAny<object>()), Times.Once);
             _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), It.IsAny<EmploymentCheckCacheRequest>()), Times.Once);
             _context.Verify(a => a.CallActivityAsync(nameof(StoreEmploymentCheckResultActivity), It.IsAny<EmploymentCheckCacheRequest>()), Times.Once);
-            _context.Verify(a => a.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity), It.IsAny<Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>>()), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<IList<EmploymentCheckCacheRequest>>(nameof(SetCacheRequestRelatedRequestsProcessingStatusActivity), It.IsAny<Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus>>()), Times.Once);
             _context.Verify(a => a.CallActivityAsync<TimeSpan>(nameof(AdjustEmploymentCheckRateLimiterOptionsActivity), It.IsAny<EmploymentCheckCacheRequest>()), Times.Once);
         }
     }

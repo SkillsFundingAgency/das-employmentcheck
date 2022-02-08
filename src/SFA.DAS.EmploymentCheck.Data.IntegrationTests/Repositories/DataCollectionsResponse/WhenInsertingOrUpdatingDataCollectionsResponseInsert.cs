@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.DataCollect
             var expected = Fixture.Create<Models.AccountsResponse>();
 
             // Act
-            await _sut.InsertOrUpdate(expected);
+            await _sut.Save(expected);
 
             // Assert
             _actual = (await GetAll<Models.AccountsResponse>())

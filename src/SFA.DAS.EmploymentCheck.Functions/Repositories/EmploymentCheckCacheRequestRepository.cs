@@ -66,8 +66,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             var request = employmentCheckCacheRequestAndStatusToSet.Item1;
             var processingCompletionStatus = employmentCheckCacheRequestAndStatusToSet.Item2;
 
-            // 'Related' requests are requests that have the same 'parent' EmploymentCheck
-            // (i.e. the same ApprenticeEmploymentCheckId, which is the foreign key from the EmploymentCheck table)
             IList<EmploymentCheckCacheRequest> employmentCheckCacheRequests = null;
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -99,10 +97,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                             "AND    Nino                        =  @nino " +
                             "AND    MinDate                     =  @minDate " +
                             "AND    MaxDate                     =  @maxDate " +
-                            "AND    (Employed                   IS NULL OR Employed = 0) " +
-                            "AND    RequestCompletionStatus     IS NULL ",
+                            "AND    (RequestCompletionStatus    IS NULL OR  RequestCompletionStatus = 1)",
                             parameters,
-                            commandType: CommandType.Text);
+                            commandType: CommandType.Text,
+                            transaction: transaction);
 
                         var confirmUpdateParameters = new DynamicParameters();
                         confirmUpdateParameters.Add("@Id", request.Id, DbType.Int64);
@@ -118,7 +116,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                                     "AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId " +
                                     "ORDER BY Id ",
                             param: confirmUpdateParameters,
-                            commandType: CommandType.Text)).AsList();
+                            commandType: CommandType.Text,
+                            transaction: transaction)).AsList();
 
                         transaction.Commit();
                     }

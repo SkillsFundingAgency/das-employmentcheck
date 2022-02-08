@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus
 {
-    public class SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult
+    public class SetCacheRequestRelatedRequestsProcessingStatusCommandResult
     {
-        public SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult(
+        public SetCacheRequestRelatedRequestsProcessingStatusCommandResult(
             IList<EmploymentCheckCacheRequest> employmentCheckCacheRequests
         )
         {

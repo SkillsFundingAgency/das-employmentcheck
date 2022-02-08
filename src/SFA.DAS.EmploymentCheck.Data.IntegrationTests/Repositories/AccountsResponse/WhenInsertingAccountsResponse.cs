@@ -3,31 +3,29 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsResponse
 {
-    public class WhenSavingAccountsResponse
+    public class WhenInsertingAccountsResponse
         : RepositoryTestBase
     {
         private IAccountsResponseRepository _sut;
         private Models.AccountsResponse _actual;
 
         [Test]
-        public async Task CanSave()
+        public async Task CanInsert()
         {
             // Arrange
             _sut = new AccountsResponseRepository(Settings);
             var expected = Fixture.Create<Models.AccountsResponse>();
 
             // Act
-            await _sut.Save(expected);
+            await _sut.Insert(expected);
 
             // Assert
-            _actual = (await GetAll<Models.AccountsResponse>())
-                .Single(x => x.Id == expected.Id);
+            _actual = await Get<Models.AccountsResponse>(expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
@@ -36,9 +34,9 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsRes
                     .Excluding(x => x.LastUpdatedOn)
                 );
 
+            _actual.Id.Should().Be(expected.Id);
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
-            _actual.Id.Should().BeGreaterThan(0);
         }
 
         [TearDown]
@@ -48,4 +46,3 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsRes
         }
     }
 }
-

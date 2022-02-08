@@ -10,21 +10,21 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity
+    public class SetCacheRequestRelatedRequestsProcessingStatusActivity
     {
         private readonly IMediator _mediator;
 
-        public SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity(IMediator mediator)
+        public SetCacheRequestRelatedRequestsProcessingStatusActivity(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        [FunctionName(nameof(SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusActivity))]
+        [FunctionName(nameof(SetCacheRequestRelatedRequestsProcessingStatusActivity))]
         public async Task<IList<EmploymentCheckCacheRequest>> SetEmploymentCheckCacheRequestsRelatedRequestsRequestProcessingStatus(
             [ActivityTrigger] Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet
         )
         {
-            return (await _mediator.Send(new SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommand(employmentCheckCacheRequestAndStatusToSet))).EmploymentCheckCacheRequests;
+            return (await _mediator.Send(new SetCacheRequestRelatedRequestsProcessingStatusCommand(employmentCheckCacheRequestAndStatusToSet))).EmploymentCheckCacheRequests;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                     .Excluding(x => x.MaxDate)
                 );
 
-            // TODO: Comparison of Id's
+            _actual.Id.Should().Be(expected.Id);
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
             _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
         }

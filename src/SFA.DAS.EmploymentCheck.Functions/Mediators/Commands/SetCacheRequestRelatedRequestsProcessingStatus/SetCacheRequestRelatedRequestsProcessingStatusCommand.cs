@@ -5,10 +5,10 @@ using System;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus
 {
-    public class SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommand
-        : IRequest<SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommandResult>
+    public class SetCacheRequestRelatedRequestsProcessingStatusCommand
+        : IRequest<SetCacheRequestRelatedRequestsProcessingStatusCommandResult>
     {
-        public SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatusCommand(
+        public SetCacheRequestRelatedRequestsProcessingStatusCommand(
             Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet
         )
         {
