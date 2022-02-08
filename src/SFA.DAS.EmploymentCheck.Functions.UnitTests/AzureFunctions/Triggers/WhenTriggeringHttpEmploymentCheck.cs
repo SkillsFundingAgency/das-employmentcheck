@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers
         [Test]
         public async Task Then_The_Instance_Id_Is_Created()
         {
-            //Arrange
+            // Arrange
             const string instanceId = "test";
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
@@ -35,18 +35,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, instanceId, false))
                 .Returns(response);
 
-            //Act
+            // Act
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
-            //Assert
-            
+            // Assert
             Assert.AreEqual(response, result);
         }
 
         [Test]
         public async Task Then_The_Status_Code_Is_Returned()
         {
-            //Arrange
+            // Arrange
             var response = new HttpResponseMessage(HttpStatusCode.OK);
 
             _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), null))
@@ -54,10 +53,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, It.IsAny<string>(), false))
                 .Returns(response);
 
-            //Act
+            // Act
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
-            //Assert
+            // Assert
             Assert.AreEqual(response.StatusCode, result.StatusCode);
         }
     }
