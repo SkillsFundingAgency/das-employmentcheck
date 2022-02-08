@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using AutoFixture;
+﻿using AutoFixture;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Threading;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
 {
@@ -16,15 +16,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
     {
         private readonly Mock<IMediator> _mediator;
         private readonly Mock<ILogger<GetEmployerPayeSchemesActivity>> _logger;
-        private readonly IList<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private readonly IList<Models.EmploymentCheck> _apprentices;
 
         public WhenCallingGet()
         {
             var fixture = new Fixture();
             _mediator = new Mock<IMediator>();
             _logger = new Mock<ILogger<GetEmployerPayeSchemesActivity>>();
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck>
-                {fixture.Create<Functions.Application.Models.EmploymentCheck>()};
+            _apprentices = new List<Models.EmploymentCheck>
+                {fixture.Create<Models.EmploymentCheck>()};
         }
 
         [Test]

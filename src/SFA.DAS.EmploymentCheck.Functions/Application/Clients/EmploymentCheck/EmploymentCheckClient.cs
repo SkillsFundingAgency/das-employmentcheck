@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
         {
             Guard.Against.Null(employmentCheckCacheRequestAndStatusToSet, nameof(employmentCheckCacheRequestAndStatusToSet));
 
-            return await _employmentCheckService.SetEmploymentCheckCacheRequestRelatedRequestsRequestProcessingStatus(employmentCheckCacheRequestAndStatusToSet);
+            return await _employmentCheckService.SetCacheRequestRelatedRequestsProcessingStatus(employmentCheckCacheRequestAndStatusToSet);
         }
 
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()

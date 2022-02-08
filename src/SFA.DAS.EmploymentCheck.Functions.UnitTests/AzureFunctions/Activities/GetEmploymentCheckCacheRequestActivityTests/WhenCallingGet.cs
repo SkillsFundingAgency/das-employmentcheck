@@ -12,7 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
 {
     public class WhenCallingGet
     {
-        private Fixture _fixture;
+        private readonly Fixture _fixture;
         private readonly EmploymentCheckCacheRequest _request;
         private readonly Mock<IMediator> _mediator;
         private readonly Mock<ILogger<GetEmploymentCheckCacheRequestActivity>> _logger;

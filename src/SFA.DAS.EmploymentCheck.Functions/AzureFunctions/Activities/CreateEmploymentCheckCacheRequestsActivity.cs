@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestsActivity))]
         public async Task Create([ActivityTrigger] EmploymentCheckData employmentCheckData)
         {
-            await _mediator.Send(new CreateEmploymentCheckCacheCommand(employmentCheckData));
+            await _mediator.Send(new CreateEmploymentCheckCacheRequestCommand(employmentCheckData));
         }
     }
 }

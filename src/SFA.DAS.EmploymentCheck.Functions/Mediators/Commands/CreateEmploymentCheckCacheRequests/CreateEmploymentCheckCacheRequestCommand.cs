@@ -3,9 +3,12 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequests
 {
-    public class CreateEmploymentCheckCacheCommand : IRequest
+    public class CreateEmploymentCheckCacheRequestCommand
+        : IRequest<CreateEmploymentCheckCacheRequestCommandResult>
     {
-        public CreateEmploymentCheckCacheCommand(EmploymentCheckData employmentCheckData)
+        public CreateEmploymentCheckCacheRequestCommand(
+            EmploymentCheckData employmentCheckData
+        )
         {
             EmploymentCheckData = employmentCheckData;
         }

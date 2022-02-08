@@ -30,4 +30,9 @@
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\Repositories\" />
+    <Folder Include="AzureFunctions\Activities\CreateEmploymentCheckCacheRequestsActivityTests\" />
+  </ItemGroup>
+
 </Project>
