@@ -9,6 +9,7 @@ using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -20,6 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
     public class WhenCheckingEmploymentStatus
     {
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
+        private Mock<IEmploymentCheckClient> employmentCheckClient;
         private Mock<ILogger<HmrcService>> _logger;
         private Mock<IEmploymentCheckCacheResponseRepository> _repository;
         private Mock<ITokenServiceApiClient> _tokenService;
@@ -28,17 +30,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         private Fixture _fixture;
         private IHmrcService _sut;
 
-
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
+            employmentCheckClient = new Mock<IEmploymentCheckClient>();
             _logger = new Mock<ILogger<HmrcService>>();
             _tokenService = new Mock<ITokenServiceApiClient>();
             _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
 
-            _token = new PrivilegedAccessToken {AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7)};
+            _token = new PrivilegedAccessToken { AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7) };
 
             _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
 
@@ -46,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object);
+            _sut = new HmrcService(_tokenService.Object, _apprenticeshipLevyService.Object, _logger.Object, _repository.Object, employmentCheckClient.Object);
         }
 
         [Test]
@@ -213,6 +215,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.Count == 1
                         && x.HttpResponse == "OK"
                         && x.HttpStatusCode == 200
+                        && x.LastUpdatedOn == null
                 )
             ), Times.Once);
         }
@@ -235,7 +238,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             // Assert
             _repository.Verify(r => r.Save(
                 It.IsAny<EmploymentCheckCacheResponse>()
-            ), Times.Once);
+            ), Times.AtLeastOnce);
 
             result.Employed.Should().BeNull();
             result.RequestCompletionStatus.Should().Be(500);
@@ -245,7 +248,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_NotFound_response_is_saved_as_complete()
         {
             // Arrange
-            const short code = (short) HttpStatusCode.NotFound;
+            const short code = (short)HttpStatusCode.NotFound;
 
             var exception = new ApiHttpException(
                 code,
@@ -396,13 +399,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.AtLeastOnce);
             _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
                 _request.MinDate,
-                _request.MaxDate), Times.Exactly(2));
+                _request.MaxDate), Times.AtLeastOnce);
         }
 
         [Test]

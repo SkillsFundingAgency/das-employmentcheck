@@ -1,5 +1,4 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
@@ -30,20 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             Settings = new ApplicationSettings();
             config.Bind(Settings);
-        }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await DeleteAll();
-        }
-
-        private async Task DeleteAll()
-        {
-            foreach (var entity in ToBeDeleted)
-            {
-                await Delete(entity);
-            }
         }
 
         public async Task<T> Get<T>(object id) where T : class

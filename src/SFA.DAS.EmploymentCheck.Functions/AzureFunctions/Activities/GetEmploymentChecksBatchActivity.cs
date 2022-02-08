@@ -9,9 +9,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetEmploymentChecksBatchActivity
     {
-        #region Private members
         private readonly IMediator _mediator;
-        #endregion Private members
 
         public GetEmploymentChecksBatchActivity(
             IMediator mediator)
