@@ -1,16 +1,18 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
+using SFA.DAS.EmploymentCheck.Api.Extensions;
+using System;
 using System.IO;
-using Microsoft.Azure.Services.AppAuthentication;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -59,6 +61,12 @@ namespace SFA.DAS.EmploymentCheck.Api
             if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
                 services.AddSingleton(new AzureServiceTokenProvider());
+
+                var azureAdConfiguration = Configuration
+                    .GetSection("AzureAd")
+                    .Get<AzureActiveDirectoryConfiguration>();
+
+                services.AddAuthentication(azureAdConfiguration);
             }
 
             services
@@ -83,7 +91,7 @@ namespace SFA.DAS.EmploymentCheck.Api
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
