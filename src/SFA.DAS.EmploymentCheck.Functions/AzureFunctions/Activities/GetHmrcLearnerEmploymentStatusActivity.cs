@@ -13,7 +13,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         private readonly IMediator _mediator;
 
         public GetHmrcLearnerEmploymentStatusActivity(
-            ILogger<GetHmrcLearnerEmploymentStatusActivity> logger,
             IMediator mediator)
         {
             _mediator = mediator;
