@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -32,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
         [Test]
         public async Task Then_The_Instance_Id_Is_Created_When_no_other_instances_are_running()
         {
-            // Arrange
+            //Arrange
             string instanceId = _fixture.Create<string>();
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
@@ -50,10 +49,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None))
                 .ReturnsAsync(instances);
 
-            // Act
+            //Act
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
-            // Assert
+            //Assert
+            
             Assert.AreEqual(response, result);
             Assert.AreEqual(response.StatusCode, result.StatusCode);
         }
@@ -61,7 +61,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
         [Test]
         public async Task Then_The_Instance_Id_Is_Not_Created_When_other_instances_are_running()
         {
-            // Arrange
+            //Arrange
             string instanceId = _fixture.Create<string>();
 
             _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), It.IsAny<string>()))
@@ -76,10 +76,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None))
                 .ReturnsAsync(instances);
 
-            // Act
+            //Act
             var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
-            // Assert
+            //Assert
             Assert.AreEqual(HttpStatusCode.Conflict, result.StatusCode);
         }
     }
