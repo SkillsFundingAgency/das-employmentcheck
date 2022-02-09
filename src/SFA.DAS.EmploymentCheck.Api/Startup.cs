@@ -33,11 +33,12 @@ namespace SFA.DAS.EmploymentCheck.Api
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
             });
 
-
             var configBuilder = new ConfigurationBuilder()
                 .AddConfiguration(Configuration)
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
+        
+            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
 
             configBuilder.AddAzureTableStorage(options =>
             {
@@ -47,12 +48,11 @@ namespace SFA.DAS.EmploymentCheck.Api
                 options.PreFixConfigurationKeys = false;
             });
 
-            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
 
             var config = configBuilder.Build();
             services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
 
-            services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
+            services.Configure<EmploymentCheckSettings>(config.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
 
             services
