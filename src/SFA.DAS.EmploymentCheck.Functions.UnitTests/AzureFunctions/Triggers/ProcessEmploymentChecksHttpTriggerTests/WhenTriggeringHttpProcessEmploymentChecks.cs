@@ -11,21 +11,21 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.ProcessEmploymentChecksHttpTriggerTests
 {
-    public class WhenTriggeringHttpEmploymentCheck
+    public class WhenTriggeringHttpProcessEmploymentChecks
     {
         private readonly Mock<HttpRequestMessage> _request;
         private readonly Mock<IDurableOrchestrationClient> _starter;
         private readonly Mock<ILogger> _logger;
         private readonly Fixture _fixture;
 
-        public WhenTriggeringHttpEmploymentCheck()
+        public WhenTriggeringHttpProcessEmploymentChecks()
         {
+            _fixture = new Fixture();
             _request = new Mock<HttpRequestMessage>();
             _starter = new Mock<IDurableOrchestrationClient>();
             _logger = new Mock<ILogger>();
-            _fixture = new Fixture();
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
             string instanceId = _fixture.Create<string>();
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), It.IsAny<string>()))
+            _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(instanceId);
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, instanceId, false))
                 .Returns(response);
@@ -50,10 +50,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 .ReturnsAsync(instances);
 
             //Act
-            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await ProcessEmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
-            
+
             Assert.AreEqual(response, result);
             Assert.AreEqual(response.StatusCode, result.StatusCode);
         }
@@ -64,7 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
             //Arrange
             string instanceId = _fixture.Create<string>();
 
-            _starter.Setup(x => x.StartNewAsync(nameof(EmploymentChecksOrchestrator), It.IsAny<string>()))
+            _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(instanceId);
 
             var instances = new OrchestrationStatusQueryResult
@@ -77,7 +77,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 .ReturnsAsync(instances);
 
             //Act
-            var result = await EmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await ProcessEmploymentChecksHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             //Assert
             Assert.AreEqual(HttpStatusCode.Conflict, result.StatusCode);
