@@ -16,6 +16,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
 
         Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
 
-        Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest);
+        Task<long> StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest);
     }
 }

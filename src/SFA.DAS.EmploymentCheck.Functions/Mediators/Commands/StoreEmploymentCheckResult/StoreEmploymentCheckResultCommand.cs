@@ -3,10 +3,12 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.StoreEmploymentCheckResult
 {
-    public class StoreEmploymentCheckResultCommand : IRequest
+    public class StoreEmploymentCheckResultCommand
+        : IRequest<StoreEmploymentCheckResultCommandResult>
     {
         public StoreEmploymentCheckResultCommand(
-            EmploymentCheckCacheRequest employmentCheckCacheRequest)
+            EmploymentCheckCacheRequest employmentCheckCacheRequest
+        )
         {
             EmploymentCheckCacheRequest = employmentCheckCacheRequest;
         }

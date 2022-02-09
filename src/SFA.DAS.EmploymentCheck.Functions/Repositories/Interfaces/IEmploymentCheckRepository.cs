@@ -6,11 +6,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IEmploymentCheckRepository
     {
-        Task Save(Application.Models.EmploymentCheck check);
+        Task<long> Save(Application.Models.EmploymentCheck check);
 
-        Task Insert(Models.EmploymentCheck check);
+        Task<long> Insert(Models.EmploymentCheck check);
 
-        Task UpdateEmployedAndRequestStatusFields(Models.EmploymentCheck check);
+        Task<long> UpdateEmployedAndRequestStatusFields(Models.EmploymentCheck check);
 
         Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
     }

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.StoreEmploymentCheckResult
 {
     public class StoreEmploymentCheckResultCommandHandler
-        : IRequestHandler<StoreEmploymentCheckResultCommand>
+        : IRequestHandler<StoreEmploymentCheckResultCommand,
+            StoreEmploymentCheckResultCommandResult>
     {
         private readonly IEmploymentCheckClient _employmentCheckClient;
 
@@ -15,13 +16,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.StoreEmploymentCh
             _employmentCheckClient = employmentCheckClient;
         }
 
-        public async Task<Unit> Handle(
+        public async Task<StoreEmploymentCheckResultCommandResult> Handle(
             StoreEmploymentCheckResultCommand request,
             CancellationToken cancellationToken)
         {
-            await _employmentCheckClient.StoreEmploymentCheckResult(request.EmploymentCheckCacheRequest);
+            var result = await _employmentCheckClient.StoreEmploymentCheckResult(request.EmploymentCheckCacheRequest);
 
-            return Unit.Value;
+            return new StoreEmploymentCheckResultCommandResult(result);
         }
     }
 }

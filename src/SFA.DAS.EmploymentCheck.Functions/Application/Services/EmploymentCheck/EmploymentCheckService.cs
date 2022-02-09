@@ -149,15 +149,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return await _employmentCheckCashRequestRepository.GetNext();
         }
 
-        public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
+        public async Task<long> StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
+            long id = 0;
 
             if (employmentCheckCacheRequest.RequestCompletionStatus == (short)ProcessingCompletionStatus.Started)
             {
                 employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
             }
-
             await _employmentCheckCashRequestRepository.UpdateEmployedAndRequestStatusFields(employmentCheckCacheRequest);
 
             var employmentCheck = new Models.EmploymentCheck
@@ -166,7 +166,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 Employed = employmentCheckCacheRequest.Employed,
                 RequestCompletionStatus = employmentCheckCacheRequest.RequestCompletionStatus
             };
-            await _employmentCheckRepository.UpdateEmployedAndRequestStatusFields(employmentCheck);
+            id = await _employmentCheckRepository.UpdateEmployedAndRequestStatusFields(employmentCheck);
+
+            return await Task.FromResult(id);
         }
     }
 }

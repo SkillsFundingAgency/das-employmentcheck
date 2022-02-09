@@ -36,10 +36,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _batchSize = applicationSettings.BatchSize;
         }
 
-        public async Task Save(Models.EmploymentCheck check)
+        public async Task<long> Save(Models.EmploymentCheck check)
         {
             Guard.Against.Null(check, nameof(check));
 
+            long id = 0;
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
@@ -55,6 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                         var existingItem = await sqlConnection.GetAsync<Models.EmploymentCheck>(check.Id, tran);
                         if (existingItem != null)
                         {
+                            id = existingItem.Id;
                             check.LastUpdatedOn = DateTime.Now;
                             await sqlConnection.UpdateAsync(check, tran);
                         }
@@ -63,7 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                             try
                             {
                                 check.CreatedOn = DateTime.Now;
-                                await sqlConnection.InsertAsync(check, tran);
+                                id = await sqlConnection.InsertAsync(check, tran);
                             }
                             catch (SqlException ex)
                             {
@@ -80,9 +82,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                     }
                 }
             }
+
+            return await Task.FromResult(id);
         }
 
-        public async Task Insert(Models.EmploymentCheck check)
+        public async Task<long> Insert(Models.EmploymentCheck check)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -90,10 +94,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-            await sqlConnection.InsertAsync(check);
+            return await sqlConnection.InsertAsync(check);
         }
 
-        public async Task UpdateEmployedAndRequestStatusFields(
+        public async Task<long> UpdateEmployedAndRequestStatusFields(
             Models.EmploymentCheck check)
         {
             Guard.Against.Null(check, nameof(check));
@@ -124,6 +128,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                     parameter,
                     commandType: System.Data.CommandType.Text);
             }
+
+            return await Task.FromResult(check.Id);
         }
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()

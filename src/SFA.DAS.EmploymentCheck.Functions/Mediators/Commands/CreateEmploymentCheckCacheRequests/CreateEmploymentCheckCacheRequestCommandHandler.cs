@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +27,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
         )
         {
             var result = await _employmentCheckClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
+            if(result == null)
+            {
+                return new CreateEmploymentCheckCacheRequestCommandResult(new EmploymentCheckCacheRequest());
+            }
 
             return new CreateEmploymentCheckCacheRequestCommandResult(result.SingleOrDefault());
         }

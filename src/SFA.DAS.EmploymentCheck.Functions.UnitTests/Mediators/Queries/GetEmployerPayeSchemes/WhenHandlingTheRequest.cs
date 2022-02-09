@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployerPayeSchemesMediatorHandlerTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetEmployerPayeSchemes
 {
     public class WhenHandlingTheRequest
     {
@@ -73,7 +73,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             var request = new GetPayeSchemesQueryRequest(_apprentices);
 
             _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(new List<EmployerPayeSchemes>());
-          
+
             var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
             //Act

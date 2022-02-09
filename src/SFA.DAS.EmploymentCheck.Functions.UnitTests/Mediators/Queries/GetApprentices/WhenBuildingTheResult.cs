@@ -3,7 +3,7 @@ using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentices.GetApprenticesMediatorResultTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetApprentices
 {
     public class WhenBuildingTheResult
     {

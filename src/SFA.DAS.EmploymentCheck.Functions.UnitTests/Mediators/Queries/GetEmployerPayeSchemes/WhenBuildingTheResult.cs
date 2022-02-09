@@ -3,7 +3,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResultTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetEmployerPayeSchemes
 {
     public class WhenBuildingTheResult
     {
@@ -12,8 +12,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
         {
             //Arrange
 
-            var payeScheme = new EmployerPayeSchemes(1000001, new List<string> {"payeScheme"});
-            var payeSchemes = new List<EmployerPayeSchemes> {payeScheme};
+            var payeScheme = new EmployerPayeSchemes(1000001, new List<string> { "payeScheme" });
+            var payeSchemes = new List<EmployerPayeSchemes> { payeScheme };
 
             //Act
 

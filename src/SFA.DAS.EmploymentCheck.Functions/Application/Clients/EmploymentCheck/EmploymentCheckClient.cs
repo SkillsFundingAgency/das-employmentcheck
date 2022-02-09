@@ -51,9 +51,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             return employmentCheckCacheRequest;
         }
 
-        public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
+        public async Task<long> StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
-            await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
+            return await _employmentCheckService.StoreEmploymentCheckResult(employmentCheckCacheRequest);
         }
     }
 }

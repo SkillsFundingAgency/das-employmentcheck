@@ -2,7 +2,7 @@
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprenticesNiNumbers.GetApprenticesNiNumberMediatorResult
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetApprenticesNiNumbers
 {
     public class WhenBuildingTheResult
     {
@@ -12,7 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
             //Arrange
 
             var apprenticeNiNumber = new LearnerNiNumber(1000001, "1000001");
-            var apprenticeNiNumbers = new List<LearnerNiNumber> {apprenticeNiNumber};
+            var apprenticeNiNumbers = new List<LearnerNiNumber> { apprenticeNiNumber };
 
             //Act
 
