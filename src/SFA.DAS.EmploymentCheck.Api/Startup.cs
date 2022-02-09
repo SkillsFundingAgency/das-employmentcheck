@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
 using System.IO;
+using Microsoft.Azure.Services.AppAuthentication;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -48,12 +50,16 @@ namespace SFA.DAS.EmploymentCheck.Api
                 options.PreFixConfigurationKeys = false;
             });
 
-
             var config = configBuilder.Build();
             services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
 
             services.Configure<EmploymentCheckSettings>(config.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
+
+            if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
+            {
+                services.AddSingleton(new AzureServiceTokenProvider());
+            }
 
             services
                 .AddRepositories()
