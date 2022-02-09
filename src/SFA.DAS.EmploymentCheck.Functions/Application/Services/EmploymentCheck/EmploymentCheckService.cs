@@ -81,9 +81,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.Uln == employmentCheck.Uln)?.NiNumber;
                 if (string.IsNullOrEmpty(nationalInsuranceNumber))
                 {
-                    // No national insurance number found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (Nino not found).");
 
+                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+                    await _employmentCheckRepository.Save(employmentCheck);
                     continue;
                 }
 
@@ -91,9 +92,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == employmentCheck.AccountId);
                 if (employerPayeSchemes == null)
                 {
-                    // No paye schemes found for this apprentice so we're not able to do an employment check and will need to skip this apprentice
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (PayeScheme not found).");
 
+                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+                    await _employmentCheckRepository.Save(employmentCheck);
                     continue;
                 }
 
