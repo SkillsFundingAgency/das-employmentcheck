@@ -13,10 +13,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentC
         private readonly IEmploymentCheckClient _employmentCheckClient;
 
         public ProcessEmploymentCheckCacheRequestQueryHandler(
-            ILogger<ProcessEmploymentCheckCacheRequestQueryHandler> logger,
-            IEmploymentCheckClient employmentCheckMessageQueueClient)
+            IEmploymentCheckClient employmentCheckClient)
         {
-            _employmentCheckClient = employmentCheckMessageQueueClient;
+            _employmentCheckClient = employmentCheckClient;
         }
 
         public async Task<ProcessEmploymentCheckCacheRequestQueryResult> Handle(

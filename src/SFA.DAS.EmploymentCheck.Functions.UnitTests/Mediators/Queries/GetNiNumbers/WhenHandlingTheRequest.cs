@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetApprenticesNiNumbers
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetNiNumbers
 {
     public class WhenHandlingTheRequest
     {

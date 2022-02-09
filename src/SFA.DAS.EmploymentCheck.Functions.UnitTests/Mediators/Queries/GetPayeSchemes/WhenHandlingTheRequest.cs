@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetEmployerPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetPayeSchemes
 {
     public class WhenHandlingTheRequest
     {

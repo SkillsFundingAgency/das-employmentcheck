@@ -3,7 +3,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetEmployerPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetPayeSchemes
 {
     public class WhenBuildingTheResult
     {
