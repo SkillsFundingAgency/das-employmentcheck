@@ -18,14 +18,30 @@ namespace SFA.DAS.EmploymentCheck.Api
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            var configBuilder = new ConfigurationBuilder()
+                .AddConfiguration(Configuration)
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddEnvironmentVariables();
+
+            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
+
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = Configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = Configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = Configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
+
+            Configuration = configBuilder.Build();
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -37,25 +53,10 @@ namespace SFA.DAS.EmploymentCheck.Api
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
             });
 
-            var configBuilder = new ConfigurationBuilder()
-                .AddConfiguration(Configuration)
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddEnvironmentVariables();
-        
-            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
+       
+            services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
 
-            configBuilder.AddAzureTableStorage(options =>
-            {
-                options.ConfigurationKeys = Configuration["ConfigNames"].Split(",");
-                options.StorageConnectionString = Configuration["ConfigurationStorageConnectionString"];
-                options.EnvironmentName = Configuration["EnvironmentName"];
-                options.PreFixConfigurationKeys = false;
-            });
-
-            var config = configBuilder.Build();
-            services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), config));
-
-            services.Configure<EmploymentCheckSettings>(config.GetSection("ApplicationSettings"));
+            services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
 
             if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
