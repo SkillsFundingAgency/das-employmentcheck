@@ -14,7 +14,9 @@ using SFA.DAS.Api.Common.AppStart;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Api.Common.Infrastructure;
+using PolicyNames = SFA.DAS.Api.Common.Infrastructure.PolicyNames;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -81,9 +83,13 @@ namespace SFA.DAS.EmploymentCheck.Api
                 .AddServices()
                 .AddHandlers()
                 ;
-        }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            services
+                .AddMvc(o =>
+                {
+                    o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>()));
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+        }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
