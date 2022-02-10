@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using SFA.DAS.Api.Common.Infrastructure;
 using PolicyNames = SFA.DAS.Api.Common.Infrastructure.PolicyNames;
 
@@ -83,6 +84,11 @@ namespace SFA.DAS.EmploymentCheck.Api
                 .AddServices()
                 .AddHandlers()
                 ;
+
+            services.AddApiVersioning(opt =>
+            {
+                opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
+            });
 
             services
                 .AddMvc(o =>
