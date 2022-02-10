@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
         {
-            return await _employmentCheckRepository.GetEmploymentChecksBatch();
+            return await _employmentCheckRepository.GetEmploymentChecksBatch() ?? new List<Models.EmploymentCheck>();
         }
 
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
@@ -140,9 +140,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet
         )
         {
-            return await _employmentCheckCashRequestRepository.SetRelatedRequestsCompletionStatus(employmentCheckCacheRequestAndStatusToSet);
+            return await _employmentCheckCashRequestRepository.SetRelatedRequestsCompletionStatus(employmentCheckCacheRequestAndStatusToSet) ?? new List<EmploymentCheckCacheRequest>();
         }
-
 
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
