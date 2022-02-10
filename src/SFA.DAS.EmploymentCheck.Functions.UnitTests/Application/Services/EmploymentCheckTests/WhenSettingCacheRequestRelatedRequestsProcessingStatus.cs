@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckTests
 {
-    public class WhenStoringStoreEmploymentCheckResult
+    public class WhenSettingCacheRequestRelatedRequestsProcessingStatus
     {
         private Fixture _fixture;
 
