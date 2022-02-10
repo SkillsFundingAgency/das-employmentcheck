@@ -10,9 +10,11 @@ using Microsoft.OpenApi.Models;
 using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
-using SFA.DAS.EmploymentCheck.Api.Extensions;
+using SFA.DAS.Api.Common.AppStart;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using SFA.DAS.Api.Common.Infrastructure;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -66,8 +68,12 @@ namespace SFA.DAS.EmploymentCheck.Api
                 var azureAdConfiguration = Configuration
                     .GetSection("AzureAd")
                     .Get<AzureActiveDirectoryConfiguration>();
+                var policies = new Dictionary<string, string>
+                {
+                    {"default", PolicyNames.Default}
+                };
 
-                services.AddAuthentication(azureAdConfiguration);
+                services.AddAuthentication(azureAdConfiguration, policies);
             }
 
             services
@@ -85,20 +91,20 @@ namespace SFA.DAS.EmploymentCheck.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SFA.DAS.EmploymentCheck.Api v1.0"));
+            app.UseAuthentication();
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/ping");
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SFA.DAS.EmploymentCheck.Api v1.0"));
         }
     }
 }
