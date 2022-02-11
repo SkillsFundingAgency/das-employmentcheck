@@ -34,11 +34,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 )
                 .WaitAndRetryAsync(
                     retryCount: _settings.TooManyRequestsRetryCount,
-                    sleepDurationProvider: await GetDelayAdjustmentInterval(),
-                    onRetryAsync: async (exception, retryNumber, context) =>
+                    sleepDurationProvider: GetDelayAdjustmentInterval,
+                    onRetryAsync: async (exception, ts, retryNumber, context) =>
                     {
                         _logger.LogInformation(
-                            $"{nameof(HmrcApiRetryPolicies)}: TooManyRequests error occurred. Retrying after a delay ({retryNumber}/{_settings.TooManyRequestsRetryCount})...");
+                            $"{nameof(HmrcApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] TooManyRequests error occurred. Retrying after a delay of {_settings.DelayInMs}ms ...");
 
                         await _optionsRepository.IncreaseDelaySetting(_settings);
                     }
@@ -50,8 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     retryCount: _settings.TransientErrorRetryCount,
                     onRetryAsync: async (exception, retryNumber, context) =>
                     {
-                        _logger.LogInformation(
-                            $"{nameof(HmrcApiRetryPolicies)}: UnauthorizedAccessException occurred. Refreshing access token ({retryNumber}/{_settings.TransientErrorRetryCount})...");
+                        _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] UnauthorizedAccessException occurred. Refreshing access token and retrying...");
 
                         await onRetry();
                     }
@@ -79,11 +78,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             return Policy.WrapAsync(tooManyRequestsApiHttpExceptionRetryPolicy, unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
         }
 
-        private async Task<Func<int, TimeSpan>> GetDelayAdjustmentInterval()
+        private TimeSpan GetDelayAdjustmentInterval(int arg)
         {
-            _settings = await _optionsRepository.GetHmrcRateLimiterOptions();
-            
-            return _ => TimeSpan.FromMilliseconds(_settings.DelayAdjustmentIntervalInMs);
+            _settings = _optionsRepository.GetHmrcRateLimiterOptions().Result;
+
+            return TimeSpan.FromMilliseconds(_settings.DelayInMs);
         }
 
         public async Task<AsyncPolicy> GetTokenRetrievalRetryPolicy()

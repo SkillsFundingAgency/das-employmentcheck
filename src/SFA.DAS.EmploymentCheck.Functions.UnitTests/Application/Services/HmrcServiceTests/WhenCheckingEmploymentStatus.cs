@@ -19,28 +19,29 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 {
     public class WhenCheckingEmploymentStatus
     {
-        private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyService;
-        private Mock<IEmploymentCheckCacheResponseRepository> _repository;
+        private IHmrcService _sut;
+       
+        private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyServiceMock;
+        private Mock<IEmploymentCheckCacheResponseRepository> _repositoryMock;
         private Mock<IHmrcApiOptionsRepository> _rateLimiterRepositoryMock;
-        private Mock<ITokenServiceApiClient> _tokenService;
+        private Mock<ITokenServiceApiClient> _tokenServiceMock;
         private PrivilegedAccessToken _token;
         private EmploymentCheckCacheRequest _request;
         private Fixture _fixture;
-        private IHmrcService _sut;
         private HmrcApiRateLimiterOptions _settings;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _apprenticeshipLevyService = new Mock<IApprenticeshipLevyApiClient>();
-            _tokenService = new Mock<ITokenServiceApiClient>();
-            _repository = new Mock<IEmploymentCheckCacheResponseRepository>();
+            _apprenticeshipLevyServiceMock = new Mock<IApprenticeshipLevyApiClient>();
+            _tokenServiceMock = new Mock<ITokenServiceApiClient>();
+            _repositoryMock = new Mock<IEmploymentCheckCacheResponseRepository>();
             _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
 
             _token = new PrivilegedAccessToken {AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7)};
 
-            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
+            _tokenServiceMock.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
 
             _request = _fixture.Create<EmploymentCheckCacheRequest>();
             _request.MinDate = _fixture.Create<DateTime>();
@@ -62,10 +63,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _rateLimiterRepositoryMock.Object);
 
             _sut = new HmrcService(
-                _tokenService.Object, 
-                _apprenticeshipLevyService.Object, 
+                _tokenServiceMock.Object, 
+                _apprenticeshipLevyServiceMock.Object, 
                 Mock.Of<ILogger<HmrcService>>(), 
-                _repository.Object,
+                _repositoryMock.Object,
                 retryPolicies);
         }
    
@@ -73,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_The_TokenServiceApiClient_Is_Called()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -85,27 +86,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
         [Test]
         public async Task Then_The_TokenServiceApiClient_Call_Is_Retried_On_Error()
         {
             // Arrange
-            _tokenService.Setup(x => x.GetPrivilegedAccessTokenAsync()).ThrowsAsync(_fixture.Create<Exception>());
+            _tokenServiceMock.Setup(x => x.GetPrivilegedAccessTokenAsync()).ThrowsAsync(_fixture.Create<Exception>());
 
             // Act
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
         }
 
         [Test]
         public async Task Then_Cached_AccessToken_Is_Reused()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -119,7 +120,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 ExpiryTime = DateTime.Now.AddHours(1)
             };
 
-            _tokenService.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+            _tokenServiceMock.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
                 .ReturnsAsync(token);
 
             // Act
@@ -130,14 +131,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
         [Test]
         public async Task Then_The_TokenServiceApiClient_Is_Called_Again_When_Token_Expires()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -151,7 +152,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 ExpiryTime = DateTime.Now.AddSeconds(-1)
             };
 
-            _tokenService.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+            _tokenServiceMock.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
                 .ReturnsAsync(expiredToken);
 
             // Act
@@ -159,7 +160,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
         }
 
         [Test]
@@ -176,7 +177,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -188,7 +189,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
         }
 
         [Test]
@@ -196,7 +197,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         {
             // Arrange
             var response = _fixture.Create<EmploymentStatus>();
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -208,7 +209,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repositoryMock.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -238,7 +239,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -250,7 +251,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repositoryMock.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -266,7 +267,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             ), Times.Once);
 
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -288,7 +289,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -300,7 +301,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repositoryMock.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -332,7 +333,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -344,13 +345,45 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+            _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
                 _request.MinDate,
                 _request.MaxDate), Times.Exactly(_settings.TooManyRequestsRetryCount + 1));
+        }
+
+
+        [Test]
+        public async Task Then_TooManyRequests_Adjusts_Rate_Limiter_Settings()
+        {
+            // Arrange
+            const short code = (short)HttpStatusCode.TooManyRequests;
+
+            // Arrange
+            var exception = new ApiHttpException(
+                code,
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<Exception>()
+            );
+
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _rateLimiterRepositoryMock.Verify(x => x.GetHmrcRateLimiterOptions(), Times.Exactly(_settings.TooManyRequestsRetryCount + 2));
+            _rateLimiterRepositoryMock.Verify(x => x.IncreaseDelaySetting(It.IsAny<HmrcApiRateLimiterOptions>()), Times.Exactly(_settings.TooManyRequestsRetryCount));
         }
 
         [TestCase((short)HttpStatusCode.Unauthorized, TestName = "Then_Unauthorized_response_is_saved_as_incomplete")]
@@ -369,7 +402,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -381,7 +414,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repositoryMock.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -414,7 +447,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -426,8 +459,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(3));
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(3));
+            _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -449,7 +482,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -461,7 +494,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repositoryMock.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -477,7 +510,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             ), Times.Once);
 
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -491,7 +524,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             // Arrange
             var exception = _fixture.Create<Exception>();
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -503,7 +536,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repositoryMock.Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -526,7 +559,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             // Arrange
             var exception = _fixture.Create<UnauthorizedAccessException>();
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -538,8 +571,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -561,7 +594,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -581,7 +614,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_retry_delay_time_is_decreased_When_successful_response()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
