@@ -5,6 +5,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
     public interface IAccountsResponseRepository
     {
-        Task Save(AccountsResponse accountsResponse);
+        Task InsertOrUpdate(AccountsResponse response);
+
+        Task Save(AccountsResponse response);
     }
 }

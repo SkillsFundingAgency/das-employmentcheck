@@ -1,4 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -10,19 +13,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
     public static class CreateEmploymentCheckRequestsOrchestratorTrigger
     {
+        private const string InstanceIdPrefix = "CreateEmploymentCheck-";
+
         [FunctionName("CreateEmploymentCheckRequestsOrchestratorHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/CreateEmploymentCheckRequestsOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
-            log.LogInformation("Triggering CreateEmploymentCheckRequestsOrchestrator");
+            var triggerHelper = new TriggerHelper();
+            var existingInstances = await triggerHelper.GetRunningInstances(nameof(CreateEmploymentCheckRequestsOrchestratorTrigger),
+                InstanceIdPrefix, starter, log);
 
-            string instanceId = await starter.StartNewAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), null);
+            if (!existingInstances.DurableOrchestrationState.Any())
+            {
+                log.LogInformation($"Triggering {nameof(CreateEmploymentCheckCacheRequestsOrchestrator)}");
 
-            log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+                var instanceId = await starter.StartNewAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
 
-            return starter.CreateCheckStatusResponse(req, instanceId);
+                log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+                return starter.CreateCheckStatusResponse(req, instanceId);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.Conflict)
+            {
+                Content = new StringContent($"An instance of {nameof(CreateEmploymentCheckCacheRequestsOrchestrator)} is already running."),
+            };
         }
     }
 }

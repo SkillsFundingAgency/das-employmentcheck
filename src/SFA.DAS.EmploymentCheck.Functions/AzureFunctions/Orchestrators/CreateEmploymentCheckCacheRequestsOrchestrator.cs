@@ -12,13 +12,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class CreateEmploymentCheckCacheRequestsOrchestrator
     {
-        #region Private members
         private const string ThisClassName = "\n\nCreateEmploymentCheckRequestsOrchestrator";
 
         private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
-        #endregion Private members
 
-        #region Constructors
         /// <summary>
         /// Constructor, used to initialise the logging component.
         /// </summary>
@@ -28,9 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             _logger = logger;
         }
-        #endregion Constructors
 
-        #region CreateEmploymentCheckRequests
         /// <summary>
         /// The orchestrator entry point.
         /// </summary>
@@ -47,35 +42,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
-                // Get a batch of employment checks
                 var employmentCheckBatch = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
-
-                // Get the Nino's and PAYE schemes for the employment checks batch
                 if (employmentCheckBatch.Count > 0)
                 {
-                    // Get the National Insurance Numbers for each learner in the employment checks batch
                     var getLearnerNiNumbersActivityTask = context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentCheckBatch);
-
-                    // Get the PAYE scheme(s) for the employment checks batch
                     var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheckBatch);
-
-                    // Wait for the asynchronous NI number and PAYE scheme(s) API calls to finish
                     await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
 
-                    // Get the Nino and PayeSchemes from the asynchronous tasks
                     var learnerNiNumbers = getLearnerNiNumbersActivityTask.Result;
                     var employerPayeSchemes = employerPayeSchemesTask.Result;
 
-                    // Create an EmploymentCheckCacheRequest for each combination of an employment check Nino, Payescheme, MinDate and MaxDate
                     await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheckBatch, learnerNiNumbers, employerPayeSchemes));
                 }
                 else
                 {
-                    _logger.LogInformation($"{thisMethodName}: No data found, sleeping for 10 seconds before executing the orchestrator again");
+                    _logger.LogInformation($"{thisMethodName}: Nothing to process, waiting for 10 seconds before retrying");
 
                     // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
 
-                    // No data found so sleep for 10 seconds then execute the orchestrator again
                     var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
@@ -96,6 +80,5 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 context.ContinueAsNew(null);
             }
         }
-        #endregion CreateEmploymentCheckRequests
     }
 }

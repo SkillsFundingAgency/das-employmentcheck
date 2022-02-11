@@ -10,7 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public EmploymentCheck(
             long id,
-            Guid? correlationId,
+            Guid correlationId,
             string checkType,
             long uln,
             long? apprenticeshipId,
@@ -18,9 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             DateTime minDate,
             DateTime maxDate,
             bool? employed,
-            short requestCompletionStatus,
-            DateTime lastUpdatedOn,
-            DateTime createdOn)
+            short requestCompletionStatus)
         {
             Id = id;
             CorrelationId = correlationId;
@@ -32,13 +30,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             MaxDate = maxDate;
             Employed = employed;
             RequestCompletionStatus = requestCompletionStatus;
-            LastUpdatedOn = lastUpdatedOn;
+            LastUpdatedOn = null;
             CreatedOn = DateTime.Now;
         }
 
+        [Key]
         public long Id { get; set; }
 
-        public Guid? CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public string CheckType { get; set; }
 
@@ -57,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public short? RequestCompletionStatus { get; set; }
         public short VersionId { get; set; }
 
-        public DateTime LastUpdatedOn { get; set; }
+        public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
     }
