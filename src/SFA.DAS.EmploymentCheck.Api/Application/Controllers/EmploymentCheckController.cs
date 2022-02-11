@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.EmploymentCheck.Api.Application.Models;
@@ -35,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
             var response = new Responses.RegisterCheckResponse();
 
-            if (commandResponse.ErrorType.Length != 0 && commandResponse.ErrorMessage.Length != 0)
+            if (commandResponse.ErrorType == null && commandResponse.ErrorMessage == null)
             {
                 return Ok(response);
             }

@@ -26,4 +26,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\Models\EmploymentCheckModelTests\" />
+  </ItemGroup>
+
 </Project>
