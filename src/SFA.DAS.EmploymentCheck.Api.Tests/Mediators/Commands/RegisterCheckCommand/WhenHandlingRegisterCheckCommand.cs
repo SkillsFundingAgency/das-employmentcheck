@@ -50,63 +50,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("ErrorMessage", result.ErrorMessage);
             Assert.AreEqual("ErrorType", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
-        }
-
-        [Test]
-        public async Task And_The_Command_Is_Valid_And_No_VersionId_Exists_Then_Sets_VersionId_To_One()
-        {
-            //Arrange
-
-            _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
-
-            _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
-                .ReturnsAsync((Api.Application.Models.EmploymentCheck) null);
-
-            var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
-
-            //Act
-
-            var result = await sut.Handle(_command, CancellationToken.None);
-
-            //Assert
-
-            Assert.AreEqual(1, result.VersionId);
-            Assert.IsNull(result.ErrorMessage);
-            Assert.IsNull(result.ErrorType);
-        }
-
-        [Test]
-        public async Task And_The_Command_Is_Valid_And_VersionId_Exists_Then_Increments_The_VersionId()
-        {
-            //Arrange
-
-            _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
-
-            var employmentCheck = new Api.Application.Models.EmploymentCheck(
-                Guid.NewGuid(),
-                "CheckType",
-                1000001,
-                1,
-                2,
-                DateTime.Today.AddDays(-1),
-                DateTime.Today.AddDays(1),
-                2);
-            
-            _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
-                .ReturnsAsync(employmentCheck);
-
-            var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
-
-            //Act
-
-            var result = await sut.Handle(_command, CancellationToken.None);
-
-            //Assert
-
-            Assert.AreEqual(3, result.VersionId);
-            Assert.IsNull(result.ErrorMessage);
-            Assert.IsNull(result.ErrorType);
         }
 
         [Test]

@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
         }
 
         [Test]
-        public void And_The_CorrelationId_Is_Missing_Then_An_Error_Is_Returned_And_The_Version_Is_Set_To_Zero()
+        public void And_The_CorrelationId_Is_Missing_Then_An_Error_Is_Returned()
         {
             //Arrange
             _command.CorrelationId = Guid.Empty;
@@ -40,10 +40,9 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
         }
         [Test]
-        public void And_The_CheckType_Is_Missing_Then_An_Error_Is_Returned_And_The_Version_Is_Set_To_Zero()
+        public void And_The_CheckType_Is_Missing_Then_An_Error_Is_Returned()
         {
             //Arrange
             _command.CheckType = string.Empty;
@@ -58,11 +57,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
-        public void And_The_Uln_Is_Missing_Then_An_Error_Is_Returned_And_The_Version_Is_Set_To_Zero()
+        public void And_The_Uln_Is_Missing_Then_An_Error_Is_Returned()
         {
             //Arrange
             _command.Uln = 0;
@@ -77,11 +75,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
-        public void And_The_ApprenticeshipAccountId_Is_Missing_Then_An_Error_Is_Returned_And_The_Version_Is_Set_To_Zero()
+        public void And_The_ApprenticeshipAccountId_Is_Missing_Then_An_Error_Is_Returned()
         {
             //Arrange
             _command.ApprenticeshipAccountId = 0;
@@ -96,11 +93,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied", result.ErrorMessage);
             Assert.AreEqual("Bad_Data", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
-        public void And_The_Dates_Are_Invalid_Then_An_Error_Is_Returned_And_The_Version_Is_Set_To_Zero()
+        public void And_The_Dates_Are_Invalid_Then_An_Error_Is_Returned()
         {
             //Arrange
             _command.MaxDate = _command.MinDate;
@@ -115,11 +111,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Min date must be before Max date", result.ErrorMessage);
             Assert.AreEqual("Bad_DateRange", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]
-        public void And_The_Dates_Are_Invalid_And_There_Is_Missing_Data_Then_Multiple_Errors_Are_Returned_And_The_Version_Is_Set_To_Zero()
+        public void And_The_Dates_Are_Invalid_And_There_Is_Missing_Data_Then_Multiple_Errors_Are_Returned()
         {
             //Arrange
             _command.CorrelationId = Guid.Empty;
@@ -135,7 +130,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             Assert.AreEqual("Missing data not supplied, Min date must be before Max date", result.ErrorMessage);
             Assert.AreEqual("Bad_Data, Bad_DateRange", result.ErrorType);
-            Assert.AreEqual(0, result.VersionId);
         }
 
         [Test]

@@ -22,22 +22,18 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 
             var first = Fixture.Build<Api.Application.Models.EmploymentCheck>()
                 .With(x => x.CorrelationId, correlationId)
-                .With(x => x.VersionId, 1)
                 .Create();
 
             var second = Fixture.Build<Api.Application.Models.EmploymentCheck>()
                 .With(x => x.CorrelationId, correlationId)
-                .With(x => x.VersionId, 2)
                 .Create();
 
             var last = Fixture.Build<Api.Application.Models.EmploymentCheck>()
                 .With(x => x.CorrelationId, correlationId)
-                .With(x => x.VersionId, 3)
                 .Create();
 
             var irrelevant = Fixture.Build<Api.Application.Models.EmploymentCheck>()
                 .With(x => x.CorrelationId, Guid.NewGuid())
-                .With(x => x.VersionId, 4)
                 .Create();
 
             await Insert(first);
@@ -51,17 +47,17 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 
             //Assert
 
-            actual.Should().BeEquivalentTo(last,
+            actual.Should().BeEquivalentTo(first,
                 opts => opts
                     .Excluding(x => x.MinDate)
                     .Excluding(x => x.MaxDate)
                     .Excluding(x => x.CreatedOn)
                     .Excluding(x => x.LastUpdatedOn)
             );
-            actual.MinDate.Should().BeCloseTo(last.MinDate, TimeSpan.FromSeconds(1));
-            actual.MaxDate.Should().BeCloseTo(last.MaxDate, TimeSpan.FromSeconds(1));
-            actual.CreatedOn.Should().BeCloseTo(last.CreatedOn, TimeSpan.FromSeconds(1));
-            actual.LastUpdatedOn.Should().BeCloseTo(last.LastUpdatedOn, TimeSpan.FromSeconds(1));
+            actual.MinDate.Should().BeCloseTo(first.MinDate, TimeSpan.FromSeconds(1));
+            actual.MaxDate.Should().BeCloseTo(first.MaxDate, TimeSpan.FromSeconds(1));
+            actual.CreatedOn.Should().BeCloseTo(first.CreatedOn, TimeSpan.FromSeconds(1));
+            actual.LastUpdatedOn.Should().BeCloseTo(first.LastUpdatedOn, TimeSpan.FromSeconds(1));
         }
 
         [Test]
@@ -75,7 +71,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 
             var irrelevant = Fixture.Build<Api.Application.Models.EmploymentCheck>()
                 .With(x => x.CorrelationId, Guid.NewGuid())
-                .With(x => x.VersionId, 4)
                 .Create();
 
             await Insert(irrelevant);

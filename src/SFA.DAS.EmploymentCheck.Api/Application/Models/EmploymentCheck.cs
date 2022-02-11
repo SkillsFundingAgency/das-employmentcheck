@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
     public class EmploymentCheck
     {
         public EmploymentCheck() { }
-        public EmploymentCheck(Guid correlationId, string checkType, long uln, long? apprenticeshipId, int apprenticeshipAccountId, DateTime minDate, DateTime maxDate, short versionId)
+        public EmploymentCheck(Guid correlationId, string checkType, long uln, long? apprenticeshipId, int apprenticeshipAccountId, DateTime minDate, DateTime maxDate)
         {
             CorrelationId = correlationId;
             CheckType = checkType;
@@ -16,7 +16,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
             AccountId = apprenticeshipAccountId;
             MinDate = minDate;
             MaxDate = maxDate;
-            VersionId = versionId;
             LastUpdatedOn = DateTime.Now;
             CreatedOn = DateTime.Now;
         }
@@ -40,8 +39,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
         public bool? Employed { get; set; }
 
         public short? RequestCompletionStatus { get; set; }
-
-        public short VersionId { get; set; }
 
         public DateTime LastUpdatedOn { get; set; }
 

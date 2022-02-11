@@ -30,9 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
             var lastCheck = (await sqlConnection.GetAllAsync<Application.Models.EmploymentCheck>())
-                .Where(x => x.CorrelationId == correlationId)
-                .OrderByDescending(x => x.VersionId)
-                .FirstOrDefault();
+                .FirstOrDefault(x => x.CorrelationId == correlationId);
 
             return lastCheck;
         }
