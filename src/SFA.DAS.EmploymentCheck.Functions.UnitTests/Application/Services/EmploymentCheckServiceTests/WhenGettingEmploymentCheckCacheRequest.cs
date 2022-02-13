@@ -8,7 +8,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckServiceTests
 {
     public class WhenGettingEmploymentCheckCacheRequest
     {

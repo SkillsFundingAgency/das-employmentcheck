@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +14,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
             CreateEmploymentCheckCacheRequestCommandResult>
     {
         private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly IEmploymentCheckCacheRequestFactory _cacheRequestFactory;
 
         public CreateEmploymentCheckCacheRequestCommandHandler(
-            IEmploymentCheckClient employmentCheckClient
+            IEmploymentCheckClient employmentCheckClient,
+            IEmploymentCheckCacheRequestFactory cacheRequestFactory
         )
         {
             _employmentCheckClient = employmentCheckClient;
+            _cacheRequestFactory = cacheRequestFactory;
         }
 
         public async Task<CreateEmploymentCheckCacheRequestCommandResult> Handle(
@@ -26,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
             CancellationToken cancellationToken
         )
         {
-            var result = await _employmentCheckClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
+            var result = await _employmentCheckClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData, _cacheRequestFactory);
             if(result == null)
             {
                 return new CreateEmploymentCheckCacheRequestCommandResult(new EmploymentCheckCacheRequest());

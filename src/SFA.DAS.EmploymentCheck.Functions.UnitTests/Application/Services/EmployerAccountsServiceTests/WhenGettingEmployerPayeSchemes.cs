@@ -1,27 +1,16 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using HMRC.ESFA.Levy.Api.Client;
-using HMRC.ESFA.Levy.Api.Types;
-using HMRC.ESFA.Levy.Api.Types.Exceptions;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using SFA.DAS.HashingService;
-using SFA.DAS.TokenService.Api.Client;
-using SFA.DAS.TokenService.Api.Types;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmployerAccountsServiceTests
 {
@@ -40,27 +29,45 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
         private Mock<IAccountsResponseRepository> _accountsResponseRepository;
 
 
-        private IEmployerAccountService _sut;
+
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
 
+            _logger = new Mock<ILogger<IEmployerAccountService>>(MockBehavior.Strict);
+
             _employerAccountApiConfiguration = _fixture.Build<EmployerAccountApiConfiguration>()
                 .With(c => c.Url, "https://www.microsoft.com").Create();
             _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
 
-            _logger = new Mock<ILogger<IEmployerAccountService>>();
-            _hashingService = new Mock<IHashingService>();
+            _hashingService = new Mock<IHashingService>(MockBehavior.Strict);
             _httpClientFactory = new Mock<IHttpClientFactory>();
-            _webHostEnvironment = new Mock<IWebHostEnvironment>();
-            _azureClientCredentialHelper = new Mock<IAzureClientCredentialHelper>();
-            _accountsResponseRepository = new Mock<IAccountsResponseRepository>();
+            _webHostEnvironment = new Mock<IWebHostEnvironment>(MockBehavior.Strict);
+            _azureClientCredentialHelper = new Mock<IAzureClientCredentialHelper>(MockBehavior.Strict);
+            _accountsResponseRepository = new Mock<IAccountsResponseRepository>(MockBehavior.Strict);
+        }
+
+        [Test]
+        public async Task The_The_GetEmployerPayeSchemes_Is_Called()
+        {
+            // Arrange
+            _hashingService.Setup(x => x.HashValue("PROPER VALUE"))
+                .Returns("ANOTHER PROPER VALUE" );
+
+            //var clientHandlerStub = new DelegatingHandlerStub();
+            //var client = new HttpClient(clientHandlerStub);
+
+            //_httpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
+
+            //IHttpClientFactory factory = mockFactory.Object;
+
+            _httpClientFactory.Setup(f => f.CreateClient("Name"))
+                .Returns(new HttpClient());
 
 
-            //_httpClientFactory.
-            _sut = new EmployerAccountService(
+            var sut = new EmployerAccountService(
                 _logger.Object,
                 _employerAccountApiConfiguration,
                 _hashingService.Object,
@@ -68,21 +75,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
                 _webHostEnvironment.Object,
                 _azureClientCredentialHelper.Object,
                 _accountsResponseRepository.Object);
-        }
-
-        [Test]
-        public async Task The_The_GetEmployerPayeSchemes_Is_Called()
-        {
-            // Arrange
-            _hashingService.Setup(x => x.HashValue(_employmentCheck.AccountId))
-                .Returns(_fixture.Create<string>());
-
 
             // Act
-            await _sut.GetEmployerPayeSchemes(_fixture.Create<Models.EmploymentCheck>());
+            //await _sut.GetEmployerPayeSchemes(_fixture.Create<Models.EmploymentCheck>());
+
+              // await sut.GetPayeSchemesFromApiResponse(_employmentCheck, )
 
             // Assert
             _hashingService.Verify(x => x.HashValue(_employmentCheck.AccountId), Times.Exactly(1));
+
+            // Checks
+            // GetPayeSchemesFromApiResponse
+            // if (httpResponseMessage == null)
+
+            // accountsResponse.HttpResponse = httpResponseMessage.ToString();
+            // accountsResponse.HttpStatusCode = (short)httpResponseMessage.StatusCode;
+
+            // if (!httpResponseMessage.IsSuccessStatusCode)
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
+using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
     {
         Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
 
-        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
+        Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData, IEmploymentCheckCacheRequestFactory cacheRequestFactory);
 
         Task<IList<EmploymentCheckCacheRequest>> SetCacheRequestRelatedRequestsProcessingStatus(Tuple<EmploymentCheckCacheRequest, ProcessingCompletionStatus> employmentCheckCacheRequestAndStatusToSet);
 

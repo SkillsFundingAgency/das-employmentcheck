@@ -33,7 +33,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
-            _batchSize = applicationSettings.BatchSize;
         }
 
         public async Task<long> Save(Models.EmploymentCheck check)
@@ -43,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             long id = 0;
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                 _connectionString,
                 _azureServiceTokenProvider)
             )
             {
@@ -83,42 +82,42 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                 }
             }
 
-            return await Task.FromResult(id);
+            return id;
         }
 
         public async Task<long> Insert(Models.EmploymentCheck check)
         {
             var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            return await sqlConnection.InsertAsync(check);
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                 _connectionString,
+                _azureServiceTokenProvider))
+            {
+                return await sqlConnection.InsertAsync(check);
+            }
         }
 
         public async Task<long> UpdateEmployedAndRequestStatusFields(
-            Models.EmploymentCheck check)
+            Models.EmploymentCheckCacheRequest cacheRequest)
         {
-            Guard.Against.Null(check, nameof(check));
+            Guard.Against.Null(cacheRequest, nameof(cacheRequest));
 
-            if (check.RequestCompletionStatus != null)
+            if (cacheRequest.RequestCompletionStatus != null)
             {
-                check.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+                cacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
             }
 
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                 _connectionString,
                 _azureServiceTokenProvider)
             )
             {
                 await sqlConnection.OpenAsync();
 
                 var parameter = new DynamicParameters();
-                parameter.Add("@apprenticeEmploymentCheckId", check.Id, DbType.Int64);
-                parameter.Add("@employed", check.Employed, DbType.Boolean);
-                parameter.Add("@requestCompletionStatus", check.RequestCompletionStatus, DbType.Int16);
+                parameter.Add("@apprenticeEmploymentCheckId", cacheRequest.Id, DbType.Int64);
+                parameter.Add("@employed", cacheRequest.Employed, DbType.Boolean);
+                parameter.Add("@requestCompletionStatus", cacheRequest.RequestCompletionStatus, DbType.Int16);
                 parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
                 await sqlConnection.ExecuteAsync(
@@ -129,7 +128,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                     commandType: System.Data.CommandType.Text);
             }
 
-            return await Task.FromResult(check.Id);
+            return await Task.FromResult(cacheRequest.Id);
         }
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
@@ -137,7 +136,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             IList<Models.EmploymentCheck> employmentChecksBatch = null;
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
+                 _connectionString,
                 _azureServiceTokenProvider)
             )
             {

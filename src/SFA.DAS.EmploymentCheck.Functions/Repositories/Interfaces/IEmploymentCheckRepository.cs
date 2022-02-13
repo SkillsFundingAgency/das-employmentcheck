@@ -10,7 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
         Task<long> Insert(Models.EmploymentCheck check);
 
-        Task<long> UpdateEmployedAndRequestStatusFields(Models.EmploymentCheck check);
+        Task<long> UpdateEmployedAndRequestStatusFields(Models.EmploymentCheckCacheRequest check);
 
         Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
     }

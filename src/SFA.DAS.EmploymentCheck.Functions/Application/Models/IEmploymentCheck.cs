@@ -1,15 +1,10 @@
 ﻿using System;
-using Dapper.Contrib.Extensions;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
-    [Table("Business.EmploymentCheck")]
-    public class EmploymentCheck
-        : IEmploymentCheck
-    {
-        public EmploymentCheck() { }
 
-        [Key]
+    public interface IEmploymentCheck
+    {
         public long Id { get; set; }
 
         public Guid CorrelationId { get; set; }

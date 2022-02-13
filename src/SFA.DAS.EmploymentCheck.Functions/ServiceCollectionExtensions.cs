@@ -22,6 +22,7 @@ using SFA.DAS.HashingService;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -45,6 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
 
+            serviceCollection.AddSingleton<IEmploymentCheckCacheRequestFactory, EmploymentCheckCacheRequestFactory>();
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
             serviceCollection.AddTransient<ILearnerService, LearnerService>();

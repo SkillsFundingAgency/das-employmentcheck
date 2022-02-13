@@ -27,7 +27,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         private readonly IHttpClientFactory _httpFactory;
         private readonly DcApiSettings _dcApiSettings;
         private readonly string _connectionString;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly IDataCollectionsResponseRepository _repository;
 
         public LearnerService(
@@ -35,7 +34,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             IDcTokenService dcTokenService,
             IHttpClientFactory httpClientFactory,
             IOptions<DcApiSettings> dcApiSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider,
             ApplicationSettings applicationSettings,
             IDataCollectionsResponseRepository repository
         )
@@ -45,7 +43,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             _dcTokenService = dcTokenService;
             _httpFactory = httpClientFactory;
             _dcApiSettings = dcApiSettings.Value;
-            _azureServiceTokenProvider = azureServiceTokenProvider;
             _repository = repository;
         }
 

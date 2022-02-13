@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmployerAccountsServiceTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckServiceTests
 {
     public class WhenGettingEmploymentChecksBatch
     {

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequests;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Commands.CreateE
     {
         private Fixture _fixture;
         private Mock<IEmploymentCheckClient> _employmentCheckClient;
+        private Mock<IEmploymentCheckCacheRequestFactory> _cacheRequestFactory;
         private EmploymentCheckData _employmentCheckData;
         private IList<EmploymentCheckCacheRequest> _employmentCheckCacheRequests;
 
@@ -26,6 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Commands.CreateE
             _employmentCheckClient = new Mock<IEmploymentCheckClient>();
             _employmentCheckData = _fixture.Create<EmploymentCheckData>();
             _employmentCheckCacheRequests = new List<EmploymentCheckCacheRequest> { _fixture.Create<EmploymentCheckCacheRequest>() };
+            _cacheRequestFactory = new Mock<IEmploymentCheckCacheRequestFactory>();
         }
 
         //[Test]
@@ -34,16 +37,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Commands.CreateE
             // Arrange
             var command = new CreateEmploymentCheckCacheRequestCommand(_employmentCheckData);
 
-            _employmentCheckClient.Setup(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData))
+            _employmentCheckClient.Setup(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData, _cacheRequestFactory.Object))
                 .ReturnsAsync(new List<EmploymentCheckCacheRequest>());
 
-            var sut = new CreateEmploymentCheckCacheRequestCommandHandler(_employmentCheckClient.Object);
+            var sut = new CreateEmploymentCheckCacheRequestCommandHandler(_employmentCheckClient.Object, _cacheRequestFactory.Object);
 
             // Act
             await sut.Handle(new CreateEmploymentCheckCacheRequestCommand(_employmentCheckData), CancellationToken.None);
 
             // Assert
-            _employmentCheckClient.Verify(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData), Times.Exactly(1));
+            _employmentCheckClient.Verify(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData, _cacheRequestFactory.Object), Times.Exactly(1));
         }
 
         [Test]
@@ -52,10 +55,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Commands.CreateE
             // Arrange
             var command = new CreateEmploymentCheckCacheRequestCommand(_employmentCheckData);
 
-            _employmentCheckClient.Setup(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData))
+            _employmentCheckClient.Setup(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData, _cacheRequestFactory.Object))
                 .ReturnsAsync((List<EmploymentCheckCacheRequest>)null);
 
-            var sut = new CreateEmploymentCheckCacheRequestCommandHandler(_employmentCheckClient.Object);
+            var sut = new CreateEmploymentCheckCacheRequestCommandHandler(_employmentCheckClient.Object, _cacheRequestFactory.Object);
 
             // Act
             var result = await sut.Handle(new CreateEmploymentCheckCacheRequestCommand(_employmentCheckData), CancellationToken.None);
@@ -70,10 +73,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Commands.CreateE
             // Arrange
             var command = new CreateEmploymentCheckCacheRequestCommand(_employmentCheckData);
 
-            _employmentCheckClient.Setup(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData))
+            _employmentCheckClient.Setup(x => x.CreateEmploymentCheckCacheRequests(command.EmploymentCheckData, _cacheRequestFactory.Object))
                 .ReturnsAsync(_employmentCheckCacheRequests);
 
-            var sut = new CreateEmploymentCheckCacheRequestCommandHandler(_employmentCheckClient.Object);
+            var sut = new CreateEmploymentCheckCacheRequestCommandHandler(_employmentCheckClient.Object, _cacheRequestFactory.Object);
 
             // Act
             var result = await sut.Handle(new CreateEmploymentCheckCacheRequestCommand(_employmentCheckData), CancellationToken.None);

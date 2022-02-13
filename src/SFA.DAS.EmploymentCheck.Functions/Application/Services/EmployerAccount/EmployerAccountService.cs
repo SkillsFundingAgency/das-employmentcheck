@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             _logger = logger;
             _configuration = apiConfiguration;
             _hashingService = hashingService;
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("Name");
             _httpClient.BaseAddress = new Uri(apiConfiguration.Url);
             _hostingEnvironment = hostingEnvironment;
             _azureClientCredentialHelper = azureClientCredentialHelper;
@@ -59,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return payeSchemes ?? new EmployerPayeSchemes();
         }
 
-        private async Task<HttpRequestMessage> SetupAccountsApiConfig(Models.EmploymentCheck employmentCheck)
+        public async Task<HttpRequestMessage> SetupAccountsApiConfig(Models.EmploymentCheck employmentCheck)
         {
             var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
             var url = $"api/accounts/{hashedAccountId}/payeschemes";
@@ -68,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return httpRequestMessage;
         }
 
-        private async Task<EmployerPayeSchemes> GetPayeSchemes(Models.EmploymentCheck employmentCheck, HttpRequestMessage httpRequestMessage)
+        public async Task<EmployerPayeSchemes> GetPayeSchemes(Models.EmploymentCheck employmentCheck, HttpRequestMessage httpRequestMessage)
         {
             EmployerPayeSchemes employerPayeSchemes = null;
             try
@@ -84,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return employerPayeSchemes ?? new EmployerPayeSchemes();
         }
 
-        private async Task<EmployerPayeSchemes> GetPayeSchemesFromApiResponse(
+        public async Task<EmployerPayeSchemes> GetPayeSchemesFromApiResponse(
             Models.EmploymentCheck employmentCheck,
             HttpResponseMessage httpResponseMessage
         )
@@ -113,7 +113,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return employerPayeSchemes ?? new EmployerPayeSchemes();
         }
 
-        private async Task<AccountsResponse> InitialiseAccountResponseModel(Models.EmploymentCheck employmentCheck)
+        public async Task<AccountsResponse> InitialiseAccountResponseModel(Models.EmploymentCheck employmentCheck)
         {
             return await Task.FromResult(new AccountsResponse(
                 0,
@@ -126,7 +126,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
                 DateTime.Now));
         }
 
-        private async Task<string> ReadResponseContent(
+        public async Task<string> ReadResponseContent(
             HttpResponseMessage httpResponseMessage,
             AccountsResponse accountsResponse
         )
@@ -144,7 +144,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return json;
         }
 
-        private async Task<EmployerPayeSchemes> DeserialiseContent(
+        public async Task<EmployerPayeSchemes> DeserialiseContent(
             string jsonContent,
             AccountsResponse accountsResponse
         )
@@ -182,7 +182,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return employerPayeSchemes;
         }
 
-        private async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
+        public async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
             if (!_hostingEnvironment.IsDevelopment() && !_httpClient.BaseAddress.IsLoopback)
             {
@@ -191,7 +191,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             }
         }
 
-        private async Task Save(AccountsResponse accountsResponse)
+        public async Task Save(AccountsResponse accountsResponse)
         {
             if (accountsResponse == null)
             {
@@ -202,7 +202,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             await _repository.Save(accountsResponse);
         }
 
-        private async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)
+        public async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)
         {
             var accountsResponse = await InitialiseAccountResponseModel(employmentCheck);
             accountsResponse.HttpResponse = e.Message;

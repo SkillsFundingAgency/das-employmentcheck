@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckServiceTests
 {
     public class WhenSettingCacheRequestRelatedRequestsProcessingStatus
     {

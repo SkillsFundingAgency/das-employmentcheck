@@ -1,17 +1,11 @@
-﻿using Dapper.Contrib.Extensions;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using KeyAttribute = Dapper.Contrib.Extensions.KeyAttribute;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
-    [Table("Cache.EmploymentCheckCacheRequest")]
-    public class EmploymentCheckCacheRequest
-        : IEmploymentCheckCacheRequest
+    public interface IEmploymentCheckCacheRequest
     {
-        public EmploymentCheckCacheRequest() { }
-
-        [Key]
         public long Id { get; set; }
 
         public long ApprenticeEmploymentCheckId { get; set; }

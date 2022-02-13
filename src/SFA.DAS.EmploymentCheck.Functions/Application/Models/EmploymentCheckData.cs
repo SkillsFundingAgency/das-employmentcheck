@@ -3,6 +3,7 @@
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
     public class EmploymentCheckData
+        : IEmploymentCheckData
     {
         public EmploymentCheckData() { }
 
