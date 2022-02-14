@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
-    public class WhenUpdatingReleatedRequestsRequestCompletionStatus
+    public class WhenUpdatingRelatedRequestsRequestCompletionStatus
         : RepositoryTestBase
     {
         private IEmploymentCheckCacheRequestRepository _sut;
@@ -27,10 +27,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Act
             foreach(var request in testEmploymentCheckCacheRequestData)
             {
-                await base.Insert(request);
+                await Insert(request);
             }
 
-            await _sut.SetReleatedRequestsRequestCompletionStatus(testEmploymentCheckCacheRequestData.FirstOrDefault(), ProcessingCompletionStatus.Abandoned);
+            await _sut.SetRelatedRequestsRequestCompletionStatus(testEmploymentCheckCacheRequestData.FirstOrDefault(), ProcessingCompletionStatus.Abandoned);
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();

@@ -1,28 +1,29 @@
-﻿using AutoFixture;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
 {
     public class WhenGettingLearnersNiNumber
     {
-        private readonly Mock<ILearnerService> _submitLearnerDataService;
-        private readonly Mock<ILogger<IEmploymentCheckClient>> _logger;
-        private readonly Fixture _fixture;
+        private Mock<ILearnerService> _submitLearnerDataService;
+        private Fixture _fixture;
+        private LearnerClient _sut;
 
-        public WhenGettingLearnersNiNumber()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _submitLearnerDataService = new Mock<ILearnerService>();
-            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
+
+            _sut = new LearnerClient(Mock.Of<ILogger<ILearnerClient>>(), _submitLearnerDataService.Object);
         }
 
         [Test]
@@ -34,10 +35,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
                 .ReturnsAsync(new List<LearnerNiNumber>());
 
-            var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
-
             //Act
-            await sut.GetNiNumbers(apprentices);
+            await _sut.GetNiNumbers(apprentices);
 
             //Assert
             _submitLearnerDataService.Verify(x => x.GetNiNumbers(apprentices), Times.Exactly(1));
@@ -52,10 +51,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
                 .ReturnsAsync(new List<LearnerNiNumber>());
 
-            var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
-
             //Act
-            var result = await sut.GetNiNumbers(apprentices);
+            var result = await _sut.GetNiNumbers(apprentices);
 
             //Assert
             result.Should().BeEquivalentTo(new List<LearnerNiNumber>());
@@ -69,10 +66,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
                 .ReturnsAsync((List<LearnerNiNumber>)null);
 
-            var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
-
             //Act
-            var result = await sut.GetNiNumbers(apprentices);
+            var result = await _sut.GetNiNumbers(apprentices);
 
             //Assert
             result.Should().BeNull();
@@ -89,10 +84,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
                 .ReturnsAsync(niNumbers);
 
-            var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
-
             //Act
-            var result = await sut.GetNiNumbers(apprentices);
+            var result = await _sut.GetNiNumbers(apprentices);
 
             //Assert
             Assert.AreEqual(niNumbers, result);

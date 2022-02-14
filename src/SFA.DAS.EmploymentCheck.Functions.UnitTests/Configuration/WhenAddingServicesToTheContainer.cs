@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
@@ -41,7 +40,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             _provider.Dispose();
         }
 
-        [TestCase(typeof(IEmploymentCheckClient))]
         [TestCase(typeof(ILearnerClient))]
         [TestCase(typeof(IEmployerAccountClient))]
         [TestCase(typeof(IHmrcApiOptionsRepository))]

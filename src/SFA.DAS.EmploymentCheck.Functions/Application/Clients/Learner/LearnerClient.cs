@@ -1,6 +1,5 @@
 ﻿using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using System.Collections.Generic;
@@ -11,11 +10,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
     public class LearnerClient
         : ILearnerClient
     {
-        private readonly ILogger<IEmploymentCheckClient> _logger;
+        private readonly ILogger<ILearnerClient> _logger;
         private readonly ILearnerService _learnerService;
 
         public LearnerClient(
-            ILogger<IEmploymentCheckClient> logger,
+            ILogger<ILearnerClient> logger,
             ILearnerService learnerService)
         {
             _logger = logger;

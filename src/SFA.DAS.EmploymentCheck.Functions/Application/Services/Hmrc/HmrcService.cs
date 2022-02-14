@@ -17,7 +17,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;
         private readonly ILogger<HmrcService> _logger;
-        private readonly IEmploymentCheckCacheResponseRepository _repository;
+        private readonly IEmploymentCheckCacheResponseRepository _responseRepository;
+        private readonly IEmploymentCheckCacheRequestRepository _requestRepository;
         private PrivilegedAccessToken _cachedToken;
         private readonly IHmrcApiRetryPolicies _retryPolicies;
 
@@ -25,15 +26,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository repository,
-            IHmrcApiRetryPolicies retryPolicies
-            )
+            IEmploymentCheckCacheResponseRepository responseRepository,
+            IEmploymentCheckCacheRequestRepository requestRepository,
+            IHmrcApiRetryPolicies retryPolicies)
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
-            _repository = repository;
+            _responseRepository = responseRepository;
+            _requestRepository = requestRepository;
             _retryPolicies = retryPolicies;
+            _requestRepository = requestRepository;
         }
 
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
@@ -44,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
                 var result = await GetEmploymentStatusWithRetries(request);
 
-                request.SetEmployed(true);
+                request.SetEmployed(result.Employed);
 
                 var response = EmploymentCheckCacheResponse.CreateSuccessfulCheckResponse(
                     request.ApprenticeEmploymentCheckId,
@@ -53,7 +56,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     result.Employed,
                     result.Empref);
 
-                await _repository.Save(response);
+                await _responseRepository.Insert(response);
+                await _requestRepository.Save(request);
                 await _retryPolicies.ReduceRetryDelay();
             }
             catch (ApiHttpException e)
@@ -67,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     e.ResourceUri,
                     (short)e.HttpCode);
 
-                await _repository.Save(response);
+                await _responseRepository.Insert(response);
             }
             catch (Exception e)
             {
@@ -80,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}",
                     (short)HttpStatusCode.InternalServerError);
 
-                await _repository.Save(response);
+                await _responseRepository.Insert(response);
             }
 
             return request;
