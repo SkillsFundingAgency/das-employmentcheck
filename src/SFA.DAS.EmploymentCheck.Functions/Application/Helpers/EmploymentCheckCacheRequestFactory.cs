@@ -20,8 +20,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
             employmentCheckCacheRequest.Id = -1;
             employmentCheckCacheRequest.ApprenticeEmploymentCheckId = employmentCheck.Id;
             employmentCheckCacheRequest.CorrelationId = employmentCheck.CorrelationId;
+            if (nino.Length > 20) { nino = nino.Substring(0, 20); }
             employmentCheckCacheRequest.Nino = nino;
-            if (payeScheme.Length > 20) { payeScheme = payeScheme.Substring(0, 20); }
             employmentCheckCacheRequest.PayeScheme = payeScheme;
             employmentCheckCacheRequest.MinDate = employmentCheck.MinDate;
             employmentCheckCacheRequest.MaxDate = employmentCheck.MaxDate;

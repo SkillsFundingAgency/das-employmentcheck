@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
         }
 
         [Test]
-        public async Task Then_CreateEmploymentCheckCacheRequest_Is_Called()
+        public async Task Then_A_CreateEmploymentCheckCacheRequest_Is_Created()
         {
             // Arrange
             _sut = new EmploymentCheckCacheRequestFactory();
@@ -33,6 +33,27 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
             // Assert
             result.Should()
                 .Be(result);
+        }
+
+        [Test]
+        public async Task Then_When_The_Nino_Length_Too_Long_It_Is_Truncated_And_The_EmploymentCheckCacheRequest_Is_Created()
+        {
+            // Arrange
+            _sut = new EmploymentCheckCacheRequestFactory();
+
+            // Act
+            var result = await _sut
+                .CreateEmploymentCheckCacheRequest(_employmentCheck, "AB123456C_123456789012345678901234567890", "Paye1");
+
+            // Assert
+            result
+                .Should().BeEquivalentTo(result,
+                opts => opts
+                    .Excluding(x => x.Nino));
+
+            result.Nino
+                .Should()
+                .Be("AB123456C_1234567890");
         }
     }
 }
