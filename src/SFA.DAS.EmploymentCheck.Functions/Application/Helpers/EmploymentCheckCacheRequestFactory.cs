@@ -8,9 +8,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
     public class EmploymentCheckCacheRequestFactory
         : IEmploymentCheckCacheRequestFactory
     {
-        // Quick and dirty solution for mocking the EmploymentCheckService.CreateEmploymentCheckRequest() method
-        // which 'newed' up an EmploymentCheckCacheRequest that wasn't mockable and messed up the tests
-
         public EmploymentCheckCacheRequestFactory() {}
 
         public async Task<EmploymentCheckCacheRequest> CreateEmploymentCheckCacheRequest(
