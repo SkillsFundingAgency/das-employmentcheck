@@ -150,7 +150,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (Nino not found).");
 
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_NinoNotFound;
+                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
                     await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
                     continue;
                 }
@@ -160,7 +160,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 {
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (PayeScheme not found).");
 
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_PayeSchemeNotFound;
+                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
                     await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
                     continue;
                 }
@@ -190,7 +190,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return await Task.FromResult(employmentCheckRequests);
         }
 
-        // TODO: Move to repository
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             var dbConnection = new DbConnection();
@@ -246,7 +245,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             return employmentCheckCacheRequest;
         }
 
-        // TODO: Refactor
         public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
@@ -260,7 +258,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
         }
 
-        // TODO: Move to repository
         public async Task UpdateEmploymentCheckCacheRequest(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
@@ -289,7 +286,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 commandType: CommandType.Text);
         }
 
-        // TODO: Move to repository
         public async Task UpdateEmploymentCheck(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
@@ -322,9 +318,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             }
 
         }
+
         public async Task UpdateRelatedRequests(EmploymentCheckCacheRequest request)
         {
-            await _employmentCheckCashRequestRepository.SetReleatedRequestsRequestCompletionStatus(request, ProcessingCompletionStatus.Abandoned);
+            await _employmentCheckCashRequestRepository.SetReleatedRequestsRequestCompletionStatus(request, ProcessingCompletionStatus.Skipped);
         }
     }
 }

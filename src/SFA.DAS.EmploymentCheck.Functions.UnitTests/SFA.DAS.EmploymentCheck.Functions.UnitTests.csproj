@@ -6,10 +6,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Application\Clients\EmployerAccount\EmployerAccountClientTests\WhenSavingEmployersPayeSchemes.cs" />
-  </ItemGroup>
-
     <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="FluentAssertions" Version="6.2.0" />

@@ -2,15 +2,15 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.SubmitLearnerDataClientTests
 {
     public class WhenGettingLearnersNiNumber
     {
@@ -60,6 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
             //Assert
             result.Should().BeEquivalentTo(new List<LearnerNiNumber>());
         }
+
         [Test]
         public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
