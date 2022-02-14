@@ -8,32 +8,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
     {
         public EmploymentCheck() { }
 
-        //public EmploymentCheck(
-        //    long id,
-        //    Guid correlationId,
-        //    string checkType,
-        //    long uln,
-        //    long? apprenticeshipId,
-        //    long accountId,
-        //    DateTime minDate,
-        //    DateTime maxDate,
-        //    bool? employed,
-        //    short requestCompletionStatus)
-        //{
-        //    Id = id;
-        //    CorrelationId = correlationId;
-        //    CheckType = checkType;
-        //    Uln = uln;
-        //    ApprenticeshipId = apprenticeshipId;
-        //    AccountId = accountId;
-        //    MinDate = minDate;
-        //    MaxDate = maxDate;
-        //    Employed = employed;
-        //    RequestCompletionStatus = requestCompletionStatus;
-        //    LastUpdatedOn = null;
-        //    CreatedOn = DateTime.Now;
-        //}
-
         [Key]
         public long Id { get; set; }
 
