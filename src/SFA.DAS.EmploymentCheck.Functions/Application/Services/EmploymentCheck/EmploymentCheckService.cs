@@ -22,7 +22,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         private readonly string _connectionString;
         private readonly int _batchSize;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-        private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
 
         public EmploymentCheckService(
@@ -37,7 +36,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             _connectionString = applicationSettings.DbConnectionString;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _batchSize = applicationSettings.BatchSize;
-            _employmentCheckRepository = employmentCheckRepository;
             _employmentCheckCashRequestRepository = employmentCheckCashRequestRepository;
         }
 
