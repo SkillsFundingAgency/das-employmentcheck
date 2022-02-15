@@ -6,6 +6,8 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Moq;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
@@ -20,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task CanSave()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings);
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
             var expected = Fixture.Create<Models.EmploymentCheckCacheRequest>();
             expected.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 

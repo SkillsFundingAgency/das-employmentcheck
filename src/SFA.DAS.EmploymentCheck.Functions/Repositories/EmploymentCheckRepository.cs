@@ -4,19 +4,19 @@ using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using DbConnection = SFA.DAS.EmploymentCheck.Functions.Application.Helpers.DbConnection;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
-    public class EmploymentCheckRepository
-        : IEmploymentCheckRepository
+    public class EmploymentCheckRepository : IEmploymentCheckRepository
     {
         private readonly ILogger<EmploymentCheckRepository> _logger;
         private readonly ApplicationSettings _settings;
@@ -24,8 +24,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
         public EmploymentCheckRepository(
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider = null,
-            ILogger<EmploymentCheckRepository> logger = null
+            ILogger<EmploymentCheckRepository> logger,
+            AzureServiceTokenProvider azureServiceTokenProvider = null
         )
         {
             _logger = logger;
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
         {
-            IList<Models.EmploymentCheck> employmentChecksBatch = null;
+            IList<Models.EmploymentCheck> employmentChecksBatch;
 
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -151,15 +151,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             }
         }
 
-        public async Task Save(Models.EmploymentCheck check)
+        public async Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheckCacheRequest request, IUnitOfWork unitOfWork)
         {
-            var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _settings.DbConnectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+            var parameter = new DynamicParameters();
+            parameter.Add("@apprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
+            parameter.Add("@employed", request.Employed, DbType.Boolean);
+            parameter.Add("@requestCompletionStatus", (short)ProcessingCompletionStatus.Completed, DbType.Int16);
+            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-            await sqlConnection.InsertAsync(check);
+            const string sql = "UPDATE [Business].[EmploymentCheck] " +
+                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                               "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ";
+         
+            await unitOfWork.ExecuteSqlAsync(sql, parameter);
         }
     }
 }

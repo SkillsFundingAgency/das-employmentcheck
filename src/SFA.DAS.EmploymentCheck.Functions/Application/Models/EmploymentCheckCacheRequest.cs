@@ -35,8 +35,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             CreatedOn = DateTime.Now;
         }
 
-        public DateTime CreatedOn { get; set; }
-
         [Key]
         public long Id { get; set; }
 
@@ -58,6 +56,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
         public short? RequestCompletionStatus { get; set; }
 
         public DateTime? LastUpdatedOn { get; set; }
+
+        public DateTime CreatedOn { get; set; }
 
         public void SetEmployed(bool value)
         {

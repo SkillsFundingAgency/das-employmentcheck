@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System;
+using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -9,22 +10,23 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
-    public class EmploymentCheckService
-        : IEmploymentCheckService
+    public class EmploymentCheckService : IEmploymentCheckService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
-        private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
+        private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
             ILogger<IEmploymentCheckService> logger,
             IEmploymentCheckRepository employmentCheckRepository,
-            IEmploymentCheckCacheRequestRepository employmentCheckCashRequestRepository
-        )
+            IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
+            IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _employmentCheckRepository = employmentCheckRepository;
-            _employmentCheckCashRequestRepository = employmentCheckCashRequestRepository;
+            _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
@@ -34,7 +36,39 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
-            return await _employmentCheckCashRequestRepository.GetEmploymentCheckCacheRequest();
+            return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();
+        }
+
+        public async Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response)
+        {
+            try
+            {
+                request.LastUpdatedOn = DateTime.Now;
+
+                await _unitOfWork.BeginAsync();
+                await _unitOfWork.UpdateAsync(request);
+                await _unitOfWork.InsertAsync(response);
+                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(request, _unitOfWork);
+
+                if (response.Employed == true)
+                {
+                    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
+                }
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task InsertEmploymentCheckCacheResponse(EmploymentCheckCacheResponse response)
+        {
+            await _unitOfWork.BeginAsync();
+            await _unitOfWork.InsertAsync(response);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
@@ -43,7 +77,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
             Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
 
-            IList<EmploymentCheckCacheRequest> employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
+            var employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
             foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
             {
                 var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.Uln == employmentCheck.Uln)?.NiNumber;
@@ -84,7 +118,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                     employmentCheckRequests.Add(employmentCheckCacheRequest);
 
-                    await _employmentCheckCashRequestRepository.Save(employmentCheckCacheRequest);
+                    await _employmentCheckCacheRequestRepository.Save(employmentCheckCacheRequest);
                 }
             }
 

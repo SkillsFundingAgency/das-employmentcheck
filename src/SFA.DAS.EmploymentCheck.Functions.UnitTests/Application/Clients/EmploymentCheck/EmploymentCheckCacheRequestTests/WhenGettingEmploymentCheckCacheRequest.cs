@@ -5,7 +5,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System.Threading.Tasks;
 
@@ -17,20 +16,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         private Fixture _fixture;
         private Mock<IEmploymentCheckRepository> _employmentCheckRepositoryMock;
         private Mock<IEmploymentCheckCacheRequestRepository> _employmentCheckCashRequestRepositoryMock;
-        private ApplicationSettings _settings;
-
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _employmentCheckRepositoryMock = new Mock<IEmploymentCheckRepository>();
             _employmentCheckCashRequestRepositoryMock = new Mock<IEmploymentCheckCacheRequestRepository>();
-            _settings = _fixture.Create<ApplicationSettings>();
 
             _sut = new EmploymentCheckService(
                 Mock.Of<ILogger<IEmploymentCheckService>>(),
                 _employmentCheckRepositoryMock.Object,
-                _employmentCheckCashRequestRepositoryMock.Object
+                _employmentCheckCashRequestRepositoryMock.Object,
+                Mock.Of<IUnitOfWork>()
             );
         }
 

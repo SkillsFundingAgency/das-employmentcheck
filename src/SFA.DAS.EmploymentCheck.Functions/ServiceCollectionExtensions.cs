@@ -78,6 +78,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
+            serviceCollection.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             return serviceCollection;
         }

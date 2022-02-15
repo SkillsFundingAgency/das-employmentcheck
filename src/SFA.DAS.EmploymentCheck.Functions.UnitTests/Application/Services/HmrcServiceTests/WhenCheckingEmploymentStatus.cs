@@ -5,7 +5,9 @@ using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
@@ -14,23 +16,21 @@ using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcServiceTests
 {
     public class WhenCheckingEmploymentStatus
     {
         private IHmrcService _sut;
-       
+
         private Mock<IApprenticeshipLevyApiClient> _apprenticeshipLevyServiceMock;
-        private Mock<IEmploymentCheckCacheResponseRepository> _responseRepositoryMock;
-        private Mock<IEmploymentCheckCacheRequestRepository> _requestRepositoryMock;
         private Mock<IHmrcApiOptionsRepository> _rateLimiterRepositoryMock;
         private Mock<ITokenServiceApiClient> _tokenServiceMock;
         private PrivilegedAccessToken _token;
         private EmploymentCheckCacheRequest _request;
         private Fixture _fixture;
         private HmrcApiRateLimiterOptions _settings;
+        private Mock<IEmploymentCheckService> _employmentCheckServiceMock;
 
         [SetUp]
         public void SetUp()
@@ -38,11 +38,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             _fixture = new Fixture();
             _apprenticeshipLevyServiceMock = new Mock<IApprenticeshipLevyApiClient>();
             _tokenServiceMock = new Mock<ITokenServiceApiClient>();
-            _responseRepositoryMock = new Mock<IEmploymentCheckCacheResponseRepository>();
-            _requestRepositoryMock = new Mock<IEmploymentCheckCacheRequestRepository>();
             _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+            _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
 
-            _token = new PrivilegedAccessToken {AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7)};
+            _token = new PrivilegedAccessToken { AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7) };
 
             _tokenServiceMock.Setup(x => x.GetPrivilegedAccessTokenAsync()).ReturnsAsync(_token);
 
@@ -66,14 +65,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _rateLimiterRepositoryMock.Object);
 
             _sut = new HmrcService(
-                _tokenServiceMock.Object, 
-                _apprenticeshipLevyServiceMock.Object, 
-                Mock.Of<ILogger<HmrcService>>(), 
-                _responseRepositoryMock.Object,
-                _requestRepositoryMock.Object,
+                _tokenServiceMock.Object,
+                _apprenticeshipLevyServiceMock.Object,
+                Mock.Of<ILogger<HmrcService>>(),
+                _employmentCheckServiceMock.Object,
                 retryPolicies);
         }
-   
+
         [Test]
         public async Task Then_The_TokenServiceApiClient_Is_Called()
         {
@@ -213,7 +211,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _responseRepositoryMock.Verify(r => r.Insert(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
+                It.Is<EmploymentCheckCacheRequest>(
+                    x => x.Id == _request.Id),
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -246,7 +246,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _requestRepositoryMock.Verify(r => r.Save(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
                 It.Is<EmploymentCheckCacheRequest>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -256,8 +256,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.Employed == response.Employed
                         && x.MinDate == _request.MinDate
                         && x.MaxDate == _request.MaxDate
-                        && x.RequestCompletionStatus == (short)ProcessingCompletionStatus.Completed
-                )
+                        && x.RequestCompletionStatus == (short)ProcessingCompletionStatus.Completed),
+                    It.IsAny<EmploymentCheckCacheResponse>()
             ), Times.Once);
         }
 
@@ -265,7 +265,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_NotFound_response_is_saved_as_complete_without_retrying()
         {
             // Arrange
-            const short code = (short) HttpStatusCode.NotFound;
+            const short code = (short)HttpStatusCode.NotFound;
 
             var exception = new ApiHttpException(
                 code,
@@ -287,7 +287,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _responseRepositoryMock.Verify(r => r.Insert(
+            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -337,7 +337,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _responseRepositoryMock.Verify(r => r.Insert(
+            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -450,7 +450,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _responseRepositoryMock.Verify(r => r.Insert(
+            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -504,9 +504,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _request.MaxDate), Times.Exactly(3));
         }
 
-        [TestCase((short)HttpStatusCode.BadRequest, TestName= "Then_BadRequest_response_is_saved_as_completed_without_retrying")]
-        [TestCase((short)HttpStatusCode.Forbidden, TestName= "Then_Forbidden_response_is_saved_as_completed_without_retrying")]
-        [TestCase((short)HttpStatusCode.NotFound, TestName= "Then_NotFound_response_is_saved_as_completed_without_retrying")]
+        [TestCase((short)HttpStatusCode.BadRequest, TestName = "Then_BadRequest_response_is_saved_as_completed_without_retrying")]
+        [TestCase((short)HttpStatusCode.Forbidden, TestName = "Then_Forbidden_response_is_saved_as_completed_without_retrying")]
+        [TestCase((short)HttpStatusCode.NotFound, TestName = "Then_NotFound_response_is_saved_as_completed_without_retrying")]
         public async Task Then_expected_error_responses_are_saved_as_completed_without_retrying(short httpStatusCode)
         {
             // Arrange
@@ -530,7 +530,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _responseRepositoryMock.Verify(r => r.Insert(
+            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -572,7 +572,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _responseRepositoryMock.Verify(r => r.Insert(
+            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId

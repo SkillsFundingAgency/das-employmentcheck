@@ -10,20 +10,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmpl
         : IRequestHandler<GetHmrcLearnerEmploymentStatusQueryRequest,
             GetHmrcLearnerEmploymentStatusQueryResult>
     {
-        private readonly IHmrcService _hmrcService;
+        private readonly IHmrcService _service;
 
-        public GetHmrcLearnerEmploymentStatusQueryHandler(
-            IHmrcService hmrcService,
-            ILogger<GetHmrcLearnerEmploymentStatusQueryHandler> logger)
+        public GetHmrcLearnerEmploymentStatusQueryHandler(IHmrcService service)
         {
-            _hmrcService = hmrcService;
+            _service = service;
         }
 
         public async Task<GetHmrcLearnerEmploymentStatusQueryResult> Handle(
             GetHmrcLearnerEmploymentStatusQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var employmentCheckCacheRequest = await _hmrcService.IsNationalInsuranceNumberRelatedToPayeScheme(request.EmploymentCheckCacheRequest);
+            var employmentCheckCacheRequest = await _service.IsNationalInsuranceNumberRelatedToPayeScheme(request.EmploymentCheckCacheRequest);
 
             return new GetHmrcLearnerEmploymentStatusQueryResult(employmentCheckCacheRequest);
         }

@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 {
@@ -8,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     {
         Task Save(EmploymentCheckCacheRequest request);
         Task Insert(EmploymentCheckCacheRequest request);
-        Task SetRelatedRequestsRequestCompletionStatus(EmploymentCheckCacheRequest request, ProcessingCompletionStatus processingCompletionStatus);
+        Task AbandonRelatedRequests(EmploymentCheckCacheRequest request, IUnitOfWork unitOfWork);
         Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
     }
 }

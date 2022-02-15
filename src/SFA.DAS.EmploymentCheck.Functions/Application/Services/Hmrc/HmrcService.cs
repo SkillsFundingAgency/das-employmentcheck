@@ -3,7 +3,7 @@ using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
@@ -17,30 +17,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
         private readonly IApprenticeshipLevyApiClient _apprenticeshipLevyService;
         private readonly ITokenServiceApiClient _tokenService;
         private readonly ILogger<HmrcService> _logger;
-        private readonly IEmploymentCheckCacheResponseRepository _responseRepository;
-        private readonly IEmploymentCheckCacheRequestRepository _requestRepository;
-        private PrivilegedAccessToken _cachedToken;
+        private readonly IEmploymentCheckService _employmentCheckService;
         private readonly IHmrcApiRetryPolicies _retryPolicies;
+        private PrivilegedAccessToken _cachedToken;
 
         public HmrcService(
             ITokenServiceApiClient tokenService,
             IApprenticeshipLevyApiClient apprenticeshipLevyService,
             ILogger<HmrcService> logger,
-            IEmploymentCheckCacheResponseRepository responseRepository,
-            IEmploymentCheckCacheRequestRepository requestRepository,
+            IEmploymentCheckService employmentCheckService,
             IHmrcApiRetryPolicies retryPolicies)
         {
             _tokenService = tokenService;
             _apprenticeshipLevyService = apprenticeshipLevyService;
             _logger = logger;
-            _responseRepository = responseRepository;
-            _requestRepository = requestRepository;
+            _employmentCheckService = employmentCheckService;
             _retryPolicies = retryPolicies;
-            _requestRepository = requestRepository;
         }
 
         public async Task<EmploymentCheckCacheRequest> IsNationalInsuranceNumberRelatedToPayeScheme(EmploymentCheckCacheRequest request)
         {
+            EmploymentCheckCacheResponse response;
+
             try
             {
                 await RetrieveAuthenticationToken();
@@ -49,46 +47,46 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
                 request.SetEmployed(result.Employed);
 
-                var response = EmploymentCheckCacheResponse.CreateSuccessfulCheckResponse(
+                response = EmploymentCheckCacheResponse.CreateSuccessfulCheckResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId, 
                     result.Employed,
                     result.Empref);
 
-                await _responseRepository.Insert(response);
-                await _requestRepository.Save(request);
+                await _employmentCheckService.StoreCompletedCheck(request, response);
                 await _retryPolicies.ReduceRetryDelay();
+                
+                return request;
             }
             catch (ApiHttpException e)
             {
                 _logger.LogError($"{nameof(HmrcService)}: ApiHttpException occurred [{e}]");
 
-                var response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
+                response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     e.ResourceUri,
                     (short)e.HttpCode);
-
-                await _responseRepository.Insert(response);
             }
             catch (Exception e)
             {
                 _logger.LogError($"{nameof(HmrcService)}: Exception occurred [{e}]");
 
-                var response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
+                response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
                     request.CorrelationId,
                     $"{e.Message[Range.EndAt(Math.Min(8000, e.Message.Length))]}",
                     (short)HttpStatusCode.InternalServerError);
-
-                await _responseRepository.Insert(response);
             }
+
+            await _employmentCheckService.InsertEmploymentCheckCacheResponse(response);
 
             return request;
         }
+
 
         private bool AccessTokenHasExpired()
         {
