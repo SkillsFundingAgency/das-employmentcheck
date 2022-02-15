@@ -1,43 +1,51 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 {
     public static class EmploymentChecksHttpTrigger
     {
-        private const string InstanceIdPrefix = "EmploymentCheck-";
-
         [FunctionName("EmploymentChecksHttpTrigger")]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
             ILogger log)
         {
-            var triggerHelper = new TriggerHelper();
-            var existingInstances = await triggerHelper.GetRunningInstances(nameof(EmploymentChecksHttpTrigger),
-                InstanceIdPrefix, starter, log);
-            
-            if (!existingInstances.DurableOrchestrationState.Any())
+            IList<HttpResponseMessage> resultMessages = new List<HttpResponseMessage>();
+            HttpResponseMessage resultMessage = null;
+
+            resultMessages.Add(await CreateEmploymentCheckRequestsOrchestratorTrigger.HttpStart(req, starter, log));
+            resultMessages.Add(await ProcessEmploymentChecksHttpTrigger.HttpStart(req, starter, log));
+
+            // With only being able to return one message choose 'conflict' if there is one
+            bool conflict = false;
+            foreach(var httpMessage in resultMessages)
             {
-                log.LogInformation($"Triggering {nameof(EmploymentChecksOrchestrator)}");
-
-                var instanceId = await starter.StartNewAsync(nameof(EmploymentChecksOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
-
-                log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
-                return starter.CreateCheckStatusResponse(req, instanceId);
+                if (httpMessage.StatusCode == HttpStatusCode.Conflict)
+                {
+                    conflict = true;
+                    break;
+                }
             }
-            return new HttpResponseMessage(HttpStatusCode.Conflict)
+
+            if(conflict) { resultMessage = new HttpResponseMessage(HttpStatusCode.Conflict); }
+            else { resultMessage = new HttpResponseMessage(HttpStatusCode.Accepted); }
+
+            StringBuilder stringMessage = new StringBuilder();
+            foreach (var httpMessage in resultMessages)
             {
-                Content = new StringContent($"An instance of {nameof(EmploymentChecksOrchestrator)} is already running."),
-            };
+                stringMessage.Append(httpMessage.Content);
+            }
+
+            resultMessage.Content = new StringContent($"{stringMessage}\n");
+            return resultMessage;
         }
     }
 }

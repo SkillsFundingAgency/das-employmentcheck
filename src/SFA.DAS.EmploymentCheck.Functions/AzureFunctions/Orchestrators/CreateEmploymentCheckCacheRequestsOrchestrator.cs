@@ -12,54 +12,53 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class CreateEmploymentCheckCacheRequestsOrchestrator
     {
-        private const string ThisClassName = "\n\nCreateEmploymentCheckRequestsOrchestrator";
-
+        private const string ThisClassName = nameof(CreateEmploymentCheckCacheRequestsOrchestrator);
         private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
 
-        /// <summary>
-        /// Constructor, used to initialise the logging component.
-        /// </summary>
-        /// <param name="logger"></param>
         public CreateEmploymentCheckCacheRequestsOrchestrator(
             ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> logger)
         {
             _logger = logger;
         }
 
-        /// <summary>
-        /// The orchestrator entry point.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns>Task</returns>
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestsOrchestrator))]
         public async Task CreateEmploymentCheckRequestsTask(
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask"; // Note: Can't use GetCurrentMethod() here as it returns something like 'Move_Next() from the durable task framework
+            var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask";
 
+            // Note: The story says to remove this orchestrator and move its logic to the 'outer' calling orchestrator.
+            //       However, the 'outer' orchestrator only runs once so this code would then only run once instead of in a loop.
+            //       Discussed with Craig and the decision was to remove the 'outer' calling orchestrator as that just starts
+            //       the 'create' and 'process' orchestrators and to refactor the original verson of this 'create' orchestrator
+            //       to use a sub orchestrator that does 'one-at-a-time' processing and re-use the existing code by retaining
+            //       the batch processing lists but with the lists containing only one employment check.
+            //       A subsequent story will handle the refactoring of the related code remove the lists.
             try
             {
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 var employmentCheckBatch = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
-                if (employmentCheckBatch.Count > 0)
+                if (employmentCheckBatch != null && employmentCheckBatch.Count > 0)
                 {
-                    var getLearnerNiNumbersActivityTask = context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentCheckBatch);
-                    var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheckBatch);
-                    await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
-
-                    var learnerNiNumbers = getLearnerNiNumbersActivityTask.Result;
-                    var employerPayeSchemes = employerPayeSchemesTask.Result;
-
-                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheckBatch, learnerNiNumbers, employerPayeSchemes));
+                    foreach (var employmentCheck in employmentCheckBatch)
+                    {
+                        // This sub orchestrator is effectively the 'Unit of work' so we need to prevent exceptions
+                        // from the 'called' code leaving the foreach loop and skipping rows in the batch.
+                        try
+                        {
+                             await context.CallSubOrchestratorAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestOrchestrator), employmentCheck);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"{thisMethodName}: Exception caught - {ex.Message}. {ex.StackTrace}");
+                        }
+                    }
                 }
                 else
                 {
                     _logger.LogInformation($"{thisMethodName}: Nothing to process, waiting for 10 seconds before retrying");
-
-                    // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
-
                     var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
