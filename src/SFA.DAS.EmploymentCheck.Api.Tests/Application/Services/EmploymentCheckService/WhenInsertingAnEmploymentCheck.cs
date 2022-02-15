@@ -1,8 +1,9 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Repositories;
 
-namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Application.Services.EmploymentCheckService
+namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheckService
 {
     public class WhenInsertingAnEmploymentCheck
     {
