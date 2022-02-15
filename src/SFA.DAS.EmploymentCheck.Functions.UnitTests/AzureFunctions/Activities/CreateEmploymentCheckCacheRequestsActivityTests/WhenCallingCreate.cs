@@ -10,17 +10,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
 {
     public class WhenCallingCreate
     {
-        private readonly Fixture _fixture;
-        private readonly Mock<IMediator> _mediator;
-        private readonly EmploymentCheckCacheRequest _employmentCheckCacheRequest;
-        private readonly EmploymentCheckData _employmentCheckData;
+        private Fixture _fixture;
+        private Mock<IMediator> _mediator;
+        private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
+        private EmploymentCheckData _employmentCheckData;
 
-        public WhenCallingCreate()
+        [SetUp]
+        public void SetUp()
+
         {
             _fixture = new Fixture();
             _mediator = new Mock<IMediator>();
-            _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
-            _employmentCheckData = _fixture.Create<EmploymentCheckData>();
+
+            _employmentCheckCacheRequest = _fixture
+                .Create<EmploymentCheckCacheRequest>();
+
+            _employmentCheckData = _fixture
+                .Create<EmploymentCheckData>();
         }
 
         [Test]
@@ -30,10 +36,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             var sut = new CreateEmploymentCheckCacheRequestsActivity(_mediator.Object);
 
             // Act
-            await sut.Create(_employmentCheckData);
+            await sut
+                .Create(_employmentCheckData);
 
             // Assert
-            Assert.IsTrue(true);
+            Assert
+                .IsTrue(true);
         }
     }
 }

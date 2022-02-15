@@ -14,19 +14,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 {
     public class WhenRunningCreateEmploymentCheckCacheRequestsOrchestrator
     {
-        private readonly Fixture _fixture;
-        private readonly Mock<IDurableOrchestrationContext> _context;
-        private readonly Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>> _logger;
-        private readonly IList<Models.EmploymentCheck> _employmentChecks;
-        private readonly IList<LearnerNiNumber> _learnerNiNumbers;
-        private readonly IList<EmployerPayeSchemes> _employerPayeSchemes;
+        private Fixture _fixture;
+        private Mock<IDurableOrchestrationContext> _context;
+        private Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>> _logger;
+        private IList<Models.EmploymentCheck> _employmentChecks;
+        private IList<LearnerNiNumber> _learnerNiNumbers;
+        private IList<EmployerPayeSchemes> _employerPayeSchemes;
 
-        public WhenRunningCreateEmploymentCheckCacheRequestsOrchestrator()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>>();
-            _employmentChecks = new List<Models.EmploymentCheck> { _fixture.Create<Models.EmploymentCheck>() };
+
+            _employmentChecks = new List<Models.EmploymentCheck>
+            {
+                _fixture.Create<Models.EmploymentCheck>()
+            };
+
             _learnerNiNumbers = new List<LearnerNiNumber> { _fixture.Create<LearnerNiNumber>() };
             _employerPayeSchemes = new List<EmployerPayeSchemes> { _fixture.Create<EmployerPayeSchemes>() };
         }
@@ -37,11 +43,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Arrange
             var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
 
-            _context.Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), It.IsAny<object>()))
+            _context
+                .Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), It.IsAny<object>()))
                 .ReturnsAsync(_employmentChecks);
-            _context.Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
+
+            _context
+                .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
                 .ReturnsAsync(_learnerNiNumbers);
-            _context.Setup(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
+
+            _context
+                .Setup(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
                 .ReturnsAsync(_employerPayeSchemes);
 
             _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()));

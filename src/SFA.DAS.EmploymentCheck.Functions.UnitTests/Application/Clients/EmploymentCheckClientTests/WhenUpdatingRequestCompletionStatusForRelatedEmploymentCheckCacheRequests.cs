@@ -10,12 +10,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
 {
     public class WhenUpdatingRequestCompletionStatusForRelatedEmploymentCheckCacheRequests
     {
-
-        private readonly Fixture _fixture;
+        private Fixture _fixture;
+        private EmploymentCheckClient _sut;
         private readonly Mock<IEmploymentCheckService> _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
-        private readonly EmploymentCheckClient _sut;
 
-        public WhenUpdatingRequestCompletionStatusForRelatedEmploymentCheckCacheRequests()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _sut = new EmploymentCheckClient(_employmentCheckServiceMock.Object);
@@ -29,16 +29,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .Build<EmploymentCheckCacheRequest>()
                 .Create();
 
-            _employmentCheckServiceMock
-                .Setup(x => x.UpdateRelatedRequests(employmentCheckCacheRequest));
+            _employmentCheckServiceMock.Setup(x => x.UpdateRelatedRequests(employmentCheckCacheRequest));
 
             // Act
-            await _sut
-                .UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(employmentCheckCacheRequest);
+            await _sut.UpdateRequestCompletionStatusForRelatedEmploymentCheckCacheRequests(employmentCheckCacheRequest);
 
             // Assert
-            _employmentCheckServiceMock
-                .Verify(x => x.UpdateRelatedRequests(employmentCheckCacheRequest), Times.AtLeastOnce);
+            _employmentCheckServiceMock.Verify(x => x.UpdateRelatedRequests(employmentCheckCacheRequest), Times.AtLeastOnce);
         }
     }
 }

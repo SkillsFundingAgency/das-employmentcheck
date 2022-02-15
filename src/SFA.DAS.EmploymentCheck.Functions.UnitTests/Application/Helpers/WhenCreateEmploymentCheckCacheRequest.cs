@@ -9,6 +9,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
 {
     public class WhenCreateEmploymentCheckCacheRequest
     {
+        private const string NINO = "AB123456C_1234567890";
+        private const string PAYE = "Paye001";
+
         private Fixture _fixture;
         private IEmploymentCheckCacheRequestFactory _sut;
         private Models.EmploymentCheck _employmentCheck;
@@ -27,12 +30,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
             _sut = new EmploymentCheckCacheRequestFactory();
 
             // Act
-            var result = await _sut
-                .CreateEmploymentCheckCacheRequest(_employmentCheck, "AB123456C", "Paye1");
+            var result = await _sut.CreateEmploymentCheckCacheRequest(_employmentCheck, NINO, PAYE);
 
             // Assert
-            result.Should()
-                .Be(result);
+            result.CorrelationId.Should().Be(_employmentCheck.CorrelationId);
+            result.Nino.Should().Be(NINO);
+            result.PayeScheme.Should().Be(PAYE);
+            result.MinDate.Should().Be(_employmentCheck.MinDate);
+            result.MaxDate.Should().Be(_employmentCheck.MaxDate);
+            result.Employed.Should().Be(_employmentCheck.Employed);
+            result.RequestCompletionStatus.Should().Be(_employmentCheck.RequestCompletionStatus);
         }
 
         [Test]
@@ -42,18 +49,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
             _sut = new EmploymentCheckCacheRequestFactory();
 
             // Act
-            var result = await _sut
-                .CreateEmploymentCheckCacheRequest(_employmentCheck, "AB123456C_123456789012345678901234567890", "Paye1");
+            var result = await _sut.CreateEmploymentCheckCacheRequest(_employmentCheck, NINO + "123456789012345678901234567890", PAYE);
 
             // Assert
             result
-                .Should().BeEquivalentTo(result,
-                opts => opts
-                    .Excluding(x => x.Nino));
-
-            result.Nino
                 .Should()
-                .Be("AB123456C_1234567890");
+                .BeEquivalentTo(result, opts => opts
+                .Excluding(x => x.Nino));
+
+            result.Nino.Should().Be(NINO);
         }
     }
 }

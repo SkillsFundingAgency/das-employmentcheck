@@ -16,18 +16,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         private const string NINO = "AB123456";
         private const string PAYE = "Paye001";
 
-        private readonly Fixture _fixture;
         private readonly Mock<IEmploymentCheckService> _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
+        private Fixture _fixture;
 
-        private readonly IList<Models.EmploymentCheck> _employmentChecks;
-        private readonly IList<LearnerNiNumber> _ninos;
-        private readonly IList<EmployerPayeSchemes> _payes;
-        private readonly EmploymentCheckData _employmentCheckData;
-        private readonly IList<EmploymentCheckCacheRequest> _employmentCheckCacheRequests;
+        private IList<Models.EmploymentCheck> _employmentChecks;
+        private IList<LearnerNiNumber> _ninos;
+        private IList<EmployerPayeSchemes> _payes;
+        private EmploymentCheckData _employmentCheckData;
+        private IList<EmploymentCheckCacheRequest> _employmentCheckCacheRequests;
 
-        private readonly EmploymentCheckClient _sut;
+        private EmploymentCheckClient _sut;
 
-        public WhenCreatingEmploymentCheckCacheRequests()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _sut = new EmploymentCheckClient(_employmentCheckServiceMock.Object);
@@ -78,17 +79,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_EmploymentCheckService_Is_Called()
         {
             // Arrange
-            _employmentCheckServiceMock
-                .Setup(x => x.CreateEmploymentCheckCacheRequests(_employmentCheckData))
-                .ReturnsAsync(_employmentCheckCacheRequests);
 
             // Act
-            await _sut
-                .CreateEmploymentCheckCacheRequests(_employmentCheckData);
+            await _sut.CreateEmploymentCheckCacheRequests(_employmentCheckData);
 
             // Assert
-            _employmentCheckServiceMock
-                .Verify(x => x.CreateEmploymentCheckCacheRequests(_employmentCheckData), Times.AtLeastOnce);
+            _employmentCheckServiceMock.Verify(x => x.CreateEmploymentCheckCacheRequests(_employmentCheckData), Times.AtLeastOnce);
         }
 
         [Test]
@@ -97,16 +93,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             // Arrange
             _employmentCheckServiceMock
                 .Setup(x => x.CreateEmploymentCheckCacheRequests(_employmentCheckData))
-                    .ReturnsAsync(_employmentCheckCacheRequests);
+                .ReturnsAsync(_employmentCheckCacheRequests);
 
             // Act
-            var result = await _sut
-                .CreateEmploymentCheckCacheRequests(_employmentCheckData);
+            var result = await _sut.CreateEmploymentCheckCacheRequests(_employmentCheckData);
 
-            //Assert
-            result
-                .Should()
-                .BeEquivalentTo(_employmentCheckCacheRequests);
+            // Assert
+            result.Should().BeEquivalentTo(_employmentCheckCacheRequests);
         }
 
         [Test]
@@ -115,16 +108,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             // Arrange
             _employmentCheckServiceMock
                 .Setup(x => x.CreateEmploymentCheckCacheRequests(_employmentCheckData))
-                    .ReturnsAsync(new List<EmploymentCheckCacheRequest>());
+                .ReturnsAsync(new List<EmploymentCheckCacheRequest>());
 
             // Act
-            var result = await _sut
-                .CreateEmploymentCheckCacheRequests(_employmentCheckData);
+            var result = await _sut.CreateEmploymentCheckCacheRequests(_employmentCheckData);
 
-            //Assert
-            result
-                .Should()
-                .BeEquivalentTo(new List<Models.EmploymentCheck>());
+            // Assert
+            result.Should().BeEquivalentTo(new List<Models.EmploymentCheck>());
         }
 
         [Test]
@@ -133,16 +123,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             // Arrange
             _employmentCheckServiceMock
                 .Setup(x => x.CreateEmploymentCheckCacheRequests(_employmentCheckData))
-                    .ReturnsAsync(() => null);
+                .ReturnsAsync(() => null);
 
             // Act
-            var result = await _sut
-                .CreateEmploymentCheckCacheRequests(_employmentCheckData);
+            var result = await _sut.CreateEmploymentCheckCacheRequests(_employmentCheckData);
 
-            //Assert
-            result
-                .Should()
-                .BeNull();
+            // Assert
+            result.Should().BeNull();
         }
     }
 }

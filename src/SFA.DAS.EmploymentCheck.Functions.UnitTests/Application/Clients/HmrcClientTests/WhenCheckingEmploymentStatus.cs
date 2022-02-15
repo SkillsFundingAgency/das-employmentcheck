@@ -15,19 +15,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
 {
     public class WhenCheckingEmploymentStatus
     {
-        private readonly HmrcClient _sut;
-        private readonly Fixture _fixture;
         private readonly Mock<IHmrcService> _hmrcServiceMock = new Mock<IHmrcService>();
+        private Fixture _fixture;
+        private HmrcClient _sut;
 
-        public WhenCheckingEmploymentStatus()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
 
             var serviceProvider = new ServiceCollection()
                 .AddLogging()
                 .BuildServiceProvider();
-            var factory = serviceProvider.GetService<ILoggerFactory>();
-            var logger = factory.CreateLogger<HmrcClient>();
+
+            var factory = serviceProvider
+                .GetService<ILoggerFactory>();
+
+            var logger = factory
+                .CreateLogger<HmrcClient>();
 
             _sut = new HmrcClient(_hmrcServiceMock.Object, logger);
         }
@@ -46,12 +51,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .ReturnsAsync(employmentCheckCacheRequest);
 
             // Act
-            await _sut
-                .CheckEmploymentStatus(employmentCheckCacheRequest);
+            await _sut.CheckEmploymentStatus(employmentCheckCacheRequest);
 
             // Assert
-            _hmrcServiceMock
-                .Verify(x => x.IsNationalInsuranceNumberRelatedToPayeScheme(employmentCheckCacheRequest), Times.AtLeastOnce);
+            _hmrcServiceMock.Verify(x => x.IsNationalInsuranceNumberRelatedToPayeScheme(employmentCheckCacheRequest), Times.AtLeastOnce);
         }
 
         [Test]
@@ -68,12 +71,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .ReturnsAsync(employmentCheckCacheRequest);
 
             // Act
-            var result = await _sut
-                .CheckEmploymentStatus(employmentCheckCacheRequest);
+            var result = await _sut.CheckEmploymentStatus(employmentCheckCacheRequest);
 
             // Assert
-            Assert
-                .AreEqual(employmentCheckCacheRequest, result);
+            Assert.AreEqual(employmentCheckCacheRequest, result);
         }
 
         [Test]
@@ -90,13 +91,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .ReturnsAsync(() => null);
 
             // Act
-            var result = await _sut
-                .CheckEmploymentStatus(employmentCheckCacheRequest);
+            var result = await _sut.CheckEmploymentStatus(employmentCheckCacheRequest);
 
-            //Assert
-            result
-                .Should()
-                .BeNull();
+            // Assert
+            result.Should().BeNull();
         }
     }
 }

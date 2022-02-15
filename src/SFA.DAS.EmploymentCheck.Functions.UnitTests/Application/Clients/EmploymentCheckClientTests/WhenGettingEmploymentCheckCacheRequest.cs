@@ -11,11 +11,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
 {
     public class WhenGettingEmploymentCheckCacheRequest
     {
-        private readonly EmploymentCheckClient _sut;
-        private readonly Fixture _fixture;
         private readonly Mock<IEmploymentCheckService> _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
+        private EmploymentCheckClient _sut;
+        private Fixture _fixture;
 
-        public WhenGettingEmploymentCheckCacheRequest()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _sut = new EmploymentCheckClient(_employmentCheckServiceMock.Object);
@@ -25,23 +26,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_EmploymentCheckService_Is_Called()
         {
             // Arrange
-            _employmentCheckServiceMock
-                .Setup(x => x.GetEmploymentCheckCacheRequest())
-                .ReturnsAsync(new EmploymentCheckCacheRequest());
 
             // Act
-            await _sut
-                .GetEmploymentCheckCacheRequest();
+            await _sut.GetEmploymentCheckCacheRequest();
 
             // Assert
-            _employmentCheckServiceMock
-                .Verify(x => x.GetEmploymentCheckCacheRequest(), Times.AtLeastOnce);
+            _employmentCheckServiceMock.Verify(x => x.GetEmploymentCheckCacheRequest(), Times.AtLeastOnce);
         }
 
         [Test]
         public async Task And_The_EmploymentCheckService_Returns_An_EmploymentCheckCacheRequest_Then_It_Is_Returned()
         {
-            //Arrange
+            // Arrange
             var employmentCheckCacheRequest = _fixture
                 .Build<EmploymentCheckCacheRequest>()
                 .Create();
@@ -50,35 +46,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .Setup(x => x.GetEmploymentCheckCacheRequest())
                 .ReturnsAsync(employmentCheckCacheRequest);
 
-            //Act
-            var result = await _sut
-                .GetEmploymentCheckCacheRequest();
+            // Act
+            var result = await _sut.GetEmploymentCheckCacheRequest();
 
-            //Assert
-            Assert
-                .AreEqual(employmentCheckCacheRequest, result);
+            // Assert
+            Assert.AreEqual(employmentCheckCacheRequest, result);
         }
 
         [Test]
-        public async Task And_The_EmploymentCheckService_Returns_Null_Then_An_Empty_List_Then_Null_Is_Returned()
+        public async Task And_The_EmploymentCheckService_Returns_Null_Then_Null_Is_Returned()
         {
-            //Arrange
-            var employmentCheckCacheRequest = _fixture
-                .Build<EmploymentCheckCacheRequest>()
-                .Create();
-
+            // Arrange
             _employmentCheckServiceMock
                 .Setup(x => x.GetEmploymentCheckCacheRequest())
                 .ReturnsAsync(() => null);
 
-            //Act
-            var result = await _sut
-                .GetEmploymentCheckCacheRequest();
+            // Act
+            var result = await _sut.GetEmploymentCheckCacheRequest();
 
-            //Assert
-            result
-                .Should()
-                .BeNull();
+            // Assert
+            result.Should().BeNull();
         }
     }
 }

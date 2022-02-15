@@ -55,7 +55,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_The_TokenServiceApiClient_Is_Called()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -64,17 +65,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ReturnsAsync(_fixture.Create<EmploymentStatus>());
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+            _tokenService
+                .Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
         [Test]
         public async Task Then_Cached_AccessToken_Is_Reused()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -84,11 +88,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             var token = new PrivilegedAccessToken
             {
-                AccessCode = _fixture.Create<string>(),
+                AccessCode = _fixture
+                .Create<string>(),
                 ExpiryTime = DateTime.Now.AddHours(1)
             };
 
-            _tokenService.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+            _tokenService
+                .Setup(ts => ts.GetPrivilegedAccessTokenAsync())
                 .ReturnsAsync(token);
 
             // Act
@@ -99,14 +105,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
+            _tokenService
+                .Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
         [Test]
         public async Task Then_The_TokenServiceApiClient_Is_Called_Again_When_Token_Expires()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -116,11 +124,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             var expiredToken = new PrivilegedAccessToken
             {
-                AccessCode = _fixture.Create<string>(),
+                AccessCode = _fixture
+                .Create<string>(),
                 ExpiryTime = DateTime.Now.AddSeconds(-1)
             };
 
-            _tokenService.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+            _tokenService
+                .Setup(ts => ts.GetPrivilegedAccessTokenAsync())
                 .ReturnsAsync(expiredToken);
 
             // Act
@@ -128,14 +138,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
+            _tokenService
+                .Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(2));
         }
 
         [Test]
         public async Task Then_The_TokenServiceApiClient_Is_Called_When_UnauthorizedAccessException_Occurs()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -144,11 +156,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(new UnauthorizedAccessException());
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
-            _apprenticeshipLevyService.Verify(x => x.GetEmploymentStatus(
+            _tokenService
+                .Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
+
+            _apprenticeshipLevyService
+                .Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -170,7 +186,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -179,10 +196,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
+            _tokenService
+                .Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(11));
         }
 
 
@@ -190,8 +209,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_a_positive_response_is_saved_as_complete()
         {
             // Arrange
-            var response = _fixture.Create<EmploymentStatus>();
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            var response = _fixture
+                .Create<EmploymentStatus>();
+
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -200,10 +222,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ReturnsAsync(response);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository
+                .Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -224,7 +248,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         public async Task Then_a_null_response_is_handled()
         {
             // Arrange
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -233,15 +258,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ReturnsAsync((EmploymentStatus)null);
 
             // Act
-            var result = await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            var result = await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository
+                .Verify(r => r.Save(
                 It.IsAny<EmploymentCheckCacheResponse>()
             ), Times.AtLeastOnce);
 
-            result.Employed.Should().BeNull();
-            result.RequestCompletionStatus.Should().Be(500);
+            result
+                .Employed
+                .Should()
+                .BeNull();
+
+            result
+                .RequestCompletionStatus
+                .Should()
+                .Be(500);
         }
 
         [Test]
@@ -258,7 +292,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -267,7 +302,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _repository.Verify(r => r.Save(
@@ -301,7 +337,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -313,7 +350,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository
+                .Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -321,7 +359,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
                         && x.FoundOnPaye == null
-                        && x.ProcessingComplete == false
+                        && !x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == code
@@ -344,7 +382,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -353,10 +392,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _repository.Verify(r => r.Save(
+            _repository
+                .Verify(r => r.Save(
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -364,7 +405,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
                         && x.FoundOnPaye == null
-                        && x.ProcessingComplete == false
+                        && !x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == code
@@ -387,7 +428,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                     _token.AccessCode,
                     _request.PayeScheme,
                     _request.Nino,
@@ -396,7 +438,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _tokenService.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.AtLeastOnce);
@@ -422,7 +465,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 _fixture.Create<Exception>()
             );
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -431,7 +475,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _repository.Verify(r => r.Save(
@@ -457,7 +502,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
             // Arrange
             var exception = _fixture.Create<Exception>();
 
-            _apprenticeshipLevyService.Setup(x => x.GetEmploymentStatus(
+            _apprenticeshipLevyService
+                .Setup(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
@@ -466,7 +512,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _repository.Verify(r => r.Save(
@@ -477,7 +524,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
                         && x.FoundOnPaye == null
-                        && x.ProcessingComplete == false
+                        && !x.ProcessingComplete
                         && x.Count == 1
                         && x.HttpResponse == exception.Message
                         && x.HttpStatusCode == 500

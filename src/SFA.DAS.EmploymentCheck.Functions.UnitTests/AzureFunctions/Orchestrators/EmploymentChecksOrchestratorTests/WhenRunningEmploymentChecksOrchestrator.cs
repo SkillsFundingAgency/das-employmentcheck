@@ -10,11 +10,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 {
     public class WhenRunningEmploymentChecksOrchestrator
     {
-        private readonly Fixture _fixture;
-        private readonly Mock<IDurableOrchestrationContext> _context;
-        private readonly Mock<ILogger<EmploymentChecksOrchestrator>> _logger;
+        private Fixture _fixture;
+        private Mock<IDurableOrchestrationContext> _context;
+        private Mock<ILogger<EmploymentChecksOrchestrator>> _logger;
 
-        public WhenRunningEmploymentChecksOrchestrator()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();

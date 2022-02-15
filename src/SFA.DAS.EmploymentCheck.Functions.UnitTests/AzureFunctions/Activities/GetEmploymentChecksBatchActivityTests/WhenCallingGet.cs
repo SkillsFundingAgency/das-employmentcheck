@@ -13,11 +13,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
 {
     public class WhenCallingGet
     {
-        private readonly Fixture _fixture;
-        private readonly IList<Models.EmploymentCheck> _employmentChecks;
-        private readonly Mock<IMediator> _mediator;
+        private Fixture _fixture;
+        private IList<Models.EmploymentCheck> _employmentChecks;
+        private Mock<IMediator> _mediator;
 
-        public WhenCallingGet()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _mediator = new Mock<IMediator>();
@@ -30,9 +31,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             //Arrange
             var sut = new GetEmploymentChecksBatchActivity(_mediator.Object);
 
-            var queryResult = new GetEmploymentCheckBatchQueryResult(_employmentChecks);
+            var queryResult = new GetEmploymentCheckBatchQueryResult();
+            queryResult.ApprenticeEmploymentChecks = _employmentChecks;
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetEmploymentCheckBatchQueryRequest>(), CancellationToken.None))
+            _mediator
+                .Setup(x => x.Send(It.IsAny<GetEmploymentCheckBatchQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
             //Act

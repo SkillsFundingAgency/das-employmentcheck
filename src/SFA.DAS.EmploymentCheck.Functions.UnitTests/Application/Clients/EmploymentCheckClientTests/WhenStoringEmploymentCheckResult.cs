@@ -10,12 +10,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
 {
     public class WhenStoringEmploymentCheckResult
     {
-
-        private readonly Fixture _fixture;
         private readonly Mock<IEmploymentCheckService> _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
-        private readonly EmploymentCheckClient _sut;
+        private Fixture _fixture;
+        private EmploymentCheckClient _sut;
 
-        public WhenStoringEmploymentCheckResult()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _sut = new EmploymentCheckClient(_employmentCheckServiceMock.Object);
@@ -33,12 +33,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .Setup(x => x.StoreEmploymentCheckResult(employmentCheckCacheRequest));
 
             // Act
-            await _sut
-                .StoreEmploymentCheckResult(employmentCheckCacheRequest);
+            await _sut.StoreEmploymentCheckResult(employmentCheckCacheRequest);
 
             // Assert
-            _employmentCheckServiceMock
-                .Verify(x => x.StoreEmploymentCheckResult(employmentCheckCacheRequest), Times.AtLeastOnce);
+            _employmentCheckServiceMock.Verify(x => x.StoreEmploymentCheckResult(employmentCheckCacheRequest), Times.AtLeastOnce);
         }
     }
 }

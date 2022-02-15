@@ -6,7 +6,6 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -15,14 +14,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 {
     public class WhenRunningProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
     {
-        private readonly Fixture _fixture;
-        private readonly Mock<IDurableOrchestrationContext> _context;
-        private readonly Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>> _logger;
+        private Fixture _fixture;
+        private Mock<IDurableOrchestrationContext> _context;
+        private Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>> _logger;
 
-        private readonly EmploymentCheckCacheRequest employmentCheckCacheRequest;
-        private readonly IList<Models.EmploymentCheck> _employmentChecks;
+        private EmploymentCheckCacheRequest employmentCheckCacheRequest;
+        private IList<Models.EmploymentCheck> _employmentChecks;
 
-        public WhenRunningProcessEmploymentCheckRequestsWithRateLimiterOrchestrator()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();

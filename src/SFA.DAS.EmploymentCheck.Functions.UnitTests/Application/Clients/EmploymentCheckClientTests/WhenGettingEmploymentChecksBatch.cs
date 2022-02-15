@@ -13,12 +13,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
 {
     public class WhenGettingEmploymentChecksBatch
     {
-
-        private readonly Fixture _fixture;
         private readonly Mock<IEmploymentCheckService> _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
-        private readonly EmploymentCheckClient _sut;
+        private Fixture _fixture;
+        private EmploymentCheckClient _sut;
 
-        public WhenGettingEmploymentChecksBatch()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _sut = new EmploymentCheckClient(_employmentCheckServiceMock.Object);
@@ -28,23 +28,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_EmploymentCheckService_Is_Called()
         {
             // Arrange
-            _employmentCheckServiceMock
-                .Setup(x => x.GetEmploymentChecksBatch())
-                .ReturnsAsync(new List<Models.EmploymentCheck>());
 
             // Act
-            await _sut
-                .GetEmploymentChecksBatch();
+            await _sut.GetEmploymentChecksBatch();
 
             // Assert
-            _employmentCheckServiceMock
-                .Verify(x => x.GetEmploymentChecksBatch(), Times.AtLeastOnce);
+            _employmentCheckServiceMock.Verify(x => x.GetEmploymentChecksBatch(), Times.AtLeastOnce);
         }
 
         [Test]
         public async Task And_The_EmploymentCheckService_Returns_EmploymentChecks_Then_They_Are_Returned()
         {
-            //Arrange
+            // Arrange
             var employmentChecks = _fixture
                 .Build<Models.EmploymentCheck>()
                 .CreateMany()
@@ -54,49 +49,41 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 .Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync(employmentChecks);
 
-            //Act
-            var result = await _sut
-                .GetEmploymentChecksBatch();
+            // Act
+            var result = await _sut.GetEmploymentChecksBatch();
 
-            //Assert
-            Assert
-                .AreEqual(employmentChecks, result);
+            // Assert
+            Assert.AreEqual(employmentChecks, result);
         }
 
         [Test]
         public async Task And_The_EmploymentCheckService_Returns_No_EmploymentChecks_Then_An_Empty_List_Is_Returned()
         {
-            //Arrange
+            // Arrange
             _employmentCheckServiceMock
                 .Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync(new List<Models.EmploymentCheck>());
 
-            //Act
-            var result = await _sut
-                .GetEmploymentChecksBatch();
+            // Act
+            var result = await _sut.GetEmploymentChecksBatch();
 
-            //Assert
-            result
-                .Should()
-                .BeEquivalentTo(new List<Models.EmploymentCheck>());
+            // Assert
+            result.Should().BeEquivalentTo(new List<Models.EmploymentCheck>());
         }
 
         [Test]
         public async Task And_The_EmploymentCheckService_Returns_Null_Then_An_Empty_List_Then_Null_Is_Returned()
         {
-            //Arrange
+            // Arrange
             _employmentCheckServiceMock
                 .Setup(x => x.GetEmploymentChecksBatch())
                 .ReturnsAsync(() => null);
 
-            //Act
-            var result = await _sut
-                .GetEmploymentChecksBatch();
+            // Act
+            var result = await _sut.GetEmploymentChecksBatch();
 
-            //Assert
-            result
-                .Should()
-                .BeNull();
+            // Assert
+            result.Should().BeNull();
         }
     }
 }
