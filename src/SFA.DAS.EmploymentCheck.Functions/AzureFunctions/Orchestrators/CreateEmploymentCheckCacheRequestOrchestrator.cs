@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentChecks);
 
                 await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
-                await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentChecks, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+                await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentChecks, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
             }
         }
     }

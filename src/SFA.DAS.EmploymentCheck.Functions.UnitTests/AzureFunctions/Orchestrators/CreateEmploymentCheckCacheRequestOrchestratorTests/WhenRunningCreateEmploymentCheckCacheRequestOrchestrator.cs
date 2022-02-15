@@ -65,7 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Assert
             _context.Verify(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()), Times.Once);
             _context.Verify(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), It.IsAny<IList<Models.EmploymentCheck>>()), Times.Once);
-            _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()), Times.Once);
+            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()), Times.Once);
         }
     }
 }
