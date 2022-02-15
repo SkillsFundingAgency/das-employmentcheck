@@ -1,11 +1,11 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Repositories;
-using System;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Repositories
 {
     public class WhenGettingEmploymentCheck : RepositoryTestBase
     {

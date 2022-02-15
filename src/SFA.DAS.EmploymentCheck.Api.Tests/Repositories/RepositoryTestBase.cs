@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Repositories
 {
     public class RepositoryTestBase
     {

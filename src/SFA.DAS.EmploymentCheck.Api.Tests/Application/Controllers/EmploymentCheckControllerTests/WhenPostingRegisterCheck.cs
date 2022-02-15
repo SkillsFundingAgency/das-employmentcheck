@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -11,7 +10,7 @@ using SFA.DAS.EmploymentCheck.Api.Application.Controllers;
 using SFA.DAS.EmploymentCheck.Api.Application.Models;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCheckControllerTests
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Application.Controllers.EmploymentCheckControllerTests
 {
     public class WhenPostingRegisterCheck
     {
