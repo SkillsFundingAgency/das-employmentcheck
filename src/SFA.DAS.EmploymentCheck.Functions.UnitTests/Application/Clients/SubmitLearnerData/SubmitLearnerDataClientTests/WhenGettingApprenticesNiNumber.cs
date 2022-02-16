@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Submit
             _fixture = new Fixture();
             _submitLearnerDataService = new Mock<ILearnerService>();
 
-            _sut = new LearnerClient(Mock.Of<ILogger<ILearnerClient>>(), _submitLearnerDataService.Object);
+            _sut = new LearnerClient(_submitLearnerDataService.Object);
         }
 
         [Test]
