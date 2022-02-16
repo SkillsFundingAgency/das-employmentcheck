@@ -12,20 +12,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestOrchestrator))]
         public async Task CreateEmploymentCheckCacheRequestTask(
-            [OrchestrationTrigger] IDurableOrchestrationContext context
+            [OrchestrationTrigger] IDurableOrchestrationContext context,
+            Models.EmploymentCheck check
         )
         {
             var employmentCheck = context.GetInput<Models.EmploymentCheck>();
             if(employmentCheck != null)
             {
-                var employmentChecks = new List<Models.EmploymentCheck>();
-                employmentChecks.Add(employmentCheck);
-
-                var getLearnerNiNumbersActivityTask = context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentChecks);
-                var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentChecks);
+                var getLearnerNiNumbersActivityTask = context.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumbersActivity), employmentCheck);
+                var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheck);
 
                 await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
-                await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentChecks, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+
+                await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheck, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+            }
+            else
+            {
+                // log something??
             }
         }
     }

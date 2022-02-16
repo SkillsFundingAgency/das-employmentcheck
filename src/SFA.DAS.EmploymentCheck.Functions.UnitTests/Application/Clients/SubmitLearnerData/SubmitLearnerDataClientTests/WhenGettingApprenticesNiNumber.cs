@@ -2,13 +2,12 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
 {
@@ -29,50 +28,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
         public async Task Then_The_SubmitLeanerDataService_Is_Called()
         {
             //Arrange
-            var apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
+            var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
 
-            _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
-                .ReturnsAsync(new List<LearnerNiNumber>());
-
-            var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
-
-            //Act
-            await sut.GetNiNumbers(apprentices);
-
-            //Assert
-            _submitLearnerDataService.Verify(x => x.GetNiNumbers(apprentices), Times.Exactly(1));
-        }
-
-        [Test]
-        public async Task And_The_LearnerService_Returns_No_Ni_Numbers_Then_An_Empty_List_Is_Returned()
-        {
-            //Arrange
-            var apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
-
-            _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
-                .ReturnsAsync(new List<LearnerNiNumber>());
+            _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
+                .ReturnsAsync(new LearnerNiNumber());
 
             var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
 
             //Act
-            var result = await sut.GetNiNumbers(apprentices);
+            await sut.GetNiNumber(check);
 
             //Assert
-            result.Should().BeEquivalentTo(new List<LearnerNiNumber>());
+            _submitLearnerDataService.Verify(x => x.GetNiNumber(check), Times.Exactly(1));
         }
+
         [Test]
         public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
-            var apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
+            var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
 
-            _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
-                .ReturnsAsync((List<LearnerNiNumber>)null);
+            _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
+                .ReturnsAsync((LearnerNiNumber)null);
 
             var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
 
             //Act
-            var result = await sut.GetNiNumbers(apprentices);
+            var result = await sut.GetNiNumber(check);
 
             //Assert
             result.Should().BeNull();
@@ -82,20 +64,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
         public async Task And_The_LearnerService_Returns_Ni_Numbers_Then_They_Are_Returned()
         {
             //Arrange
-            var apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
+            var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
             var niNumber = new LearnerNiNumber(1000001, "1000001");
-            var niNumbers = new List<LearnerNiNumber> { niNumber };
 
-            _submitLearnerDataService.Setup(x => x.GetNiNumbers(apprentices))
-                .ReturnsAsync(niNumbers);
+            _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
+                .ReturnsAsync(niNumber);
 
             var sut = new LearnerClient(_logger.Object, _submitLearnerDataService.Object);
 
             //Act
-            var result = await sut.GetNiNumbers(apprentices);
+            var result = await sut.GetNiNumber(check);
 
             //Assert
-            Assert.AreEqual(niNumbers, result);
+            Assert.AreEqual(niNumber, result);
         }
     }
 }

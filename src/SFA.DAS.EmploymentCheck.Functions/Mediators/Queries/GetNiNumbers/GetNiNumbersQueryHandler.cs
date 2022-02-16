@@ -2,24 +2,16 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
 {
-    public class GetNiNumbersQueryHandler
-        : IRequestHandler<GetNiNumbersQueryRequest,
-            GetNiNumbersQueryResult>
+    public class GetNiNumbersQueryHandler : IRequestHandler<GetNiNumbersQueryRequest, GetNiNumbersQueryResult>
     {
-        #region Private members
         private readonly ILearnerClient _learnerClient;
         private readonly ILogger<GetNiNumbersQueryHandler> _logger;
-        #endregion Private members
 
-        #region Constructors
         public GetNiNumbersQueryHandler(
             ILearnerClient learnerClient,
             ILogger<GetNiNumbersQueryHandler> logger)
@@ -27,9 +19,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
             _learnerClient = learnerClient;
             _logger = logger;
         }
-        #endregion Constructors
-
-        #region Handle
 
         public async Task<GetNiNumbersQueryResult> Handle(
             GetNiNumbersQueryRequest getNiNumbersQueryRequest,
@@ -38,24 +27,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
             var thisMethodName = $"{nameof(GetNiNumbersQueryHandler)}.Handle";
 
             Guard.Against.Null(getNiNumbersQueryRequest, nameof(getNiNumbersQueryRequest));
-            Guard.Against.Null(getNiNumbersQueryRequest.EmploymentCheckBatch, nameof(getNiNumbersQueryRequest.EmploymentCheckBatch));
+            Guard.Against.Null(getNiNumbersQueryRequest.Check, nameof(getNiNumbersQueryRequest.Check));
 
-            var learnerNiNumbers = await _learnerClient.GetNiNumbers(getNiNumbersQueryRequest.EmploymentCheckBatch);
+            var learnerNiNumber = await _learnerClient.GetNiNumber(getNiNumbersQueryRequest.Check);
 
-            if (learnerNiNumbers != null &&
-                learnerNiNumbers.Count > 0)
-            {
-                _logger.LogInformation($"{thisMethodName} returned {learnerNiNumbers.Count} NiNumbers");
-            }
-            else
+            if (learnerNiNumber == null)
             {
                 _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
-                learnerNiNumbers = new List<LearnerNiNumber>(); // return empty list rather than null
             }
 
-            return new GetNiNumbersQueryResult(learnerNiNumbers);
+            return new GetNiNumbersQueryResult(learnerNiNumber);
         }
-
-        #endregion Handle
     }
 }

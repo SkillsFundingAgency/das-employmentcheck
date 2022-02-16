@@ -8,8 +8,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
     {
         public EmploymentCheckDataValidator()
         {
-            RuleFor(employmentCheckData => employmentCheckData.EmploymentChecks).NotEmpty();
-            RuleFor(employmentCheckData => employmentCheckData.ApprenticeNiNumbers).NotEmpty();
+            RuleFor(employmentCheckData => employmentCheckData.EmploymentCheck).NotEmpty();
+            RuleFor(employmentCheckData => employmentCheckData.ApprenticeNiNumber).NotEmpty();
             RuleFor(employmentCheckData => employmentCheckData.EmployerPayeSchemes).NotEmpty();
         }
     }

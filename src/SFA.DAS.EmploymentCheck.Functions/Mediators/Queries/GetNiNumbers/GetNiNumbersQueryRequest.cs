@@ -1,17 +1,15 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using System.Collections.Generic;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
 {
     public class GetNiNumbersQueryRequest
         : IRequest<GetNiNumbersQueryResult>
     {
-        public GetNiNumbersQueryRequest(IList<Application.Models.EmploymentCheck> employmentCheckBatch)
+        public GetNiNumbersQueryRequest(Application.Models.EmploymentCheck check)
         {
-            EmploymentCheckBatch = employmentCheckBatch;
+            Check = check;
         }
 
-        public IList<Application.Models.EmploymentCheck> EmploymentCheckBatch { get; }
+        public Application.Models.EmploymentCheck Check { get; }
     }
 }
