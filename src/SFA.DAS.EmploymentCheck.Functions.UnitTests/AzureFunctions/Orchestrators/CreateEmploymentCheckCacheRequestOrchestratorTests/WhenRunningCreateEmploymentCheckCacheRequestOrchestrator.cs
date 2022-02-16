@@ -17,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
         private Models.EmploymentCheck _employmentCheck;
+        private IList<Models.EmploymentCheck> _employmentChecks;
         private IList<LearnerNiNumber> _learnerNiNumbers;
         private IList<EmployerPayeSchemes> _employerPayeSchemes;
         private CreateEmploymentCheckCacheRequestOrchestrator _sut;
@@ -27,6 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
             _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            _employmentChecks = new List<Models.EmploymentCheck> { _employmentCheck };
             _learnerNiNumbers = _fixture.CreateMany<LearnerNiNumber>(1).ToList();
             _employerPayeSchemes = _fixture.CreateMany<EmployerPayeSchemes>(1).ToList();
             _sut = new CreateEmploymentCheckCacheRequestOrchestrator();
@@ -40,25 +42,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Setup(i => i.GetInput<Models.EmploymentCheck>())
                 .Returns(_employmentCheck);
 
-            // add the above _employmentCheck to a list as per the 'real' code
-            var employmentChecks = new List<Models.EmploymentCheck>();
-            employmentChecks.Add(_employmentCheck);
-
             _context
-                .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentChecks))
+                .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), _employmentChecks))
                 .ReturnsAsync(_learnerNiNumbers);
 
             _context
-                .Setup(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentChecks))
+                .Setup(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), _employmentChecks))
                 .ReturnsAsync(_employerPayeSchemes);
 
             // Act
             await _sut.CreateEmploymentCheckCacheRequestTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentChecks), Times.Once);
-            _context.Verify(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentChecks), Times.Once);
-            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()), Times.Once);
+            _context
+                .Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity),
+                    It.Is<EmploymentCheckData>(ecd =>
+                        Equals(ecd.ApprenticeNiNumbers, _learnerNiNumbers)
+                        && Equals(ecd.EmployerPayeSchemes, _employerPayeSchemes)
+                        && ecd.EmploymentChecks.First() == _employmentCheck
+                        )
+                    ), Times.Once);
         }
     }
 }
