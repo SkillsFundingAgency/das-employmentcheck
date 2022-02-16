@@ -20,9 +20,9 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Services
             return existingEmploymentCheck;
         }
 
-        public void InsertEmploymentCheck(Models.EmploymentCheck employmentCheck)
+        public async Task InsertEmploymentCheck(Models.EmploymentCheck employmentCheck)
         {
-            _employmentCheckRepository.Insert(employmentCheck);
+            await _employmentCheckRepository.Insert(employmentCheck);
         }
     }
 }

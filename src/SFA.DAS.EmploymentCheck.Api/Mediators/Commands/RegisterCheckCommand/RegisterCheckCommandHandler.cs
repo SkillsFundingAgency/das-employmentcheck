@@ -22,16 +22,16 @@ namespace SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand
 
             if (result.Invalid()) return result;
 
-            Save(command);
+            await Save(command);
 
             return result;
         }
 
-        private void Save(RegisterCheckCommand command)
+        private async Task Save(RegisterCheckCommand command)
         {
             var employmentCheck = CreateNewEmploymentCheck(command);
 
-            _employmentCheckService.InsertEmploymentCheck(employmentCheck);
+            await _employmentCheckService.InsertEmploymentCheck(employmentCheck);
         }
         
         private static Application.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command)
