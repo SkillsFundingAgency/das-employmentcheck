@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -19,23 +20,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             ILogger log)
         {
             IList<HttpResponseMessage> resultMessages = new List<HttpResponseMessage>();
-            HttpResponseMessage resultMessage = null;
+            HttpResponseMessage resultMessage;
 
             resultMessages.Add(await CreateEmploymentCheckRequestsOrchestratorTrigger.HttpStart(req, starter, log));
             resultMessages.Add(await ProcessEmploymentChecksHttpTrigger.HttpStart(req, starter, log));
 
-            // With only being able to return one message choose 'conflict' if there is one
-            bool conflict = false;
-            foreach(var httpMessage in resultMessages)
-            {
-                if (httpMessage.StatusCode == HttpStatusCode.Conflict)
-                {
-                    conflict = true;
-                    break;
-                }
-            }
+            var conflict = resultMessages.Any(rm => rm.StatusCode == HttpStatusCode.Conflict);
 
-            if(conflict) { resultMessage = new HttpResponseMessage(HttpStatusCode.Conflict); }
+            if (conflict) { resultMessage = new HttpResponseMessage(HttpStatusCode.Conflict); }
             else { resultMessage = new HttpResponseMessage(HttpStatusCode.Accepted); }
 
             StringBuilder stringMessage = new StringBuilder();

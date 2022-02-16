@@ -321,7 +321,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
                         && x.FoundOnPaye == null
-                        && !x.ProcessingComplete
+                        && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == code
@@ -364,7 +364,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
                         && x.FoundOnPaye == null
-                        && !x.ProcessingComplete
+                        && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == code
@@ -477,7 +477,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                         && x.CorrelationId == _request.CorrelationId
                         && x.Employed == null
                         && x.FoundOnPaye == null
-                        && !x.ProcessingComplete
+                        && x.ProcessingComplete == false
                         && x.Count == 1
                         && x.HttpResponse == exception.Message
                         && x.HttpStatusCode == 500

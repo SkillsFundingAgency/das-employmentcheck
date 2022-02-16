@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
                 var employmentCheckBatch = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
-                if (employmentCheckBatch != null && employmentCheckBatch.Count > 0)
+                if (employmentCheckBatch.Count > 0)
                 {
                     foreach (var employmentCheck in employmentCheckBatch)
                     {

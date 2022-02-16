@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
@@ -18,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>> _logger;
 
-        private EmploymentCheckCacheRequest employmentCheckCacheRequest;
+        private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
         private IList<Models.EmploymentCheck> _employmentChecks;
 
         [SetUp]
@@ -27,10 +28,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>>();
-
-            employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
-            _employmentChecks = new List<Models.EmploymentCheck> { _fixture.Create<Models.EmploymentCheck>() };
-            _employmentChecks = new List<Models.EmploymentCheck> { _fixture.Create<Models.EmploymentCheck>() };
+            _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
+            _employmentChecks = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
         }
 
         [Test]
@@ -41,14 +40,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
-                .ReturnsAsync(employmentCheckCacheRequest);
+                .ReturnsAsync(_employmentCheckCacheRequest);
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), _employmentChecks))
-                .ReturnsAsync(employmentCheckCacheRequest);
-
-            _context
-                .Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()));
+                .ReturnsAsync(_employmentCheckCacheRequest);
 
             // Act
             await sut.ProcessEmploymentChecksWithRateLimiterOrchestratorTask(_context.Object);
