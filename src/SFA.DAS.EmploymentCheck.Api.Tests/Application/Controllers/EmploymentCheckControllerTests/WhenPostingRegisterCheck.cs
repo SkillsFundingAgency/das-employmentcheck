@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 {
     public class WhenPostingRegisterCheck
     {
+        private Fixture _fixture;
         private Mock<IMediator> _mediator;
         private RegisterCheckRequest _registerCheckRequest;
         private RegisterCheckResult _response;
@@ -23,16 +25,8 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         public void Setup()
         {
             _mediator = new Mock<IMediator>();
-            _registerCheckRequest = new RegisterCheckRequest
-            {
-                CorrelationId = Guid.NewGuid(),
-                CheckType = "CheckType",
-                Uln = 1000001,
-                ApprenticeshipAccountId = 1,
-                ApprenticeshipId = 2,
-                MinDate = DateTime.Today.AddDays(-1),
-                MaxDate = DateTime.Today.AddDays(1),
-            };
+            _fixture = new Fixture();
+            _registerCheckRequest = _fixture.Create<RegisterCheckRequest>();
             _response = new RegisterCheckResult {ErrorMessage = "ErrorMessage", ErrorType = "ErrorType"};
         }
         [Test]
