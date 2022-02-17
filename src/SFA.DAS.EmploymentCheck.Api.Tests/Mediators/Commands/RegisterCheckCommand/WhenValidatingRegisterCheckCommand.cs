@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
@@ -7,21 +8,15 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 {
     public class WhenValidatingRegisterCheckCommand
     {
+        private Fixture _fixture;
         private Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
 
         [SetUp]
         public void Setup()
         {
-            _command = new Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand
-            {
-                ApprenticeshipAccountId = 1,
-                ApprenticeshipId = 2,
-                Uln = 3,
-                CheckType = "CheckType",
-                CorrelationId = Guid.NewGuid(),
-                MinDate = DateTime.Today.AddDays(-1),
-                MaxDate = DateTime.Today.AddDays(1)
-            };
+            _fixture = new Fixture();
+            _command = _fixture.Create<Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand>();
+            _command.MaxDate = DateTime.MaxValue;
         }
 
         [Test]

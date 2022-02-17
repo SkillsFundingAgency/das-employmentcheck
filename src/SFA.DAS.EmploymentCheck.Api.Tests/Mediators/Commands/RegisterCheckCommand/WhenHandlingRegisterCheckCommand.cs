@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Application.Services;
@@ -10,6 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 {
     public class WhenHandlingRegisterCheckCommand
     {
+        private Fixture _fixture;
         private Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand _command;
         private Mock<IEmploymentCheckService> _employmentCheckService;
         private Mock<IRegisterCheckCommandValidator> _commandValidator;
@@ -20,16 +22,9 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
             _employmentCheckService = new Mock<IEmploymentCheckService>();
             _commandValidator = new Mock<IRegisterCheckCommandValidator>();
 
-            _command = new Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand
-            {
-                ApprenticeshipAccountId = 1,
-                ApprenticeshipId = 2,
-                CheckType = "CheckType",
-                CorrelationId = Guid.NewGuid(),
-                MaxDate = DateTime.Today.AddDays(1),
-                MinDate = DateTime.Today.AddDays(-1),
-                Uln = 1000001
-            };
+            _fixture = new Fixture();
+
+            _command = _fixture.Create<Api.Mediators.Commands.RegisterCheckCommand.RegisterCheckCommand>();
         }
 
         [Test]

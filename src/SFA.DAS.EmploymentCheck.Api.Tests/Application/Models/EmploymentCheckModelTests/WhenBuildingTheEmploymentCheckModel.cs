@@ -1,22 +1,30 @@
 ﻿using System;
+using AutoFixture;
 using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Models.EmploymentCheckModelTests
 {
     public class WhenBuildingTheEmploymentCheckModel
     {
+        private Fixture _fixture;
+
+        [SetUp]
+        public void Setup()
+        {
+            _fixture = new Fixture();
+        }
         [Test]
         public void Then_The_Model_Is_Built_Correctly()
         {
             //Arrange
 
-            var expectedGuid = Guid.NewGuid();
-            var expectedCheck = "checkType";
-            var expectedUln = 1234;
-            var expectedApprenticeshipId = 1;
-            var expectedAccountId = 2;
-            var expectedMinDate = DateTime.Today.AddDays(-1);
-            var expectedMaxDate = DateTime.Today.AddDays(1);
+            var expectedGuid = _fixture.Create<Guid>();
+            var expectedCheck = _fixture.Create<string>();
+            var expectedUln = _fixture.Create<long>();
+            var expectedApprenticeshipId = _fixture.Create<long>();
+            var expectedAccountId = _fixture.Create<long>();
+            var expectedMinDate = _fixture.Create<DateTime>();
+            var expectedMaxDate = _fixture.Create<DateTime>();
 
             //Act
 
