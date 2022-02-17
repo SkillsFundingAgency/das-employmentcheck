@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
     public class EmploymentCheck
     {
         public EmploymentCheck() { }
-        public EmploymentCheck(Guid correlationId, string checkType, long uln, long? apprenticeshipId, int apprenticeshipAccountId, DateTime minDate, DateTime maxDate)
+        public EmploymentCheck(Guid correlationId, string checkType, long uln, long? apprenticeshipId, long apprenticeshipAccountId, DateTime minDate, DateTime maxDate)
         {
             CorrelationId = correlationId;
             CheckType = checkType;
