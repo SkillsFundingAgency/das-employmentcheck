@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -25,17 +24,14 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             await _sut.Insert(expected);
 
             // Assert
-            _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheResponse>())
-                .Single(x => x.Id == expected.Id);
+            _actual = await Get<Functions.Application.Models.EmploymentCheckCacheResponse>(expected.Id);
 
             _actual.Should().BeEquivalentTo(expected,
                 opts => opts
-                    .Excluding(x => x.Id)
                     .Excluding(x => x.CreatedOn)
                     .Excluding(x => x.LastUpdatedOn)
                 );
             _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.Id.Should().BeGreaterThan(0);
         }
 
         [TearDown]

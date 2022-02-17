@@ -18,10 +18,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public AccountsResponseRepository(
-
             ApplicationSettings applicationSettings,
             AzureServiceTokenProvider azureServiceTokenProvider = null,
-            Logger<IAccountsResponseRepository> logger = null
+            ILogger<IAccountsResponseRepository> logger = null
         )
         {
             _logger = logger;

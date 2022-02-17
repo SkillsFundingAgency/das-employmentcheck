@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,18 +8,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentC
     public class CreateEmploymentCheckCacheCommandHandler
         : IRequestHandler<CreateEmploymentCheckCacheCommand>
     {
-        private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly IEmploymentCheckService _service;
 
-        public CreateEmploymentCheckCacheCommandHandler(IEmploymentCheckClient employmentCheckClient)
+        public CreateEmploymentCheckCacheCommandHandler(IEmploymentCheckService service)
         {
-            _employmentCheckClient = employmentCheckClient;
+            _service = service;
         }
 
         public async Task<Unit> Handle(
             CreateEmploymentCheckCacheCommand request,
             CancellationToken cancellationToken)
         {
-            await _employmentCheckClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
+            await _service.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
 
             return Unit.Value;
         }
