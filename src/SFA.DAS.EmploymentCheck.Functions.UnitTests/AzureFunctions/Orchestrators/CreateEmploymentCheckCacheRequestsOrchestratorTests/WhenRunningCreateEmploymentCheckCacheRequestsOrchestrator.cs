@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             // Arrange
             _context
-                .Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), It.IsAny<object>()))
+                .Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()))
                 .ReturnsAsync(_employmentChecks);
 
             _context
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), It.IsAny<object>()), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()), Times.Once);
             _context.Verify(o => o.CallSubOrchestratorAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestOrchestrator), _employmentCheck), Times.Once);
         }
     }

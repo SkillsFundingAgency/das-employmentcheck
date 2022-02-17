@@ -16,9 +16,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck
             _employmentCheckService = employmentCheckService;
         }
 
-        public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
+        public async Task<IList<Models.EmploymentCheck>> GetEmploymentCheck()
         {
-            return await _employmentCheckService.GetEmploymentChecksBatch();
+            return await _employmentCheckService.GetEmploymentCheck();
         }
 
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(

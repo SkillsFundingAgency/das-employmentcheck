@@ -5,26 +5,26 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber
 {
-    public class GetNiNumbersQueryHandler : IRequestHandler<GetNiNumbersQueryRequest, GetNiNumbersQueryResult>
+    public class GetNiNumberQueryHandler : IRequestHandler<GetNiNumberQueryRequest, GetNiNumberQueryResult>
     {
         private readonly ILearnerClient _learnerClient;
-        private readonly ILogger<GetNiNumbersQueryHandler> _logger;
+        private readonly ILogger<GetNiNumberQueryHandler> _logger;
 
-        public GetNiNumbersQueryHandler(
+        public GetNiNumberQueryHandler(
             ILearnerClient learnerClient,
-            ILogger<GetNiNumbersQueryHandler> logger)
+            ILogger<GetNiNumberQueryHandler> logger)
         {
             _learnerClient = learnerClient;
             _logger = logger;
         }
 
-        public async Task<GetNiNumbersQueryResult> Handle(
-            GetNiNumbersQueryRequest getNiNumbersQueryRequest,
+        public async Task<GetNiNumberQueryResult> Handle(
+            GetNiNumberQueryRequest getNiNumbersQueryRequest,
             CancellationToken cancellationToken)
         {
-            var thisMethodName = $"{nameof(GetNiNumbersQueryHandler)}.Handle";
+            var thisMethodName = $"{nameof(GetNiNumberQueryHandler)}.Handle";
 
             Guard.Against.Null(getNiNumbersQueryRequest, nameof(getNiNumbersQueryRequest));
             Guard.Against.Null(getNiNumbersQueryRequest.Check, nameof(getNiNumbersQueryRequest.Check));
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
                 _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
             }
 
-            return new GetNiNumbersQueryResult(learnerNiNumber);
+            return new GetNiNumberQueryResult(learnerNiNumber);
         }
     }
 }

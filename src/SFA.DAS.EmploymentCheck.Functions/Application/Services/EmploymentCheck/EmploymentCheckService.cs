@@ -41,7 +41,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             _employmentCheckCashRequestRepository = employmentCheckCashRequestRepository;
         }
 
-        public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
+        public async Task<IList<Models.EmploymentCheck>> GetEmploymentCheck()
         {
             IList<Models.EmploymentCheck> employmentChecksBatch = null;
 

@@ -3,20 +3,20 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequests
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequest
 {
-    public class CreateEmploymentCheckCacheCommandHandler
-        : IRequestHandler<CreateEmploymentCheckCacheCommand>
+    public class CreateEmploymentCheckCacheRequestCommandHandler
+        : IRequestHandler<CreateEmploymentCheckCacheRequestCommand>
     {
         private readonly IEmploymentCheckClient _employmentCheckClient;
 
-        public CreateEmploymentCheckCacheCommandHandler(IEmploymentCheckClient employmentCheckClient)
+        public CreateEmploymentCheckCacheRequestCommandHandler(IEmploymentCheckClient employmentCheckClient)
         {
             _employmentCheckClient = employmentCheckClient;
         }
 
         public async Task<Unit> Handle(
-            CreateEmploymentCheckCacheCommand request,
+            CreateEmploymentCheckCacheRequestCommand request,
             CancellationToken cancellationToken)
         {
             await _employmentCheckClient.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);

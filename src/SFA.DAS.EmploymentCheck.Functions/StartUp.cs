@@ -9,9 +9,9 @@ using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System.IO;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -50,8 +50,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            builder.Services.AddMediatR(typeof(GetEmploymentCheckBatchQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetNiNumbersQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetEmploymentCheckQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetNiNumberQueryRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
 
             // Accounts API Configuration

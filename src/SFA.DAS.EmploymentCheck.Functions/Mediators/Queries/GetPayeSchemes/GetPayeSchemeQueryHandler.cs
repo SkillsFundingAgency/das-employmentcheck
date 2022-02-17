@@ -3,20 +3,21 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeScheme
 {
-    public class GetPayeSchemesQueryHandler
+    public class GetPayeSchemeQueryHandler
         : IRequestHandler<GetPayeSchemesQueryRequest,
             GetPayeSchemesQueryResult>
     {
-        private readonly ILogger<GetPayeSchemesQueryHandler> _logger;
+        private readonly ILogger<GetPayeSchemeQueryHandler> _logger;
         private readonly IEmployerAccountClient _employerAccountClient;
 
-        public GetPayeSchemesQueryHandler(
-            ILogger<GetPayeSchemesQueryHandler> logger,
+        public GetPayeSchemeQueryHandler(
+            ILogger<GetPayeSchemeQueryHandler> logger,
             IEmployerAccountClient employerAccountClient)
         {
             _logger = logger;

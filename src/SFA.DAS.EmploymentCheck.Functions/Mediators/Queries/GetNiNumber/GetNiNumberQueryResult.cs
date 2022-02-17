@@ -1,10 +1,10 @@
 ﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber
 {
-    public class GetNiNumbersQueryResult
+    public class GetNiNumberQueryResult
     {
-        public GetNiNumbersQueryResult(LearnerNiNumber learnerNiNumber)
+        public GetNiNumberQueryResult(LearnerNiNumber learnerNiNumber)
         {
             LearnerNiNumber = learnerNiNumber;
         }

@@ -29,29 +29,29 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_EmploymentCheckService_Is_Called()
         {
             //Arrange
-            _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
+            _employmentCheckService.Setup(x => x.GetEmploymentCheck())
                 .ReturnsAsync(new List<Models.EmploymentCheck>());
 
             var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
-            await sut.GetEmploymentChecksBatch();
+            await sut.GetEmploymentCheck();
 
             //Assert
-            _employmentCheckService.Verify(x => x.GetEmploymentChecksBatch(), Times.AtLeastOnce());
+            _employmentCheckService.Verify(x => x.GetEmploymentCheck(), Times.AtLeastOnce());
         }
 
         [Test]
         public async Task And_The_EmploymentCheckService_Returns_No_EmploymentChecks_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
-            _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
+            _employmentCheckService.Setup(x => x.GetEmploymentCheck())
                 .ReturnsAsync(new List<Models.EmploymentCheck>());
 
             var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
-            var result = await sut.GetEmploymentChecksBatch();
+            var result = await sut.GetEmploymentCheck();
 
             //Assert
             result.Should().BeEquivalentTo(new List<Models.EmploymentCheck>());
@@ -61,13 +61,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task And_The_EmploymentCheckService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             //Arrange
-            _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
+            _employmentCheckService.Setup(x => x.GetEmploymentCheck())
                 .ReturnsAsync((List<Models.EmploymentCheck>)null);
 
             var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
-            var result = await sut.GetEmploymentChecksBatch();
+            var result = await sut.GetEmploymentCheck();
 
             //Assert
             result.Should().BeNull();
@@ -96,13 +96,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 }
             };
 
-            _employmentCheckService.Setup(x => x.GetEmploymentChecksBatch())
+            _employmentCheckService.Setup(x => x.GetEmploymentCheck())
                 .ReturnsAsync(employmentChecks);
 
             var sut = new EmploymentCheckClient(_employmentCheckService.Object);
 
             //Act
-            var result = await sut.GetEmploymentChecksBatch();
+            var result = await sut.GetEmploymentCheck();
 
             //Assert
             Assert.AreEqual(employmentChecks, result);

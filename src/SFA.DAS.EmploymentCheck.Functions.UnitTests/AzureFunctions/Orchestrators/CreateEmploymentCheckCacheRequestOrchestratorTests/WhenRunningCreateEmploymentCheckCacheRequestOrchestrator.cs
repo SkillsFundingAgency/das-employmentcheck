@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Returns(_employmentCheck);
 
             _context
-                .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumbersActivity), _employmentCheck))
+                .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck))
                 .ReturnsAsync(_learnerNiNumber);
 
             _context
@@ -55,9 +55,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             await _sut.CreateEmploymentCheckCacheRequestTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumbersActivity), _employmentCheck), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck), Times.Once);
             _context.Verify(a => a.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), _employmentCheck), Times.Once);
-            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity),
+            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity),
                 It.Is<EmploymentCheckData>(ecd =>
                     Equals(ecd.ApprenticeNiNumber, _learnerNiNumber)
                     && Equals(ecd.EmployerPayeSchemes, _employerPayeSchemes)
