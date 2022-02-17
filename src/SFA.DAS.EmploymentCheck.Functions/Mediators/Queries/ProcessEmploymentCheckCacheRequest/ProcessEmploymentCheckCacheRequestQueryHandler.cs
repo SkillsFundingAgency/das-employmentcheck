@@ -1,6 +1,5 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,20 +9,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentC
         : IRequestHandler<ProcessEmploymentCheckCacheRequestQueryRequest,
             ProcessEmploymentCheckCacheRequestQueryResult>
     {
-        private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly IEmploymentCheckService _service;
 
         public ProcessEmploymentCheckCacheRequestQueryHandler(
-            ILogger<ProcessEmploymentCheckCacheRequestQueryHandler> logger,
-            IEmploymentCheckClient employmentCheckMessageQueueClient)
+            IEmploymentCheckService service)
         {
-            _employmentCheckClient = employmentCheckMessageQueueClient;
+            _service = service;
         }
 
         public async Task<ProcessEmploymentCheckCacheRequestQueryResult> Handle(
             ProcessEmploymentCheckCacheRequestQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var employmentCheckCacheRequest = await _employmentCheckClient.GetEmploymentCheckCacheRequest();
+            var employmentCheckCacheRequest = await _service.GetEmploymentCheckCacheRequest();
 
             return new ProcessEmploymentCheckCacheRequestQueryResult(employmentCheckCacheRequest);
         }

@@ -1,10 +1,8 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using System;
@@ -18,8 +16,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
     {
         private Fixture _fixture;
         private Mock<IEmployerAccountService> _employerAccountService;
-        private Mock<ILogger<IEmploymentCheckClient>> _logger;
-
         private List<Functions.Application.Models.EmploymentCheck> _apprentices;
         private EmployerAccountClient _sut;
 
@@ -28,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         {
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
-            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
+            _apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
 
             _apprentices = new List<Functions.Application.Models.EmploymentCheck>
             {

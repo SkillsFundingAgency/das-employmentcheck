@@ -1,114 +1,74 @@
-﻿using Ardalis.GuardClauses;
-using Dapper;
-using Microsoft.Azure.Services.AppAuthentication;
+﻿using System;
+using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
-    public class EmploymentCheckService
-        : IEmploymentCheckService
+    public class EmploymentCheckService : IEmploymentCheckService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<IEmploymentCheckService> _logger;
-        private readonly string _connectionString;
-        private readonly int _batchSize;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-        private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCashRequestRepository;
+        private readonly IEmploymentCheckRepository _employmentCheckRepository;
+        private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
             ILogger<IEmploymentCheckService> logger,
-            ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider,
             IEmploymentCheckRepository employmentCheckRepository,
-            IEmploymentCheckCacheRequestRepository employmentCheckCashRequestRepository
-        )
+            IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
+            IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _connectionString = applicationSettings.DbConnectionString;
-            _azureServiceTokenProvider = azureServiceTokenProvider;
-            _batchSize = applicationSettings.BatchSize;
-            _employmentCheckCashRequestRepository = employmentCheckCashRequestRepository;
+            _employmentCheckRepository = employmentCheckRepository;
+            _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
         {
-            IList<Models.EmploymentCheck> employmentChecksBatch = null;
+            return await _employmentCheckRepository.GetEmploymentChecksBatch();
+        }
 
-            var dbConnection = new DbConnection();
-            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider))
+        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
+        {
+            return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();
+        }
+
+        public async Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response)
+        {
+            try
             {
-                await sqlConnection.OpenAsync();
+                request.LastUpdatedOn = DateTime.Now;
+
+                await _unitOfWork.BeginAsync();
+                await _unitOfWork.UpdateAsync(request);
+                await _unitOfWork.InsertAsync(response);
+                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(request, _unitOfWork);
+
+                if (response.Employed == true)
                 {
-                    var transaction = sqlConnection.BeginTransaction();
-
-                    try
-                    {
-                        var parameters = new DynamicParameters();
-                        parameters.Add("@batchSize", _batchSize);
-
-                        employmentChecksBatch = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
-                                sql: "SELECT TOP (@batchSize) " +
-                                    "[Id], " +
-                                    "[CorrelationId], " +
-                                    "[CheckType], " +
-                                    "[Uln], " +
-                                    "[ApprenticeshipId], " +
-                                    "[AccountId], " +
-                                    "[MinDate], " +
-                                    "[MaxDate], " +
-                                    "[Employed], " +
-                                    "[RequestCompletionStatus], " +
-                                    "[CreatedOn], " +
-                                    "[LastUpdatedOn] " +
-                                    "FROM [Business].[EmploymentCheck] AEC " +
-                                    "WHERE (AEC.RequestCompletionStatus IS NULL) " +
-                                    "ORDER BY AEC.Id ",
-                                param: parameters,
-                                commandType: CommandType.Text,
-                                transaction: transaction)).ToList();
-
-                        if (employmentChecksBatch != null && employmentChecksBatch.Count > 0)
-                        {
-                            foreach (var employmentCheck in employmentChecksBatch)
-                            {
-                                var parameter = new DynamicParameters();
-                                parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
-                                parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
-                                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-                                await sqlConnection.ExecuteAsync(
-                                    "UPDATE [Business].[EmploymentCheck] " +
-                                    "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                                    "WHERE Id = @Id ",
-                                    parameter,
-                                    commandType: CommandType.Text,
-                                    transaction: transaction);
-                            }
-
-                            transaction.Commit();
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        transaction.Rollback();
-                        _logger.LogError($"EmploymentCheckService.GetEmploymentChecksBatch(): ERROR: An error occurred reading the employment checks. Exception [{e}]");
-                        throw;
-                    }
+                    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
                 }
-            }
 
-            return employmentChecksBatch;
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task InsertEmploymentCheckCacheResponse(EmploymentCheckCacheResponse response)
+        {
+            await _unitOfWork.BeginAsync();
+            await _unitOfWork.InsertAsync(response);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
@@ -117,32 +77,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
             Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
 
-            var employmentCheckDataValidator = new EmploymentCheckDataValidator();
-            var employmentCheckDataValidatorResult = await employmentCheckDataValidator.ValidateAsync(employmentCheckData);
-
-            if (!employmentCheckDataValidatorResult.IsValid)
-            {
-                foreach (var error in employmentCheckDataValidatorResult.Errors)
-                {
-                    _logger.LogError($"{thisMethodName}: ERROR - EmploymentCheckData: {error.ErrorMessage}");
-                }
-
-                return await Task.FromResult(new List<EmploymentCheckCacheRequest>());
-            }
-
-            var employmentCheckValidator = new EmploymentCheckValidator();
-            IList<EmploymentCheckCacheRequest> employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
+            var employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
             foreach (var employmentCheck in employmentCheckData.EmploymentChecks)
             {
-                var employmentCheckValidatorResult = await employmentCheckValidator.ValidateAsync(employmentCheck);
-                if (!employmentCheckValidatorResult.IsValid)
-                {
-                    foreach (var error in employmentCheckValidatorResult.Errors)
-                    {
-                        _logger.LogError($"{thisMethodName}: ERROR - EmploymentCheck: {error.ErrorMessage}");
-                    }
-                }
-
                 var nationalInsuranceNumber = employmentCheckData.ApprenticeNiNumbers.FirstOrDefault(ninumber => ninumber.Uln == employmentCheck.Uln)?.NiNumber;
                 if (string.IsNullOrEmpty(nationalInsuranceNumber))
                 {
@@ -175,145 +112,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                     employmentCheckRequests.Add(employmentCheckCacheRequest);
 
-                    await _employmentCheckCashRequestRepository.Save(employmentCheckCacheRequest);
+                    await _employmentCheckCacheRequestRepository.Save(employmentCheckCacheRequest);
                 }
             }
 
             return await Task.FromResult(employmentCheckRequests);
         }
 
-        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
-        {
-            var dbConnection = new DbConnection();
-
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            EmploymentCheckCacheRequest employmentCheckCacheRequest = null;
-            await sqlConnection.OpenAsync();
-            {
-                var transaction = sqlConnection.BeginTransaction();
-                try
-                {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@batchSize", _batchSize);
-
-                    employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
-                        sql: "SELECT    TOP(1) * " +
-                             "FROM      [Cache].[EmploymentCheckCacheRequest] " +
-                             "WHERE     (RequestCompletionStatus IS NULL)" +
-                             "ORDER BY  Id",
-                        commandType: CommandType.Text,
-                        transaction: transaction)).FirstOrDefault();
-
-                    if (employmentCheckCacheRequest != null)
-                    {
-                        var parameter = new DynamicParameters();
-                        parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
-                        parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
-                        parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-                        await sqlConnection.ExecuteAsync(
-                            "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                            "SET    RequestCompletionStatus = @requestCompletionStatus, " +
-                            "       LastUpdatedOn = @lastUpdatedOn " +
-                            "WHERE  Id = @Id ",
-                            parameter,
-                            commandType: CommandType.Text,
-                            transaction: transaction);
-                    }
-
-                    transaction.Commit();
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-
-            return employmentCheckCacheRequest;
-        }
-
-        public async Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
-        {
-            Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
-
-            if (employmentCheckCacheRequest.RequestCompletionStatus == (short)ProcessingCompletionStatus.Started)
-            {
-                employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
-            }
-            await UpdateEmploymentCheckCacheRequest(employmentCheckCacheRequest);
-            await UpdateEmploymentCheck(employmentCheckCacheRequest);
-
-        }
-
-        public async Task UpdateEmploymentCheckCacheRequest(
-            EmploymentCheckCacheRequest employmentCheckCacheRequest)
-        {
-            Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
-
-            var dbConnection = new DbConnection();
-
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            await sqlConnection.OpenAsync();
-            var parameter = new DynamicParameters();
-            parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
-            parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
-            parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
-            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-            await sqlConnection.ExecuteAsync(
-                "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                "SET Employed = @employed, requestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                "WHERE Id = @Id ",
-                parameter,
-                commandType: CommandType.Text);
-        }
-
-        public async Task UpdateEmploymentCheck(
-            EmploymentCheckCacheRequest employmentCheckCacheRequest)
-        {
-            Guard.Against.Null(employmentCheckCacheRequest, nameof(employmentCheckCacheRequest));
-
-            if(employmentCheckCacheRequest.RequestCompletionStatus != null)
-            {
-                employmentCheckCacheRequest.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
-            }
-
-            var dbConnection = new DbConnection();
-            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider))
-            {
-                await sqlConnection.OpenAsync();
-
-                var parameter = new DynamicParameters();
-                parameter.Add("@apprenticeEmploymentCheckId", employmentCheckCacheRequest.ApprenticeEmploymentCheckId, DbType.Int64);
-                parameter.Add("@employed", employmentCheckCacheRequest.Employed, DbType.Boolean);
-                parameter.Add("@requestCompletionStatus", employmentCheckCacheRequest.RequestCompletionStatus, DbType.Int16);
-                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-                await sqlConnection.ExecuteAsync(
-                    "UPDATE [Business].[EmploymentCheck] " +
-                    "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                    "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ",
-                    parameter,
-                    commandType: CommandType.Text);
-            }
-
-        }
-
-        public async Task UpdateRelatedRequests(EmploymentCheckCacheRequest request)
-        {
-            await _employmentCheckCashRequestRepository.SetReleatedRequestsRequestCompletionStatus(request, ProcessingCompletionStatus.Skipped);
-        }
     }
 }

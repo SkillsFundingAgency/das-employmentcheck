@@ -1,7 +1,5 @@
-﻿using Ardalis.GuardClauses;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+﻿using MediatR;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,23 +9,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck
         : IRequestHandler<GetEmploymentCheckBatchQueryRequest,
             GetEmploymentCheckBatchQueryResult>
     {
-        private readonly IEmploymentCheckClient _employmentCheckClient;
+        private readonly IEmploymentCheckService _service;
 
         public GetEmploymentCheckBatchQueryHandler(
-            ILogger<GetEmploymentCheckBatchQueryHandler> logger,
-            IEmploymentCheckClient employmentCheckClient)
+            IEmploymentCheckService service)
         {
-            _employmentCheckClient = employmentCheckClient;
-
+            _service = service;
         }
 
         public async Task<GetEmploymentCheckBatchQueryResult> Handle(
             GetEmploymentCheckBatchQueryRequest request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(request, nameof(request));
-
-            var employmentChecks = await _employmentCheckClient.GetEmploymentChecksBatch();
+            var employmentChecks = await _service.GetEmploymentChecksBatch();
 
             return new GetEmploymentCheckBatchQueryResult(employmentChecks);
         }

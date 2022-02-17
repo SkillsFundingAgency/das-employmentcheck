@@ -6,6 +6,9 @@ using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.DynamicProxy.Contributors;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
@@ -19,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task CanInsert()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings);
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
             var expected = Fixture.Create<Models.EmploymentCheckCacheRequest>();
 
             // Act

@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
@@ -30,10 +28,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
             serviceCollection.AddHttpClient();
-            serviceCollection.AddTransient<IEmploymentCheckClient, EmploymentCheckClient>();
             serviceCollection.AddTransient<ILearnerClient, LearnerClient>();
             serviceCollection.AddTransient<IEmployerAccountClient, EmployerAccountClient>();
-            serviceCollection.AddTransient<IHmrcClient, HmrcClient>();
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
@@ -44,6 +40,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 };
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
+
+            serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
@@ -80,6 +78,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
+            serviceCollection.AddSingleton<IUnitOfWork, UnitOfWork>();
 
             return serviceCollection;
         }

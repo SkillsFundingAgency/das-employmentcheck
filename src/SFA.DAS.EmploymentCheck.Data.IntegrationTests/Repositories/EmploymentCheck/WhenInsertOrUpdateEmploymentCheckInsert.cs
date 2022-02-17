@@ -4,8 +4,9 @@ using NUnit.Framework;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheck
 {
@@ -19,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task CanInsert()
         {
             // Arrange
-            _sut = new EmploymentCheckRepository(Settings);
+            _sut = new EmploymentCheckRepository(Settings, Mock.Of<ILogger<EmploymentCheckRepository>>());
             var expected = Fixture.Build<Models.EmploymentCheck>()
                 .Without(x => x.Id)
                 .Without(x => x.LastUpdatedOn)
