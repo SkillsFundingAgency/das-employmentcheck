@@ -21,43 +21,36 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
         [Test]
         public async Task Then_The_Repository_Is_Called()
         {
-            //Arrange
-
+            // Arrange
             var sut = new Api.Application.Services.EmploymentCheckService(_employmentCheckRepository.Object);
 
-            //Act
-
+            // Act
             await sut.GetLastEmploymentCheck(_correlationId);
 
-            //Assert
-
+            // Assert
             _employmentCheckRepository.Verify(x => x.GetEmploymentCheck(_correlationId), Times.Once);
         }
 
         [Test]
         public async Task And_No_EmploymentCheck_Exists_Then_Null_Is_Returned()
         {
-            //Arrange
-
+            // Arrange
             _employmentCheckRepository.Setup(x => x.GetEmploymentCheck(_correlationId))
                 .ReturnsAsync((Api.Application.Models.EmploymentCheck) null);
 
             var sut = new Api.Application.Services.EmploymentCheckService(_employmentCheckRepository.Object);
 
-            //Act
-
+            // Act
             var result = await sut.GetLastEmploymentCheck(_correlationId);
 
-            //Assert
-
+            // Assert
             Assert.IsNull(result);
         }
 
         [Test]
         public async Task And_An_EmploymentCheck_Exists_Then_It_Is_Returned()
         {
-            //Arrange
-
+            // Arrange
             var employmentCheck = new Mock<Api.Application.Models.EmploymentCheck>();
 
             _employmentCheckRepository.Setup(x => x.GetEmploymentCheck(_correlationId))
@@ -65,12 +58,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
 
             var sut = new Api.Application.Services.EmploymentCheckService(_employmentCheckRepository.Object);
 
-            //Act
-
+            // Act
             var result = await sut.GetLastEmploymentCheck(_correlationId);
 
-            //Assert
-
+            // Assert
             Assert.AreEqual(result, employmentCheck.Object);
         }
     }

@@ -15,18 +15,15 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
         [Test]
         public async Task Then_The_Check_Should_Be_Saved()
         {
-            //Arrange
-
+            // Arrange
             _sut = new EmploymentCheckRepository(Settings);
 
             var expected = Fixture.Create<Api.Application.Models.EmploymentCheck>();
 
-            //Act
-
+            // Act
             await _sut.Insert(expected);
 
-            //Assert
-
+            // Assert
             var actual = (await GetAll<Api.Application.Models.EmploymentCheck>())
                 .Single(x => x.CorrelationId == expected.CorrelationId);
 

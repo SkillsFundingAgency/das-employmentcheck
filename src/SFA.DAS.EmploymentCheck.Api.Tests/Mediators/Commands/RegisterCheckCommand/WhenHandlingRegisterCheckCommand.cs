@@ -30,19 +30,16 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
         [Test]
         public async Task And_The_Command_Is_Invalid_Then_Returns_Result_With_Errors()
         {
-            //Arrange
-
+            // Arrange
             _commandValidator.Setup(x => x.Validate(_command)).
                 Returns(new RegisterCheckResult {ErrorMessage = "ErrorMessage", ErrorType = "ErrorType"});
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
 
-            //Act
-
+            // Act
             var result = await sut.Handle(_command, CancellationToken.None);
 
-            //Assert
-
+            // Assert
             Assert.AreEqual("ErrorMessage", result.ErrorMessage);
             Assert.AreEqual("ErrorType", result.ErrorType);
         }
@@ -50,8 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
         [Test]
         public async Task And_The_Command_Is_Valid_Then_Inserts_The_Row()
         {
-            //Arrange
-
+            // Arrange
             _commandValidator.Setup(x => x.Validate(_command)).Returns(new RegisterCheckResult());
 
             _employmentCheckService.Setup(x => x.GetLastEmploymentCheck(_command.CorrelationId))
@@ -59,12 +55,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckComm
 
             var sut = new RegisterCheckCommandHandler(_employmentCheckService.Object, _commandValidator.Object);
 
-            //Act
-
+            // Act
             await sut.Handle(_command, CancellationToken.None);
 
-            //Assert
-
+            // Assert
             _employmentCheckService.Verify(x => x.InsertEmploymentCheck(It.IsAny<Api.Application.Models.EmploymentCheck>()), Times.Once);
         }
     }

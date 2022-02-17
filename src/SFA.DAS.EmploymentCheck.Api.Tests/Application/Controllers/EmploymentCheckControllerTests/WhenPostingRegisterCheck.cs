@@ -32,8 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         [Test]
         public async Task Then_The_Request_Is_Passed_To_Mediator()
         {
-            //Arrange
-
+            // Arrange
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _registerCheckRequest.CorrelationId &&
                         command.CheckType == _registerCheckRequest.CheckType &&
@@ -47,19 +46,17 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 
             var sut = new EmploymentCheckController(_mediator.Object);
 
-            //Act
-
+            // Act
             await sut.RegisterCheck(_registerCheckRequest);
 
-            //Assert
+            // Assert
             _mediator.Verify(x => x.Send(It.IsAny<RegisterCheckCommand>(), CancellationToken.None), Times.Once);
         }
 
         [Test]
         public async Task And_There_Are_No_Errors_Then_An_Empty_Response_And_A_200_Will_Be_Returned()
         {
-            //Arrange
-
+            // Arrange
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _registerCheckRequest.CorrelationId &&
                         command.CheckType == _registerCheckRequest.CheckType &&
@@ -73,12 +70,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 
             var sut = new EmploymentCheckController(_mediator.Object);
 
-            //Act
-
+            // Act
             var result = await sut.RegisterCheck(_registerCheckRequest) as OkObjectResult;
 
-            //Assert
-
+            // Assert
             result.Value.Should().BeEquivalentTo(new RegisterCheckResult());
             result.StatusCode.Should().Be(200);
         }
@@ -86,8 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
         [Test]
         public async Task And_There_Are_Errors_Then_The_Errors_And_A_400_Will_Be_Returned()
         {
-            //Arrange
-
+            // Arrange
             _mediator.Setup(x => x.Send(It.Is<RegisterCheckCommand>(command =>
                         command.CorrelationId == _registerCheckRequest.CorrelationId &&
                         command.CheckType == _registerCheckRequest.CheckType &&
@@ -101,12 +95,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Controllers.EmploymentCh
 
             var sut = new EmploymentCheckController(_mediator.Object);
 
-            //Act
-
+            // Act
             var result = await sut.RegisterCheck(_registerCheckRequest) as BadRequestObjectResult;
 
-            //Assert
-
+            // Assert
             result.Value.Should().BeEquivalentTo(_response);
             result.StatusCode.Should().Be(400);
         }

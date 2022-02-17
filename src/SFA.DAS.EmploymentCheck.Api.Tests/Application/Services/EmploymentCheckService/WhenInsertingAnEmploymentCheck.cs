@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Repositories;
@@ -18,18 +19,15 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Services.EmploymentCheck
         }
 
         [Test]
-        public void Then_The_Repository_Is_Called()
+        public async Task Then_The_Repository_Is_Called()
         {
-            //Arrange
-
+            // Arrange
             var sut = new Api.Application.Services.EmploymentCheckService(_employmentCheckRepository.Object);
 
-            //Act
+            // Act
+            await sut.InsertEmploymentCheck(_employmentCheck.Object);
 
-            sut.InsertEmploymentCheck(_employmentCheck.Object);
-
-            //Assert
-
+            // Assert
             _employmentCheckRepository.Verify(x => x.Insert(_employmentCheck.Object), Times.Once);
         }
     }

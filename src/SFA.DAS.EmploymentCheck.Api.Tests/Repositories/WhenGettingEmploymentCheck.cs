@@ -14,8 +14,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
         [Test]
         public async Task Then_The_Check_Is_Returned_If_Exists()
         {
-            //Arrange
-
+            // Arrange
             _sut = new EmploymentCheckRepository(Settings);
 
             var correlationId = Guid.NewGuid();
@@ -41,12 +40,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
             await Insert(last);
             await Insert(irrelevant);
 
-            //Act
-
+            // Act
             var actual = await _sut.GetEmploymentCheck(correlationId);
 
-            //Assert
-
+            // Assert
             actual.Should().BeEquivalentTo(first,
                 opts => opts
                     .Excluding(x => x.MinDate)
@@ -63,8 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
         [Test]
         public async Task Then_Null_Is_Returned_If_Not_Exists()
         {
-            //Arrange
-
+            // Arrange
             _sut = new EmploymentCheckRepository(Settings);
 
             var correlationId = Guid.NewGuid();
@@ -75,11 +71,10 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
 
             await Insert(irrelevant);
 
-            //Act
-
+            // Act
             var actual = await _sut.GetEmploymentCheck(correlationId);
 
-            //Assert
+            // Assert
             actual.Should().BeNull();
         }
     }
