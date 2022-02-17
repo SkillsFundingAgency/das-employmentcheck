@@ -7,53 +7,59 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployerPayeSchemesMediatorHandlerTests
 {
     public class WhenHandlingTheRequest
     {
-        private readonly Mock<IEmployerAccountClient> _employerAccountClient;
-        private readonly Mock<ILogger<GetPayeSchemesQueryHandler>> _logger;
-        private readonly List<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private Fixture _fixture;
+        private Mock<IEmployerAccountClient> _employerAccountClient;
+        private Mock<ILogger<GetPayeSchemesQueryHandler>> _logger;
+        private Models.EmploymentCheck _employmentCheck;
 
-        public WhenHandlingTheRequest()
+        [SetUp]
+        public void SetUp()
         {
             _employerAccountClient = new Mock<IEmployerAccountClient>();
             _logger = new Mock<ILogger<GetPayeSchemesQueryHandler>>();
-            var fixture = new Fixture();
-            _apprentices = fixture.CreateMany<Functions.Application.Models.EmploymentCheck>().ToList();
+            _fixture = new Fixture();
+            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
         }
 
         [Test]
         public async Task And_There_Are_No_Learners_Then_An_Empty_List_Is_Returned()
         {
-            //Arrange
-            var request = new GetPayeSchemesQueryRequest(new List<Functions.Application.Models.EmploymentCheck>());
-            var payeSchemes = new List<EmployerPayeSchemes>();
-            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(payeSchemes);
+            // Arrange
+            var request = _fixture.Create<GetPayeSchemesQueryRequest>();
+            var payeSchemes = _fixture.Create<EmployerPayeSchemes>();
+
+            _employerAccountClient
+                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch))
+                .ReturnsAsync(payeSchemes);
 
             var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-            //Act
-            var result = await sut.Handle(new GetPayeSchemesQueryRequest(new List<Functions.Application.Models.EmploymentCheck>()),
+            // Act
+            var result = await sut.Handle(new GetPayeSchemesQueryRequest(new Models.EmploymentCheck()),
                 CancellationToken.None);
 
-            //Assert
-            result.EmployersPayeSchemes.Should().BeNullOrEmpty();
+            // Assert
+            result.EmployersPayeSchemes.Should().BeEquivalentTo(new EmployerPayeSchemes());
         }
 
         [Test]
         public async Task And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
         {
             //Arrange
-            var request = new GetPayeSchemesQueryRequest(_apprentices);
+            var request = new GetPayeSchemesQueryRequest(_employmentCheck);
             var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
-            var payeSchemes = new List<EmployerPayeSchemes> { payeScheme };
 
-            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(payeSchemes);
+            _employerAccountClient
+                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch))
+                .ReturnsAsync(payeScheme);
 
             var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
@@ -63,26 +69,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             //Assert
 
-            Assert.AreEqual(result.EmployersPayeSchemes, payeSchemes);
+            Assert.AreEqual(result.EmployersPayeSchemes, payeScheme);
         }
 
         [Test]
         public async Task And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_An_Empty_List_Is_Returned()
         {
-            //Arrange
-            var request = new GetPayeSchemesQueryRequest(_apprentices);
+            // Arrange
+            var request = new GetPayeSchemesQueryRequest(_employmentCheck);
 
-            _employerAccountClient.Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch)).ReturnsAsync(new List<EmployerPayeSchemes>());
-          
+            _employerAccountClient
+                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch))
+                .ReturnsAsync(new EmployerPayeSchemes());
+
             var sut = new GetPayeSchemesQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-            //Act
-
+            // Act
             var result = await sut.Handle(request, CancellationToken.None);
 
-            //Assert
-
-            result.EmployersPayeSchemes.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
+            // Assert
+            result.EmployersPayeSchemes.Should().BeEquivalentTo(new EmployerPayeSchemes());
         }
     }
 }

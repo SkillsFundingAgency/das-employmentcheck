@@ -150,18 +150,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 
                 employmentCheckData.EmploymentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_NinoNotFound;
                 await _employmentCheckRepository.InsertOrUpdate(employmentCheckData.EmploymentCheck);
+                throw new ArgumentException("Nino not found");
             }
 
-            var employerPayeSchemes = employmentCheckData.EmployerPayeSchemes.FirstOrDefault(ps => ps.EmployerAccountId == employmentCheckData.EmploymentCheck.AccountId);
-            if (employerPayeSchemes == null)
+            if (employmentCheckData.EmployerPayeSchemes == null || employmentCheckData.EmployerPayeSchemes.PayeSchemes == null)
             {
                 _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (PayeScheme not found).");
 
                 employmentCheckData.EmploymentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_PayeSchemeNotFound;
                 await _employmentCheckRepository.InsertOrUpdate(employmentCheckData.EmploymentCheck);
+                throw new ArgumentException("Paye scheme not found");
             }
 
-            foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
+            foreach (var payeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes)
             {
                 if (string.IsNullOrEmpty(payeScheme))
                 {

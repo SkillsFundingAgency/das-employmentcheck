@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
+﻿namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
     public class EmploymentCheckData
     {
         public EmploymentCheckData(
             EmploymentCheck employmentCheck,
             LearnerNiNumber apprenticeNiNumber,
-            IList<EmployerPayeSchemes> employerPayeSchemes)
+            EmployerPayeSchemes employerPayeSchemes)
         {
             EmploymentCheck = employmentCheck;
             ApprenticeNiNumber = apprenticeNiNumber;
@@ -18,6 +16,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 
         public LearnerNiNumber ApprenticeNiNumber { get; set; }
 
-        public IList<EmployerPayeSchemes> EmployerPayeSchemes { get; set; }
+        public EmployerPayeSchemes EmployerPayeSchemes { get; set; }
     }
 }

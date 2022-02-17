@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -16,9 +17,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
     {
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
+        private Mock<ILogger<CreateEmploymentCheckCacheRequestOrchestrator>> _logger;
         private Models.EmploymentCheck _employmentCheck;
         private LearnerNiNumber _learnerNiNumber;
-        private IList<EmployerPayeSchemes> _employerPayeSchemes;
+        private EmployerPayeSchemes _employerPayeSchemes;
         private CreateEmploymentCheckCacheRequestOrchestrator _sut;
 
         [SetUp]
@@ -26,10 +28,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
+            _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestOrchestrator>>();
             _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
             _learnerNiNumber = _fixture.Create<LearnerNiNumber>();
-            _employerPayeSchemes = _fixture.CreateMany<EmployerPayeSchemes>(1).ToList();
-            _sut = new CreateEmploymentCheckCacheRequestOrchestrator();
+            _employerPayeSchemes = _fixture.Create<EmployerPayeSchemes>();
+            _sut = new CreateEmploymentCheckCacheRequestOrchestrator(_logger.Object);
         }
 
         [Test]
@@ -45,17 +48,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .ReturnsAsync(_learnerNiNumber);
 
             _context
-                .Setup(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), _employmentCheck))
+                .Setup(a => a.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), _employmentCheck))
                 .ReturnsAsync(_employerPayeSchemes);
 
             // Act
-            await _sut.CreateEmploymentCheckCacheRequestTask(_context.Object, null);
+            await _sut.CreateEmploymentCheckCacheRequestTask(_context.Object);
 
             // Assert
             _context.Verify(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumbersActivity), _employmentCheck), Times.Once);
-            _context.Verify(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), _employmentCheck), Times.Once);
-            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), 
-                It.Is<EmploymentCheckData>(ecd => 
+            _context.Verify(a => a.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), _employmentCheck), Times.Once);
+            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity),
+                It.Is<EmploymentCheckData>(ecd =>
                     Equals(ecd.ApprenticeNiNumber, _learnerNiNumber)
                     && Equals(ecd.EmployerPayeSchemes, _employerPayeSchemes)
                     && ecd.EmploymentCheck == _employmentCheck

@@ -1,10 +1,5 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
@@ -17,17 +12,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             _employerAccountService = employerAccountService;
         }
 
-        public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Models.EmploymentCheck> employmentChecksBatch)
+        public async Task<EmployerPayeSchemes> GetEmployersPayeSchemes(
+            Models.EmploymentCheck employmentCheck)
         {
-            var employersPayeSchemes = new List<EmployerPayeSchemes>();
-            foreach (var employmentCheck in employmentChecksBatch)
+            EmployerPayeSchemes payeSchemes = null;
+            if (employmentCheck != null && employmentCheck.Id != 0)
             {
-                var employerPayeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
-                employersPayeSchemes.Add(employerPayeSchemes);
+                payeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
             }
 
-            return employersPayeSchemes;
+            return payeSchemes ?? new EmployerPayeSchemes();
         }
     }
 }

@@ -1,27 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using AutoFixture;
+using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
-using NUnit.Framework;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResultTests
 {
+
     public class WhenBuildingTheResult
     {
+        private Fixture _fixture;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _fixture = new Fixture();
+        }
+
         [Test]
         public void Then_The_Result_Is_Built_Successfully()
         {
-            //Arrange
+            // Arrange
+            var payeScheme = _fixture.Create<EmployerPayeSchemes>();
 
-            var payeScheme = new EmployerPayeSchemes(1000001, new List<string> {"payeScheme"});
-            var payeSchemes = new List<EmployerPayeSchemes> {payeScheme};
+            // Act
+            var result = new GetPayeSchemesQueryResult(payeScheme);
 
-            //Act
-
-            var result = new GetPayeSchemesQueryResult(payeSchemes);
-
-            //Assert
-
-            Assert.AreEqual(payeSchemes, result.EmployersPayeSchemes);
+            // Assert
+            Assert.AreEqual(payeScheme, result.EmployersPayeSchemes);
         }
     }
 }

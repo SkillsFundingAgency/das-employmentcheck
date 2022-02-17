@@ -1,7 +1,9 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -10,25 +12,42 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
     public class CreateEmploymentCheckCacheRequestOrchestrator
     {
+        private const string ThisClassName = nameof(CreateEmploymentCheckCacheRequestsOrchestrator);
+        private readonly ILogger<CreateEmploymentCheckCacheRequestOrchestrator> _logger;
+
+        public CreateEmploymentCheckCacheRequestOrchestrator(
+            ILogger<CreateEmploymentCheckCacheRequestOrchestrator> logger)
+        {
+            _logger = logger;
+        }
+
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestOrchestrator))]
         public async Task CreateEmploymentCheckCacheRequestTask(
-            [OrchestrationTrigger] IDurableOrchestrationContext context,
-            Models.EmploymentCheck check
+            [OrchestrationTrigger] IDurableOrchestrationContext context
         )
         {
-            var employmentCheck = context.GetInput<Models.EmploymentCheck>();
-            if(employmentCheck != null)
+            var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckCacheRequestTask";
+
+            try
             {
-                var getLearnerNiNumbersActivityTask = context.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumbersActivity), employmentCheck);
-                var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheck);
+                var employmentCheck = context.GetInput<Models.EmploymentCheck>();
+                if (employmentCheck != null)
+                {
+                    var getLearnerNiNumbersActivityTask = context.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumbersActivity), employmentCheck);
+                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), employmentCheck);
 
-                await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
+                    await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
 
-                await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheck, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheck, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+                }
+                else
+                {
+                    _logger.LogError($"{nameof(CreateEmploymentCheckCacheRequestOrchestrator)}.{nameof(CreateEmploymentCheckCacheRequestTask)}: The input EmploymentCheck parameter was null\n");
+                }
             }
-            else
+            catch (Exception e)
             {
-                // log something??
+                _logger.LogError($"{thisMethodName}: Exception caught - {e.Message}. {e.StackTrace}");
             }
         }
     }

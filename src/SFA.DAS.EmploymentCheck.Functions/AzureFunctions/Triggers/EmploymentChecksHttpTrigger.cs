@@ -33,10 +33,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             StringBuilder stringMessage = new StringBuilder();
             foreach (var httpMessage in resultMessages)
             {
-                stringMessage.Append(httpMessage.Content);
+                if(httpMessage != null && httpMessage.Content != null)
+                {
+                    stringMessage.Append(httpMessage.Content.ToString());
+                }
             }
 
-            resultMessage.Content = new StringContent($"{stringMessage}\n");
+            resultMessage.Content = new StringContent($"{stringMessage.ToString()}\n");
             return resultMessage;
         }
     }
