@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
+using Models = SFA.DAS.EmploymentCheck.Api.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Api.Repositories
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
         }
-        public async Task<Application.Models.EmploymentCheck> GetEmploymentCheck(Guid correlationId)
+        public async Task<Models.EmploymentCheck> GetEmploymentCheck(Guid correlationId)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -35,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
             return lastCheck;
         }
 
-        public async Task Insert(Application.Models.EmploymentCheck employmentCheck)
+        public async Task Insert(Models.EmploymentCheck employmentCheck)
         {
             var dbConnection = new DbConnection();
             await using var sqlConnection = await dbConnection.CreateSqlConnection(

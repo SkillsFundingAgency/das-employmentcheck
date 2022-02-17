@@ -33,7 +33,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
         {
             await using var dbConnection = GetSqlConnection();
             return await dbConnection.GetAsync<T>(id);
-
         }
         
         public async Task<IEnumerable<T>> GetAll<T>() where T : class
