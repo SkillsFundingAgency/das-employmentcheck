@@ -57,27 +57,33 @@ namespace SFA.DAS.EmploymentCheck.Api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
+                c.OperationFilter<AddVersionHeaderParameter>();
             });
-
        
             services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
 
             services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
 
-            if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
+            if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) &&
+                !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
                 services.AddSingleton(new AzureServiceTokenProvider());
 
                 var azureAdConfiguration = Configuration
                     .GetSection("AzureAd")
                     .Get<AzureActiveDirectoryConfiguration>();
+                
                 var policies = new Dictionary<string, string>
                 {
-                    {"default", PolicyNames.Default}
+                    { "default", PolicyNames.Default }
                 };
 
                 services.AddAuthentication(azureAdConfiguration, policies);
+
+                services
+                    .AddMvc(o => { o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>())); })
+                    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             }
 
             services
@@ -91,11 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Api
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
 
-            services
-                .AddMvc(o =>
-                {
-                    o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>()));
-                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
