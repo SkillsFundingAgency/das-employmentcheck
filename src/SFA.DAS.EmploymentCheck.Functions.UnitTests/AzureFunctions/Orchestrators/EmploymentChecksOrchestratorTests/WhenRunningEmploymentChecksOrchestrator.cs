@@ -29,14 +29,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var sut = new EmploymentChecksOrchestrator(_logger.Object);
 
             _context.Setup(a => a.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), It.IsAny<object>()));
-            _context.Setup(a => a.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<object>()));
+            _context.Setup(a => a.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<object>()));
 
             // Act
             await sut.EmploymentChecksOrchestratorTask(_context.Object);
 
             // Assert
             _context.Verify(a => a.CallSubOrchestratorAsync(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), It.IsAny<object>()), Times.Once);
-            _context.Verify(a => a.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<object>()), Times.Once);
+            _context.Verify(a => a.CallSubOrchestratorAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<object>()), Times.Once);
         }
     }
 }

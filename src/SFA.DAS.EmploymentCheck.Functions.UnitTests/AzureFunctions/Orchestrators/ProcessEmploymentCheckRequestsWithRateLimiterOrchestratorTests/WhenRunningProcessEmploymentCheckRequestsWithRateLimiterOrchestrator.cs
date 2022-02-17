@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
     {
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
-        private Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>> _logger;
+        private Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>> _logger;
 
         private EmploymentCheckCacheRequest employmentCheckCacheRequest;
         private IList<Models.EmploymentCheck> _employmentChecks;
@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
-            _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>>();
+            _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>>();
 
             employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
             _employmentChecks = new List<Models.EmploymentCheck> { _fixture.Create<Models.EmploymentCheck>() };
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task Then_The_Activities_Are_Called()
         {
             // Arrange
-            var sut = new ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator(_logger.Object);
+            var sut = new ProcessEmploymentCheckRequestsOrchestrator(_logger.Object);
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
