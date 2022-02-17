@@ -42,13 +42,5 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
             Get<EmploymentCheckCacheRequest>(_inserted1.Id).Result.Should().BeEquivalentTo(_inserted1);
             Get<EmploymentCheckCacheResponse>(_inserted2.Id).Result.Should().BeEquivalentTo(_inserted2);
         }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await Delete(_updated);
-            await Delete(_inserted1);
-            await Delete(_inserted2);
-        }
     }
 }

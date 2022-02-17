@@ -45,23 +45,12 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
 
                 _actual[i].Should().BeEquivalentTo(expected,
                     opts => opts
-                        .Excluding(x => x.Id)
-                        .Excluding(x => x.PayeScheme)
                         .Excluding(x => x.LastUpdatedOn)
-                        .Excluding(x => x.CreatedOn));
-                _actual[i].CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-                _actual[i].Id.Should().BeGreaterThan(0);
+                    );
+                _actual[i].LastUpdatedOn.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
             }
         }
 
-        [TearDown]
-        public async Task CleanUp()
-        {
-            foreach (var record in _actual)
-            {
-                await Delete(record);
-            }
-        }
 
         private async Task<IList<Functions.Application.Models.EmploymentCheckCacheRequest>> CreateTestEmploymentCheckCacheRequestData()
         {
