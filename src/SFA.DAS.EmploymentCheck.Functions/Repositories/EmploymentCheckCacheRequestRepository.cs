@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
@@ -22,8 +23,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
 
         public EmploymentCheckCacheRequestRepository(
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider = null,
-            Logger<EmploymentCheckCacheRequestRepository> logger = null
+            ILogger<EmploymentCheckCacheRequestRepository> logger,
+            AzureServiceTokenProvider azureServiceTokenProvider = null
         )
         {
             _logger = logger;
@@ -82,45 +83,87 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             await sqlConnection.InsertAsync(request);
         }
 
-        public async Task SetReleatedRequestsRequestCompletionStatus(EmploymentCheckCacheRequest request, ProcessingCompletionStatus processingCompletionStatus)
+        /// <summary>
+        /// 'Related' requests are requests that have the same 'parent' EmploymentCheck
+        /// (i.e. the same ApprenticeEmploymentCheckId, which is the foreign key from the EmploymentCheck table)
+        /// </summary>
+        public async Task AbandonRelatedRequests(EmploymentCheckCacheRequest request, IUnitOfWork unitOfWork)
         {
-            // 'Related' requests are requests that have the same 'parent' EmploymentCheck
-            // (i.e. the same ApprenticeEmploymentCheckId, which is the foreign key from the EmploymentCheck table)
+            var parameters = new DynamicParameters();
+            parameters.Add("@Id", request.Id, DbType.Int64);
+            parameters.Add("@ApprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
+            parameters.Add("@nino", request.Nino, DbType.String);
+            parameters.Add("@minDate", request.MinDate, DbType.DateTime);
+            parameters.Add("@maxDate", request.MaxDate, DbType.DateTime);
+            parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Abandoned, DbType.Int16);
+            parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+            const string sql =
+                "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
+                "SET    RequestCompletionStatus     =  @requestCompletionStatus, " +
+                "       Employed                    =  null, " +
+                "       LastUpdatedOn               =  @lastUpdatedOn " +
+                "WHERE  Id                          <> @Id " +
+                "AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId " +
+                "AND    Nino                        =  @nino " +
+                "AND    MinDate                     =  @minDate " +
+                "AND    MaxDate                     =  @maxDate " +
+                "AND    (Employed                   IS NULL OR Employed = 0) " +
+                "AND    RequestCompletionStatus     IS NULL ";
+
+            await unitOfWork.ExecuteSqlAsync(sql, parameters);
+        }
+
+        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
+        {
             var dbConnection = new DbConnection();
-            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+
+            await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
-                _azureServiceTokenProvider)
-            )
+                _azureServiceTokenProvider);
+            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+            EmploymentCheckCacheRequest employmentCheckCacheRequest = null;
+            await sqlConnection.OpenAsync();
             {
-                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-                await sqlConnection.OpenAsync();
+                var transaction = sqlConnection.BeginTransaction();
+                try
+                {
+                    employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
+                        sql: "SELECT    TOP(1) * " +
+                             "FROM      [Cache].[EmploymentCheckCacheRequest] " +
+                             "WHERE     (RequestCompletionStatus IS NULL)" +
+                             "ORDER BY  Id",
+                        commandType: CommandType.Text,
+                        transaction: transaction)).FirstOrDefault();
 
-                // TODO: Dave to specify the criteria for the 'WHERE' clause to 'skip' the remaining requests
-                var parameters = new DynamicParameters();
-                parameters.Add("@Id", request.Id, DbType.Int64);
-                parameters.Add("@ApprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
-                parameters.Add("@nino", request.Nino, DbType.String);
-                parameters.Add("@minDate", request.MinDate, DbType.DateTime);
-                parameters.Add("@maxDate", request.MaxDate, DbType.DateTime);
+                    if (employmentCheckCacheRequest != null)
+                    {
+                        var parameter = new DynamicParameters();
+                        parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
+                        parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
+                        parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-                parameters.Add("@requestCompletionStatus", processingCompletionStatus, DbType.Int16);
-                parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+                        await sqlConnection.ExecuteAsync(
+                            "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
+                            "SET    RequestCompletionStatus = @requestCompletionStatus, " +
+                            "       LastUpdatedOn = @lastUpdatedOn " +
+                            "WHERE  Id = @Id ",
+                            parameter,
+                            commandType: CommandType.Text,
+                            transaction: transaction);
+                    }
 
-                await sqlConnection.ExecuteAsync(
-                    "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                    "SET    RequestCompletionStatus     =  @requestCompletionStatus, " +
-                    "       Employed                    =  null, " +
-                    "       LastUpdatedOn               =  @lastUpdatedOn " +
-                    "WHERE  Id                          <> @Id " +
-                    "AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId " +
-                    "AND    Nino                        =  @nino " +
-                    "AND    MinDate                     =  @minDate " +
-                    "AND    MaxDate                     =  @maxDate " +
-                    "AND    (Employed                   IS NULL OR Employed = 0) " +
-                    "AND    RequestCompletionStatus     IS NULL ",
-                    parameters,
-                    commandType: CommandType.Text);
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
+
+            return employmentCheckCacheRequest;
         }
     }
 }

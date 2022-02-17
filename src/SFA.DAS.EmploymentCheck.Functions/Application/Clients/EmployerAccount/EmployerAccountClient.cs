@@ -1,10 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount

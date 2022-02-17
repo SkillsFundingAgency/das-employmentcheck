@@ -12,9 +12,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     {
         private const string RowKey = "HmrcApiRateLimiterOptions";
         private const string StorageTableName = "EmploymentCheckHmrcApiRateLimiterOptions";
-        private const int DefaultDelayInMs = 0;
-        private const int DefaultDelayAdjustmentIntervalInMs = 50;
-        private const int DefaultMinimumUpdatePeriodInDays = 7;
         private readonly HmrcApiRateLimiterConfiguration _rateLimiterConfiguration;
         private readonly ILogger<HmrcApiOptionsRepository> _logger;
         private CloudTable _table;
@@ -74,36 +71,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             await GetTable().ExecuteAsync(operation);
         }
 
-        public async Task CreateDefaultOptions()
-        {
-            InitTableStorage();
-            var options = GetDefaultOptions();
-            options.UpdateDateTime = DateTime.UtcNow;
-            var operation = TableOperation.InsertOrReplace(options);
-
-            _logger.LogInformation("[HmrcApiOptionsRepository] adding row with data {0}: ",
-            new
-            {
-                options.RowKey,
-                options.PartitionKey,
-                options.UpdateDateTime,
-                options.DelayAdjustmentIntervalInMs,
-                options.DelayInMs,
-                options.MinimumUpdatePeriodInDays
-            });
-
-            await _table.ExecuteAsync(operation);
-        }
-
         private HmrcApiRateLimiterOptions GetDefaultOptions()
         {
             return new HmrcApiRateLimiterOptions
             {
                 RowKey = RowKey,
                 PartitionKey = _rateLimiterConfiguration.EnvironmentName,
-                DelayInMs = DefaultDelayInMs,
-                DelayAdjustmentIntervalInMs = DefaultDelayAdjustmentIntervalInMs,
-                MinimumUpdatePeriodInDays = DefaultMinimumUpdatePeriodInDays
             };
         }
     }

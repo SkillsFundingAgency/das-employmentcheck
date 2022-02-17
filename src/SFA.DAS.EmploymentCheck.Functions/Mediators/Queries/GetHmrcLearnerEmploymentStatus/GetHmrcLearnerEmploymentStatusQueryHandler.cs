@@ -1,8 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Hmrc;
+using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmploymentStatus
 {
@@ -10,20 +10,18 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmpl
         : IRequestHandler<GetHmrcLearnerEmploymentStatusQueryRequest,
             GetHmrcLearnerEmploymentStatusQueryResult>
     {
-        private readonly IHmrcClient _hmrcClient;
+        private readonly IHmrcService _service;
 
-        public GetHmrcLearnerEmploymentStatusQueryHandler(
-            IHmrcClient hmrcClient,
-            ILogger<GetHmrcLearnerEmploymentStatusQueryHandler> logger)
+        public GetHmrcLearnerEmploymentStatusQueryHandler(IHmrcService service)
         {
-            _hmrcClient = hmrcClient;
+            _service = service;
         }
 
         public async Task<GetHmrcLearnerEmploymentStatusQueryResult> Handle(
             GetHmrcLearnerEmploymentStatusQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var employmentCheckCacheRequest = await _hmrcClient.CheckEmploymentStatus(request.EmploymentCheckCacheRequest);
+            var employmentCheckCacheRequest = await _service.IsNationalInsuranceNumberRelatedToPayeScheme(request.EmploymentCheckCacheRequest);
 
             return new GetHmrcLearnerEmploymentStatusQueryResult(employmentCheckCacheRequest);
         }
