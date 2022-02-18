@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 .ReturnsAsync(createInstanceId);
 
             _starter
-                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
+                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(processInstanceId);
 
             _starter
@@ -81,7 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 .ReturnsAsync(createInstanceId);
 
             _starter
-                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
+                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(processInstanceId);
 
             var instances = new OrchestrationStatusQueryResult

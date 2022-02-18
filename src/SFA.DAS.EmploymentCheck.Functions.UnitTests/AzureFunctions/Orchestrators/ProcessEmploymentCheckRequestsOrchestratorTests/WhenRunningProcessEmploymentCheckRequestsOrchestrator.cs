@@ -11,13 +11,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.ProcessEmploymentCheckRequestsWithRateLimiterOrchestratorTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.ProcessEmploymentCheckRequestsOrchestratorTests
 {
-    public class WhenRunningProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
+    public class WhenRunningProcessEmploymentCheckRequestsOrchestrator
     {
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
-        private Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>> _logger;
+        private Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>> _logger;
 
         private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
         private IList<Models.EmploymentCheck> _employmentChecks;
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
-            _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator>>();
+            _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>>();
             _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
             _employmentChecks = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
         }
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task Then_The_Activities_Are_Called()
         {
             // Arrange
-            var sut = new ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator(_logger.Object);
+            var sut = new ProcessEmploymentCheckRequestsOrchestrator(_logger.Object);
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
