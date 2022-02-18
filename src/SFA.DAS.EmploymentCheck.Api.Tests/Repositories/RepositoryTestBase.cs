@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using AutoFixture;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
