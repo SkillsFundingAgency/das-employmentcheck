@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             actual.MinDate.Should().BeCloseTo(first.MinDate, TimeSpan.FromSeconds(1));
             actual.MaxDate.Should().BeCloseTo(first.MaxDate, TimeSpan.FromSeconds(1));
             actual.CreatedOn.Should().BeCloseTo(first.CreatedOn, TimeSpan.FromSeconds(1));
-            actual.LastUpdatedOn.Should().BeCloseTo(first.LastUpdatedOn, TimeSpan.FromSeconds(1));
+            actual.LastUpdatedOn.Should().BeCloseTo(first.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
         }
 
         [Test]

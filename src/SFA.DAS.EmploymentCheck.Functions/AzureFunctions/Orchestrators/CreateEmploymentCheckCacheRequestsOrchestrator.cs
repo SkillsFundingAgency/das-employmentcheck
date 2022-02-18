@@ -75,9 +75,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                     // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
 
-                    // No data found so sleep for 10 seconds then execute the orchestrator again
-                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
-                    await context.CreateTimer(sleep, CancellationToken.None);
+                    //// No data found so sleep for 10 seconds then execute the orchestrator again
+                    //var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    //await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
             catch (Exception e)
@@ -93,7 +93,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 // Note: The orchestrator may have been unloaded from memory whilst the activity
                 // functions were running so this could be a new instance of the orchestrator which
                 // will run though the table storage 'event sourcing' state.
-                context.ContinueAsNew(null);
+            //    context.ContinueAsNew(null);
             }
         }
         #endregion CreateEmploymentCheckRequests

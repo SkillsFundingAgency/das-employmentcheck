@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         public short? RequestCompletionStatus { get; set; }
 
-        public DateTime LastUpdatedOn { get; set; }
+        public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
     }

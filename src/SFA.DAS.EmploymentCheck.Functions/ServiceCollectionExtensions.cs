@@ -53,10 +53,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
 
-            if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
-            {
-                serviceCollection.AddSingleton(new AzureServiceTokenProvider());
-            }
+            //if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    serviceCollection.AddSingleton(new AzureServiceTokenProvider());
+            //}
 
             if (environmentName == "PROD")
             {

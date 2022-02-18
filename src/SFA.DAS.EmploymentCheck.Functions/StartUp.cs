@@ -12,6 +12,8 @@ using SFA.DAS.EmploymentCheck.Queries.GetNiNumbers;
 using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using System.IO;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Queries;
 using TokenServiceApiClientConfiguration = SFA.DAS.TokenService.Api.Client.TokenServiceApiClientConfiguration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
@@ -35,13 +37,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            configBuilder.AddAzureTableStorage(options =>
-            {
-                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-                options.EnvironmentName = configuration["EnvironmentName"];
-                options.PreFixConfigurationKeys = false;
-            });
+            //configBuilder.AddAzureTableStorage(options =>
+            //{
+            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+            //    options.EnvironmentName = configuration["EnvironmentName"];
+            //    options.PreFixConfigurationKeys = false;
+            //});
 
             configBuilder.AddJsonFile("local.settings.json", optional: true);
 
@@ -51,10 +53,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            builder.Services.AddMediatR(typeof(GetEmploymentCheckBatchQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetNiNumbersQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(CreateEmploymentCheckCacheCommand).Assembly);
+            builder.Services.AddCommandServices();
+            builder.Services.AddQueryServices();
 
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
