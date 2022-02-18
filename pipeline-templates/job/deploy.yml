@@ -5,7 +5,7 @@ parameters:
   AppRoleAssignmentsServiceConnection: 
 
 jobs:
-- deployment: DeployInfrastructure
+- deployment: DeployFunctionApp
   pool:
     name: DAS - Continuous Deployment Agents
   environment: ${{ parameters.Environment }}
@@ -19,15 +19,6 @@ jobs:
             EnvironmentId: $(Environment.Id)
             PipelineName: $(Build.DefinitionName)
             RunId: $(Build.BuildId)
-        - template: azure-pipelines-templates/deploy/step/set-backendaccessrestrictions-variable.yml@das-platform-building-blocks
-          parameters:
-            ServiceConnection: ${{ parameters.ServiceConnection }}
-            SharedEnvResourceGroup: $(SharedEnvResourceGroup)
-            SharedEnvVirtualNetworkName : $(SharedEnvVirtualNetworkName)
-            BackEndAccessRestrictionsExcludedSubnets: $(BackEndAccessRestrictionsExcludedSubnets)
-            ResourceEnvironmentName: $(ResourceEnvironmentName)
-            UnrestrictedEnvironments: $(UnrestrictedEnvironments)
-            UptimeMonitoringAccessRestrictions: $(UptimeMonitoringAccessRestrictions)
         - template: azure-pipelines-templates/deploy/step/arm-deploy.yml@das-platform-building-blocks
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
@@ -68,8 +59,3 @@ jobs:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
             DeploymentPackagePath: $(Pipeline.Workspace)/EmploymentCheck/SFA.DAS.EmploymentCheck.Functions.zip
-        - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
-          parameters:
-            ServiceConnection: ${{ parameters.ServiceConnection }}
-            AppServiceName: $(ApiAppServiceName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/EmploymentCheck/SFA.DAS.EmploymentCheck.Api.zip
