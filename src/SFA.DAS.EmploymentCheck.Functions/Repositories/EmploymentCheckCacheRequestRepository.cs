@@ -95,7 +95,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             parameters.Add("@nino", request.Nino, DbType.String);
             parameters.Add("@minDate", request.MinDate, DbType.DateTime);
             parameters.Add("@maxDate", request.MaxDate, DbType.DateTime);
-            parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Abandoned, DbType.Int16);
+            parameters.Add("@requestCompletionStatus", ProcessingCompletionStatus.Skipped, DbType.Int16);
             parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql =

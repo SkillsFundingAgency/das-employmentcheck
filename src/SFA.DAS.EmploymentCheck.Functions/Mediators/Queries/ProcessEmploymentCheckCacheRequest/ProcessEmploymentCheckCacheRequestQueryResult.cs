@@ -4,12 +4,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentC
 {
     public class ProcessEmploymentCheckCacheRequestQueryResult
     {
+        public ProcessEmploymentCheckCacheRequestQueryResult() { }
+
         public ProcessEmploymentCheckCacheRequestQueryResult(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             EmploymentCheckCacheRequest = employmentCheckCacheRequest;
         }
 
-        public EmploymentCheckCacheRequest EmploymentCheckCacheRequest { get; }
+        public EmploymentCheckCacheRequest EmploymentCheckCacheRequest { get; set; }
     }
 }

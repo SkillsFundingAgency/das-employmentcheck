@@ -84,9 +84,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 if (string.IsNullOrEmpty(nationalInsuranceNumber))
                 {
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (Nino not found).");
-
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_NinoNotFound;
-                    await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
                     continue;
                 }
 
@@ -94,9 +91,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 if (employerPayeSchemes == null)
                 {
                     _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheck.Uln}] (PayeScheme not found).");
-
-                    employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.ProcessingError_PayeSchemeNotFound;
-                    await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
                     continue;
                 }
 
