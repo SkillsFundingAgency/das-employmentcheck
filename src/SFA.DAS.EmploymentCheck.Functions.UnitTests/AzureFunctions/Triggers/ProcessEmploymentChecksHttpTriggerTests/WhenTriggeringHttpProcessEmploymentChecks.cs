@@ -15,12 +15,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
 {
     public class WhenTriggeringHttpProcessEmploymentChecks
     {
-        private readonly Mock<HttpRequestMessage> _request;
-        private readonly Mock<IDurableOrchestrationClient> _starter;
-        private readonly Mock<ILogger> _logger;
-        private readonly Fixture _fixture;
+        private Mock<HttpRequestMessage> _request;
+        private Mock<IDurableOrchestrationClient> _starter;
+        private Mock<ILogger> _logger;
+        private Fixture _fixture;
 
-        public WhenTriggeringHttpProcessEmploymentChecks()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _request = new Mock<HttpRequestMessage>();
