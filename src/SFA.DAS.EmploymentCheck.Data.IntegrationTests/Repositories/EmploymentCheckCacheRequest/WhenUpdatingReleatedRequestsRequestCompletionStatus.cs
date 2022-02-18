@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
-    public class WhenUpdatingReleatedRequestsRequestCompletionStatus
-        : RepositoryTestBase
+    public class WhenAbandonRelatedRequests : RepositoryTestBase
     {
         private IEmploymentCheckCacheRequestRepository _sut;
         private IList<Functions.Application.Models.EmploymentCheckCacheRequest> _actual;
+        private readonly Guid _correlationId = Guid.NewGuid();
 
         [Test]
-        public async Task CanSave()
+        public async Task Then_Related_EmploymentCheckCacheRequests_Are_Updated_with_Abandoned_Status()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings);
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
             var testEmploymentCheckCacheRequestData = await CreateTestEmploymentCheckCacheRequestData();
             var expectedEmploymentCheckCacheRequestData = await CreateExpectedEmploymentCheckCacheRequestData();
@@ -27,10 +29,12 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Act
             foreach(var request in testEmploymentCheckCacheRequestData)
             {
-                await base.Insert(request);
+                await Insert(request);
             }
 
-            await _sut.SetReleatedRequestsRequestCompletionStatus(testEmploymentCheckCacheRequestData.FirstOrDefault(), ProcessingCompletionStatus.Abandoned);
+            await UnitOfWorkInstance.BeginAsync();
+            await _sut.AbandonRelatedRequests(testEmploymentCheckCacheRequestData.FirstOrDefault(), UnitOfWorkInstance);
+            await UnitOfWorkInstance.CommitAsync();
 
             // Assert
             _actual = (await GetAll<Functions.Application.Models.EmploymentCheckCacheRequest>()).OrderBy(x => x.Id).ToList();
@@ -53,7 +57,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         [TearDown]
         public async Task CleanUp()
         {
-            await Delete(_actual);
+            foreach (var record in _actual)
+            {
+                await Delete(record);
+            }
         }
 
         private async Task<IList<Functions.Application.Models.EmploymentCheckCacheRequest>> CreateTestEmploymentCheckCacheRequestData()
@@ -64,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 1,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye1",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -78,7 +85,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 2,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye2",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -92,7 +99,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 3,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye3",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -106,7 +113,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 4,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye4",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -127,7 +134,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 1,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye1",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -141,7 +148,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 2,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye2",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -155,7 +162,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 3,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye3",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),
@@ -169,7 +176,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 {
                     Id = 4,
                     ApprenticeEmploymentCheckId = 1,
-                    CorrelationId = new Guid("8f868d95-6313-4223-8026-53b8760f9abb"),
+                    CorrelationId = _correlationId,
                     Nino = "A12345678",
                     PayeScheme = "Paye4",
                     LastUpdatedOn = new DateTime(2022, 4, 12, 16, 59, 15),

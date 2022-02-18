@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
             string instanceId = _fixture.Create<string>();
             var response = new HttpResponseMessage(HttpStatusCode.Accepted);
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
+            _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(instanceId);
             _starter.Setup(x => x.CreateCheckStatusResponse(_request.Object, instanceId, false))
                 .Returns(response);
@@ -64,7 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Pr
             //Arrange
             string instanceId = _fixture.Create<string>();
 
-            _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
+            _starter.Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(instanceId);
 
             var instances = new OrchestrationStatusQueryResult

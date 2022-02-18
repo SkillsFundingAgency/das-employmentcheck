@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System;
+using AutoFixture;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
@@ -8,6 +9,8 @@ using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using FluentAssertions;
+using SFA.DAS.EmploymentCheck.Functions.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
@@ -15,6 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
     {
         protected Fixture Fixture;
         protected ApplicationSettings Settings;
+        protected IUnitOfWork UnitOfWorkInstance;
         protected IList<object> ToBeDeleted = new List<object>();
         private const string AzureResource = "https://database.windows.net/";
 
@@ -29,6 +33,15 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             Settings = new ApplicationSettings();
             config.Bind(Settings);
+
+            UnitOfWorkInstance = new Functions.Repositories.UnitOfWork(Settings);
+
+            AssertionOptions.AssertEquivalencyUsing(options =>
+            {
+                options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTime>();
+                options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTimeOffset>();
+                return options;
+            });
         }
 
         public async Task<T> Get<T>(object id) where T : class
@@ -66,5 +79,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         {
             return new SqlConnection { ConnectionString = Settings.DbConnectionString, AccessToken = Settings.DbConnectionString.Contains("Integrated Security") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
         }
+
+
     }
 }

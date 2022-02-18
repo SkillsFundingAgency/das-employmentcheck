@@ -4,6 +4,8 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
@@ -18,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task CanUpdate()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings);
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
             var saved = Fixture.Create<Models.EmploymentCheckCacheRequest>();
 
             await Insert(saved);
