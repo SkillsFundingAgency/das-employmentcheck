@@ -53,8 +53,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
 
         public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentCheck)
         {
-            HttpRequestMessage httpRequestMessage = await SetupAccountsApiConfig(employmentCheck);
-            var payeSchemes = await GetPayeSchemes(employmentCheck, httpRequestMessage).ConfigureAwait(false);
+            EmployerPayeSchemes payeSchemes = null;
+            if (employmentCheck != null && employmentCheck.Id != 0)
+            {
+                HttpRequestMessage httpRequestMessage = await SetupAccountsApiConfig(employmentCheck);
+                payeSchemes = await GetPayeSchemes(employmentCheck, httpRequestMessage).ConfigureAwait(false);
+            }
 
             return payeSchemes ?? new EmployerPayeSchemes();
         }

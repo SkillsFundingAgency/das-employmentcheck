@@ -9,13 +9,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmployerAccount.EmployerAccountClientTests
 {
     public class WhenGettingEmployersPayeSchemes
     {
         private Mock<IEmployerAccountService> _employerAccountService;
-        private List<Functions.Application.Models.EmploymentCheck> _apprentices;
+        private Mock<ILogger<IEmploymentCheckClient>> _logger;
+        private Models.EmploymentCheck _employmentCheck;
         private Fixture _fixture;
         private EmployerAccountClient _sut;
 
@@ -24,7 +26,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         {
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck> { _fixture.Create<Functions.Application.Models.EmploymentCheck>() };
+            _logger = new Mock<ILogger<IEmploymentCheckClient>>();
+            _employmentCheck = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
 
             _sut = new EmployerAccountClient(_employerAccountService.Object);
         }
@@ -33,14 +36,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_EmployerAccountService_Is_Called()
         {
             //Arrange
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
                 .ReturnsAsync(_fixture.Create<EmployerPayeSchemes>());
 
             //Act
-            await _sut.GetEmployersPayeSchemes(_apprentices);
+            await _sut.GetEmployersPayeSchemes(_employmentCheck);
 
             //Assert
-            _employerAccountService.Verify(x => x.GetEmployerPayeSchemes(_apprentices[0]), Times.Exactly(1));
+            _employerAccountService.Verify(x => x.GetEmployerPayeSchemes(_employmentCheck), Times.Exactly(1));
         }
 
         [Test]
@@ -53,33 +56,34 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
                 PayeSchemes = new List<string> { " paye " }
             };
 
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_apprentices[0]))
+            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
                 .ReturnsAsync(employerPayeSchemes);
 
             //Act
-            var result = await _sut.GetEmployersPayeSchemes(_apprentices);
+            var result = await _sut.GetEmployersPayeSchemes(_employmentCheck);
 
             //Assert
-            result.First().PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First());
+            result.PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First());
         }
 
         [Test]
         public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_List_Is_Returned()
         {
             //Act
-            var result = await _sut.GetEmployersPayeSchemes(new List<Functions.Application.Models.EmploymentCheck>());
+            var result = await _sut.GetEmployersPayeSchemes(new Models.EmploymentCheck());
 
             //Assert
-            result.Should().BeEquivalentTo(new List<EmployerPayeSchemes>());
+            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
         }
 
         [Test]
-        public Task And_Null_Is_Passed_In_Then_A_NullReference_Exception_Occurs()
+        public async Task And_Null_Is_Passed_In_An_Empty_List_Is_Returned()
         {
-            //Assert
-            Assert.ThrowsAsync<NullReferenceException>(async () => await _sut.GetEmployersPayeSchemes(null));
-            return Task.CompletedTask;
-        }
+            //Act
+            var result = await _sut.GetEmployersPayeSchemes(null);
 
+            //Assert
+            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
+        }
     }
 }

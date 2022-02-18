@@ -1,12 +1,12 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
 {
-    public class LearnerClient
-        : ILearnerClient
+    public class LearnerClient : ILearnerClient
     {
         private readonly ILearnerService _learnerService;
 
@@ -15,9 +15,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
             _learnerService = learnerService;
         }
 
-        public async Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Models.EmploymentCheck> apprentices)
+        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check)
         {
-            var learnerNiNumbers = await _learnerService.GetNiNumbers(apprentices);
+            var learnerNiNumbers = await _learnerService.GetNiNumber(check);
 
             return learnerNiNumbers;
         }

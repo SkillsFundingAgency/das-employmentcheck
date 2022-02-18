@@ -18,8 +18,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 {
-    public class LearnerService
-        : ILearnerService
+    public class LearnerService : ILearnerService
     {
         private const string LearnersNiUrl = "/api/v1/ilr-data/learnersNi/2122?ulns=";
         private readonly ILogger<ILearnerService> _logger;
@@ -49,38 +48,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             _repository = repository;
         }
 
-        public async Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Models.EmploymentCheck> employmentCheckBatch)
+        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check)
         {
-            Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
-
             var token = GetDcToken().Result;
-            var learnerNiNumbers = await GetNiNumbers(employmentCheckBatch, token);
+            var learnerNiNumber = await SendIndividualRequest(check, token);
 
-            return await Task.FromResult(learnerNiNumbers ?? new List<LearnerNiNumber>());
-        }
-
-        private async Task<IList<LearnerNiNumber>> GetNiNumbers(ICollection<Models.EmploymentCheck> learners, AuthResult token)
-        {
-            var checkedLearners = new List<LearnerNiNumber>();
-            var taskList = new List<Task<LearnerNiNumber>>();
-
-            foreach (var learner in learners)
-            {
-                taskList.Add(SendIndividualRequest(learner, token));
-
-                var responses = await Task.WhenAll(taskList);
-                foreach(var response in responses)
-                {
-                    if (response is {NiNumber: { }})
-                    {
-                        checkedLearners.AddRange(responses);
-                    }
-                }
-
-                taskList.Clear();
-            }
-
-            return checkedLearners;
+            return learnerNiNumber;
         }
 
         private async Task<LearnerNiNumber> SendIndividualRequest(Models.EmploymentCheck employmentCheck, AuthResult token)

@@ -2,11 +2,9 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
@@ -17,26 +15,34 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
-            ILogger log)
+            ILogger log
+        )
         {
-            IList<HttpResponseMessage> resultMessages = new List<HttpResponseMessage>();
-            HttpResponseMessage resultMessage;
+            IEmploymentChecksHttpTriggerHelper employmentChecksHttpTriggerHelper = new EmploymentChecksHttpTriggerHelper();
+            return await StartTheCreateAndProcessRequestOrchestrators(req, starter, log, employmentChecksHttpTriggerHelper);
+        }
 
-            resultMessages.Add(await CreateEmploymentCheckRequestsOrchestratorTrigger.HttpStart(req, starter, log));
-            resultMessages.Add(await ProcessEmploymentChecksHttpTrigger.HttpStart(req, starter, log));
+        public static async Task<HttpResponseMessage> StartTheCreateAndProcessRequestOrchestrators(
+            HttpRequestMessage req,
+            IDurableOrchestrationClient starter,
+            ILogger log,
+            IEmploymentChecksHttpTriggerHelper employmentChecksHttpTriggerHelper
+        )
+        {
+            var createResult = await employmentChecksHttpTriggerHelper.StartCreateRequestsOrchestrator(req, starter, log);
+            if (!createResult.Item2.IsSuccessStatusCode) { return createResult.Item2; }
 
-            var conflict = resultMessages.Any(rm => rm.StatusCode == HttpStatusCode.Conflict);
+            var processResult = await employmentChecksHttpTriggerHelper.StartProcessRequestsOrchestrator(req, starter, log);
+            if (!processResult.Item2.IsSuccessStatusCode) { return processResult.Item2; }
 
-            if (conflict) { resultMessage = new HttpResponseMessage(HttpStatusCode.Conflict); }
-            else { resultMessage = new HttpResponseMessage(HttpStatusCode.Accepted); }
+            var createResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(CreateEmploymentCheckCacheRequestsOrchestrator));
+            var processResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator));
 
-            StringBuilder stringMessage = new StringBuilder();
-            foreach (var httpMessage in resultMessages)
-            {
-                stringMessage.Append(httpMessage.Content);
-            }
+            var resultMessage = await employmentChecksHttpTriggerHelper.CreateHttpResponseMessage(createResultContentString, processResultContentString);
 
-            resultMessage.Content = new StringContent($"{stringMessage}\n");
+            string gg = resultMessage.ToString();
+            _ = gg;
+
             return resultMessage;
         }
     }
