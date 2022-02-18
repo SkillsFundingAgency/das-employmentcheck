@@ -1,10 +1,9 @@
-﻿using Ardalis.GuardClauses;
-using Dapper.Contrib.Extensions;
+﻿using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Api.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
 using Models = SFA.DAS.EmploymentCheck.Api.Application.Models;
 
@@ -28,7 +27,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
                 _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
             var lastCheck = (await sqlConnection.GetAllAsync<Application.Models.EmploymentCheck>())
                 .FirstOrDefault(x => x.CorrelationId == correlationId);
@@ -42,7 +40,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Repositories
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
                 _connectionString,
                 _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
             await sqlConnection.InsertAsync(employmentCheck);
         }
