@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
         [Test]
         public async Task And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
         {
-            //Arrange
+            // Arrange
             var request = new GetPayeSchemesQueryRequest(_employmentCheck);
             var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
 
@@ -64,11 +64,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
 
             var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
 
-            //Act
+            // Act
 
             var result = await sut.Handle(request, CancellationToken.None);
 
-            //Assert
+            // Assert
 
             Assert.AreEqual(result.EmployersPayeSchemes, payeScheme);
         }

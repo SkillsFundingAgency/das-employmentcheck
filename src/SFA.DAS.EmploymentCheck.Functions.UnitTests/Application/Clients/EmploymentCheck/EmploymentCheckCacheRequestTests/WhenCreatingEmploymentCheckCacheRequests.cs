@@ -3,12 +3,13 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckCacheRequestTests
 {
@@ -37,38 +38,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task And_The_EmploymentCheckService_Returns_EmploymentChecks_Then_They_Are_Returned()
         {
             // Arrange
-            IList<LearnerNiNumber> ninos = _fixture.CreateMany<LearnerNiNumber>().ToList();
-            IList<EmployerPayeSchemes> paye = _fixture.Build<EmployerPayeSchemes>()
-                .With(x => x.PayeSchemes, new[] { _fixture.Create<string>() })
-                    .CreateMany().ToList();
+            var nino = _fixture.Create<LearnerNiNumber>();
+            var paye = _fixture.Build<EmployerPayeSchemes>().With(x => x.PayeSchemes, new[] { _fixture.Create<string>() }).Create();
+            var check = _fixture.Build<Models.EmploymentCheck>().With(c => c.Uln, nino.Uln).With(c => c.AccountId, paye.EmployerAccountId).Create();
+            var employmentCheckData = new EmploymentCheckData(check, nino, paye);
 
-            IList<Functions.Application.Models.EmploymentCheck> checks =
-                new List<Functions.Application.Models.EmploymentCheck>
-                {
-                    _fixture.Build<Functions.Application.Models.EmploymentCheck>().With(c => c.Uln, ninos[0].Uln).With(c => c.AccountId, paye[0].EmployerAccountId).Create(),
-                    _fixture.Build<Functions.Application.Models.EmploymentCheck>().With(c => c.Uln, ninos[1].Uln).With(c => c.AccountId, paye[1].EmployerAccountId).Create(),
-                    _fixture.Build<Functions.Application.Models.EmploymentCheck>().With(c => c.Uln, ninos[2].Uln).With(c => c.AccountId, paye[2].EmployerAccountId).Create(),
-                };
-
-            var employmentCheckData = new EmploymentCheckData
+            var expected = new List<EmploymentCheckCacheRequest>
             {
-                ApprenticeNiNumbers = ninos,
-                EmployerPayeSchemes = paye,
-                EmploymentChecks = checks
-            };
-
-            var expected = checks.Select((t, i) => new EmploymentCheckCacheRequest
+                new EmploymentCheckCacheRequest
                 {
-                    ApprenticeEmploymentCheckId = t.Id,
-                    CorrelationId = t.CorrelationId,
-                    Nino = ninos[i].NiNumber,
-                    PayeScheme = paye[i].PayeSchemes.FirstOrDefault(),
-                    MaxDate = checks[i].MaxDate,
-                    MinDate = checks[i].MinDate,
-                    RequestCompletionStatus = null,
-                })
-                .ToList();
-
+                    ApprenticeEmploymentCheckId = check.Id,
+                    CorrelationId = check.CorrelationId,
+                    Nino = nino.NiNumber,
+                    PayeScheme = paye.PayeSchemes.FirstOrDefault(),
+                    MaxDate = check.MaxDate,
+                    MinDate = check.MinDate,
+                    RequestCompletionStatus = null
+                }
+            };
 
             // Act
             var result = await _sut.CreateEmploymentCheckCacheRequests(employmentCheckData);

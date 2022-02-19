@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using FluentAssertions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,8 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -70,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 .ReturnsAsync(createInstanceId);
 
             _starter
-                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
+                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(processInstanceId);
 
             _starter

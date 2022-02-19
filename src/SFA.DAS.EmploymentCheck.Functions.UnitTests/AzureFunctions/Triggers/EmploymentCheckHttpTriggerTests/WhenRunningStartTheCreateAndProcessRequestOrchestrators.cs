@@ -49,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
 
             var processResponse = new HttpResponseMessage(HttpStatusCode.Accepted)
             {
-                Content = new StringContent($"Started Orchestrator[{nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}] Id[5678] : ")
+                Content = new StringContent($"Started Orchestrator[{nameof(ProcessEmploymentCheckRequestsOrchestrator)}] Id[5678] : ")
             };
 
             Tuple<string, HttpResponseMessage> createTuple = new Tuple<string, HttpResponseMessage>(createInstanceId, createResponse);
@@ -71,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                 .ReturnsAsync(createInstanceId);
 
             _starter
-                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), It.IsAny<string>()))
+                .Setup(x => x.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), It.IsAny<string>()))
                 .ReturnsAsync(processInstanceId);
 
             _starter

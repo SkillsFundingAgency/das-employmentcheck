@@ -32,17 +32,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
         [Test]
         public async Task And_There_Are_Instances_Running_Then_The_Starter_Is_Called_And_Returns_The_Instances()
         {
-            //Arrange
+            // Arrange
             
             _starter.Setup(x => x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), System.Threading.CancellationToken.None)).ReturnsAsync(_instances);
 
             var sut = new TriggerHelper();
 
-            //Act
+            // Act
 
             var result = await sut.GetRunningInstances(_orchestratorName, _instanceIdPrefix, _starter.Object, _log.Object);
 
-            //Assert
+            // Assert
             _starter.Verify(
                 x => x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None),
                 Times.Once);
@@ -52,17 +52,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
         [Test]
         public async Task And_There_Are_No_Instances_Running_Then_Null_Is_Returned()
         {
-            //Arrange
+            // Arrange
 
             _starter.Setup(x => x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), System.Threading.CancellationToken.None)).ReturnsAsync((OrchestrationStatusQueryResult)null);
 
             var sut = new TriggerHelper();
 
-            //Act
+            // Act
 
             var result = await sut.GetRunningInstances(_orchestratorName, _instanceIdPrefix, _starter.Object, _log.Object);
 
-            //Assert
+            // Assert
             Assert.AreEqual(null, result);
         }
     }

@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             if (!processResult.Item2.IsSuccessStatusCode) { return processResult.Item2; }
 
             var createResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(CreateEmploymentCheckCacheRequestsOrchestrator));
-            var processResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator));
+            var processResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(ProcessEmploymentCheckRequestsOrchestrator));
 
             var resultMessage = await employmentChecksHttpTriggerHelper.CreateHttpResponseMessage(createResultContentString, processResultContentString);
 

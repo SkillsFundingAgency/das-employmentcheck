@@ -65,9 +65,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 
             if (!existingInstances.DurableOrchestrationState.Any())
             {
-                log.LogInformation($"Triggering {nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)}");
+                log.LogInformation($"Triggering {nameof(ProcessEmploymentCheckRequestsOrchestrator)}");
 
-                string instanceId = await starter.StartNewAsync(nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
+                string instanceId = await starter.StartNewAsync(nameof(ProcessEmploymentCheckRequestsOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
 
                 log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
                 var message = starter.CreateCheckStatusResponse(req, instanceId);
@@ -76,7 +76,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 
             var resultMessage = new HttpResponseMessage(HttpStatusCode.Conflict)
             {
-                Content = new StringContent($"An instance of {nameof(ProcessEmploymentCheckRequestsWithRateLimiterOrchestrator)} is already running."),
+                Content = new StringContent($"An instance of {nameof(ProcessEmploymentCheckRequestsOrchestrator)} is already running."),
             };
 
             return new Tuple<string, HttpResponseMessage>(string.Empty, resultMessage);

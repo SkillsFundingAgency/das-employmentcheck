@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Queries
         public void SetUp()
         {
             _fixture = new Fixture();
-            _serviceMock = new Mock<IEmploymentCheckService>(); 
+            _serviceMock = new Mock<IEmploymentCheckService>();
             _sut = new GetEmploymentCheckBatchQueryHandler(_serviceMock.Object);
         }
 

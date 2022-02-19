@@ -33,10 +33,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
             _mediator.Setup(x => x.Send(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(employersPayeSchemes);
 
-            //Act
+            // Act
             var result = sut.Get(_employmentCheck).Result;
 
-            //Assert
+            // Assert
             Assert.NotNull(result);
             Assert.AreEqual(employersPayeSchemes.EmployersPayeSchemes, result);
         }

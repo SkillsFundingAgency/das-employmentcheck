@@ -6,7 +6,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
 {
     public interface IEmploymentCheckService
     {
-        Task<IList<Models.EmploymentCheck>> GetEmploymentCheck();
+        Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
 
         Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
