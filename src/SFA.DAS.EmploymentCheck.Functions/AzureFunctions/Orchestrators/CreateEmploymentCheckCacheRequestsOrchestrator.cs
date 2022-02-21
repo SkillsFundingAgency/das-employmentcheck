@@ -5,6 +5,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,17 +43,34 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
-                var employmentCheckBatch = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
-                if (employmentCheckBatch.Count > 0)
+                var employmentCheckData = new EmploymentCheckData();
+                employmentCheckData.EmploymentChecks = await context.CallActivityAsync<IList<Application.Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), new Object());
+                if (employmentCheckData.EmploymentChecks.Count > 0)
                 {
-                    var getLearnerNiNumbersActivityTask = context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentCheckBatch);
-                    var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheckBatch);
-                    await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
+                    employmentCheckData.ApprenticeNiNumbers = await context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetDbLearnerNiNumbersActivity), employmentCheckData.EmploymentChecks);
+                    var employmentChecksWithoutDbNiNumbers = employmentCheckData.EmploymentChecks.Where(ec => !employmentCheckData.ApprenticeNiNumbers.Any(ni => ni.Uln == ec.Uln));
 
-                    var learnerNiNumbers = getLearnerNiNumbersActivityTask.Result;
-                    var employerPayeSchemes = employerPayeSchemesTask.Result;
+                    if(employmentChecksWithoutDbNiNumbers != null && employmentChecksWithoutDbNiNumbers.Any())
+                    {
+                        var getLearnerNiNumbersActivityTask = context.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), employmentChecksWithoutDbNiNumbers);
+                        var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheckData.EmploymentChecks);
+                        await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
 
-                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), new EmploymentCheckData(employmentCheckBatch, learnerNiNumbers, employerPayeSchemes));
+                        var learnerNiNumbers = getLearnerNiNumbersActivityTask.Result;
+                        if (learnerNiNumbers != null)
+                        {
+                            foreach (var learnerNiNumber in learnerNiNumbers) { employmentCheckData.ApprenticeNiNumbers.Add(learnerNiNumber); }
+                        }
+                        employmentCheckData.EmployerPayeSchemes = employerPayeSchemesTask.Result;
+                    }
+                    else
+                    {
+                        var employerPayeSchemesTask = context.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), employmentCheckData.EmploymentChecks);
+                        await Task.WhenAll(employerPayeSchemesTask);
+                        employmentCheckData.EmployerPayeSchemes = employerPayeSchemesTask.Result;
+                    }
+
+                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), employmentCheckData);
                 }
                 else
                 {
