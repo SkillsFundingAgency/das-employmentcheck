@@ -41,8 +41,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
 
             // Assert
             Assert.NotNull(result);
-            Assert.AreEqual(result.Count, queryResult.LearnerNiNumbers.Count());
-            Assert.AreEqual(result, queryResult.LearnerNiNumbers);
+            Assert.AreEqual(queryResult.LearnerNiNumbers.Count(), result.Count);
+            Assert.AreEqual(queryResult.LearnerNiNumbers, result);
+        }
+
+        [Test]
+        public void Then_If_The_Query_Returns_No_LearnerNiNumbers_Then_An_Empty_List_Is_Returned()
+        {
+            // Arrange
+            var employmentCheckBatch = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
+            var sut = new GetDbLearnerNiNumbersActivity(_mediator.Object);
+            var queryResult = new GetDbNiNumbersQueryResult(null); // can't use _fixture, the LearnerNiNumbers property in GetDbNiNumbersQueryResult doesn't have a 'setter'
+
+            _mediator
+                .Setup(x => x.Send(It.IsAny<GetDbNiNumbersQueryRequest>(), CancellationToken.None))
+                .ReturnsAsync(queryResult);
+
+            // Act
+            var result = sut.Get(employmentCheckBatch).Result;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.AreEqual(0, result.Count);
         }
     }
 }
