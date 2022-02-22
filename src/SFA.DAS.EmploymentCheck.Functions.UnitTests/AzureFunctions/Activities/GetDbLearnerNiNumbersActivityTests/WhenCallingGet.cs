@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Arrange
             var employmentCheckBatch = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
             var sut = new GetDbLearnerNiNumbersActivity(_mediator.Object);
-            var queryResult = new GetDbNiNumbersQueryResult(null); // can't use _fixture, the LearnerNiNumbers property in GetDbNiNumbersQueryResult doesn't have a 'setter'
+            var queryResult = new GetDbNiNumbersQueryResult(null);
 
             _mediator
                 .Setup(x => x.Send(It.IsAny<GetDbNiNumbersQueryRequest>(), CancellationToken.None))
