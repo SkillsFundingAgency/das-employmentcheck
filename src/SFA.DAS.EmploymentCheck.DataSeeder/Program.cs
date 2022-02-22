@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.DataSeeder
 {
-    class Program
+    static class Program
     {
         public static async Task Main()
         {
