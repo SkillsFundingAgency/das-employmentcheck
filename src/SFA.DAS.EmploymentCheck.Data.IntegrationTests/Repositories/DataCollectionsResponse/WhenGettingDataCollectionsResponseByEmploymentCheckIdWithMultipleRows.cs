@@ -14,11 +14,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.DataCollect
         private IDataCollectionsResponseRepository _sut;
         private Models.DataCollectionsResponse _actual;
 
-        // As per the design, Ninos are being stored in the DataCollectionsResponse in a transaction after
-        // the related EmploymentCheck has been stored. The EmploymentCheck.ApprenticeshipId is not the primary
-        // key on the DataCollectionsResponse table so it's  possible for multiple EmploymentCheck.ApprenticeshipId's
-        // to be stored in the table (either due to issues with the manual loading of the records or re-running of functions)
-        // so on retrieval, we just get the lastest row if there are multiple rows.
         [Test]
         public async Task Get_Should_Return_The_Latest_Single_Row_When_There_Are_Multiple_Rows_With_The_Same_ForeignKey()
         {

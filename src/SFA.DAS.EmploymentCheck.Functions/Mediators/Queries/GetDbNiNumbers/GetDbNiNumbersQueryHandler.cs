@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumbers
             else
             {
                 _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
-                learnerNiNumbers = new List<LearnerNiNumber>(); // return empty list rather than null
+                learnerNiNumbers = new List<LearnerNiNumber>();
             }
 
             return new GetDbNiNumbersQueryResult(learnerNiNumbers);

@@ -54,12 +54,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             var learnerNiNumbers = new List<LearnerNiNumber>();
             foreach (var employmentCheck in employmentCheckBatch)
             {
-                LearnerNiNumber learnerNiNumber = null;
                 var response = await _repository.GetByEmploymentCheckId(employmentCheck.Id);
                 if (response != null)
                 {
-                    learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = response.NiNumber };
-                    learnerNiNumbers.Add(learnerNiNumber);
+                    learnerNiNumbers.Add(new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = response.NiNumber });
                 }
             }
 
