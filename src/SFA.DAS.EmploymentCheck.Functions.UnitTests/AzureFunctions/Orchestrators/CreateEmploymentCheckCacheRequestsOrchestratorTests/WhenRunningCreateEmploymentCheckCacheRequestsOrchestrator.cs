@@ -48,6 +48,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .ReturnsAsync(_employmentChecks);
 
             _context
+                .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetDbLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
+                .ReturnsAsync(_learnerNiNumbers);
+
+            _context
                 .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
                 .ReturnsAsync(_learnerNiNumbers);
 

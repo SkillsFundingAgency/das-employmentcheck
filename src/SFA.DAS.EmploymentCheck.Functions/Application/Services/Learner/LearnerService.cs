@@ -49,6 +49,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             _repository = repository;
         }
 
+        public async Task<IList<LearnerNiNumber>> GetDbNiNumbers(IList<Models.EmploymentCheck> employmentCheckBatch)
+        {
+            var learnerNiNumbers = new List<LearnerNiNumber>();
+            foreach (var employmentCheck in employmentCheckBatch)
+            {
+                LearnerNiNumber learnerNiNumber = null;
+                var response = await _repository.GetByEmploymentCheckId(employmentCheck.Id);
+                if (response != null)
+                {
+                    learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = response.NiNumber };
+                    learnerNiNumbers.Add(learnerNiNumber);
+                }
+            }
+
+            return learnerNiNumbers;
+        }
+
         public async Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Models.EmploymentCheck> employmentCheckBatch)
         {
             Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));

@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
             var getDbLearnerNiNumbersQueryResult = await _mediator.Send(new GetDbNiNumbersQueryRequest(employmentCheckBatch));
 
-            return getDbLearnerNiNumbersQueryResult.LearnerNiNumber;
+            return getDbLearnerNiNumbersQueryResult.LearnerNiNumber ?? new List<LearnerNiNumber>();
         }
     }
 }
