@@ -117,7 +117,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
                     sql: "SELECT    TOP(1) * " +
                          "FROM      [Cache].[DataCollectionsResponse] " +
                          "WHERE     ApprenticeEmploymentCheckId = @ApprenticeEmploymentCheckId " +
-                         "ORDER BY  CreatedOn DESC ", // return the last one stored if there are multiple rows (we are retreiving the data by a non-key column so potentially their could be multiple matching rows)
+                         "ORDER BY  CreatedOn DESC ",
                     parameter,
                     commandType: CommandType.Text)).FirstOrDefault();
             }
