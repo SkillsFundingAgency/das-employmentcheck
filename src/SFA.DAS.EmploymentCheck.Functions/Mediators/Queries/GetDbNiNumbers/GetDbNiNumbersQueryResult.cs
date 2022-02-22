@@ -5,11 +5,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumbers
 {
     public class GetDbNiNumbersQueryResult
     {
-        public GetDbNiNumbersQueryResult(IList<LearnerNiNumber> learnerNiNumber)
+        public GetDbNiNumbersQueryResult(IList<LearnerNiNumber> learnerNiNumbers)
         {
-            LearnerNiNumber = learnerNiNumber;
+            LearnerNiNumbers = learnerNiNumbers;
         }
 
-        public IList<LearnerNiNumber> LearnerNiNumber { get; }
+        public IList<LearnerNiNumber> LearnerNiNumbers { get; }
     }
 }

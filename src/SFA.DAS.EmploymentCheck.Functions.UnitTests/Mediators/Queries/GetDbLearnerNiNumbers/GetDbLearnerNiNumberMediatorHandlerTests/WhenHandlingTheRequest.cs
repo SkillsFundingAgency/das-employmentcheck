@@ -63,7 +63,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLea
             var result = await sut.Handle(new GetDbNiNumbersQueryRequest(new List<Models.EmploymentCheck>()), CancellationToken.None);
 
             // Assert
-            result.LearnerNiNumber.Should().BeEquivalentTo(new List<LearnerNiNumber>());
+            result.LearnerNiNumbers.Should().BeEquivalentTo(new List<LearnerNiNumber>());
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLea
             var result = await sut.Handle(new GetDbNiNumbersQueryRequest(new List<Models.EmploymentCheck>()), CancellationToken.None);
 
             // Assert
-            result.LearnerNiNumber.Should().BeEquivalentTo(niNumbers);
+            result.LearnerNiNumbers.Should().BeEquivalentTo(niNumbers);
         }
     }
 }
