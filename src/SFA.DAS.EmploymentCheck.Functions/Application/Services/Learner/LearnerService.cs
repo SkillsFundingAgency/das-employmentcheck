@@ -26,8 +26,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         private readonly IDcTokenService _dcTokenService;
         private readonly IHttpClientFactory _httpFactory;
         private readonly DcApiSettings _dcApiSettings;
-        private readonly string _connectionString;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly IDataCollectionsResponseRepository _repository;
 
         public LearnerService(
@@ -41,11 +39,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         )
         {
             _logger = logger;
-            _connectionString = applicationSettings.DbConnectionString;
             _dcTokenService = dcTokenService;
             _httpFactory = httpClientFactory;
             _dcApiSettings = dcApiSettings.Value;
-            _azureServiceTokenProvider = azureServiceTokenProvider;
             _repository = repository;
         }
 
@@ -102,14 +98,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         {
             HttpClient client;
             string url;
-            SetupDataCollectionsApitConfig(employmentCheck, token, out client, out url);
+            SetupDataCollectionsApiConfig(employmentCheck, token, out client, out url);
 
             var learnerNiNumber = await ExecuteDataCollectionsApiCall(employmentCheck, client, url);
 
             return learnerNiNumber ?? new LearnerNiNumber();
         }
 
-        private void SetupDataCollectionsApitConfig(Models.EmploymentCheck employmentCheck, AuthResult token, out HttpClient client, out string url)
+        private void SetupDataCollectionsApiConfig(Models.EmploymentCheck employmentCheck, AuthResult token, out HttpClient client, out string url)
         {
             client = _httpFactory.CreateClient("LearnerNiApi");
             client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);

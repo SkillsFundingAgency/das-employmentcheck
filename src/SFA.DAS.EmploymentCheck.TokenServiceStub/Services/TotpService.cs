@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
             return generator.Generate(DateTime.UtcNow);
         }
 
-        private class UnpaddedHmacSha512TotpGenerator : HmacSha512TotpGenerator
+        private sealed class UnpaddedHmacSha512TotpGenerator : HmacSha512TotpGenerator
         {
             public UnpaddedHmacSha512TotpGenerator(TotpGeneratorSettings settings) : base(settings)
             {
