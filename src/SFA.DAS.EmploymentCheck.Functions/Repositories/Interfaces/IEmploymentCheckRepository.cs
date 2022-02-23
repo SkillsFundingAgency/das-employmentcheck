@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
     public interface IEmploymentCheckRepository
     {
         Task InsertOrUpdate(Models.EmploymentCheck check);
-        Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch();
+        Task<Models.EmploymentCheck> GetEmploymentCheck();
         Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheckCacheRequest request, IUnitOfWork transaction);
     }
 }

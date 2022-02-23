@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_Command_Was_Executed()
         {
             // Arrange
-            var sut = new CreateEmploymentCheckCacheRequestsActivity(_mediator.Object);
+            var sut = new CreateEmploymentCheckCacheRequestActivity(_mediator.Object);
 
             // Act
             await sut

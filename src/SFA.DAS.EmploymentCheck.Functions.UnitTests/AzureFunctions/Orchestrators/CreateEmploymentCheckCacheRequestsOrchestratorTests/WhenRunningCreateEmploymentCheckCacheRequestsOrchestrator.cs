@@ -18,7 +18,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>> _logger;
         private Models.EmploymentCheck _employmentCheck;
-        private IList<Models.EmploymentCheck> _employmentChecks;
         private CreateEmploymentCheckCacheRequestsOrchestrator _sut;
 
         [SetUp]
@@ -28,7 +27,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>>();
             _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
-            _employmentChecks = new List<Models.EmploymentCheck> { _employmentCheck };
             _sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
         }
 
@@ -36,11 +34,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task Then_The_SubOrchestrator_Is_Called()
         {
             // Arrange
-            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
-
             _context
-                .Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()))
-                .ReturnsAsync(_employmentChecks);
+                .Setup(a => a.CallActivityAsync<Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()))
+                .ReturnsAsync(_employmentCheck);
 
             _context
                 .Setup(o => o.CallSubOrchestratorAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestOrchestrator), _employmentCheck));
@@ -49,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()), Times.Once);
             _context.Verify(o => o.CallSubOrchestratorAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestOrchestrator), _employmentCheck), Times.Once);
         }
     }

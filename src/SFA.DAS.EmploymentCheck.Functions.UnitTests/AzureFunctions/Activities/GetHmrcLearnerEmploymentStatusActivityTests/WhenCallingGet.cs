@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_LearnerEmploymentStatus_Is_Returned()
         {
             // Arrange
-            var sut = new GetHmrcLearnerEmploymentStatusActivity(_logger.Object, _mediator.Object);
+            var sut = new GetHmrcLearnerEmploymentStatusActivity(_mediator.Object);
 
             var queryResult = new GetHmrcLearnerEmploymentStatusQueryResult();
             queryResult.EmploymentCheckCacheRequest = _employmentCheckCacheRequest;

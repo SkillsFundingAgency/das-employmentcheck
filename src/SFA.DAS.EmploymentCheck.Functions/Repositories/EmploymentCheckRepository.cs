@@ -33,76 +33,67 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             _settings = applicationSettings;
         }
 
-        public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
+        public async Task<Models.EmploymentCheck> GetEmploymentCheck()
         {
-            IList<Models.EmploymentCheck> employmentChecksBatch;
+            Models.EmploymentCheck employmentCheck;
 
             var dbConnection = new DbConnection();
             await using (var sqlConnection = await dbConnection.CreateSqlConnection(
-                             _settings.DbConnectionString,
+                _settings.DbConnectionString,
                 _azureServiceTokenProvider))
             {
                 await sqlConnection.OpenAsync();
+                var transaction = sqlConnection.BeginTransaction();
+
+                try
                 {
-                    var transaction = sqlConnection.BeginTransaction();
+                    employmentCheck = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
+                            sql: "SELECT TOP (1) " +
+                                "[Id], " +
+                                "[CorrelationId], " +
+                                "[CheckType], " +
+                                "[Uln], " +
+                                "[ApprenticeshipId], " +
+                                "[AccountId], " +
+                                "[MinDate], " +
+                                "[MaxDate], " +
+                                "[Employed], " +
+                                "[RequestCompletionStatus], " +
+                                "[CreatedOn], " +
+                                "[LastUpdatedOn] " +
+                                "FROM [Business].[EmploymentCheck] AEC " +
+                                "WHERE (AEC.RequestCompletionStatus IS NULL) " +
+                                "ORDER BY AEC.Id ",
+                            commandType: CommandType.Text,
+                            transaction: transaction)).FirstOrDefault();
 
-                    try
+                    if (employmentCheck != null)
                     {
-                        var parameters = new DynamicParameters();
-                        parameters.Add("@batchSize", _settings.BatchSize);
+                            var parameter = new DynamicParameters();
+                            parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
+                            parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
+                            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-                        employmentChecksBatch = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
-                                sql: "SELECT TOP (@batchSize) " +
-                                    "[Id], " +
-                                    "[CorrelationId], " +
-                                    "[CheckType], " +
-                                    "[Uln], " +
-                                    "[ApprenticeshipId], " +
-                                    "[AccountId], " +
-                                    "[MinDate], " +
-                                    "[MaxDate], " +
-                                    "[Employed], " +
-                                    "[RequestCompletionStatus], " +
-                                    "[CreatedOn], " +
-                                    "[LastUpdatedOn] " +
-                                    "FROM [Business].[EmploymentCheck] AEC " +
-                                    "WHERE (AEC.RequestCompletionStatus IS NULL) " +
-                                    "ORDER BY AEC.Id ",
-                                param: parameters,
+                            await sqlConnection.ExecuteAsync(
+                                "UPDATE [Business].[EmploymentCheck] " +
+                                "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                                "WHERE Id = @Id ",
+                                parameter,
                                 commandType: CommandType.Text,
-                                transaction: transaction)).ToList();
+                                transaction: transaction);
 
-                        if (employmentChecksBatch.Count > 0)
-                        {
-                            foreach (var employmentCheck in employmentChecksBatch)
-                            {
-                                var parameter = new DynamicParameters();
-                                parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
-                                parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
-                                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-                                await sqlConnection.ExecuteAsync(
-                                    "UPDATE [Business].[EmploymentCheck] " +
-                                    "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                                    "WHERE Id = @Id ",
-                                    parameter,
-                                    commandType: CommandType.Text,
-                                    transaction: transaction);
-                            }
-
-                            transaction.Commit();
-                        }
+                        transaction.Commit();
                     }
-                    catch (Exception e)
-                    {
-                        transaction.Rollback();
-                        _logger.LogError($"EmploymentCheckService.GetEmploymentChecksBatch(): ERROR: An error occurred reading the employment checks. Exception [{e}]");
-                        throw;
-                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    _logger.LogError($"EmploymentCheckService.GetEmploymentCheck(): ERROR: An error occurred reading the employment check. Exception [{e}]");
+                    throw;
                 }
             }
 
-            return employmentChecksBatch;
+            return employmentCheck;
         }
 
         public async Task InsertOrUpdate(Models.EmploymentCheck check)
@@ -162,7 +153,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             const string sql = "UPDATE [Business].[EmploymentCheck] " +
                                "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
                                "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ";
-         
+
             await unitOfWork.ExecuteSqlAsync(sql, parameter);
         }
     }

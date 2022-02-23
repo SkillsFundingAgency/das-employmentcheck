@@ -14,17 +14,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
     {
         private IEmploymentCheckService _sut;
         private Fixture _fixture;
-        private Mock<IEmploymentCheckRepository> _employmentCheckRepositoryMock;
+        private Mock<IEmploymentCheckRepository> _repositoryMock;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _employmentCheckRepositoryMock = new Mock<IEmploymentCheckRepository>();
+            _repositoryMock = new Mock<IEmploymentCheckRepository>();
 
             _sut = new EmploymentCheckService(
                 Mock.Of<ILogger<IEmploymentCheckService>>(),
-                _employmentCheckRepositoryMock.Object,
+                _repositoryMock.Object,
                 Mock.Of<IEmploymentCheckCacheRequestRepository>(),
                 Mock.Of<IUnitOfWork>()
             );
@@ -34,26 +34,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_Repository_Is_Called()
         {
             // Act
-            await _sut.GetEmploymentChecksBatch();
+            await _sut.GetEmploymentCheck();
 
             // Assert
-            _employmentCheckRepositoryMock.Verify(x => x.GetEmploymentChecksBatch(), Times.AtLeastOnce());
+            _repositoryMock.Verify(x => x.GetEmploymentCheck(), Times.AtLeastOnce());
         }
 
         [Test]
         public async Task And_The_Repository_Returns_EmploymentChecks_Then_They_Are_Returned()
         {
             // Arrange
-            var employmentChecks = _fixture.CreateMany<Models.EmploymentCheck>().ToList();
+            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
 
-            _employmentCheckRepositoryMock.Setup(x => x.GetEmploymentChecksBatch())
-                .ReturnsAsync(employmentChecks);
+            _repositoryMock.Setup(x => x.GetEmploymentCheck())
+                .ReturnsAsync(employmentCheck);
 
             // Act
-            var result = await _sut.GetEmploymentChecksBatch();
+            var result = await _sut.GetEmploymentCheck();
 
             // Assert
-            Assert.AreEqual(employmentChecks, result);
+            Assert.AreEqual(employmentCheck, result);
         }
     }
 }

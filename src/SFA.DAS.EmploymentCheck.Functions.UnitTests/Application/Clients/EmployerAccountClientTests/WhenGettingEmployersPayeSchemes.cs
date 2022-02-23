@@ -1,12 +1,10 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
     {
         private Fixture _fixture;
         private Mock<IEmployerAccountService> _employerAccountService;
-        private Mock<ILogger<IEmploymentCheckService>> _logger;
         private Models.EmploymentCheck _employmentCheck;
-        private Fixture _fixture;
         private EmployerAccountClient _sut;
 
         [SetUp]
@@ -29,13 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         {
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
-            _logger = new Mock<ILogger<IEmploymentCheckService>>();
             _employmentCheck = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
-
-            _apprentices = new List<Functions.Application.Models.EmploymentCheck>
-            {
-                _fixture.Create<Functions.Application.Models.EmploymentCheck>()
-            };
 
             _sut = new EmployerAccountClient(_employerAccountService.Object);
         }
@@ -44,7 +34,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task Then_The_EmployerAccountService_Is_Called()
         {
             // Arrange
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
+            _employerAccountService
+                .Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
                 .ReturnsAsync(_fixture.Create<EmployerPayeSchemes>());
 
             // Act
@@ -58,13 +49,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_Uppercased()
         {
             // Arrange
-            var employerPayeSchemes = new EmployerPayeSchemes
-            {
-                EmployerAccountId = 1,
-                PayeSchemes = new List<string> { " paye " }
-            };
+            var employerPayeSchemes = _fixture
+                .Build<EmployerPayeSchemes>()
+                .With(p => p.EmployerAccountId, 1)
+                .With(p => p.PayeSchemes, new List<string> { "paye" })
+                .Create();
 
-            _employerAccountService.Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
+            _employerAccountService
+                .Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
                 .ReturnsAsync(employerPayeSchemes);
 
             // Act
@@ -75,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         }
 
         [Test]
-        public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_List_Is_Returned()
+        public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_Paye_Scheme_Is_Returned()
         {
             // Act
             var result = await _sut.GetEmployersPayeSchemes(new Models.EmploymentCheck());
@@ -85,13 +77,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         }
 
         [Test]
-        public async Task And_Null_Is_Passed_In_An_Empty_List_Is_Returned()
+        public void And_Null_Is_Passed_In_Then_A_NullReference_Exception_Occurs()
         {
-            // Act
-            var result = await _sut.GetEmployersPayeSchemes(null);
-
             // Assert
-            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
+            Assert.ThrowsAsync<NullReferenceException>(async () => await _sut.GetEmployersPayeSchemes(null));
         }
     }
 }

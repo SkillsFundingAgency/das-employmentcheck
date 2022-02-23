@@ -3,7 +3,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     public class WhenCallingGet
     {
         private Fixture _fixture;
-        private IList<Models.EmploymentCheck> _employmentChecks;
+        private Models.EmploymentCheck _employmentCheck;
         private Mock<IMediator> _mediator;
 
         [SetUp]
@@ -22,28 +22,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             _fixture = new Fixture();
             _mediator = new Mock<IMediator>();
-            _employmentChecks = new List<Models.EmploymentCheck> { _fixture.Create<Models.EmploymentCheck>() };
+            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
         }
 
         [Test]
         public async Task Then_The_EmploymentChecks_Are_Returned()
         {
-            //Arrange
-            var sut = new GetEmploymentChecksBatchActivity(_mediator.Object);
+            // Arrange
+            var sut = new GetEmploymentCheckActivity(_mediator.Object);
 
-            var queryResult = new GetEmploymentCheckBatchQueryResult();
-            queryResult.ApprenticeEmploymentChecks = _employmentChecks;
+            var queryResult = new GetEmploymentCheckQueryResult();
+            queryResult.EmploymentCheck = _employmentCheck;
 
             _mediator
-                .Setup(x => x.Send(It.IsAny<GetEmploymentCheckBatchQueryRequest>(), CancellationToken.None))
+                .Setup(x => x.Send(It.IsAny<GetEmploymentCheckQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
-            //Act
+            // Act
             var result = await sut.Get(null);
 
-            //Assert
+            // Assert
             Assert.NotNull(result);
-            Assert.AreEqual(queryResult.ApprenticeEmploymentChecks, result);
+            Assert.AreEqual(queryResult.EmploymentCheck, result);
         }
     }
 }

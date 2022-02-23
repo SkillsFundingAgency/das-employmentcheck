@@ -29,9 +29,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IList<Models.EmploymentCheck>> GetEmploymentChecksBatch()
+        public async Task<Models.EmploymentCheck> GetEmploymentCheck()
         {
-            return await _employmentCheckRepository.GetEmploymentChecksBatch();
+            return await _employmentCheckRepository.GetEmploymentCheck();
         }
 
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()

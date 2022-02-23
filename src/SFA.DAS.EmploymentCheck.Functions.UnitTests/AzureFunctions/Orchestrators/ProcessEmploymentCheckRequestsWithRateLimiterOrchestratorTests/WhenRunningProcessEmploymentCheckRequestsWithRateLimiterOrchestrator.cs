@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .ReturnsAsync(employmentCheckCacheRequest);
 
             _context
-                .Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()));
+                .Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<EmploymentCheckData>()));
 
             // Act
             await sut.ProcessEmploymentChecksWithRateLimiterOrchestratorTask(_context.Object);
