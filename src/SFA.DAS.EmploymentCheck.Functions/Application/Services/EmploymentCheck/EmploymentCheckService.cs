@@ -74,20 +74,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
             EmploymentCheckData employmentCheckData)
         {
+            CheckParametersAreNotNullOrEmpty(employmentCheckData);
+            var employmentCheckRequests = await BuildEmploymentCheckCacheRequestModel(employmentCheckData);
+            return await Task.FromResult(employmentCheckRequests);
+        }
+
+        private async Task<IList<EmploymentCheckCacheRequest>> BuildEmploymentCheckCacheRequestModel(EmploymentCheckData employmentCheckData)
+        {
             var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
-            Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
-
-            if (string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
-            {
-                _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (Nino not found).");
-                throw new ArgumentException("Nino not found");
-            }
-
-            if (employmentCheckData.EmployerPayeSchemes == null || employmentCheckData.EmployerPayeSchemes.PayeSchemes == null)
-            {
-                _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (PayeScheme not found).");
-                throw new ArgumentException("Paye scheme not found");
-            }
 
             IList<EmploymentCheckCacheRequest> employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
             foreach (var payeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes)
@@ -110,7 +104,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
                 await _employmentCheckCacheRequestRepository.Save(employmentCheckCacheRequest);
             }
 
-            return await Task.FromResult(employmentCheckRequests);
+            return employmentCheckRequests;
+        }
+
+        private void CheckParametersAreNotNullOrEmpty(EmploymentCheckData employmentCheckData)
+        {
+            var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
+            Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
+
+            if (string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
+            {
+                _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (Nino not found).");
+                throw new ArgumentException("Nino not found");
+            }
+
+            if (employmentCheckData.EmployerPayeSchemes == null || employmentCheckData.EmployerPayeSchemes.PayeSchemes == null)
+            {
+                _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (PayeScheme not found).");
+                throw new ArgumentException("Paye scheme not found");
+            }
         }
     }
 }
