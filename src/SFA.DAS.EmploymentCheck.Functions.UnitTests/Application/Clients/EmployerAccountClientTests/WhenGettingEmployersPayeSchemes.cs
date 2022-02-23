@@ -13,10 +13,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmployerAccount.EmployerAccountClientTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmployerAccountClientTests
 {
     public class WhenGettingEmployersPayeSchemes
     {
+        private Fixture _fixture;
         private Mock<IEmployerAccountService> _employerAccountService;
         private Mock<ILogger<IEmploymentCheckService>> _logger;
         private Models.EmploymentCheck _employmentCheck;
@@ -30,6 +31,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             _employerAccountService = new Mock<IEmployerAccountService>();
             _logger = new Mock<ILogger<IEmploymentCheckService>>();
             _employmentCheck = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
+
+            _apprentices = new List<Functions.Application.Models.EmploymentCheck>
+            {
+                _fixture.Create<Functions.Application.Models.EmploymentCheck>()
+            };
 
             _sut = new EmployerAccountClient(_employerAccountService.Object);
         }

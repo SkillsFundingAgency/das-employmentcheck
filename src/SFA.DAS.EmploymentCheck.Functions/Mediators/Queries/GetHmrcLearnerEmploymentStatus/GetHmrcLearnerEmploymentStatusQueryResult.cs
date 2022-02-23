@@ -4,11 +4,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmpl
 {
     public class GetHmrcLearnerEmploymentStatusQueryResult
     {
+        public GetHmrcLearnerEmploymentStatusQueryResult() { }
+
         public GetHmrcLearnerEmploymentStatusQueryResult(EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             EmploymentCheckCacheRequest = employmentCheckCacheRequest;
         }
 
-        public EmploymentCheckCacheRequest EmploymentCheckCacheRequest { get; }
+        public EmploymentCheckCacheRequest EmploymentCheckCacheRequest { get; set;  }
     }
 }

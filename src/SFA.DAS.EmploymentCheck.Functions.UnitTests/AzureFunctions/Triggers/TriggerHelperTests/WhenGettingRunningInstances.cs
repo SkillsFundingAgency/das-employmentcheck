@@ -12,14 +12,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
 {
     public class WhenGettingRunningInstances
     {
-        private readonly string _orchestratorName;
-        private readonly string _instanceIdPrefix;
-        private readonly Mock<IDurableOrchestrationClient> _starter;
-        private readonly Mock<ILogger> _log;
-        private readonly OrchestrationStatusQueryResult _instances;
-        private readonly Fixture _fixture;
+        private string _orchestratorName;
+        private string _instanceIdPrefix;
+        private Mock<IDurableOrchestrationClient> _starter;
+        private Mock<ILogger> _log;
+        private OrchestrationStatusQueryResult _instances;
+        private Fixture _fixture;
 
-        public WhenGettingRunningInstances()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _orchestratorName = _fixture.Create<string>();
@@ -40,7 +41,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
 
             // Act
 
-            var result = await sut.GetRunningInstances(_orchestratorName, _instanceIdPrefix, _starter.Object, _log.Object);
+            // Assert
+            _starter
+                .Verify(x => x.ListInstancesAsync(It.IsAny<OrchestrationStatusQueryCondition>(), CancellationToken.None), Times.Once);
 
             // Assert
             _starter.Verify(

@@ -36,6 +36,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task Then_The_SubOrchestrator_Is_Called()
         {
             // Arrange
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
             _context
                 .Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentCheckActivity), It.IsAny<object>()))
                 .ReturnsAsync(_employmentChecks);

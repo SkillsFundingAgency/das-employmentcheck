@@ -30,7 +30,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
             var sut = new GetEmployerPayeSchemesActivity(_mediator.Object);
             var employersPayeSchemes = _fixture.Create<GetPayeSchemesQueryResult>();
 
-            _mediator.Setup(x => x.Send(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
+            _mediator
+                .Setup(x => x.Send(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(employersPayeSchemes);
 
             // Act

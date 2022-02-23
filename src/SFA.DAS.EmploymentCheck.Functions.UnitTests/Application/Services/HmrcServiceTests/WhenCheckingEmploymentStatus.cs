@@ -85,7 +85,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ReturnsAsync(_fixture.Create<EmploymentStatus>());
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
@@ -118,7 +119,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             var token = new PrivilegedAccessToken
             {
-                AccessCode = _fixture.Create<string>(),
+                AccessCode = _fixture
+                .Create<string>(),
                 ExpiryTime = DateTime.Now.AddHours(1)
             };
 
@@ -150,7 +152,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
 
             var expiredToken = new PrivilegedAccessToken
             {
-                AccessCode = _fixture.Create<string>(),
+                AccessCode = _fixture
+                .Create<string>(),
                 ExpiryTime = DateTime.Now.AddSeconds(-1)
             };
 
@@ -188,7 +191,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
@@ -208,7 +212,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ReturnsAsync(response);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
@@ -284,7 +289,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
@@ -415,7 +421,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _rateLimiterRepositoryMock.Verify(x => x.GetHmrcRateLimiterOptions(), Times.Exactly(_settings.TooManyRequestsRetryCount + 2));
@@ -492,7 +499,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(3));
@@ -527,7 +535,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
@@ -569,7 +578,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut
+                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
