@@ -19,6 +19,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
             if (employmentCheck != null && employmentCheck.Id != 0)
             {
                 payeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
+                if(payeSchemes != null && payeSchemes.PayeSchemes != null)
+                {
+                    for(int i = 0; i < payeSchemes.PayeSchemes.Count; ++i)
+                    {
+                        payeSchemes.PayeSchemes[i] = payeSchemes.PayeSchemes[i].ToUpper();
+                    }
+                }
             }
 
             return payeSchemes ?? new EmployerPayeSchemes();

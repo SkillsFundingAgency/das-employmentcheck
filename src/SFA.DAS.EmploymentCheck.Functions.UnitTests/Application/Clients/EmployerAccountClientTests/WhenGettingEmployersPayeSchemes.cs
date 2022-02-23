@@ -49,38 +49,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_Uppercased()
         {
             // Arrange
-            var employerPayeSchemes = _fixture
-                .Build<EmployerPayeSchemes>()
-                .With(p => p.EmployerAccountId, 1)
-                .With(p => p.PayeSchemes, new List<string> { "paye" })
-                .Create();
+            var input = _fixture.Build<EmployerPayeSchemes>().With(p => p.EmployerAccountId, 1).With(p => p.PayeSchemes, new List<string> { "paye" }).Create();
+            var expected = _fixture.Build<EmployerPayeSchemes>().With(p => p.EmployerAccountId, 1).With(p => p.PayeSchemes, new List<string> { "PAYE" }).Create();
 
             _employerAccountService
                 .Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))
-                .ReturnsAsync(employerPayeSchemes);
+                .ReturnsAsync(input);
 
             // Act
             var result = await _sut.GetEmployersPayeSchemes(_employmentCheck);
 
             // Assert
-            result.PayeSchemes.First().Should().BeEquivalentTo(employerPayeSchemes.PayeSchemes.First());
+            result.PayeSchemes.First().Should().BeEquivalentTo(expected.PayeSchemes.First());
         }
 
         [Test]
-        public async Task And_No_Learners_Are_Passed_In_Then_An_Empty_Paye_Scheme_Is_Returned()
+        public async Task And_Null_Is_Passed_In_The_Then_An_Empty_Paye_Scheme_Is_Returned()
         {
             // Act
             var result = await _sut.GetEmployersPayeSchemes(new Models.EmploymentCheck());
 
             // Assert
             result.Should().BeEquivalentTo(new EmployerPayeSchemes());
-        }
-
-        [Test]
-        public void And_Null_Is_Passed_In_Then_A_NullReference_Exception_Occurs()
-        {
-            // Assert
-            Assert.ThrowsAsync<NullReferenceException>(async () => await _sut.GetEmployersPayeSchemes(null));
         }
     }
 }
