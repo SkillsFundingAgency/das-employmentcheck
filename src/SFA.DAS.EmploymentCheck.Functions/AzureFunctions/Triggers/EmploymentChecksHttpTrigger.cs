@@ -3,7 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using System.Net;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -18,32 +18,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             ILogger log
         )
         {
-            IEmploymentChecksHttpTriggerHelper employmentChecksHttpTriggerHelper = new EmploymentChecksHttpTriggerHelper();
-            return await StartTheCreateAndProcessRequestOrchestrators(req, starter, log, employmentChecksHttpTriggerHelper);
-        }
+            ITriggerHelper triggerHelper = new TriggerHelper();
+            var createRequestsOrchestratorName = nameof(CreateEmploymentCheckCacheRequestsOrchestrator);
+            var createRequestsOrchestratorTriggerName = nameof(CreateEmploymentCheckRequestsOrchestratorTrigger);
+            var createRequestsOrchestratorInstancePrefix = $"CreateEmploymentCheck-{Guid.NewGuid()}";
+            var procesRequestsOrchestratorName = nameof(ProcessEmploymentCheckRequestsOrchestrator);
+            var processRequestsOrchestratorTriggerName = nameof(ProcessEmploymentChecksHttpTrigger);
+            var processRequestsOrchestratorInstancePrefix = $"ProcessEmploymentCheck-{Guid.NewGuid()}";
 
-        public static async Task<HttpResponseMessage> StartTheCreateAndProcessRequestOrchestrators(
-            HttpRequestMessage req,
-            IDurableOrchestrationClient starter,
-            ILogger log,
-            IEmploymentChecksHttpTriggerHelper employmentChecksHttpTriggerHelper
-        )
-        {
-            var createResult = await employmentChecksHttpTriggerHelper.StartCreateRequestsOrchestrator(req, starter, log);
-            if (!createResult.Item2.IsSuccessStatusCode) { return createResult.Item2; }
-
-            var processResult = await employmentChecksHttpTriggerHelper.StartProcessRequestsOrchestrator(req, starter, log);
-            if (!processResult.Item2.IsSuccessStatusCode) { return processResult.Item2; }
-
-            var createResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(CreateEmploymentCheckCacheRequestsOrchestrator));
-            var processResultContentString = await employmentChecksHttpTriggerHelper.FormatResponseString(createResult, nameof(ProcessEmploymentCheckRequestsOrchestrator));
-
-            var resultMessage = await employmentChecksHttpTriggerHelper.CreateHttpResponseMessage(createResultContentString, processResultContentString);
-
-            string gg = resultMessage.ToString();
-            _ = gg;
-
-            return resultMessage;
+            return await triggerHelper.StartTheEmploymentCheckOrchestrators(
+                req,
+                starter,
+                log,
+                triggerHelper,
+                createRequestsOrchestratorName,
+                createRequestsOrchestratorTriggerName,
+                createRequestsOrchestratorInstancePrefix,
+                procesRequestsOrchestratorName,
+                processRequestsOrchestratorTriggerName,
+                processRequestsOrchestratorInstancePrefix);
         }
     }
 }
