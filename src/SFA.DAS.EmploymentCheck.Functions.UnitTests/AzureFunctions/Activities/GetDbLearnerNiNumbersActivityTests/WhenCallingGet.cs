@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -14,12 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     public class WhenCallingGet
     {
         Fixture _fixture;
+        private Mock<ILogger<GetDbLearnerNiNumbersActivity>> _logger;
         private Mock<IMediator> _mediator;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
+            _logger = new Mock<ILogger<GetDbLearnerNiNumbersActivity>>();
             _mediator = new Mock<IMediator>();
         }
 
@@ -29,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Arrange
             var employmentCheckBatch = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
             var learnerNiNumbers = _fixture.CreateMany<LearnerNiNumber>(1).ToList();
-            var sut = new GetDbLearnerNiNumbersActivity(_mediator.Object);
+            var sut = new GetDbLearnerNiNumbersActivity(_logger.Object, _mediator.Object);
             var queryResult = new GetDbNiNumbersQueryResult(learnerNiNumbers);
 
             _mediator
@@ -50,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             // Arrange
             var employmentCheckBatch = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
-            var sut = new GetDbLearnerNiNumbersActivity(_mediator.Object);
+            var sut = new GetDbLearnerNiNumbersActivity(_logger.Object, _mediator.Object);
             var queryResult = new GetDbNiNumbersQueryResult(null);
 
             _mediator
