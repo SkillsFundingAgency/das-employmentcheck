@@ -19,10 +19,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(GetEmployerPayeSchemesActivity))]
         public async Task<EmployerPayeSchemes> Get(
-            [ActivityTrigger] Application.Models.EmploymentCheck employmentCheckBatch)
+            [ActivityTrigger] Application.Models.EmploymentCheck employmentCheck)
         {
-            Guard.Against.Null(employmentCheckBatch, nameof(employmentCheckBatch));
-            var result = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheckBatch));
+            Guard.Against.Null(employmentCheck, nameof(employmentCheck));
+            var result = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheck));
 
             return result.EmployersPayeSchemes ?? new EmployerPayeSchemes();
         }

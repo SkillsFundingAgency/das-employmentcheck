@@ -10,7 +10,7 @@ using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckTests
 {
-    public class WhenGettingEmploymentChecksBatch
+    public class WhenGettingEmploymentCheck
     {
         private IEmploymentCheckService _sut;
         private Fixture _fixture;

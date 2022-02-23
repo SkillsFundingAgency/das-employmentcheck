@@ -10,7 +10,7 @@ using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Queries
 {
-    public class WhenGetEmploymentCheckBatchQuery
+    public class WhenGetEmploymentCheckQuery
     {
         private GetEmploymentCheckQueryHandler _sut;
         private Mock<IEmploymentCheckService> _serviceMock;

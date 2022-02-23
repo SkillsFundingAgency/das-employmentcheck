@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             var payeSchemes = _fixture.Create<EmployerPayeSchemes>();
 
             _employerAccountClient
-                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch))
+                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
                 .ReturnsAsync(payeSchemes);
 
             var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
@@ -59,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
 
             _employerAccountClient
-                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch))
+                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
                 .ReturnsAsync(payeScheme);
 
             var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
@@ -80,7 +80,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetEmployerP
             var request = new GetPayeSchemesQueryRequest(_employmentCheck);
 
             _employerAccountClient
-                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheckBatch))
+                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
                 .ReturnsAsync(new EmployerPayeSchemes());
 
             var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);

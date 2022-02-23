@@ -7,12 +7,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes
     public class GetPayeSchemesQueryRequest
         : IRequest<GetPayeSchemesQueryResult>
     {
-        public GetPayeSchemesQueryRequest(Application.Models.EmploymentCheck employmentCheckBatch)
+        public GetPayeSchemesQueryRequest(Application.Models.EmploymentCheck employmentCheck)
         {
-            EmploymentCheckBatch = employmentCheckBatch;
+            EmploymentCheck = employmentCheck;
         }
 
-        public Application.Models.EmploymentCheck EmploymentCheckBatch { get; }
+        public Application.Models.EmploymentCheck EmploymentCheck { get; }
     }
 }
 
