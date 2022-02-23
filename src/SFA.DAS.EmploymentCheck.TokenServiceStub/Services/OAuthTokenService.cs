@@ -19,12 +19,12 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
             _httpClient.AcceptHeaders.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
         }
 
-        public async Task<OAuthAccessToken> GetAccessToken(string oneTimePassword)
+        public async Task<OAuthAccessToken> GetAccessToken(string clientSecret)
         {
             var request = new OAuthTokenRequest
             {
                 ClientId = _configuration.ClientId,
-                ClientSecret = $"{oneTimePassword}{_configuration.ClientSecret}",
+                ClientSecret = $"{clientSecret}{_configuration.ClientSecret}",
                 GrantType = "client_credentials",
                 Scopes = "read:apprenticeship-levy"
             };
