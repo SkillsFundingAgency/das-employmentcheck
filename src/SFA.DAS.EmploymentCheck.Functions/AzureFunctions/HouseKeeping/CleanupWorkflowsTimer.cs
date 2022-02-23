@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.HouseKeeping
 {
-    public class CleanupWorkflows_Timer
+    public class CleanupWorkflowsTimer
     {
         [FunctionName(nameof(CleanupOldWorkflows))]
         public async Task CleanupOldWorkflows([TimerTrigger("0 0 0 * * *"
