@@ -35,13 +35,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 var employmentCheck = await context.CallActivityAsync<Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), new Object());
                 if (employmentCheck != null)
                 {
-                    await context.CallSubOrchestratorAsync<EmploymentCheckCacheRequest>(nameof(CreateEmploymentCheckCacheRequestOrchestrator), employmentCheck);
-                }
-                else
-                {
-                    _logger.LogInformation($"{thisMethodName}: Nothing to process, waiting for 10 seconds before retrying");
-                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
-                    await context.CreateTimer(sleep, CancellationToken.None);
+                    var activityName = nameof(GetLearnerNiNumberActivity);
+                    var getLearnerNiNumbersActivityTask = context.CallActivityAsync<LearnerNiNumber>(activityName, employmentCheck);
+
+                    activityName = nameof(GetEmployerPayeSchemesActivity);
+                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(activityName, employmentCheck);
+
+                    await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
+                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), new EmploymentCheckData(employmentCheck, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
                 }
             }
             catch (Exception e)
