@@ -15,14 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     public class WhenCallingGet
     {
         Fixture _fixture;
-        private Mock<ILogger<GetDbLearnerNiNumbersActivity>> _logger;
+        private Mock<ILogger<GetDbLearnerNiNumberActivity>> _logger;
         private Mock<IMediator> _mediator;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _logger = new Mock<ILogger<GetDbLearnerNiNumbersActivity>>();
+            _logger = new Mock<ILogger<GetDbLearnerNiNumberActivity>>();
             _mediator = new Mock<IMediator>();
         }
 
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Arrange
             var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
             var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
-            var sut = new GetDbLearnerNiNumbersActivity(_logger.Object, _mediator.Object);
+            var sut = new GetDbLearnerNiNumberActivity(_mediator.Object);
             var queryResult = new GetDbNiNumberQueryResult(learnerNiNumber);
 
             _mediator
@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             // Arrange
             var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
-            var sut = new GetDbLearnerNiNumbersActivity(_logger.Object, _mediator.Object);
+            var sut = new GetDbLearnerNiNumberActivity(_mediator.Object);
             var queryResult = new GetDbNiNumberQueryResult(null);
 
             _mediator

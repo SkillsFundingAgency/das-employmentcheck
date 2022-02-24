@@ -10,20 +10,17 @@ using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class GetDbLearnerNiNumbersActivity
+    public class GetDbLearnerNiNumberActivity
     {
-        private readonly ILogger<GetDbLearnerNiNumbersActivity> _logger;
         private readonly IMediator _mediator;
 
-        public GetDbLearnerNiNumbersActivity(
-            ILogger<GetDbLearnerNiNumbersActivity> logger,
+        public GetDbLearnerNiNumberActivity(
             IMediator mediator)
         {
-            _logger = logger;
            _mediator = mediator;
         }
 
-        [FunctionName(nameof(GetDbLearnerNiNumbersActivity))]
+        [FunctionName(nameof(GetDbLearnerNiNumberActivity))]
         public async Task<LearnerNiNumber> Get(
             [ActivityTrigger] Models.EmploymentCheck employmentCheck)
         {
