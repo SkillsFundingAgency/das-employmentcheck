@@ -26,23 +26,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask";
+            var checkActivityName = nameof(GetEmploymentCheckActivity);
+            var ninoActivityName = nameof(GetLearnerNiNumberActivity);
+            var payeActivityName = nameof(GetEmployerPayeSchemesActivity);
+            var requestActivityName = nameof(CreateEmploymentCheckCacheRequestActivity);
 
             try
             {
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
-                var employmentCheck = await context.CallActivityAsync<Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), new Object());
+
+                var employmentCheck = await context.CallActivityAsync<Models.EmploymentCheck>(checkActivityName, null);
                 if (employmentCheck != null)
                 {
-                    var activityName = nameof(GetLearnerNiNumberActivity);
-                    var getLearnerNiNumbersActivityTask = context.CallActivityAsync<LearnerNiNumber>(activityName, employmentCheck);
+                    var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(ninoActivityName, employmentCheck);
+                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(payeActivityName, employmentCheck);
+                    await Task.WhenAll(learnerNiNumberTask, employerPayeSchemesTask);
 
-                    activityName = nameof(GetEmployerPayeSchemesActivity);
-                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(activityName, employmentCheck);
-
-                    await Task.WhenAll(getLearnerNiNumbersActivityTask, employerPayeSchemesTask);
-                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), new EmploymentCheckData(employmentCheck, getLearnerNiNumbersActivityTask.Result, employerPayeSchemesTask.Result));
+                    var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumberTask.Result, employerPayeSchemesTask.Result);
+                    await context.CallActivityAsync(requestActivityName, employmentCheckData);
                 }
             }
             catch (Exception e)
