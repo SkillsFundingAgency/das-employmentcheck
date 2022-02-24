@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumbers
             Guard.Against.Null(getDbNiNumbersQueryRequest, nameof(getDbNiNumbersQueryRequest));
             Guard.Against.Null(getDbNiNumbersQueryRequest.EmploymentCheckBatch, nameof(getDbNiNumbersQueryRequest.EmploymentCheckBatch));
 
-            var learnerNiNumbers = await _learnerService.GetDbNiNumbers(getDbNiNumbersQueryRequest.EmploymentCheckBatch);
+            var learnerNiNumbers = await _learnerService.GetDbNiNumber(getDbNiNumbersQueryRequest.EmploymentCheckBatch);
 
             if (learnerNiNumbers != null &&
                 learnerNiNumbers.Count > 0)

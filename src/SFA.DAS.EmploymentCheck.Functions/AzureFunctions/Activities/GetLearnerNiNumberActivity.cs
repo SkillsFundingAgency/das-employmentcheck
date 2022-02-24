@@ -23,12 +23,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         public async Task<LearnerNiNumber> Get(
             [ActivityTrigger] Application.Models.EmploymentCheck employmentCheck)
         {
-            if (employmentCheckBatch == null || employmentCheckBatch.Count == 0)
+            if (employmentCheck == null)
             {
-                return new List<LearnerNiNumber>();
+                return new LearnerNiNumber();
             }
 
-            var getLearnerNiNumbersQueryResult = await _mediator.Send(new GetNiNumbersQueryRequest(employmentCheckBatch));
+            var getLearnerNiNumbersQueryResult = await _mediator.Send(new GetNiNumberQueryRequest(employmentCheck));
 
             return getLearnerNiNumbersQueryResult.LearnerNiNumber;
         }

@@ -14,10 +14,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 {
     public class WhenRunningCreateEmploymentCheckCacheRequestsOrchestrator
     {
-        private string _checkActivityName = nameof(GetEmploymentCheckActivity);
-        private string _ninoActivityName = nameof(GetLearnerNiNumberActivity);
-        private string _payeActivityName = nameof(GetEmployerPayeSchemesActivity);
-        private string _requestActivityName = nameof(CreateEmploymentCheckCacheRequestActivity);
+        private readonly string _checkActivityName = nameof(GetEmploymentCheckActivity);
+        private readonly string _ninoActivityName = nameof(GetLearnerNiNumberActivity);
+        private readonly string _payeActivityName = nameof(GetEmployerPayeSchemesActivity);
+        private readonly string _requestActivityName = nameof(CreateEmploymentCheckCacheRequestActivity);
 
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
