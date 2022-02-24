@@ -10,7 +10,6 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
@@ -60,8 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Learn
         public async Task Then_GetDbNiNumbers_Is_Called()
         {
             // Arrange
-            var employmentCheckBatch = _fixture.CreateMany<Models.EmploymentCheck>(1).ToList();
-            var employmentCheck = employmentCheckBatch.FirstOrDefault();
+            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
             var dataCollectionsResponse = _fixture.Create<DataCollectionsResponse>();
             var learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = dataCollectionsResponse.NiNumber };
 
@@ -70,10 +68,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Learn
                 .ReturnsAsync(dataCollectionsResponse);
 
             // Act
-            var actual = await _sut.GetDbNiNumbers(employmentCheckBatch);
+            var actual = await _sut.GetDbNiNumber(employmentCheck);
 
             // Assert
-            actual.FirstOrDefault().Should().BeEquivalentTo(learnerNiNumber);
+            actual.Should().BeEquivalentTo(learnerNiNumber);
         }
     }
 

@@ -19,13 +19,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLea
         public void Then_The_Result_Is_Built_Successfully()
         {
             // Arrange
-            var learnerNiNumbers = _fixture.CreateMany<LearnerNiNumber>().ToList();
+            var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
 
             // Act
-            var result = new Functions.Mediators.Queries.GetNiNumbers.GetNiNumbersQueryResult(learnerNiNumbers);
+            var result = new Functions.Mediators.Queries.GetDbNiNumber.GetDbNiNumberQueryResult(learnerNiNumber);
 
             // Assert
-            Assert.AreEqual(learnerNiNumbers, result.LearnerNiNumber);
+            Assert.AreEqual(learnerNiNumber, result.LearnerNiNumber);
         }
     }
 }

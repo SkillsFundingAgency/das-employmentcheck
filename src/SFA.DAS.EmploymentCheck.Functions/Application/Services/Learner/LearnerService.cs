@@ -44,10 +44,22 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             _repository = repository;
         }
 
-        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check)
+        public async Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck employmentCheck)
+        {
+            LearnerNiNumber learnerNiNumber = null;
+            var response = await _repository.GetByEmploymentCheckId(employmentCheck.Id);
+            if (response != null && response.NiNumber != null)
+            {
+                learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = response.NiNumber };
+            }
+
+            return learnerNiNumber ?? new LearnerNiNumber();
+        }
+
+        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck employmentCheck)
         {
             var token = GetDcToken().Result;
-            var learnerNiNumber = await SendIndividualRequest(check, token);
+            var learnerNiNumber = await SendIndividualRequest(employmentCheck, token);
 
             return learnerNiNumber;
         }

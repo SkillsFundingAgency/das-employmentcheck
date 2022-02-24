@@ -5,6 +5,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
 {
     public interface ILearnerService
     {
-        Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check);
+        Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck employmentCheck);
+
+        Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck employmentCheck);
     }
 }

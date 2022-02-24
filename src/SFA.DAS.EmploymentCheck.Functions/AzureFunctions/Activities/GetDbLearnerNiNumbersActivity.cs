@@ -4,8 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumbers;
-using System.Collections.Generic;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumber;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
@@ -25,25 +24,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetDbLearnerNiNumbersActivity))]
-        public async Task<IList<LearnerNiNumber>> Get(
-            [ActivityTrigger] IList<Models.EmploymentCheck> employmentCheckBatch)
+        public async Task<LearnerNiNumber> Get(
+            [ActivityTrigger] Models.EmploymentCheck employmentCheck)
         {
-            Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
+            Guard.Against.Null(employmentCheck, nameof(employmentCheck));
 
-            var getDbLearnerNiNumbersQueryResult = await _mediator.Send(new GetDbNiNumbersQueryRequest(employmentCheckBatch));
-            if (getDbLearnerNiNumbersQueryResult != null &&
-                getDbLearnerNiNumbersQueryResult.LearnerNiNumbers != null &&
-                getDbLearnerNiNumbersQueryResult.LearnerNiNumbers.Count > 0)
-            {
-                _logger.LogInformation($"{nameof(GetDbLearnerNiNumbersActivity)} returned {getDbLearnerNiNumbersQueryResult?.LearnerNiNumbers.Count} NiNumbers");
+            var getDbLearnerNiNumbersQueryResult = await _mediator.Send(new GetDbNiNumberQueryRequest(employmentCheck));
 
-                foreach (var learnerNiNumber in getDbLearnerNiNumbersQueryResult?.LearnerNiNumbers)
-                {
-                    _logger.LogInformation($"A nino was found in the database for ULN [{learnerNiNumber.Uln}]");
-                }
-            }
-
-            return getDbLearnerNiNumbersQueryResult?.LearnerNiNumbers ?? new List<LearnerNiNumber>();
+            return getDbLearnerNiNumbersQueryResult?.LearnerNiNumber ?? new LearnerNiNumber();
         }
     }
 }
