@@ -25,7 +25,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         public async Task<IList<LearnerNiNumber>> Get(
             [ActivityTrigger] IList<Application.Models.EmploymentCheck> employmentCheckBatch)
         {
-            Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
+            if (employmentCheckBatch == null || employmentCheckBatch.Count == 0)
+            {
+                return new List<LearnerNiNumber>();
+            }
 
             var getLearnerNiNumbersQueryResult = await _mediator.Send(new GetNiNumbersQueryRequest(employmentCheckBatch));
 
