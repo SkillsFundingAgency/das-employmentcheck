@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Cr
             
 
             // Act
-            var result = await CreateEmploymentCheckRequestsOrchestratorTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await CreateEmploymentCheckRequestsOrchestratorHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             // Assert
 
@@ -83,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Cr
                 .ReturnsAsync(instances);
 
             // Act
-            var result = await CreateEmploymentCheckRequestsOrchestratorTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
+            var result = await CreateEmploymentCheckRequestsOrchestratorHttpTrigger.HttpStart(_request.Object, _starter.Object, _logger.Object);
 
             // Assert
             Assert.AreEqual(HttpStatusCode.Conflict, result.StatusCode);

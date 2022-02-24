@@ -3,7 +3,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -18,25 +17,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             ILogger log
         )
         {
-            ITriggerHelper triggerHelper = new TriggerHelper();
-            var createRequestsOrchestratorName = nameof(CreateEmploymentCheckCacheRequestsOrchestrator);
-            var createRequestsOrchestratorTriggerName = nameof(CreateEmploymentCheckRequestsOrchestratorTrigger);
-            var createRequestsOrchestratorInstancePrefix = $"CreateEmploymentCheck-{Guid.NewGuid()}";
-            var procesRequestsOrchestratorName = nameof(ProcessEmploymentCheckRequestsOrchestrator);
-            var processRequestsOrchestratorTriggerName = nameof(ProcessEmploymentChecksHttpTrigger);
-            var processRequestsOrchestratorInstancePrefix = $"ProcessEmploymentCheck-{Guid.NewGuid()}";
-
-            return await triggerHelper.StartTheEmploymentCheckOrchestrators(
-                req,
-                starter,
-                log,
-                triggerHelper,
-                createRequestsOrchestratorName,
-                createRequestsOrchestratorTriggerName,
-                createRequestsOrchestratorInstancePrefix,
-                procesRequestsOrchestratorName,
-                processRequestsOrchestratorTriggerName,
-                processRequestsOrchestratorInstancePrefix);
+            ITriggerHelper triggerHelper
+                = new TriggerHelper(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), nameof(ProcessEmploymentCheckRequestsOrchestrator));
+            return await triggerHelper.StartTheEmploymentCheckOrchestrators(req, starter, log, triggerHelper);
         }
     }
 }

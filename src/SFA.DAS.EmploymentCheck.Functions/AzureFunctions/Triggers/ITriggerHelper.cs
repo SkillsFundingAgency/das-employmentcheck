@@ -17,13 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             HttpRequestMessage req,
             IDurableOrchestrationClient starter,
             ILogger log,
-            ITriggerHelper triggerHelper,
-            string createRequestsOrchestratorName,
-            string createRequestsOrchestratorTriggerName,
-            string createRequestsOrchestratorInstancePrefix,
-            string procesRequestsOrchestratorName,
-            string processRequestsOrchestratorTriggerName,
-            string processRequestsOrchestratorInstancePrefix);
+            ITriggerHelper triggerHelper);
 
         Task<HttpResponseMessage> StartOrchestrator(
             HttpRequestMessage req,

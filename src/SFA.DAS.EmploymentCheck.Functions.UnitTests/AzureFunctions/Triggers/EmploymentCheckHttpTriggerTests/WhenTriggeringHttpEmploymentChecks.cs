@@ -69,13 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     _requestMock.Object,
                     _starterMock.Object,
                     _loggerMock.Object,
-                    _triggerHelperMock.Object,
-                    _createRequestsOrchestratorName,
-                    _createRequestsOrchestratorTriggerName,
-                    _createRequestsOrchestratorInstancePrefix,
-                    _processRequestsOrchestratorName,
-                    _processRequestsOrchestratorTriggerName,
-                    _processRequestsOrchestratorInstancePrefix))
+                    _triggerHelperMock.Object))
                 .ReturnsAsync(response);
 
             _triggerHelperMock
@@ -132,13 +126,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     _requestMock.Object,
                     _starterMock.Object,
                     _loggerMock.Object,
-                    _triggerHelperMock.Object,
-                    _createRequestsOrchestratorName,
-                    _createRequestsOrchestratorTriggerName,
-                    _createRequestsOrchestratorInstancePrefix,
-                    _processRequestsOrchestratorName,
-                    _processRequestsOrchestratorTriggerName,
-                    _processRequestsOrchestratorInstancePrefix))
+                    _triggerHelperMock.Object))
                 .ReturnsAsync(response);
 
             _triggerHelperMock
@@ -193,13 +181,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     _requestMock.Object,
                     _starterMock.Object,
                     _loggerMock.Object,
-                    _triggerHelperMock.Object,
-                    _createRequestsOrchestratorName,
-                    _createRequestsOrchestratorTriggerName,
-                    _createRequestsOrchestratorInstancePrefix,
-                    _processRequestsOrchestratorName,
-                    _processRequestsOrchestratorTriggerName,
-                    _processRequestsOrchestratorInstancePrefix))
+                    _triggerHelperMock.Object))
                 .ReturnsAsync(response);
 
             _triggerHelperMock
