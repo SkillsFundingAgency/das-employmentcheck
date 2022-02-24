@@ -7,9 +7,8 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
     {
         public static async Task Main()
         {
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            // Removed colour changes as red error text on a blue background was difficult to read
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"---------- DAS App Levy Data Seeder v1.0 (2022-01-07) ----------");
             Console.WriteLine();
 
