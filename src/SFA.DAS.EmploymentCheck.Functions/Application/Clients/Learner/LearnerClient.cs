@@ -13,6 +13,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
             _learnerService = learnerService;
         }
 
+        public async Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck check)
+        {
+            var learnerNiNumbers = await _learnerService.GetDbNiNumber(check);
+
+            return learnerNiNumbers;
+        }
+
+
         public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check)
         {
             var learnerNiNumbers = await _learnerService.GetNiNumber(check);

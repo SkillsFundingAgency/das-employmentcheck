@@ -29,8 +29,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber
             Guard.Against.Null(getNiNumbersQueryRequest, nameof(getNiNumbersQueryRequest));
             Guard.Against.Null(getNiNumbersQueryRequest.Check, nameof(getNiNumbersQueryRequest.Check));
 
-            var learnerNiNumber = await _learnerClient.GetNiNumber(getNiNumbersQueryRequest.Check);
+            var learnerDbNiNumber = await _learnerClient.GetDbNiNumber(getNiNumbersQueryRequest.Check);
+            if(learnerDbNiNumber.Uln != 0)
+            {
+                return new GetNiNumberQueryResult(learnerDbNiNumber);
+            }
 
+            var learnerNiNumber = await _learnerClient.GetNiNumber(getNiNumbersQueryRequest.Check);
             if (learnerNiNumber == null)
             {
                 _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
