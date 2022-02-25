@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
             _fixture = new Fixture();
             _submitLearnerDataClient = new Mock<ILearnerClient>();
             _logger = new Mock<ILogger<GetNiNumberQueryHandler>>();
-            _request = new GetNiNumberQueryRequest(_fixture.Create<Functions.Application.Models.EmploymentCheck>());
+            _request = _fixture.Create< GetNiNumberQueryRequest>();
             _sut = new GetNiNumberQueryHandler(_submitLearnerDataClient.Object, _logger.Object);
         }
 
@@ -34,8 +34,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
         {
             // Arrange
             var niNumber = _fixture.Create<LearnerNiNumber>();
+
             _submitLearnerDataClient.Setup(x => x.GetNiNumber(_request.Check))
                 .ReturnsAsync(niNumber);
+
+            _submitLearnerDataClient.Setup(x => x.GetDbNiNumber(_request.Check))
+                .ReturnsAsync(new LearnerNiNumber());
 
             // Act
             var result = await _sut.Handle(_request, CancellationToken.None);
