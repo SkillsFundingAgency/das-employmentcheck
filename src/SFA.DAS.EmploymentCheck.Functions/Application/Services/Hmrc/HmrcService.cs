@@ -89,7 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
         private bool AccessTokenHasExpired()
         {
-            var expired = _cachedToken.ExpiryTime < DateTime.Now;
+            var expired = _cachedToken.ExpiryTime < DateTime.UtcNow;
             if (expired) _logger.LogInformation($"[{nameof(HmrcService)}] Access Token has expired, retrieving a new token.");
             return expired;
         }
