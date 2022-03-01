@@ -7,16 +7,16 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.SubmitLearnerDataClientTests
 {
     public class WhenGettingLearnersNiNumber
     {
-        private readonly Mock<ILearnerService> _submitLearnerDataService;
-        private readonly Fixture _fixture;
+        private Mock<ILearnerService> _submitLearnerDataService;
+        private Fixture _fixture;
         private LearnerClient _sut;
 
-
-        public WhenGettingLearnersNiNumber()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _submitLearnerDataService = new Mock<ILearnerService>();
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
         }
 
         [Test]
-        public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
+        public async Task And_The_LearnerService_Returns_Null_Then_Null_Is_Returned()
         {
             // Arrange
             var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
