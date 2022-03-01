@@ -15,8 +15,6 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
         {
             _httpClient = httpClient;
             _configuration = configuration.Value;
-
-            _httpClient.AcceptHeaders.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
         }
 
         public async Task<OAuthAccessToken> GetAccessToken(string clientSecret)
@@ -28,13 +26,14 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub.Services
                 GrantType = "client_credentials",
                 Scopes = "read:apprenticeship-levy"
             };
+
             var hmrcToken = await _httpClient.Post<OAuthTokenResponse>(_configuration.TokenUrl, request);
 
             return new OAuthAccessToken
             {
                 AccessToken = hmrcToken.AccessToken,
                 RefreshToken = hmrcToken.RefreshToken,
-                ExpiresAt = DateTime.UtcNow.AddSeconds(hmrcToken.ExpiresIn),
+                ExpiresAt = DateTime.Now.AddSeconds(hmrcToken.ExpiresIn),
                 Scope = hmrcToken.Scope,
                 TokenType = hmrcToken.TokenType
             };
