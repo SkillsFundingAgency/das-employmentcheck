@@ -627,6 +627,33 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
         }
 
         [Test]
+        public async Task Then_a_new_token_is_retrieved_for_each_retry_of_any_ApiException()
+        {
+            // Arrange
+            var exception = new ApiHttpException(
+                (int)HttpStatusCode.NoContent,
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<string>(),
+                _fixture.Create<Exception>()
+            );
+
+            _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+
+            // Assert
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+        }
+
+        [Test]
         public async Task Then_retry_delay_time_is_increased_When_TooManyRequests()
         {
             // Arrange

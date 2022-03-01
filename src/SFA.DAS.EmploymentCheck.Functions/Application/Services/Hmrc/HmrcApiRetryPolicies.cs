@@ -50,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                     retryCount: _settings.TransientErrorRetryCount,
                     onRetryAsync: async (exception, retryNumber, context) =>
                     {
-                        _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] UnauthorizedAccessException occurred. Refreshing access token and retrying...");
+                        _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] UnauthorizedAccessException occurred. Retrying...");
 
                         await onRetry();
                     }
@@ -66,10 +66,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
                 .WaitAndRetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,
                     sleepDurationProvider: _ => TimeSpan.FromMilliseconds(_settings.TransientErrorDelayInMs),
-                    onRetryAsync: async (exception, retryNumber, context) =>
+                    onRetryAsync: async (exception, ts, retryNumber, context) =>
                     {
                         _logger.LogInformation(
-                            $"{nameof(HmrcApiRetryPolicies)}: ApiHttpException occurred. $[{exception}] Refreshing access token ({retryNumber}/{_settings.TransientErrorRetryCount})...");
+                            $"{nameof(HmrcApiRetryPolicies)}: [{retryNumber}/{_settings.TransientErrorRetryCount}] ApiHttpException occurred. $[{exception}]. Retrying...");
 
                         await onRetry();
                     }
