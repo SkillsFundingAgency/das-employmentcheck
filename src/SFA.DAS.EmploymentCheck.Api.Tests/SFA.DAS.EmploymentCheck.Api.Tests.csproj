@@ -20,10 +20,4 @@
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Api\SFA.DAS.EmploymentCheck.Api.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

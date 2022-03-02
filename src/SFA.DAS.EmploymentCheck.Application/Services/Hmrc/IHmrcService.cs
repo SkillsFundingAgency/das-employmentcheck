@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 {

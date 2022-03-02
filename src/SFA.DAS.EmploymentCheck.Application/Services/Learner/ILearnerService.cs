@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
     public interface ILearnerService
     {
-        Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Data.Models.EmploymentCheck> employmentCheckBatch);
+        Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck employmentCheck);
+
+        Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck employmentCheck);
     }
 }

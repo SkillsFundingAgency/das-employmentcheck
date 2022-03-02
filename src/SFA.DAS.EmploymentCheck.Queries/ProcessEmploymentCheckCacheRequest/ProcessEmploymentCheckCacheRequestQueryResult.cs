@@ -1,15 +1,17 @@
-﻿using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentCheckCacheRequest
 {
     public class ProcessEmploymentCheckCacheRequestQueryResult
     {
+        public ProcessEmploymentCheckCacheRequestQueryResult() { }
+
         public ProcessEmploymentCheckCacheRequestQueryResult(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)
         {
             EmploymentCheckCacheRequest = employmentCheckCacheRequest;
         }
 
-        public EmploymentCheckCacheRequest EmploymentCheckCacheRequest { get; }
+        public EmploymentCheckCacheRequest EmploymentCheckCacheRequest { get; set; }
     }
 }

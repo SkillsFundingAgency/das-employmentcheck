@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             string scope)
         {
             using var client = _httpFactory.CreateClient("TokenRequest");
-            
+
             var form = new Dictionary<string, string>
             {
                 {"grant_type", grantType},

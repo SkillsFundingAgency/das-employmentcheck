@@ -1,4 +1,0 @@
-﻿CREATE SCHEMA [Business]
-GO
-CREATE SCHEMA [Cache]
-GO

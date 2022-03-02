@@ -1,6 +1,6 @@
-﻿using System;
-using FluentValidation;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using FluentValidation;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.Data.Validators
 {
@@ -10,8 +10,8 @@ namespace SFA.DAS.EmploymentCheck.Data.Validators
     {
         public EmploymentCheckDataValidator()
         {
-            RuleFor(employmentCheckData => employmentCheckData.EmploymentChecks).NotEmpty();
-            RuleFor(employmentCheckData => employmentCheckData.ApprenticeNiNumbers).NotEmpty();
+            RuleFor(employmentCheckData => employmentCheckData.EmploymentCheck).NotEmpty();
+            RuleFor(employmentCheckData => employmentCheckData.ApprenticeNiNumber).NotEmpty();
             RuleFor(employmentCheckData => employmentCheckData.EmployerPayeSchemes).NotEmpty();
         }
     }

@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.RegisterCheck
 
             _employmentCheckService.InsertEmploymentCheck(employmentCheck);
         }
-        
+
         private static Data.Models.EmploymentCheck CreateNewEmploymentCheck(RegisterCheckCommand command)
         {
             return new Data.Models.EmploymentCheck(

@@ -1,10 +1,9 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.ProcessEmploymentCheckCacheRequest
 {
     public class ProcessEmploymentCheckCacheRequestQueryHandler
         : IRequestHandler<ProcessEmploymentCheckCacheRequestQueryRequest,

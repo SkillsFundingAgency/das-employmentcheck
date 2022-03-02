@@ -1,7 +1,8 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.EmploymentCheck.Commands.RegisterCheck;
-using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Api.Application.Models;
+using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
 namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 {
@@ -33,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers
 
             var response = new Responses.RegisterCheckResponse();
 
-            if (string.IsNullOrEmpty(commandResponse.ErrorType))
+            if (commandResponse.ErrorType == null && commandResponse.ErrorMessage == null)
             {
                 return Ok(response);
             }

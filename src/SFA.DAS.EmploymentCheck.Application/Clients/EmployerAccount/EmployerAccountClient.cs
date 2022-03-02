@@ -1,30 +1,35 @@
-﻿using SFA.DAS.EmploymentCheck.Data.Models;
-using System.Collections.Generic;
+﻿using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount
 {
     public class EmployerAccountClient : IEmployerAccountClient
     {
         private readonly IEmployerAccountService _employerAccountService;
-
         public EmployerAccountClient(IEmployerAccountService employerAccountService)
         {
             _employerAccountService = employerAccountService;
         }
 
-        public async Task<IList<EmployerPayeSchemes>> GetEmployersPayeSchemes(
-            IList<Data.Models.EmploymentCheck> employmentChecksBatch)
+        public async Task<EmployerPayeSchemes> GetEmployersPayeSchemes(
+            Models.EmploymentCheck employmentCheck)
         {
-            var employersPayeSchemes = new List<EmployerPayeSchemes>();
-            foreach (var employmentCheck in employmentChecksBatch)
+            EmployerPayeSchemes payeSchemes = null;
+            if (employmentCheck != null && employmentCheck.Id != 0)
             {
-                var employerPayeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
-                employersPayeSchemes.Add(employerPayeSchemes);
+                payeSchemes = await _employerAccountService.GetEmployerPayeSchemes(employmentCheck);
+                if (payeSchemes != null && payeSchemes.PayeSchemes != null)
+                {
+                    for (int i = 0; i < payeSchemes.PayeSchemes.Count; ++i)
+                    {
+                        payeSchemes.PayeSchemes[i] = payeSchemes.PayeSchemes[i].ToUpper();
+                    }
+                }
             }
 
-            return employersPayeSchemes;
+            return payeSchemes ?? new EmployerPayeSchemes();
         }
     }
 }

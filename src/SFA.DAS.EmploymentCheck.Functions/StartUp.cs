@@ -5,16 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequests;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using SFA.DAS.EmploymentCheck.Queries.GetEmploymentChecksBatch;
-using SFA.DAS.EmploymentCheck.Queries.GetNiNumbers;
-using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using System.IO;
-using SFA.DAS.EmploymentCheck.Commands;
-using SFA.DAS.EmploymentCheck.Queries;
-using TokenServiceApiClientConfiguration = SFA.DAS.TokenService.Api.Client.TokenServiceApiClientConfiguration;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -37,13 +33,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            //configBuilder.AddAzureTableStorage(options =>
-            //{
-            //    options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
-            //    options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            //    options.EnvironmentName = configuration["EnvironmentName"];
-            //    options.PreFixConfigurationKeys = false;
-            //});
+            configBuilder.AddAzureTableStorage(options =>
+            {
+                options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
+                options.PreFixConfigurationKeys = false;
+            });
 
             configBuilder.AddJsonFile("local.settings.json", optional: true);
 
@@ -53,8 +49,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddOptions();
 
             // MediatR configuration
-            builder.Services.AddCommandServices();
-            builder.Services.AddQueryServices();
+            builder.Services.AddMediatR(typeof(GetEmploymentCheckQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetNiNumberQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
 
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -17,6 +17,5 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj" />
   </ItemGroup>
-
 
 </Project>

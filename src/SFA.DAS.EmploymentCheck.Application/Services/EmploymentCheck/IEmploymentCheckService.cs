@@ -1,22 +1,20 @@
-﻿using System;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
     public interface IEmploymentCheckService
     {
-        Task<IList<Data.Models.EmploymentCheck>> GetEmploymentChecksBatch();
+        Task<Models.EmploymentCheck> GetEmploymentCheck();
 
         Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
         Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
 
-        Task StoreEmploymentCheckResult(EmploymentCheckCacheRequest employmentCheckCacheRequest);
+        Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response);
 
-        public Task<Data.Models.EmploymentCheck> GetLastEmploymentCheck(Guid correlationId);
-
-        public void InsertEmploymentCheck(Data.Models.EmploymentCheck employmentCheck);
+        Task InsertEmploymentCheckCacheResponse(EmploymentCheckCacheResponse response);
     }
 }

@@ -1,11 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequests;
-using SFA.DAS.EmploymentCheck.Commands.RegisterCheck;
-using SFA.DAS.EmploymentCheck.Commands.StoreEmploymentCheckResult;
-using SFA.DAS.EmploymentCheck.Data.Repositories;
-using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Api.Application.Services;
+using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
+using SFA.DAS.EmploymentCheck.Api.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -14,9 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Api
         public static IServiceCollection AddHandlers(this IServiceCollection services)
         {
             services.AddMediatR(typeof(RegisterCheckCommand).Assembly);
-            services.AddMediatR(typeof(StoreEmploymentCheckResultCommand).Assembly);
-            services.AddMediatR(typeof(CreateEmploymentCheckCacheCommand).Assembly);
-            
+
             return services;
         }
 
@@ -32,9 +29,29 @@ namespace SFA.DAS.EmploymentCheck.Api
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddTransient<IEmploymentCheckRepository, EmploymentCheckRepository>();
-            services.AddTransient<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
 
             return services;
+        }
+
+        public static IServiceCollection AddNLogForApi(this IServiceCollection serviceCollection)
+        {
+            var nLogConfiguration = new NLogConfiguration();
+
+            serviceCollection.AddLogging(options =>
+            {
+                options.AddFilter("SFA.DAS", LogLevel.Information);
+                options.SetMinimumLevel(LogLevel.Trace);
+                options.AddNLog(new NLogProviderOptions
+                {
+                    CaptureMessageTemplates = true,
+                    CaptureMessageProperties = true
+                });
+                options.AddConsole();
+
+                nLogConfiguration.ConfigureNLog();
+            });
+
+            return serviceCollection;
         }
     }
 }

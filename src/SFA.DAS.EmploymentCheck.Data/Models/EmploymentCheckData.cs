@@ -1,25 +1,21 @@
-﻿using System.Collections.Generic;
-
-namespace SFA.DAS.EmploymentCheck.Data.Models
+﻿namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
     public class EmploymentCheckData
     {
-        public EmploymentCheckData() { }
-
         public EmploymentCheckData(
-            IList<EmploymentCheck> employmentChecks,
-            IList<LearnerNiNumber> apprenticeNiNumbers,
-            IList<EmployerPayeSchemes> employerPayeSchemes)
+            EmploymentCheck employmentCheck,
+            LearnerNiNumber apprenticeNiNumber,
+            EmployerPayeSchemes employerPayeSchemes)
         {
-            EmploymentChecks = employmentChecks;
-            ApprenticeNiNumbers = apprenticeNiNumbers;
+            EmploymentCheck = employmentCheck;
+            ApprenticeNiNumber = apprenticeNiNumber;
             EmployerPayeSchemes = employerPayeSchemes;
         }
 
-        public IList<EmploymentCheck> EmploymentChecks { get; set;  }
+        public EmploymentCheck EmploymentCheck { get; set;  }
 
-        public IList<LearnerNiNumber> ApprenticeNiNumbers { get; set; }
+        public LearnerNiNumber ApprenticeNiNumber { get; set; }
 
-        public IList<EmployerPayeSchemes> EmployerPayeSchemes { get; set; }
+        public EmployerPayeSchemes EmployerPayeSchemes { get; set; }
     }
 }

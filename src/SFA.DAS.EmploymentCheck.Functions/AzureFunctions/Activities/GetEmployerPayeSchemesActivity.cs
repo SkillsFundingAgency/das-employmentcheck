@@ -2,11 +2,9 @@
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Data.Models;
-using System.Collections.Generic;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -14,20 +12,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
     {
         private readonly IMediator _mediator;
         public GetEmployerPayeSchemesActivity(
-            IMediator mediator,
-            ILogger<GetEmployerPayeSchemesActivity> logger)
+            IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [FunctionName(nameof(GetEmployerPayeSchemesActivity))]
-        public async Task<IList<EmployerPayeSchemes>> Get(
-            [ActivityTrigger] IList<EmploymentCheck.Data.Models.EmploymentCheck> employmentCheckBatch)
+        public async Task<EmployerPayeSchemes> Get(
+            [ActivityTrigger] Application.Models.EmploymentCheck employmentCheck)
         {
-            Guard.Against.NullOrEmpty(employmentCheckBatch, nameof(employmentCheckBatch));
-            var result = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheckBatch));
+            Guard.Against.Null(employmentCheck, nameof(employmentCheck));
+            var result = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheck));
 
-            return result.EmployersPayeSchemes;
+            return result.EmployersPayeSchemes ?? new EmployerPayeSchemes();
         }
     }
 }

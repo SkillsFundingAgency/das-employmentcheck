@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes
 {
     public class GetPayeSchemesQueryResult
     {
-        public GetPayeSchemesQueryResult(IList<EmployerPayeSchemes> employersPayeSchemes)
+        public GetPayeSchemesQueryResult(EmployerPayeSchemes employersPayeSchemes)
         {
             EmployersPayeSchemes = employersPayeSchemes;
         }
 
-        public IList<EmployerPayeSchemes> EmployersPayeSchemes { get; set; }
+        public EmployerPayeSchemes EmployersPayeSchemes { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Commands.StoreEmploymentCheckResult
 {

@@ -1,42 +1,32 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Data.Models;
-using System.Collections.Generic;
+﻿using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Application.Clients.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
+namespace SFA.DAS.EmploymentCheck.Application.Clients.Learner
 {
-    public class LearnerClient
-        : ILearnerClient
+    public class LearnerClient : ILearnerClient
     {
-        #region Private members
-        private readonly ILogger<IEmploymentCheckClient> _logger;
         private readonly ILearnerService _learnerService;
-        #endregion Private members
 
-        #region Constructors
-        public LearnerClient(
-            ILogger<IEmploymentCheckClient> logger,
-            ILearnerService learnerService)
+        public LearnerClient(ILearnerService learnerService)
         {
-            _logger = logger;
             _learnerService = learnerService;
         }
-        #endregion Constructors
 
-        #region GetNiNumbers
-
-        public async Task<IList<LearnerNiNumber>> GetNiNumbers(IList<Data.Models.EmploymentCheck> apprentices)
+        public async Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck check)
         {
-            Guard.Against.NullOrEmpty(apprentices, nameof(apprentices));
-
-            var learnerNiNumbers = await _learnerService.GetNiNumbers(apprentices);
+            var learnerNiNumbers = await _learnerService.GetDbNiNumber(check);
 
             return learnerNiNumbers;
         }
 
-        #endregion GetNiNumbers
+
+        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check)
+        {
+            var learnerNiNumbers = await _learnerService.GetNiNumber(check);
+
+            return learnerNiNumbers;
+        }
     }
 }

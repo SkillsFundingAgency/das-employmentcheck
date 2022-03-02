@@ -1,35 +1,17 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
 
-namespace SFA.DAS.EmploymentCheck.Data.Models
+namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
 {
     [Table("Business.EmploymentCheck")]
     public class EmploymentCheck
     {
         public EmploymentCheck() { }
 
-        public EmploymentCheck(
-            Guid correlationId, 
-            string checkType, 
-            long uln, 
-            long? apprenticeshipId, 
-            int apprenticeshipAccountId, 
-            DateTime minDate, 
-            DateTime maxDate)
-        {
-            CorrelationId = correlationId;
-            CheckType = checkType;
-            Uln = uln;
-            ApprenticeshipId = apprenticeshipId;
-            AccountId = apprenticeshipAccountId;
-            MinDate = minDate;
-            MaxDate = maxDate;
-        }
-
         [Key]
         public long Id { get; set; }
 
-        public Guid? CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
         public string CheckType { get; set; }
 
@@ -51,6 +33,5 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         public DateTime CreatedOn { get; set; }
     }
-
 }
 

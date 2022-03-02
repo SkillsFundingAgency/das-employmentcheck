@@ -14,15 +14,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/EmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,
-            ILogger log)
+            ILogger log
+        )
         {
-            log.LogInformation($"Triggering EmploymentChecksOrchestrator");
-
-            string instanceId = await starter.StartNewAsync(nameof(EmploymentChecksOrchestrator), null);
-
-            log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
-
-            return starter.CreateCheckStatusResponse(req, instanceId);
+            ITriggerHelper triggerHelper
+                = new TriggerHelper(nameof(CreateEmploymentCheckCacheRequestsOrchestrator), nameof(ProcessEmploymentCheckRequestsOrchestrator));
+            return await triggerHelper.StartTheEmploymentCheckOrchestrators(req, starter, log, triggerHelper);
         }
     }
 }

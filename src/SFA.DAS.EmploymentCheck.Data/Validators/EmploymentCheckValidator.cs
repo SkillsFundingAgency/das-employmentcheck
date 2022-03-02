@@ -1,5 +1,6 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
+using System;
+using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.Validators
 {

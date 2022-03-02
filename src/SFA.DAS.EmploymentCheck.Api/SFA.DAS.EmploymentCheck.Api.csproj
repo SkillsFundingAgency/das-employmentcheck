@@ -13,12 +13,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
   </ItemGroup>
-    
+
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Commands\SFA.DAS.EmploymentCheck.Commands.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Data\SFA.DAS.EmploymentCheck.Data.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Infrastructure\SFA.DAS.EmploymentCheck.Infrastructure.csproj" />
   </ItemGroup>
-
 
 </Project>

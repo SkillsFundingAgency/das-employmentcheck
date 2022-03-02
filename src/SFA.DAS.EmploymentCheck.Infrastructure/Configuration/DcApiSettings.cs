@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
+﻿namespace SFA.DAS.EmploymentCheck.Functions.Configuration
 {
     public class DcApiSettings
     {

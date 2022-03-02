@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
-using MediatR;
+﻿using MediatR;
+using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using System.Collections.Generic;
 
-namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes
 {
     public class GetPayeSchemesQueryRequest
         : IRequest<GetPayeSchemesQueryResult>
     {
-        public GetPayeSchemesQueryRequest(IList<Data.Models.EmploymentCheck> employmentCheckBatch)
+        public GetPayeSchemesQueryRequest(Application.Models.EmploymentCheck employmentCheck)
         {
-            EmploymentCheckBatch = employmentCheckBatch;
+            EmploymentCheck = employmentCheck;
         }
 
-        public IList<Data.Models.EmploymentCheck> EmploymentCheckBatch { get; }
+        public Application.Models.EmploymentCheck EmploymentCheck { get; }
     }
 }
 

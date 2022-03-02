@@ -5,10 +5,12 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using FluentAssertions;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
@@ -16,6 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
     {
         protected Fixture Fixture;
         protected ApplicationSettings Settings;
+        protected IUnitOfWork UnitOfWorkInstance;
         protected IList<object> ToBeDeleted = new List<object>();
         private const string AzureResource = "https://database.windows.net/";
 
@@ -30,20 +33,15 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             Settings = new ApplicationSettings();
             config.Bind(Settings);
-        }
 
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await DeleteAll();
-        }
+            UnitOfWorkInstance = new Functions.Repositories.UnitOfWork(Settings);
 
-        private async Task DeleteAll()
-        {
-            foreach (var entity in ToBeDeleted)
+            AssertionOptions.AssertEquivalencyUsing(options =>
             {
-               // await Delete(entity); TODO: fix this
-            }
+                options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTime>();
+                options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTimeOffset>();
+                return options;
+            });
         }
 
         public async Task<T> Get<T>(object id) where T : class
@@ -81,5 +79,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         {
             return new SqlConnection { ConnectionString = Settings.DbConnectionString, AccessToken = Settings.DbConnectionString.Contains("Integrated Security") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
         }
+
+
     }
 }
