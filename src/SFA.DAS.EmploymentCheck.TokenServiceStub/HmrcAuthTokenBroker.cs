@@ -1,17 +1,13 @@
 ﻿using SFA.DAS.EmploymentCheck.TokenServiceStub.Services;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.TokenServiceStub
 {
-    public class HmrcAuthTokenBroker : IHmrcAuthTokenBroker, IDisposable
+    public class HmrcAuthTokenBroker : IHmrcAuthTokenBroker
     {
         private readonly IOAuthTokenService _tokenService;
         private readonly ITotpService _totpService;
-        private OAuthAccessToken _cachedAccessToken;
-        private CancellationTokenSource _cancellationTokenSource;
-        private readonly Task<OAuthAccessToken> _initialiseTask;
 
         public HmrcAuthTokenBroker(
             IOAuthTokenService tokenService,
@@ -19,73 +15,33 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
         {
             _totpService = totpService;
             _tokenService = tokenService;
-            _initialiseTask = InitialiseToken();
         }
 
-        public async Task<OAuthAccessToken> GetTokenAsync()
-        {
-            await _initialiseTask;
-            return _cachedAccessToken;
-        }
-
-        private Task<OAuthAccessToken> InitialiseToken()
-        {
-            return GetTokenFromServiceAsync()
-                .ContinueWith((task) =>
-                {
-                    _ = task.Result;
-                    StartTokenBackgroundRefresh();
-                    return task.Result;
-                });
-        }
-
-        private void StartTokenBackgroundRefresh()
-        {
-            DisposeCancellationToken();
-        }
-
-        private Task<OAuthAccessToken> GetTokenFromServiceAsync()
+        public Task<OAuthAccessToken> GetTokenAsync()
         {
             return Task.Run(async () =>
             {
-                OAuthAccessToken tempToken = null;
-                while (tempToken == null)
+                OAuthAccessToken token = null;
+                while (token == null)
                 {
                     var oneTimePassword = GetOneTimePassword();
-                    tempToken = await _tokenService.GetAccessToken(oneTimePassword);
+                    token = await _tokenService.GetAccessToken(oneTimePassword);
 
-                    if (tempToken == null)
+                    if (token == null)
                     {
                         await Task.Delay(TimeSpan.FromSeconds(30));
                     }
                 }
 
-                _cachedAccessToken = tempToken;
-
-                return _cachedAccessToken;
+                return token;
             });
         }
 
         private string GetOneTimePassword()
         {
             var privilegedToken = _totpService.Generate(_tokenService.TotpSecret);
+           
             return privilegedToken;
-        }
-
-        public void Dispose()
-        {
-            DisposeCancellationToken();
-        }
-
-        public void DisposeCancellationToken()
-        {
-            if (_cancellationTokenSource != null)
-            {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose();
-            }
-
-            _cancellationTokenSource = null;
         }
     }
 }
