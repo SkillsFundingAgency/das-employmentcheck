@@ -2,12 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckTests
 {
@@ -45,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task And_The_Repository_Returns_EmploymentChecks_Then_They_Are_Returned()
         {
             // Arrange
-            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
 
             _repositoryMock.Setup(x => x.GetEmploymentCheck())
                 .ReturnsAsync(employmentCheck);

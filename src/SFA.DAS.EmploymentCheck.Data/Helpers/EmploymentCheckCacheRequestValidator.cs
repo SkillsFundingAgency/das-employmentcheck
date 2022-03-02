@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
+namespace SFA.DAS.EmploymentCheck.Data.Helpers
 {
     public class EmploymentCheckCacheRequestValidator
         : AbstractValidator<EmploymentCheckCacheRequest>

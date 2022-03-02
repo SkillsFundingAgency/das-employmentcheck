@@ -2,14 +2,13 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmployerAccountClientTests
 {
@@ -17,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
     {
         private Fixture _fixture;
         private Mock<IEmployerAccountService> _employerAccountService;
-        private Models.EmploymentCheck _employmentCheck;
+        private Data.Models.EmploymentCheck _employmentCheck;
         private EmployerAccountClient _sut;
 
         [SetUp]
@@ -25,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         {
             _fixture = new Fixture();
             _employerAccountService = new Mock<IEmployerAccountService>();
-            _employmentCheck = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
 
             _sut = new EmployerAccountClient(_employerAccountService.Object);
         }
@@ -67,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
         public async Task And_Null_Is_Passed_In_The_Then_An_Empty_Paye_Scheme_Is_Returned()
         {
             // Act
-            var result = await _sut.GetEmployersPayeSchemes(new Models.EmploymentCheck());
+            var result = await _sut.GetEmployersPayeSchemes(new Data.Models.EmploymentCheck());
 
             // Assert
             result.Should().BeEquivalentTo(new EmployerPayeSchemes());

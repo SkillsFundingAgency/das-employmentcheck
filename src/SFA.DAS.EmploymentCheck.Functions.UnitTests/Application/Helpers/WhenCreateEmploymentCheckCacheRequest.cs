@@ -1,9 +1,8 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Helpers;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.EmploymentCheckServiceTests
 {
@@ -14,13 +13,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Emplo
 
         private Fixture _fixture;
         private IEmploymentCheckCacheRequestFactory _sut;
-        private Models.EmploymentCheck _employmentCheck;
+        private Data.Models.EmploymentCheck _employmentCheck;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
         [Test]

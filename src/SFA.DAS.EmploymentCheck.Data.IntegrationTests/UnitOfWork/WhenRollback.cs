@@ -2,9 +2,9 @@
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
 {

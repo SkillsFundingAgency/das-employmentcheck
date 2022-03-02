@@ -3,14 +3,13 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.EmploymentCheck.EmploymentCheckCacheRequestTests
 {
@@ -41,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Clients.Employ
             // Arrange
             var nino = _fixture.Create<LearnerNiNumber>();
             var paye = _fixture.Build<EmployerPayeSchemes>().With(x => x.PayeSchemes, new[] { _fixture.Create<string>() }).Create();
-            var check = _fixture.Build<Models.EmploymentCheck>().With(c => c.Uln, nino.Uln).With(c => c.AccountId, paye.EmployerAccountId).Create();
+            var check = _fixture.Build<Data.Models.EmploymentCheck>().With(c => c.Uln, nino.Uln).With(c => c.AccountId, paye.EmployerAccountId).Create();
             var employmentCheckData = new EmploymentCheckData(check, nino, paye);
 
             var expected = new List<EmploymentCheckCacheRequest>

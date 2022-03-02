@@ -3,12 +3,11 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumber;
 using System.Linq;
 using System.Threading;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetDbLearnerNiNumbersActivityTests
 {
@@ -30,7 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public void Then_The_LearnerNiNumbers_Are_Returned()
         {
             // Arrange
-            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
             var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
             var sut = new GetDbLearnerNiNumberActivity(_mediator.Object);
             var queryResult = new GetDbNiNumberQueryResult(learnerNiNumber);
@@ -51,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public void Then_If_The_Query_Returns_No_LearnerNiNumbers_Then_An_Empty_LearnerNiNumber_Is_Returned()
         {
             // Arrange
-            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
             var sut = new GetDbLearnerNiNumberActivity(_mediator.Object);
             var queryResult = new GetDbNiNumberQueryResult(null);
 

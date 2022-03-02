@@ -1,9 +1,9 @@
-﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck
 {
     public class GetEmploymentCheckQueryHandler
         : IRequestHandler<GetEmploymentCheckQueryRequest,

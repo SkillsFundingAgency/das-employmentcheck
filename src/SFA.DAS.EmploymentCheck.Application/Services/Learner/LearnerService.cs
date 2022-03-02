@@ -1,11 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,8 +7,15 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
+using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
+namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
     public class LearnerService : ILearnerService
     {
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             _repository = repository;
         }
 
-        public async Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck employmentCheck)
+        public async Task<LearnerNiNumber> GetDbNiNumber(Data.Models.EmploymentCheck employmentCheck)
         {
             LearnerNiNumber learnerNiNumber = null;
             var response = await _repository.GetByEmploymentCheckId(employmentCheck.Id);
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return learnerNiNumber ?? new LearnerNiNumber();
         }
 
-        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck employmentCheck)
+        public async Task<LearnerNiNumber> GetNiNumber(Data.Models.EmploymentCheck employmentCheck)
         {
             var token = GetDcToken().Result;
             var learnerNiNumber = await SendIndividualRequest(employmentCheck, token);
@@ -63,7 +63,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return learnerNiNumber;
         }
 
-        private async Task<LearnerNiNumber> SendIndividualRequest(Models.EmploymentCheck employmentCheck, AuthResult token)
+        private async Task<LearnerNiNumber> SendIndividualRequest(Data.Models.EmploymentCheck employmentCheck, AuthResult token)
         {
             HttpClient client;
             string url;
@@ -74,7 +74,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return learnerNiNumber ?? new LearnerNiNumber();
         }
 
-        private void SetupDataCollectionsApiConfig(Models.EmploymentCheck employmentCheck, AuthResult token, out HttpClient client, out string url)
+        private void SetupDataCollectionsApiConfig(Data.Models.EmploymentCheck employmentCheck, AuthResult token, out HttpClient client, out string url)
         {
             client = _httpFactory.CreateClient("LearnerNiApi");
             client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             url = LearnersNiUrl + employmentCheck.Uln;
         }
 
-        private async Task<LearnerNiNumber> ExecuteDataCollectionsApiCall(Models.EmploymentCheck employmentCheck, HttpClient client, string url)
+        private async Task<LearnerNiNumber> ExecuteDataCollectionsApiCall(Data.Models.EmploymentCheck employmentCheck, HttpClient client, string url)
         {
             LearnerNiNumber learnerNiNumber = null;
             try
@@ -99,7 +99,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
         }
 
         private async Task<LearnerNiNumber> GetNiNumberFromApiResponse(
-            Models.EmploymentCheck employmentCheck,
+            Data.Models.EmploymentCheck employmentCheck,
             HttpResponseMessage httpResponseMessage
         )
         {
@@ -127,7 +127,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             return learnerNiNumber;
         }
 
-        private static async Task<DataCollectionsResponse> InitialiseDataCollectionsResponseModel(Models.EmploymentCheck employmentCheck)
+        private static async Task<DataCollectionsResponse> InitialiseDataCollectionsResponseModel(Data.Models.EmploymentCheck employmentCheck)
         {
             return await Task.FromResult(new DataCollectionsResponse(
                     0,
@@ -209,7 +209,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
             await _repository.InsertOrUpdate(dataCollectionsResponse);
         }
 
-        private async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)
+        private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
             var dataCollectionsResponse = await InitialiseDataCollectionsResponseModel(employmentCheck);
 

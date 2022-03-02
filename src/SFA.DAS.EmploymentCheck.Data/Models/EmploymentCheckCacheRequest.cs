@@ -1,10 +1,10 @@
-﻿using Dapper.Contrib.Extensions;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 using KeyAttribute = Dapper.Contrib.Extensions.KeyAttribute;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
+namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     [Table("Cache.EmploymentCheckCacheRequest")]
     public class EmploymentCheckCacheRequest

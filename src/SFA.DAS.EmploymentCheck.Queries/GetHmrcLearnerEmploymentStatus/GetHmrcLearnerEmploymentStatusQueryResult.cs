@@ -1,6 +1,6 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmploymentStatus
+namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
 {
     public class GetHmrcLearnerEmploymentStatusQueryResult
     {

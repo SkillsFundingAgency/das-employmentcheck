@@ -1,7 +1,6 @@
-﻿using Dapper.Contrib.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
+namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     public class EmployerPayeSchemes
     {
@@ -15,7 +14,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             PayeSchemes = payeSchemes;
         }
 
-        [Key]
         public long EmployerAccountId { get; set; }
 
         public IList<string> PayeSchemes { get; set; }

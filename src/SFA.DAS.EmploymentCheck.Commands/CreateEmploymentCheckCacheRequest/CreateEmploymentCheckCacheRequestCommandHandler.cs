@@ -1,9 +1,9 @@
-﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequest
+namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
 {
     public class CreateEmploymentCheckCacheRequestCommandHandler
         : IRequestHandler<CreateEmploymentCheckCacheRequestCommand>

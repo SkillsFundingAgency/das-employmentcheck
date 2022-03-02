@@ -1,14 +1,14 @@
-﻿using HMRC.ESFA.Levy.Api.Types.Exceptions;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Wrap;
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
+namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 {
     public class HmrcApiRetryPolicies : IHmrcApiRetryPolicies
     {

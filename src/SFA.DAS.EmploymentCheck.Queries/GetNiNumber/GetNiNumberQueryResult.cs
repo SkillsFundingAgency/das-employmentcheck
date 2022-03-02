@@ -1,6 +1,6 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber
+namespace SFA.DAS.EmploymentCheck.Queries.GetNiNumber
 {
     public class GetNiNumberQueryResult
     {

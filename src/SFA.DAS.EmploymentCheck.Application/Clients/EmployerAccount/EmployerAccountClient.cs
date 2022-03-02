@@ -1,8 +1,8 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
+namespace SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount
 {
     public class EmployerAccountClient : IEmployerAccountClient
     {
@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount
         }
 
         public async Task<EmployerPayeSchemes> GetEmployersPayeSchemes(
-            Models.EmploymentCheck employmentCheck)
+            Data.Models.EmploymentCheck employmentCheck)
         {
             EmployerPayeSchemes payeSchemes = null;
             if (employmentCheck != null && employmentCheck.Id != 0)

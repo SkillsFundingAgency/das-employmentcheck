@@ -5,12 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using System.IO;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
+using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 

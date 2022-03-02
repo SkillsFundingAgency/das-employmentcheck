@@ -1,12 +1,12 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
     public interface IEmploymentCheckService
     {
-        Task<Models.EmploymentCheck> GetEmploymentCheck();
+        Task<Data.Models.EmploymentCheck> GetEmploymentCheck();
 
         Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 

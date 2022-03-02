@@ -1,12 +1,12 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
+namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     [Table("Cache.EmploymentCheckCacheResponse")]
     public class EmploymentCheckCacheResponse
     {
-        public EmploymentCheckCacheResponse() { } // parameterless default constructor is required for dapper 😕
+        public EmploymentCheckCacheResponse() { }
 
         public EmploymentCheckCacheResponse(
             long? apprenticeEmploymentCheckId,

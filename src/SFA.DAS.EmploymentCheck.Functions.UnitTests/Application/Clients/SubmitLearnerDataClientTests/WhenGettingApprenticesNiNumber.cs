@@ -2,10 +2,10 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Clients.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLearnerData.SubmitLearnerDataClientTests
 {
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
         public async Task Then_The_SubmitLeanerDataService_Is_Called()
         {
             // Arrange
-            var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
+            var check = _fixture.Create<Data.Models.EmploymentCheck>();
 
             _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
                 .ReturnsAsync(new LearnerNiNumber());
@@ -45,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
         public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             // Arrange
-            var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
+            var check = _fixture.Create<Data.Models.EmploymentCheck>();
 
             _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
                 .ReturnsAsync((LearnerNiNumber)null);
@@ -63,7 +63,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Application.Clients.SubmitLear
         public async Task And_The_LearnerService_Returns_Ni_Numbers_Then_They_Are_Returned()
         {
             // Arrange
-            var check = _fixture.Create<Functions.Application.Models.EmploymentCheck>();
+            var check = _fixture.Create<Data.Models.EmploymentCheck>();
             var niNumber = new LearnerNiNumber(1000001, "1000001");
 
             _submitLearnerDataService.Setup(x => x.GetNiNumber(check))

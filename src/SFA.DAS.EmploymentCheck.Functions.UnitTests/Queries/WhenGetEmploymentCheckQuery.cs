@@ -2,11 +2,10 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Queries
 {
@@ -29,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Queries
         {
             // Arrange
             var request = _fixture.Create<GetEmploymentCheckQueryRequest>();
-            var expected = _fixture.Create<Models.EmploymentCheck>();
+            var expected = _fixture.Create<Data.Models.EmploymentCheck>();
 
             _serviceMock
                 .Setup(s => s.GetEmploymentCheck())

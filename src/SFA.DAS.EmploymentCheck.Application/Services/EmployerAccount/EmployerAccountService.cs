@@ -1,24 +1,23 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.HashingService;
-using System;
-using System.Data;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.HashingService;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
+namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
     public class EmployerAccountService
         : IEmployerAccountService
@@ -51,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             _repository = repository;
         }
 
-        public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentCheck)
+        public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Data.Models.EmploymentCheck employmentCheck)
         {
             EmployerPayeSchemes payeSchemes = null;
             if (employmentCheck != null && employmentCheck.Id != 0)
@@ -63,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return payeSchemes ?? new EmployerPayeSchemes();
         }
 
-        private async Task<HttpRequestMessage> SetupAccountsApiConfig(Models.EmploymentCheck employmentCheck)
+        private async Task<HttpRequestMessage> SetupAccountsApiConfig(Data.Models.EmploymentCheck employmentCheck)
         {
             var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
             var url = $"api/accounts/{hashedAccountId}/payeschemes";
@@ -72,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return httpRequestMessage;
         }
 
-        private async Task<EmployerPayeSchemes> GetPayeSchemes(Models.EmploymentCheck employmentCheck, HttpRequestMessage httpRequestMessage)
+        private async Task<EmployerPayeSchemes> GetPayeSchemes(Data.Models.EmploymentCheck employmentCheck, HttpRequestMessage httpRequestMessage)
         {
             EmployerPayeSchemes employerPayeSchemes = null;
             try
@@ -89,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
         }
 
         private async Task<EmployerPayeSchemes> GetPayeSchemesFromApiResponse(
-            Models.EmploymentCheck employmentCheck,
+            Data.Models.EmploymentCheck employmentCheck,
             HttpResponseMessage httpResponseMessage
         )
         {
@@ -117,7 +116,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             return employerPayeSchemes ?? new EmployerPayeSchemes();
         }
 
-        private async Task<AccountsResponse> InitialiseAccountResponseModel(Models.EmploymentCheck employmentCheck)
+        private async Task<AccountsResponse> InitialiseAccountResponseModel(Data.Models.EmploymentCheck employmentCheck)
         {
             return await Task.FromResult(new AccountsResponse(
                 0,
@@ -206,7 +205,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
             await _repository.InsertOrUpdate(accountsResponse);
         }
 
-        private async Task HandleException(Models.EmploymentCheck employmentCheck, Exception e)
+        private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
             var accountsResponse = await InitialiseAccountResponseModel(employmentCheck);
             accountsResponse.HttpResponse = e.Message;

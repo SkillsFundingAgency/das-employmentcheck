@@ -5,7 +5,6 @@ using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsResponse
 {

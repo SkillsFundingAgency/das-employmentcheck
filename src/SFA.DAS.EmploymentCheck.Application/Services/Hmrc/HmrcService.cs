@@ -1,16 +1,16 @@
-﻿using HMRC.ESFA.Levy.Api.Client;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
-using System;
-using System.Net;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
+namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 {
     public class HmrcService : IHmrcService
     {

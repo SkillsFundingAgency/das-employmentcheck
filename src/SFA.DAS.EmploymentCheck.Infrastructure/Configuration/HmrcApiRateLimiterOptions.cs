@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Configuration
+namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
 {
     public class HmrcApiRateLimiterOptions : TableEntity
     {

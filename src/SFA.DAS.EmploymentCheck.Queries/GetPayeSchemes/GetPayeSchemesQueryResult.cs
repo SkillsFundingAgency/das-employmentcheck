@@ -1,6 +1,6 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes
+namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
 {
     public class GetPayeSchemesQueryResult
     {

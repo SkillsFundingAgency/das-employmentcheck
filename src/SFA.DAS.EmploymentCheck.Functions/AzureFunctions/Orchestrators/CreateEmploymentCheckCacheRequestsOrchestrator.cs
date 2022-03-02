@@ -1,12 +1,11 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -37,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
 
-                var employmentCheck = await context.CallActivityAsync<Models.EmploymentCheck>(checkActivityName, null);
+                var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(checkActivityName, null);
                 if (employmentCheck != null)
                 {
                     var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(ninoActivityName, employmentCheck);

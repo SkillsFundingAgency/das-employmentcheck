@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Commands.CreateEmploymentCheckCacheRequest
+namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
 {
     public class CreateEmploymentCheckCacheRequestCommand : IRequest
     {

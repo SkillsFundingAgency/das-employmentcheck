@@ -1,8 +1,8 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
+namespace SFA.DAS.EmploymentCheck.Application.Clients.Learner
 {
     public class LearnerClient : ILearnerClient
     {
@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
             _learnerService = learnerService;
         }
 
-        public async Task<LearnerNiNumber> GetDbNiNumber(Models.EmploymentCheck check)
+        public async Task<LearnerNiNumber> GetDbNiNumber(Data.Models.EmploymentCheck check)
         {
             var learnerNiNumbers = await _learnerService.GetDbNiNumber(check);
 
@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner
         }
 
 
-        public async Task<LearnerNiNumber> GetNiNumber(Models.EmploymentCheck check)
+        public async Task<LearnerNiNumber> GetNiNumber(Data.Models.EmploymentCheck check)
         {
             var learnerNiNumbers = await _learnerService.GetNiNumber(check);
 

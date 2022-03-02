@@ -1,7 +1,8 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Linq;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLearnerNiNumbers.GetDbLearnerNiNumberMediatorResult
 {
@@ -22,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLea
             var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
 
             // Act
-            var result = new Functions.Mediators.Queries.GetDbNiNumber.GetDbNiNumberQueryResult(learnerNiNumber);
+            var result = new GetDbNiNumberQueryResult(learnerNiNumber);
 
             // Assert
             Assert.AreEqual(learnerNiNumber, result.LearnerNiNumber);

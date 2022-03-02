@@ -1,10 +1,9 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmploymentStatus
+namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
 {
     public class GetHmrcLearnerEmploymentStatusQueryHandler
         : IRequestHandler<GetHmrcLearnerEmploymentStatusQueryRequest,

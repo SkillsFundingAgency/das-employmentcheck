@@ -3,14 +3,13 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetDbNiNumber;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLearnerNiNumbers.GetDbLearnerNiNumberMediatorHandlerTests
 {
@@ -51,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLea
         public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
         {
             // Arrange
-            var request = new GetDbNiNumberQueryRequest(new Models.EmploymentCheck());
+            var request = new GetDbNiNumberQueryRequest(new Data.Models.EmploymentCheck());
 
             _learnerService
                 .Setup(l => l.GetDbNiNumber(request.EmploymentCheck))
@@ -60,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Mediators.Queries.GetDbLea
             var sut = new GetDbNiNumberQueryHandler(_learnerService.Object, _logger.Object);
 
             // Act
-            var result = await sut.Handle(new GetDbNiNumberQueryRequest(new Models.EmploymentCheck()), CancellationToken.None);
+            var result = await sut.Handle(new GetDbNiNumberQueryRequest(new Data.Models.EmploymentCheck()), CancellationToken.None);
 
             // Assert
             result.LearnerNiNumber.Should().BeEquivalentTo(new LearnerNiNumber());

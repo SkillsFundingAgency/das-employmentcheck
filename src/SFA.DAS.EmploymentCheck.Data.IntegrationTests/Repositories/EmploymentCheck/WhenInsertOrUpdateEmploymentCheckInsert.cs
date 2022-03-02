@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System;
 using System.Threading.Tasks;

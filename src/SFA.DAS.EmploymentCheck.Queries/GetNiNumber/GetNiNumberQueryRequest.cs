@@ -1,15 +1,15 @@
 ﻿using MediatR;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumber
+namespace SFA.DAS.EmploymentCheck.Queries.GetNiNumber
 {
     public class GetNiNumberQueryRequest
         : IRequest<GetNiNumberQueryResult>
     {
-        public GetNiNumberQueryRequest(Application.Models.EmploymentCheck check)
+        public GetNiNumberQueryRequest(Data.Models.EmploymentCheck check)
         {
             Check = check;
         }
 
-        public Application.Models.EmploymentCheck Check { get; }
+        public Data.Models.EmploymentCheck Check { get; }
     }
 }

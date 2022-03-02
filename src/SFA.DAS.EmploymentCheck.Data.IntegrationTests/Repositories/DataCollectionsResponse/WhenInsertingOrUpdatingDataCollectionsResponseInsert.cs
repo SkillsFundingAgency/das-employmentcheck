@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.DataCollectionsResponse
 {

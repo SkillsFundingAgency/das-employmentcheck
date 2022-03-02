@@ -6,14 +6,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.LearnerServiceTests
 {
@@ -60,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.Learn
         public async Task Then_GetDbNiNumbers_Is_Called()
         {
             // Arrange
-            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
             var dataCollectionsResponse = _fixture.Create<DataCollectionsResponse>();
             var learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = dataCollectionsResponse.NiNumber };
 

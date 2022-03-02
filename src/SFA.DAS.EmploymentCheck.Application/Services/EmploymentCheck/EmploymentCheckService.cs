@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
+namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
     public class EmploymentCheckService : IEmploymentCheckService
     {
@@ -30,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Models.EmploymentCheck> GetEmploymentCheck()
+        public async Task<Data.Models.EmploymentCheck> GetEmploymentCheck()
         {
             return await _employmentCheckRepository.GetEmploymentCheck();
         }

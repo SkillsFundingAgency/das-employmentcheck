@@ -1,10 +1,10 @@
-﻿using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount
+namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
     public interface IEmployerAccountService
     {
-        Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Models.EmploymentCheck employmentCheck);
+        Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Data.Models.EmploymentCheck employmentCheck);
     }
 }

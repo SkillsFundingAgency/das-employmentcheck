@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using SFA.DAS.TokenService.Api.Client;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Configuration
+namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
 {
     public class TokenServiceApiClientConfiguration : ITokenServiceApiClientConfiguration
     {

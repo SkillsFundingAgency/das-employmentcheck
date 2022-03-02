@@ -3,9 +3,8 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using System.Threading;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
 {
@@ -13,14 +12,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
     {
         private Fixture _fixture;
         private Mock<IMediator> _mediator;
-        private Models.EmploymentCheck _employmentCheck;
+        private Data.Models.EmploymentCheck _employmentCheck;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _mediator = new Mock<IMediator>();
-            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
         [Test]

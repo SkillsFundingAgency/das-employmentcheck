@@ -3,13 +3,12 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmploymentStatus;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetHmrcLearnerEmploymentStatusActivityTests
 {
@@ -19,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         private Mock<ILogger<GetHmrcLearnerEmploymentStatusActivity>> _logger;
         private Mock<IMediator> _mediator;
 
-        private IList<Models.EmploymentCheck> _employmentChecks;
+        private IList<Data.Models.EmploymentCheck> _employmentChecks;
         private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
         private IList<EmploymentCheckCacheRequest> _request;
 
@@ -31,9 +30,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             _mediator = new Mock<IMediator>();
 
             _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
-            _employmentChecks = new List<Models.EmploymentCheck>
+            _employmentChecks = new List<Data.Models.EmploymentCheck>
             {
-                _fixture.Create<Models.EmploymentCheck>()
+                _fixture.Create<Data.Models.EmploymentCheck>()
             };
 
 

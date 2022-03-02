@@ -1,7 +1,6 @@
-﻿using Dapper.Contrib.Extensions;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
+namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     public class LearnerNiNumber
     {
@@ -15,7 +14,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
             NiNumber = niNumber;
         }
 
-        [Key]
         [JsonPropertyName("uln")]
         public long Uln { get; set; }
 

@@ -1,9 +1,8 @@
-﻿using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Helpers
+namespace SFA.DAS.EmploymentCheck.Data.Helpers
 {
     public class EmploymentCheckCacheRequestFactory
         : IEmploymentCheckCacheRequestFactory

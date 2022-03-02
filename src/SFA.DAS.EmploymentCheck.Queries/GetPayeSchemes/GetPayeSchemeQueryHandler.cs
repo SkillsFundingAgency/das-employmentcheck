@@ -1,13 +1,12 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
-using System.Threading;
-using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeScheme
+namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
 {
     public class GetPayeSchemeQueryHandler
         : IRequestHandler<GetPayeSchemesQueryRequest,

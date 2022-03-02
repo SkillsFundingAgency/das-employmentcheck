@@ -3,18 +3,17 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmploymentCheckActivityTests
 {
     public class WhenCallingGet
     {
         private Fixture _fixture;
-        private Models.EmploymentCheck _employmentCheck;
+        private Data.Models.EmploymentCheck _employmentCheck;
         private Mock<IMediator> _mediator;
 
         [SetUp]
@@ -22,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             _fixture = new Fixture();
             _mediator = new Mock<IMediator>();
-            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
         [Test]

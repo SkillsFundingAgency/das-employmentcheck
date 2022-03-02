@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
+﻿namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     public class EmploymentCheckData
     {

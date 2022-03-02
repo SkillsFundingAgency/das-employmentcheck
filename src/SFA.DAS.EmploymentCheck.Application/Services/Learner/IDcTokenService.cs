@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner
+namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
     public interface IDcTokenService
     {

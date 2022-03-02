@@ -3,12 +3,11 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using System;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.CreateEmploymentCheckCacheRequestsOrchestratorTests
 {
@@ -23,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>> _logger;
 
-        private Models.EmploymentCheck _employmentCheck;
+        private Data.Models.EmploymentCheck _employmentCheck;
         private Task<LearnerNiNumber> _learnerNiNumberTask;
         private Task<EmployerPayeSchemes> _employerPayeSchemesTask;
         private EmploymentCheckData _employmentCheckData;
@@ -36,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>>();
-            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
             _learnerNiNumberTask = _fixture.Create<Task<LearnerNiNumber>>();
             _employerPayeSchemesTask = _fixture.Create<Task<EmployerPayeSchemes>>();
             _employmentCheckData = new EmploymentCheckData(_employmentCheck, _learnerNiNumberTask.Result, _employerPayeSchemesTask.Result);
@@ -49,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             // Arrange
             _context
-                .Setup(a => a.CallActivityAsync<Models.EmploymentCheck>(_checkActivityName, null))
+                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(_checkActivityName, null))
                 .ReturnsAsync(_employmentCheck);
 
             _context
@@ -67,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<Models.EmploymentCheck>(_checkActivityName, null), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(_checkActivityName, null), Times.Once);
             _context.Verify(a => a.CallActivityAsync<LearnerNiNumber>(_ninoActivityName, _employmentCheck), Times.Once);
             _context.Verify(a => a.CallActivityAsync<EmployerPayeSchemes>(_payeActivityName, _employmentCheck), Times.Once);
             _context.Verify(a => a.CallActivityAsync(_requestActivityName, It.IsAny<Object>()), Times.Once);

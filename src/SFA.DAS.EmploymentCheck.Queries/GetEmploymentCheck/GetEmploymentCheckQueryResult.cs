@@ -1,16 +1,14 @@
-﻿using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-
-namespace SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck
+﻿namespace SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck
 {
     public class GetEmploymentCheckQueryResult
     {
         public GetEmploymentCheckQueryResult() { }
 
-        public GetEmploymentCheckQueryResult(Models.EmploymentCheck employmentCheck)
+        public GetEmploymentCheckQueryResult(Data.Models.EmploymentCheck employmentCheck)
         {
             EmploymentCheck = employmentCheck;
         }
 
-        public Models.EmploymentCheck EmploymentCheck { get; set; }
+        public Data.Models.EmploymentCheck EmploymentCheck { get; set; }
     }
 }

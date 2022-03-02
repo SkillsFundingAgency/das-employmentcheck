@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Functions.Configuration
+﻿namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
 {
     public class ApplicationSettings
     {

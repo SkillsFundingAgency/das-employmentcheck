@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Polly;
 using Polly.Wrap;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
+namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 {
     public interface IHmrcApiRetryPolicies
     {

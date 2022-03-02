@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentCheck;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentices.GetApprenticesMediatorResultTests
 {
@@ -13,7 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.Mediators.Queries.GetApprentic
         {
             // Arrange
             var fixture = new Fixture();
-            var employmentCheck = fixture.Create<Models.EmploymentCheck>();
+            var employmentCheck = fixture.Create<Data.Models.EmploymentCheck>();
 
             // Act
             var result = new GetEmploymentCheckQueryResult(employmentCheck);

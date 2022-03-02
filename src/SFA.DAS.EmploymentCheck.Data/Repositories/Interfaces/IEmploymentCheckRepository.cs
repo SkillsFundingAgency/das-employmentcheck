@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces
 {

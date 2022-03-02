@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Functions.Application.Enums
+﻿namespace SFA.DAS.EmploymentCheck.Domain.Enums
 {
     public enum ProcessingCompletionStatus
     {
