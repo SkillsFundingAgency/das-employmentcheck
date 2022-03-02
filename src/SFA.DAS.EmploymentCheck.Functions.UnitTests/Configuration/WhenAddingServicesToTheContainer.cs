@@ -5,10 +5,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.EmploymentCheck.Data.Repositories;
-using SFA.DAS.HashingService;
-using SFA.DAS.TokenService.Api.Client;
-using System;
 using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
@@ -17,6 +13,9 @@ using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.HashingService;
+using SFA.DAS.TokenService.Api.Client;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
