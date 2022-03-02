@@ -91,11 +91,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc
 
             return await Task.FromResult<AsyncPolicy>(Policy
                 .Handle<Exception>()
-                .RetryAsync(
+                .WaitAndRetryAsync(
                     retryCount: _settings.TokenRetrievalRetryCount,
-                    onRetryAsync: (exception, retryNumber, context) =>
+                    sleepDurationProvider: _ => TimeSpan.FromMilliseconds(_settings.TokenFailureRetryDelayInMs),
+                    onRetryAsync: (exception, ts, retryNumber, context) =>
                     {
-                        _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: Exception error occurred while retrieving token. Retrying ({retryNumber}/{_settings.TokenRetrievalRetryCount})...");
+                        _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: Exception occurred while retrieving token. Retrying ({retryNumber}/{_settings.TokenRetrievalRetryCount})... {exception}");
                         return Task.CompletedTask;
                     }
                 ));

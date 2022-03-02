@@ -55,7 +55,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Application.Services.HmrcS
                 MinimumUpdatePeriodInDays = 0,
                 TooManyRequestsRetryCount = 10,
                 TransientErrorRetryCount = 2,
-                TransientErrorDelayInMs = 1
+                TransientErrorDelayInMs = 1,
+                TokenFailureRetryDelayInMs = 0
             };
 
             _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_settings);
