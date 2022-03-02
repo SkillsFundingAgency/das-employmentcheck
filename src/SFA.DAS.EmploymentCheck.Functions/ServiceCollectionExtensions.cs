@@ -11,7 +11,7 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
@@ -20,6 +20,7 @@ using SFA.DAS.HashingService;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {

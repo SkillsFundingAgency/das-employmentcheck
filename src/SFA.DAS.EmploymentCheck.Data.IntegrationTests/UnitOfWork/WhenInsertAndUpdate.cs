@@ -4,7 +4,7 @@ using SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
 using FluentAssertions;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
             // change everything but ID
             _updated = Fixture.Build<Models.EmploymentCheck>().With(x => x.Id, _updated.Id).Create();
 
-            _sut = new Functions.Repositories.UnitOfWork(Settings);
+            _sut = new Data.Repositories.UnitOfWork(Settings);
 
             // Act
             await _sut.BeginAsync();

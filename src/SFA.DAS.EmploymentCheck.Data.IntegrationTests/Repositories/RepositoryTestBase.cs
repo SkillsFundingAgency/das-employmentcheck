@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             Settings = new ApplicationSettings();
             config.Bind(Settings);
 
-            UnitOfWorkInstance = new Functions.Repositories.UnitOfWork(Settings);
+            UnitOfWorkInstance = new Data.Repositories.UnitOfWork(Settings);
 
             AssertionOptions.AssertEquivalencyUsing(options =>
             {

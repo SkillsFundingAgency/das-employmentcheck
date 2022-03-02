@@ -2,13 +2,14 @@
 using FluentAssertions;
 using NUnit.Framework;
 using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Castle.DynamicProxy.Contributors;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
