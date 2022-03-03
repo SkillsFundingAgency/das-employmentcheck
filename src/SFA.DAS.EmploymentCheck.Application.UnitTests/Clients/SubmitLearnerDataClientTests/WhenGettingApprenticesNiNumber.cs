@@ -11,12 +11,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.SubmitLearnerDat
 {
     public class WhenGettingLearnersNiNumber
     {
-        private readonly Mock<ILearnerService> _submitLearnerDataService;
-        private readonly Fixture _fixture;
+        private Mock<ILearnerService> _submitLearnerDataService;
+        private Fixture _fixture;
         private LearnerClient _sut;
 
-
-        public WhenGettingLearnersNiNumber()
+        [SetUp]
+        public void SetUp()
         {
             _fixture = new Fixture();
             _submitLearnerDataService = new Mock<ILearnerService>();
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.SubmitLearnerDat
         }
 
         [Test]
-        public async Task And_The_LearnerService_Returns_Null_Then_An_Empty_List_Is_Returned()
+        public async Task And_The_LearnerService_Returns_Null_Then_Null_Is_Returned()
         {
             // Arrange
             var check = _fixture.Create<Data.Models.EmploymentCheck>();

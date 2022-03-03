@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.EmploymentCheckHttpTriggerTests
 {
-    public class WhenTriggeringHttpEmploymentChecksNew
+    public class WhenTriggeringHttpEmploymentChecks
     {
         private Fixture _fixture;
 
