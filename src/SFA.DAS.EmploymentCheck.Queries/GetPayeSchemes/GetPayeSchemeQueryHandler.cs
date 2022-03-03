@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -9,7 +8,7 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
 {
     public class GetPayeSchemeQueryHandler
-        : IRequestHandler<GetPayeSchemesQueryRequest,
+        : IQueryHandler<GetPayeSchemesQueryRequest,
             GetPayeSchemesQueryResult>
     {
         private readonly ILogger<GetPayeSchemeQueryHandler> _logger;

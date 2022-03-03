@@ -2,13 +2,11 @@
 {
     public class GetEmploymentCheckQueryResult
     {
-        public GetEmploymentCheckQueryResult() { }
-
         public GetEmploymentCheckQueryResult(Data.Models.EmploymentCheck employmentCheck)
         {
             EmploymentCheck = employmentCheck;
         }
 
-        public Data.Models.EmploymentCheck EmploymentCheck { get; set; }
+        public Data.Models.EmploymentCheck EmploymentCheck { get; }
     }
 }

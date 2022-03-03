@@ -1,12 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
 {
     public class GetHmrcLearnerEmploymentStatusQueryHandler
-        : IRequestHandler<GetHmrcLearnerEmploymentStatusQueryRequest,
+        : IQueryHandler<GetHmrcLearnerEmploymentStatusQueryRequest,
             GetHmrcLearnerEmploymentStatusQueryResult>
     {
         private readonly IHmrcService _service;

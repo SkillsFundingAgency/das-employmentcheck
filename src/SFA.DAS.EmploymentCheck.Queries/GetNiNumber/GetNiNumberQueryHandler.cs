@@ -1,13 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.Clients.Learner;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetNiNumber
 {
-    public class GetNiNumberQueryHandler : IRequestHandler<GetNiNumberQueryRequest, GetNiNumberQueryResult>
+    public class GetNiNumberQueryHandler : IQueryHandler<GetNiNumberQueryRequest, GetNiNumberQueryResult>
     {
         private readonly ILearnerClient _learnerClient;
         private readonly ILogger<GetNiNumberQueryHandler> _logger;

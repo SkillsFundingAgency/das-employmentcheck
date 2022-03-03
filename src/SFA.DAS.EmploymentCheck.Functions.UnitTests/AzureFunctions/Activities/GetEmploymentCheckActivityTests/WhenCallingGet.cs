@@ -1,12 +1,11 @@
 ﻿using AutoFixture;
-using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using System.Collections.Generic;
+using SFA.DAS.EmploymentCheck.Queries;
+using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmploymentCheckActivityTests
 {
@@ -14,13 +13,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     {
         private Fixture _fixture;
         private Data.Models.EmploymentCheck _employmentCheck;
-        private Mock<IMediator> _mediator;
+        private Mock<IQueryDispatcher> _dispatcher;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _mediator = new Mock<IMediator>();
+            _dispatcher = new Mock<IQueryDispatcher>();
             _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
@@ -28,13 +27,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_EmploymentChecks_Are_Returned()
         {
             // Arrange
-            var sut = new GetEmploymentCheckActivity(_mediator.Object);
+            var sut = new GetEmploymentCheckActivity(_dispatcher.Object);
 
-            var queryResult = new GetEmploymentCheckQueryResult();
-            queryResult.EmploymentCheck = _employmentCheck;
+            var queryResult = new GetEmploymentCheckQueryResult(_employmentCheck);
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetEmploymentCheckQueryRequest>(), CancellationToken.None))
+            _dispatcher
+                .Setup(x => x.Send<GetEmploymentCheckQueryRequest, GetEmploymentCheckQueryResult>(
+                    It.IsAny<GetEmploymentCheckQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
             // Act

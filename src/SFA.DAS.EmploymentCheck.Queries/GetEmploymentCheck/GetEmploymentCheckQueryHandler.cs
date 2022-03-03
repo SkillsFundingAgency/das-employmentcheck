@@ -1,12 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck
 {
     public class GetEmploymentCheckQueryHandler
-        : IRequestHandler<GetEmploymentCheckQueryRequest,
+        : IQueryHandler<GetEmploymentCheckQueryRequest,
             GetEmploymentCheckQueryResult>
     {
         private readonly IEmploymentCheckService _service;

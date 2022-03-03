@@ -1,17 +1,14 @@
-﻿using MediatR;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using System.IO;
-using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
-using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
-using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -49,12 +46,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             builder.Services.AddOptions();
 
-            // MediatR configuration
-            builder.Services.AddMediatR(typeof(GetEmploymentCheckQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetNiNumberQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(CreateEmploymentCheckCacheRequestCommand).Assembly);
-
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountApiConfiguration>>().Value);
@@ -80,6 +71,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
             builder.Services
+                .AddCommandServices()
+                .AddQueryServices()
                 .AddApprenticeshipLevyApiClient()
                 .AddHashingService()
                 .AddEmploymentCheckService(config["EnvironmentName"])

@@ -11,8 +11,12 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.EmploymentCheck.Queries;
+using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
@@ -56,6 +60,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IEmploymentCheckCacheRequestRepository))]
         [TestCase(typeof(IHashingService))]
         [TestCase(typeof(ITokenServiceApiClient))]
+        [TestCase(typeof(ICommandDispatcher))]
+        [TestCase(typeof(ICommandHandler<CreateEmploymentCheckCacheRequestCommand>))]
+        [TestCase(typeof(IQueryDispatcher))]
+        [TestCase(typeof(IQueryHandler<GetNiNumberQueryRequest, GetNiNumberQueryResult>))]
         public void Then_The_Dependencies_Are_Correctly_Resolved(Type toResolve)
         {
             // Act
@@ -84,11 +92,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .Create();
             serviceCollection.AddSingleton(accountsApiSettings);
 
-            serviceCollection.AddEmploymentCheckService("PROD");
-            serviceCollection.AddPersistenceServices();
-            serviceCollection.AddNLog();
-            serviceCollection.AddApprenticeshipLevyApiClient();
-            serviceCollection.AddHashingService();
+            serviceCollection.AddEmploymentCheckService("PROD")
+                .AddPersistenceServices()
+                .AddNLog()
+                .AddApprenticeshipLevyApiClient()
+                .AddHashingService()
+                .AddCommandServices()
+                .AddQueryServices()
+                ;
         }
     }
 }

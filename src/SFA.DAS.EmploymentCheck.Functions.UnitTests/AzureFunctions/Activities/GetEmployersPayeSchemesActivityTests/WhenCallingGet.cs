@@ -1,24 +1,24 @@
-﻿using AutoFixture;
-using MediatR;
+﻿using System.Threading;
+using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using System.Threading;
+using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
 {
     public class WhenCallingGet
     {
         private Fixture _fixture;
-        private Mock<IMediator> _mediator;
+        private Mock<IQueryDispatcher> _dispatcher;
         private Data.Models.EmploymentCheck _employmentCheck;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _mediator = new Mock<IMediator>();
+            _dispatcher = new Mock<IQueryDispatcher>();
             _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
@@ -26,11 +26,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetE
         public void Then_The_EmployerPayeSchemes_Are_Returned()
         {
             // Arrange
-            var sut = new GetEmployerPayeSchemesActivity(_mediator.Object);
+            var sut = new GetEmployerPayeSchemesActivity(_dispatcher.Object);
             var employersPayeSchemes = _fixture.Create<GetPayeSchemesQueryResult>();
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
+            _dispatcher
+                .Setup(x => x.Send<GetPayeSchemesQueryRequest, GetPayeSchemesQueryResult>(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(employersPayeSchemes);
 
             // Act

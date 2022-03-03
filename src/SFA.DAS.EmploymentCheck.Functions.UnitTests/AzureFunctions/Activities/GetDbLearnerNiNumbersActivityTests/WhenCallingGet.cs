@@ -1,28 +1,24 @@
 ﻿using AutoFixture;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using System.Linq;
-using System.Threading;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber;
+using System.Threading;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetDbLearnerNiNumbersActivityTests
 {
     public class WhenCallingGet
     {
-        Fixture _fixture;
-        private Mock<ILogger<GetDbLearnerNiNumberActivity>> _logger;
-        private Mock<IMediator> _mediator;
+        private Fixture _fixture;
+        private Mock<IQueryDispatcher> _dispatcher;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _logger = new Mock<ILogger<GetDbLearnerNiNumberActivity>>();
-            _mediator = new Mock<IMediator>();
+            _dispatcher = new Mock<IQueryDispatcher>();
         }
 
         [Test]
@@ -31,11 +27,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Arrange
             var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
             var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
-            var sut = new GetDbLearnerNiNumberActivity(_mediator.Object);
+            var sut = new GetDbLearnerNiNumberActivity(_dispatcher.Object);
             var queryResult = new GetDbNiNumberQueryResult(learnerNiNumber);
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetDbNiNumberQueryRequest>(), CancellationToken.None))
+            _dispatcher
+                .Setup(x => x.Send<GetDbNiNumberQueryRequest, GetDbNiNumberQueryResult>(It.IsAny<GetDbNiNumberQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
             // Act
@@ -51,11 +47,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             // Arrange
             var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
-            var sut = new GetDbLearnerNiNumberActivity(_mediator.Object);
+            var sut = new GetDbLearnerNiNumberActivity(_dispatcher.Object);
             var queryResult = new GetDbNiNumberQueryResult(null);
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetDbNiNumberQueryRequest>(), CancellationToken.None))
+            _dispatcher
+                .Setup(x => x.Send<GetDbNiNumberQueryRequest, GetDbNiNumberQueryResult>(It.IsAny<GetDbNiNumberQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
             // Act
