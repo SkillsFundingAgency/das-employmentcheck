@@ -41,15 +41,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Infrastructure", "SFA.DAS.EmploymentCheck.Infrastructure\SFA.DAS.EmploymentCheck.Infrastructure.csproj", "{C9508318-E575-440A-A798-0FF6241D3A20}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Api.Tests", "SFA.DAS.EmploymentCheck.Api.Tests\SFA.DAS.EmploymentCheck.Api.Tests.csproj", "{52389C44-62CC-40C7-B97C-81895AC02EDC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Application.UnitTests", "SFA.DAS.EmploymentCheck.Application.UnitTests\SFA.DAS.EmploymentCheck.Application.UnitTests.csproj", "{B793C324-497C-44A2-AECB-C26443966F65}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Commands.UnitTests", "SFA.DAS.EmploymentCheck.Commands.UnitTests\SFA.DAS.EmploymentCheck.Commands.UnitTests.csproj", "{5C523332-9FF0-465B-A0E6-605988138AA9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Queries.UnitTests", "SFA.DAS.EmploymentCheck.Queries.UnitTests\SFA.DAS.EmploymentCheck.Queries.UnitTests.csproj", "{D4190D2B-261C-4059-8896-8BF6BEEBA4D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Data.UnitTests", "SFA.DAS.EmploymentCheck.Data.UnitTests\SFA.DAS.EmploymentCheck.Data.UnitTests.csproj", "{9AC153F1-7867-45CD-AE13-F678759259F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Data.UnitTests", "SFA.DAS.EmploymentCheck.Data.UnitTests\SFA.DAS.EmploymentCheck.Data.UnitTests.csproj", "{9AC153F1-7867-45CD-AE13-F678759259F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Api.UnitTests", "SFA.DAS.EmploymentCheck.Api.UnitTests\SFA.DAS.EmploymentCheck.Api.UnitTests.csproj", "{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Api.IntegrationTests", "SFA.DAS.EmploymentCheck.Api.IntegrationTests\SFA.DAS.EmploymentCheck.Api.IntegrationTests.csproj", "{51831FB0-BDB8-480E-B10B-19DA5279D1A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,10 +117,6 @@ Global
 		{C9508318-E575-440A-A798-0FF6241D3A20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9508318-E575-440A-A798-0FF6241D3A20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9508318-E575-440A-A798-0FF6241D3A20}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52389C44-62CC-40C7-B97C-81895AC02EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52389C44-62CC-40C7-B97C-81895AC02EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52389C44-62CC-40C7-B97C-81895AC02EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52389C44-62CC-40C7-B97C-81895AC02EDC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B793C324-497C-44A2-AECB-C26443966F65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B793C324-497C-44A2-AECB-C26443966F65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B793C324-497C-44A2-AECB-C26443966F65}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -135,6 +133,14 @@ Global
 		{9AC153F1-7867-45CD-AE13-F678759259F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AC153F1-7867-45CD-AE13-F678759259F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AC153F1-7867-45CD-AE13-F678759259F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,11 +158,12 @@ Global
 		{76EE72C9-BA25-4AF2-A1F6-B082132137B9} = {3B0EEC17-FB0C-4542-B0DC-3FE4B5D099CB}
 		{49C02559-6E71-4E29-A858-BC7323D36F03} = {D32A3575-5FBE-4E5F-AA4E-DBC9E07D978C}
 		{C9508318-E575-440A-A798-0FF6241D3A20} = {A96249E4-43B2-499A-B168-85E60E3E02EA}
-		{52389C44-62CC-40C7-B97C-81895AC02EDC} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{B793C324-497C-44A2-AECB-C26443966F65} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{5C523332-9FF0-465B-A0E6-605988138AA9} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{D4190D2B-261C-4059-8896-8BF6BEEBA4D7} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{9AC153F1-7867-45CD-AE13-F678759259F2} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{3F24A86D-32D9-4F9A-9D12-A324CD7BD890} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{51831FB0-BDB8-480E-B10B-19DA5279D1A8} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {281C331D-5A42-42E4-AA0A-E82FB88EA18C}

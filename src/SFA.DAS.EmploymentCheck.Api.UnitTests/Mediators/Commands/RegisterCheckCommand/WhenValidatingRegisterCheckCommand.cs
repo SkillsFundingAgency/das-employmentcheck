@@ -4,7 +4,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckCommand
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Mediators.Commands.RegisterCheckCommand
 {
     public class WhenValidatingRegisterCheckCommand
     {

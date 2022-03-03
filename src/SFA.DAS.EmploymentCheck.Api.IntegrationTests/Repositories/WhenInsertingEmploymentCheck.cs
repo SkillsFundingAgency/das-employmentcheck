@@ -6,7 +6,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Repositories;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Repositories
+namespace SFA.DAS.EmploymentCheck.Api.IntegrationTests.Repositories
 {
     public class WhenInsertingEmploymentCheck : RepositoryTestBase
     {

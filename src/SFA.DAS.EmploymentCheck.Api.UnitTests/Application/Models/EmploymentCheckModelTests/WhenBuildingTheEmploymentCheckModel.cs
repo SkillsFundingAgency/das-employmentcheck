@@ -2,7 +2,7 @@
 using AutoFixture;
 using NUnit.Framework;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Application.Models.EmploymentCheckModelTests
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Application.Models.EmploymentCheckModelTests
 {
     public class WhenBuildingTheEmploymentCheckModel
     {

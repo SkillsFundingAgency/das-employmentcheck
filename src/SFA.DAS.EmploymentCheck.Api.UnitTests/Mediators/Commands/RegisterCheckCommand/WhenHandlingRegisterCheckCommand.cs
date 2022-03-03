@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -7,7 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Api.Application.Services;
 using SFA.DAS.EmploymentCheck.Api.Mediators.Commands.RegisterCheckCommand;
 
-namespace SFA.DAS.EmploymentCheck.Api.Tests.Mediators.Commands.RegisterCheckCommand
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Mediators.Commands.RegisterCheckCommand
 {
     public class WhenHandlingRegisterCheckCommand
     {

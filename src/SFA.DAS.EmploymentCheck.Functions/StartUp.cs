@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using System.IO;
+using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
@@ -52,6 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddMediatR(typeof(GetEmploymentCheckQueryRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetNiNumberQueryRequest).Assembly);
             builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
+            builder.Services.AddMediatR(typeof(CreateEmploymentCheckCacheRequestCommand).Assembly);
 
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
