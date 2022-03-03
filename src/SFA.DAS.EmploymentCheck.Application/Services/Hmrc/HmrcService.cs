@@ -87,10 +87,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             return request;
         }
 
-
         private bool AccessTokenHasExpired()
         {
-            var expired = _cachedToken.ExpiryTime < DateTime.Now;
+            var expired = _cachedToken.ExpiryTime < DateTime.UtcNow;
             if (expired) _logger.LogInformation($"[{nameof(HmrcService)}] Access Token has expired, retrieving a new token.");
             return expired;
         }
@@ -123,6 +122,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                 var policy =  await _retryPolicies.GetTokenRetrievalRetryPolicy();
                 await policy.ExecuteAsync(async () =>
                 {
+                    _logger.LogInformation($"{nameof(HmrcService)}: Refreshing access token...");
                     _cachedToken = await _tokenService.GetPrivilegedAccessTokenAsync();
                 });
             }
