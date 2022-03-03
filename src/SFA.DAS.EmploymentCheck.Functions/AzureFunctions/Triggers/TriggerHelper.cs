@@ -106,8 +106,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             string instancePrefix
         )
         {
-            var existingInstances =
-                await triggerHelper.GetRunningInstances(triggerName, instancePrefix, starter, log);
+            var hyphenPosition = instancePrefix.IndexOf('-');
+            var instancePrefixWithoutGuid = instancePrefix.Substring(0, hyphenPosition);
+            var existingInstances = await triggerHelper.GetRunningInstances(triggerName, instancePrefixWithoutGuid, starter, log);
 
             if (existingInstances != null && existingInstances.DurableOrchestrationState.Any())
             {
