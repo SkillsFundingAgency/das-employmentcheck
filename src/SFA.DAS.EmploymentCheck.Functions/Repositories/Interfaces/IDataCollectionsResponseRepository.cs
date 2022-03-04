@@ -10,5 +10,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
         Task Save(DataCollectionsResponse response);
 
         Task<DataCollectionsResponse> Get(DataCollectionsResponse response);
+
+        Task<DataCollectionsResponse> GetByEmploymentCheckId(long apprenticeEmploymentCheckId);
     }
 }

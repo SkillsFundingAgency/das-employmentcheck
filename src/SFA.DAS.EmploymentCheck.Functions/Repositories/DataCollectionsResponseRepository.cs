@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Dapper;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,8 @@ using SFA.DAS.EmploymentCheck.Functions.Application.Helpers;
 using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.Configuration;
 using System;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.Repositories
@@ -94,6 +97,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.Repositories
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
             return await sqlConnection.GetAsync<DataCollectionsResponse>(response.ApprenticeEmploymentCheckId);
+        }
+
+        public async Task<DataCollectionsResponse> GetByEmploymentCheckId(long apprenticeEmploymentCheckId)
+        {
+            DataCollectionsResponse response = null;
+            var dbConnection = new DbConnection();
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _connectionString,
+                _azureServiceTokenProvider)
+            )
+            {
+                await sqlConnection.OpenAsync();
+
+                var parameter = new DynamicParameters();
+                parameter.Add("@ApprenticeEmploymentCheckId", apprenticeEmploymentCheckId, DbType.Int64);
+
+                response = (await sqlConnection.QueryAsync<DataCollectionsResponse>(
+                    sql: "SELECT    TOP(1) * " +
+                         "FROM      [Cache].[DataCollectionsResponse] " +
+                         "WHERE     ApprenticeEmploymentCheckId = @ApprenticeEmploymentCheckId " +
+                         "ORDER BY  CreatedOn DESC ",
+                    parameter,
+                    commandType: CommandType.Text)).FirstOrDefault();
+            }
+
+            return response;
         }
     }
 }

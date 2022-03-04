@@ -11,30 +11,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.Application.Models
     {
         public EmploymentCheckCacheRequest() { }
 
-        public EmploymentCheckCacheRequest(
-            long id,
-            long apprenticeshipId,
-            Guid correlationId,
-            string nino,
-            string payeScheme,
-            DateTime minDate,
-            DateTime maxDate,
-            bool? employed,
-            short requestCompletionStatus
-        )
-        {
-            Id = id;
-            ApprenticeEmploymentCheckId = apprenticeshipId;
-            CorrelationId = correlationId;
-            Nino = nino;
-            PayeScheme = payeScheme;
-            MinDate = minDate;
-            MaxDate = maxDate;
-            Employed = employed;
-            RequestCompletionStatus = requestCompletionStatus;
-            CreatedOn = DateTime.Now;
-        }
-
         [Key]
         public long Id { get; set; }
 
