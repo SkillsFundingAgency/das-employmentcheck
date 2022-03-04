@@ -81,18 +81,23 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
         private static void PublishModel()
         {
             var dbPackage = DacPackage.Load(_dacpacFileLocation);
-            var services = new DacServices(ConnectionString);
 
-            var policy = Policy
-                .Handle<DacServicesException>()
-                .WaitAndRetry(Enumerable.Repeat(TimeSpan.FromMilliseconds(250), 40));
-
-            policy.Execute(() =>
+            using (dbPackage)
             {
-                Console.WriteLine($"[{nameof(SqlDatabaseModel)}] {nameof(PublishModel)} attempted");
-                var options = new DacDeployOptions() { BlockOnPossibleDataLoss = false };
-                services.Deploy(dbPackage, "model", upgradeExisting: true, options);
-            });
+
+                var services = new DacServices(ConnectionString);
+
+                var policy = Policy
+                    .Handle<DacServicesException>()
+                    .WaitAndRetry(Enumerable.Repeat(TimeSpan.FromMilliseconds(250), 40));
+
+                policy.Execute(() =>
+                {
+                    Console.WriteLine($"[{nameof(SqlDatabaseModel)}] {nameof(PublishModel)} attempted");
+                    var options = new DacDeployOptions() { BlockOnPossibleDataLoss = false };
+                    services.Deploy(dbPackage, "model", upgradeExisting: true, options);
+                });
+            }
         }
     }
 }
