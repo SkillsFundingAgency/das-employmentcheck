@@ -16,8 +16,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         private readonly string _processRequestsOrchestratorTriggerName;
 
         private readonly string _orchestratorHttpTriggerNameSuffix = "HttpTrigger";
-        private readonly string _createRequestsOrchestratorInstancePrefix = $"CreateEmploymentCheck-{Guid.NewGuid()}";
-        private readonly string _processRequestsOrchestratorInstancePrefix = $"ProcessEmploymentCheck-{Guid.NewGuid()}";
+        private readonly string _createRequestsOrchestratorInstancePrefix = "CreateEmploymentCheck-";
+        private readonly string _processRequestsOrchestratorInstancePrefix = "ProcessEmploymentCheck-";
 
         public TriggerHelper() { }
 
@@ -106,9 +106,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             string instancePrefix
         )
         {
-            var hyphenPosition = instancePrefix.IndexOf('-');
-            var instancePrefixWithoutGuid = instancePrefix.Substring(0, hyphenPosition);
-            var existingInstances = await triggerHelper.GetRunningInstances(triggerName, instancePrefixWithoutGuid, starter, log);
+            var existingInstances = await triggerHelper.GetRunningInstances(triggerName, instancePrefix, starter, log);
 
             if (existingInstances != null && existingInstances.DurableOrchestrationState.Any())
             {
@@ -118,7 +116,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             }
 
             log.LogInformation($"Triggering {orchestratorName}");
-            var instanceId = await starter.StartNewAsync(orchestratorName, instancePrefix);
+            var instanceId = await starter.StartNewAsync(orchestratorName, $"{instancePrefix}{Guid.NewGuid()}");
             if(string.IsNullOrEmpty(instanceId))
             {
                 var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occured starting [{orchestratorName}], no instance id was returned.") };
