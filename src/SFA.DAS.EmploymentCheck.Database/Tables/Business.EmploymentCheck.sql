@@ -9,6 +9,7 @@
 	[MaxDate] [datetime] NOT NULL,
 	[Employed] [bit] NULL,
 	[RequestCompletionStatus] [smallint] NULL,
+	[ErrorType] [nvarchar](50) NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[LastUpdatedOn] [datetime] NULL,
 	CONSTRAINT [PK_Business_EmploymentCheck] PRIMARY KEY CLUSTERED

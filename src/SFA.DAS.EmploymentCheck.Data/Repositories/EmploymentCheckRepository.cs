@@ -56,6 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                                 "[MaxDate], " +
                                 "[Employed], " +
                                 "[RequestCompletionStatus], " +
+                                "[ErrorType], " +
                                 "[CreatedOn], " +
                                 "[LastUpdatedOn] " +
                                 "FROM [Business].[EmploymentCheck] AEC " +
