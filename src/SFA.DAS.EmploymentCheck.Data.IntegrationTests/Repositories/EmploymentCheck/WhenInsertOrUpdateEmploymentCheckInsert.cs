@@ -20,11 +20,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task CanInsert()
         {
             // Arrange
+            var errorType = "NinoNotFound";
             _sut = new EmploymentCheckRepository(Settings, Mock.Of<ILogger<EmploymentCheckRepository>>());
             var expected = Fixture.Build<Models.EmploymentCheck>()
-                .Without(x => x.Id)
-                .Without(x => x.LastUpdatedOn)
-                .Create();
+               .With(x => x.ErrorType, errorType)
+               .Without(x => x.Id)
+               .Without(x => x.LastUpdatedOn)
+               .Create();
 
             // Act
             await _sut.InsertOrUpdate(expected);
@@ -46,6 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             _actual.MinDate.Should().BeCloseTo(expected.MinDate, TimeSpan.FromSeconds(1));
             _actual.MaxDate.Should().BeCloseTo(expected.MaxDate, TimeSpan.FromSeconds(1));
             _actual.Id.Should().BeGreaterThan(0);
+            _actual.ErrorType.Should().Be(errorType);
         }
 
         [TearDown]
