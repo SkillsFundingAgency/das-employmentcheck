@@ -13,6 +13,7 @@ using SFA.DAS.HashingService;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Clients.Learner;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
@@ -48,6 +49,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
             serviceCollection.AddTransient<ILearnerService, LearnerService>();
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
+
+           
+            serviceCollection.AddTransient<IEmployerAccountApiClient<EmployerAccountApiConfiguration>, EmployerAccountApiClient>();
+
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
 

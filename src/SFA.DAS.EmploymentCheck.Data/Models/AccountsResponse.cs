@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dapper.Contrib.Extensions;
 
 namespace SFA.DAS.EmploymentCheck.Data.Models
@@ -48,5 +49,35 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         public DateTime CreatedOn { get; set; }
 
         public DateTime? LastUpdatedOn { get; set; }
+
+        public static AccountsResponse CreateResponse(long employmentCheckId, Guid correlationId, long accountId, string httpResponse, short statusCode)
+        {
+            return new AccountsResponse
+            {
+                ApprenticeEmploymentCheckId = employmentCheckId,
+                CorrelationId = correlationId,
+                AccountId = accountId,
+                HttpResponse = $"{httpResponse[Range.EndAt(Math.Min(8000, httpResponse.Length))]}",
+                HttpStatusCode = statusCode,
+                LastUpdatedOn = DateTime.Now
+            };
+        }
+
+        public static AccountsResponse CreateErrorResponse(long employmentCheckId, Guid correlationId, long accountId)
+        {
+            return new AccountsResponse
+            {
+                ApprenticeEmploymentCheckId = employmentCheckId,
+                CorrelationId = correlationId,
+                AccountId = accountId,
+                HttpStatusCode = (short)System.Net.HttpStatusCode.InternalServerError,
+                LastUpdatedOn = DateTime.Now
+            };
+        }
+
+        public void SetPayeSchemes(IList<string> payeSchemes)
+        {
+           PayeSchemes = string.Join(',', payeSchemes);
+        }
     }
 }
