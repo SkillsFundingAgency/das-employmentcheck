@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
-    public class EmployerAccountApiClient : GetApiClient<EmployerAccountApiConfiguration>
+    public class EmployerAccountApiClient : GetApiClient<EmployerAccountApiConfiguration>, IEmployerAccountApiClient<EmployerAccountApiConfiguration>
     {
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;

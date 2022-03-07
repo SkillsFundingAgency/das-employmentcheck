@@ -47,13 +47,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            
+            serviceCollection.AddTransient<IDataCollectionsApiClient<DataCollectionsApiConfiguration>, DataCollectionsApiClient>();
             serviceCollection.AddTransient<ILearnerService, LearnerService>();
+            
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
-           
             serviceCollection.AddTransient<IEmployerAccountApiClient<EmployerAccountApiConfiguration>, EmployerAccountApiClient>();
-
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
+            
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
 
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))

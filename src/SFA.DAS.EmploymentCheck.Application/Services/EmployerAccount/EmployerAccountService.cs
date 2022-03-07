@@ -8,6 +8,7 @@ using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.HashingService;
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -35,13 +36,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
         public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Data.Models.EmploymentCheck employmentCheck)
         {
-            var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
-            var request = new GetAccountPayeSchemesRequest(hashedAccountId);
-
             try
             {
+                var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
+                var request = new GetAccountPayeSchemesRequest(hashedAccountId);
                 var response = await _apiClient.Get(request);
-                return await GetPayeSchemesFromApiResponse(employmentCheck, response);
+                return await ProcessPayeSchemesFromApiResponse(employmentCheck, response);
             }
             catch (Exception ex)
             {
@@ -50,58 +50,48 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             }
         }
 
-        private async Task<EmployerPayeSchemes> GetPayeSchemesFromApiResponse(
-            Data.Models.EmploymentCheck employmentCheck,
-            HttpResponseMessage httpResponseMessage
-        )
+        private async Task<EmployerPayeSchemes> ProcessPayeSchemesFromApiResponse(Data.Models.EmploymentCheck employmentCheck, HttpResponseMessage httpResponseMessage)
         {
             Guard.Against.Null(employmentCheck, nameof(employmentCheck));
 
             if (httpResponseMessage == null)
             {
-                await Save(CreateInternalServerErrorResponseModel(employmentCheck));
+                await Save(CreateResponseModel(employmentCheck));
                 return new EmployerPayeSchemes();
             }
 
-            var accountsResponse = CreateResponseModel(employmentCheck, httpResponseMessage);
+            var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
           
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
-                await Save(accountsResponse);
+                await Save(response);
                 return new EmployerPayeSchemes();
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var employerPayeSchemes = DeserialiseContent(jsonContent, accountsResponse);
+            var employerPayeSchemes = DeserialiseContent(jsonContent, response);
 
-            accountsResponse.SetPayeSchemes(employerPayeSchemes.PayeSchemes);
+            response.SetPayeSchemes(employerPayeSchemes.PayeSchemes);
 
-            await Save(accountsResponse);
+            await Save(response);
 
             return employerPayeSchemes;
         }
 
-        private static AccountsResponse CreateResponseModel(Data.Models.EmploymentCheck employmentCheck, HttpResponseMessage httpResponseMessage)
+        private static AccountsResponse CreateResponseModel(Data.Models.EmploymentCheck employmentCheck, string httpResponseMessage = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         {
             return AccountsResponse.CreateResponse(
                 employmentCheck.Id,
                 employmentCheck.CorrelationId,
                 employmentCheck.AccountId,
-                httpResponseMessage.ToString(),
-                (short)httpResponseMessage.StatusCode);
-        }
-
-        private static AccountsResponse CreateInternalServerErrorResponseModel(Data.Models.EmploymentCheck employmentCheck)
-        {
-            return AccountsResponse.CreateErrorResponse(
-                employmentCheck.Id,
-                employmentCheck.CorrelationId,
-                employmentCheck.AccountId);
+                httpResponseMessage,
+                (short)statusCode);
         }
 
         private static EmployerPayeSchemes DeserialiseContent(string jsonContent, AccountsResponse accountsResponse)
         {
             Guard.Against.Null(accountsResponse, nameof(accountsResponse));
+
             if (!string.IsNullOrEmpty(jsonContent))
             {
                 var resourceList = JsonConvert.DeserializeObject<ResourceList>(jsonContent);
@@ -116,8 +106,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
-            var accountsResponse = CreateInternalServerErrorResponseModel(employmentCheck);
-            accountsResponse.HttpResponse = e.Message;
+            var accountsResponse = CreateResponseModel(employmentCheck, e.Message);
            
             await Save(accountsResponse);
         }
@@ -126,7 +115,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
         {
             if (accountsResponse == null)
             {
-                _logger.LogError("LearnerService.Save(): ERROR: The accountsResponse model is null.");
+                _logger.LogError($"{nameof(EmployerAccountService)}.Save: ERROR: The accountsResponse model is null.");
                 return;
             }
 

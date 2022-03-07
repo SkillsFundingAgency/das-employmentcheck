@@ -87,10 +87,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .Create();
             serviceCollection.AddSingleton<IOptions<HmrcApiConfiguration>>(new OptionsWrapper<HmrcApiConfiguration>(hmrcApiSettings));
             
-            var accountsApiSettings = _fixture.Build<EmployerAccountApiConfiguration>()
+            var apiConfiguration = _fixture.Build<EmployerAccountApiConfiguration>()
                 .With(x => x.Url, "https://hostname.co")
                 .Create();
-            serviceCollection.AddSingleton(accountsApiSettings);
+            serviceCollection.AddSingleton(apiConfiguration);
+
+            var dataCollectionsApiConfiguration = _fixture.Build<DataCollectionsApiConfiguration>()
+                .With(x => x.Url, "https://hostname.co")
+                .Create();
+            serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
 
             serviceCollection.AddEmploymentCheckService("PROD")
                 .AddPersistenceServices()
