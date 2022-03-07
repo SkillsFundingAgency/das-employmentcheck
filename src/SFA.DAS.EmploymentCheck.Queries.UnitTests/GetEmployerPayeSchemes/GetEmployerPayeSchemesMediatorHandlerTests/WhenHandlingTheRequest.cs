@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
         {
             // Arrange
             var request = new GetPayeSchemesQueryRequest(_employmentCheck);
-            var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
+            var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" }, System.Net.HttpStatusCode.OK);
 
             _employerAccountClient
                 .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))

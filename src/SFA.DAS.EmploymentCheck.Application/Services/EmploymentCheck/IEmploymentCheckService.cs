@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
@@ -11,6 +12,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
         Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
+
+        Task StoreCompletedCheck(Models.EmploymentCheck employmentCheck);
 
         Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response);
 

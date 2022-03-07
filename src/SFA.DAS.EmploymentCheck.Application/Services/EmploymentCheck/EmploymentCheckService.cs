@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
@@ -60,6 +62,16 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             {
                 await _unitOfWork.RollbackAsync();
                 throw;
+            }
+        }
+
+        public async Task StoreCompletedCheck(Models.EmploymentCheck employmentCheck)
+        {
+            if(employmentCheck.Id > 0)
+            {
+                employmentCheck.LastUpdatedOn = DateTime.Now;
+                employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+                await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
             }
         }
 

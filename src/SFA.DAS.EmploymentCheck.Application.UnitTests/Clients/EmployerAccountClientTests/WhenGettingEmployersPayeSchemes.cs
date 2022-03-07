@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -47,8 +48,17 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmployerAccountC
         public async Task And_The_EmployerAccountService_Returns_Paye_Scheme_Then_It_Is_Returned_Uppercased()
         {
             // Arrange
-            var input = _fixture.Build<EmployerPayeSchemes>().With(p => p.EmployerAccountId, 1).With(p => p.PayeSchemes, new List<string> { "paye" }).Create();
-            var expected = _fixture.Build<EmployerPayeSchemes>().With(p => p.EmployerAccountId, 1).With(p => p.PayeSchemes, new List<string> { "PAYE" }).Create();
+            var input = _fixture.Build<EmployerPayeSchemes>()
+                .With(p => p.EmployerAccountId, 1)
+                .With(p => p.PayeSchemes, new List<string> { "paye" })
+                .With(p => p.HttpStatusCode, HttpStatusCode.OK)
+                .Create();
+
+            var expected = _fixture.Build<EmployerPayeSchemes>()
+                .With(p => p.EmployerAccountId, 1)
+                .With(p => p.PayeSchemes, new List<string> { "PAYE" })
+                .With(p => p.HttpStatusCode, HttpStatusCode.OK)
+                .Create();
 
             _employerAccountService
                 .Setup(x => x.GetEmployerPayeSchemes(_employmentCheck))

@@ -9,9 +9,9 @@ using SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
 {
-    public class WhenCreateEmploymentCheckCacheCommand
+    public class WhenStoreCompletedEmploymentCheckCacheCommand
     {
-        private CreateEmploymentCheckCacheRequestCommandHandler _sut;
+        private StoreCompletedEmploymentCheckCommandHandler _sut;
         private Mock<IEmploymentCheckService> _serviceMock;
         private Fixture _fixture;
 
@@ -20,20 +20,20 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
         {
             _fixture = new Fixture();
             _serviceMock = new Mock<IEmploymentCheckService>();
-            _sut = new CreateEmploymentCheckCacheRequestCommandHandler(_serviceMock.Object);
+            _sut = new StoreCompletedEmploymentCheckCommandHandler(_serviceMock.Object);
         }
 
         [Test]
         public async Task Then_Service_is_called()
         {
             // Arrange
-            var request = _fixture.Create<CreateEmploymentCheckCacheRequestCommand>();
+            var cmd = _fixture.Create<StoreCompletedEmploymentCheckCommand>();
 
             // Act
-            await _sut.Handle(request, CancellationToken.None);
+            await _sut.Handle(cmd, CancellationToken.None);
 
             // Assert
-            _serviceMock.Verify(s => s.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData), Times.Once);
+            _serviceMock.Verify(s => s.StoreCompletedCheck(cmd.EmploymentCheck), Times.Once);
         }
     }
 }

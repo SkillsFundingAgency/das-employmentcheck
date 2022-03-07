@@ -78,6 +78,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             {
                 var response = await _httpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
                 employerPayeSchemes = await GetPayeSchemesFromApiResponse(employmentCheck, response);
+                employerPayeSchemes.HttpStatusCode = response.StatusCode;
             }
             catch (Exception e)
             {
@@ -167,7 +168,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 return await Task.FromResult(new EmployerPayeSchemes());
             }
 
-            var employerPayeSchemes = new EmployerPayeSchemes(accountsResponse.AccountId, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList());
+            var employerPayeSchemes = new EmployerPayeSchemes(accountsResponse.AccountId, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList(), (HttpStatusCode)accountsResponse.HttpStatusCode);
             var allEmployerPayeSchemes = new StringBuilder();
             foreach (var payeScheme in employerPayeSchemes.PayeSchemes)
             {

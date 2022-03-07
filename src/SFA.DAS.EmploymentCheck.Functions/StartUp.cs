@@ -12,6 +12,7 @@ using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
