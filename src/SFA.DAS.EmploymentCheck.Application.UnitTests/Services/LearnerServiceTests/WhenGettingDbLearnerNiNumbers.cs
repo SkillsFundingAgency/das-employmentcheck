@@ -37,11 +37,13 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         {
             // Arrange
             var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
-            var dataCollectionsResponse = _fixture.Create<DataCollectionsResponse>();
+            var dataCollectionsResponse = _fixture.Build<DataCollectionsResponse>()
+                .With(_ => _.Uln, employmentCheck.Uln)
+                .Create();
             var learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = dataCollectionsResponse.NiNumber };
 
             _repositoryMock
-                .Setup(r => r.GetByEmploymentCheckId(It.Is<long>(x => x == employmentCheck.Uln)))
+                .Setup(r => r.GetByEmploymentCheckId(It.Is<long>(x => x == employmentCheck.Id)))
                 .ReturnsAsync(dataCollectionsResponse);
 
             // Act
