@@ -59,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
                             CreatedOn = now
                         };
 
-                        var checkId = await _dataAccess.Insert(check);
+                        await _dataAccess.Insert(check);
                         Console.WriteLine($"[{i}] Added EmploymentChecks record");
                     }
                 }
@@ -70,9 +70,7 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
                 Console.WriteLine(e);
             }
         }
-
-        private static string GetNullableValue(string value) => value == "<null>" ? null : value;
-
+        
         private static void ReadSettings()
         {
             _csvDataFile = Path.Combine(Directory.GetCurrentDirectory(), "Files\\testdata.csv");
