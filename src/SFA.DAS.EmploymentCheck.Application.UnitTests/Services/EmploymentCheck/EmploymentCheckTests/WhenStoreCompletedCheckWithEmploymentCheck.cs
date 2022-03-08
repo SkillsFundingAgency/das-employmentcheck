@@ -10,6 +10,7 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using Models = SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck.EmploymentCheckTests
 {
@@ -38,16 +39,20 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
         }
 
         [Test]
-        public async Task Then_Check_is_Stored()
+        public async Task Then_The_EmploymentCheck_is_Stored()
         {
             // Arrange
             var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+
+            _employmentCheckRepositoryMock.Setup(r => r.InsertOrUpdate(employmentCheck))
+                .Returns(Task.FromResult(0));
 
             // Act
             await _sut.StoreCompletedCheck(employmentCheck);
 
             // Assert
-            _employmentCheckRepositoryMock.Verify(x => x.InsertOrUpdate(employmentCheck), Times.Once);
+            _employmentCheckRepositoryMock.Verify(r => r.InsertOrUpdate(employmentCheck), Times.Once);
+            Assert.AreEqual(employmentCheck.RequestCompletionStatus, (short)ProcessingCompletionStatus.Completed);
         }
     }
 }

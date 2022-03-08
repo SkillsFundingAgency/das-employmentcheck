@@ -134,15 +134,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
         public bool PayeSchemeValueValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, string PayeFailure, bool isValidPayeScheme, string existingError)
         {
-            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.OK)
+            if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.OK)
             {
-                if (employmentCheckData.EmployerPayeSchemes.PayeSchemes == null || !employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
+                if (!employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
                 {
                     employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
                     isValidPayeScheme = false;
                 }
             }
-            else if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
+            else if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.NotFound)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
                 isValidPayeScheme = false;

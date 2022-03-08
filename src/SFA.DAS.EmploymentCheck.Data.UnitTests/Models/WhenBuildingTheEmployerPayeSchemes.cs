@@ -25,7 +25,9 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             var result = new EmployerPayeSchemes(expected.EmployerAccountId, expected.PayeSchemes, expected.HttpStatusCode);
 
             // Assert
-            result.Should().BeEquivalentTo(expected);
+            result.EmployerAccountId.Should().Be(expected.EmployerAccountId);
+            result.PayeSchemes.Should().BeEquivalentTo(expected.PayeSchemes);
+            result.HttpStatusCode.Should().Be(expected.HttpStatusCode);
         }
     }
 }

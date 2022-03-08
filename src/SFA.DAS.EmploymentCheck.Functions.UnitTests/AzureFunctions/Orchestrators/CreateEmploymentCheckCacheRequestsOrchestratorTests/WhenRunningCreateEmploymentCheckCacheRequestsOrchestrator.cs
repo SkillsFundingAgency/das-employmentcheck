@@ -55,6 +55,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
+        public async Task When_The_CreateCashRequestActivity_Is_Called_And_An_Exception_Is_Returned()
+        {
+            // Arrange
+            var exception = new Exception("An error occurred");
+
+               _context
+                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(_checkActivityName, null))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
+
+            // Assert
+            _context.Verify(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(_checkActivityName, null), Times.Once);
+        }
+
+        [Test]
         public async Task When_There_Is_An_EmploymentCheck_The_GetLearnerNiActivity_IsCalled()
         {
             // Arrange
@@ -94,6 +111,165 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 
             // Assert
             _context.Verify(a => a.CallActivityAsync<EmployerPayeSchemes>(_payeActivityName, _employmentCheck), Times.Once);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Valid_IndividualPayeSchemeValidation_Returns_True()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            var payeScheme = _fixture.Create<EmployerPayeSchemes>();
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.IndividualPayeSchemeValidation(employmentCheckData, PayeNotFound, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(true);
+            Assert.AreEqual(string.Empty, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Null_IndividualPayeSchemeValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string> { "" } };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.IndividualPayeSchemeValidation(employmentCheckData, PayeNotFound, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(PayeNotFound, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Valid_PayeSchemeValueValidation_Returns_True()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            var payeScheme = _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.OK).Create();
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            string PayeFailure = "PAYEFailure";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(string.Empty, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Null_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = null;
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            string PayeFailure = "PAYEFailure";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(PayeFailure, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Empty_StatusOK_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.OK };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            string PayeFailure = "PAYEFailure";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(PayeNotFound, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Empty_StatusNotFound_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.NotFound };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            string PayeFailure = "PAYEFailure";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(PayeNotFound, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Empty_StatusNoContent_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.NoContent };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            string PayeNotFound = "PAYENotFound";
+            string PayeFailure = "PAYEFailure";
+            bool isValidPayeScheme = true;
+            string existingError = string.Empty;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(PayeFailure, employmentCheckData.EmploymentCheck.ErrorType);
         }
 
         [Test]
