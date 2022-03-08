@@ -52,14 +52,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
         public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Data.Models.EmploymentCheck employmentCheck)
         {
-            EmployerPayeSchemes payeSchemes = null;
-            if (employmentCheck != null && employmentCheck.Id != 0)
-            {
-                HttpRequestMessage httpRequestMessage = await SetupAccountsApiConfig(employmentCheck);
-                payeSchemes = await GetPayeSchemes(employmentCheck, httpRequestMessage).ConfigureAwait(false);
-            }
+            if (employmentCheck == null) throw new ArgumentException("employmentCheck input is null");
 
-            return payeSchemes ?? new EmployerPayeSchemes();
+            var httpRequestMessage = await SetupAccountsApiConfig(employmentCheck);
+            var payeSchemes = await GetPayeSchemes(employmentCheck, httpRequestMessage).ConfigureAwait(false);
+
+            return payeSchemes ?? new EmployerPayeSchemes(employmentCheck.AccountId);
         }
 
         private async Task<HttpRequestMessage> SetupAccountsApiConfig(Data.Models.EmploymentCheck employmentCheck)
@@ -84,7 +82,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 await HandleException(employmentCheck, e);
             }
 
-            return employerPayeSchemes ?? new EmployerPayeSchemes();
+            return employerPayeSchemes;
         }
 
         private async Task<EmployerPayeSchemes> GetPayeSchemesFromApiResponse(
@@ -98,7 +96,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (httpResponseMessage == null)
             {
                 await Save(accountsResponse);
-                return await Task.FromResult(new EmployerPayeSchemes());
+                return null;
             }
 
             accountsResponse.HttpResponse = httpResponseMessage.ToString();
@@ -107,13 +105,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(accountsResponse);
-                return await Task.FromResult(new EmployerPayeSchemes());
+                return null;
             }
 
             var jsonContent = await ReadResponseContent(httpResponseMessage, accountsResponse);
             var employerPayeSchemes = await DeserialiseContent(jsonContent, accountsResponse);
 
-            return employerPayeSchemes ?? new EmployerPayeSchemes();
+            return employerPayeSchemes;
         }
 
         private async Task<AccountsResponse> InitialiseAccountResponseModel(Data.Models.EmploymentCheck employmentCheck)
@@ -156,7 +154,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (string.IsNullOrEmpty(jsonContent))
             {
                 await Save(accountsResponse);
-                return await Task.FromResult(new EmployerPayeSchemes());
+                return null;
             }
 
 
@@ -164,7 +162,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (resourceList == null || !resourceList.Any())
             {
                 await Save(accountsResponse);
-                return await Task.FromResult(new EmployerPayeSchemes());
+                return null;
             }
 
             var employerPayeSchemes = new EmployerPayeSchemes(accountsResponse.AccountId, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList());

@@ -1,11 +1,11 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -25,26 +25,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask";
-            var checkActivityName = nameof(GetEmploymentCheckActivity);
-            var ninoActivityName = nameof(GetLearnerNiNumberActivity);
-            var payeActivityName = nameof(GetEmployerPayeSchemesActivity);
-            var requestActivityName = nameof(CreateEmploymentCheckCacheRequestActivity);
 
             try
             {
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"\n\n{thisMethodName}: Started.");
-
-
-                var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(checkActivityName, null);
+                var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null);
                 if (employmentCheck != null)
                 {
-                    var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(ninoActivityName, employmentCheck);
-                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(payeActivityName, employmentCheck);
+                    var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), employmentCheck);
+                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), employmentCheck);
+                    
                     await Task.WhenAll(learnerNiNumberTask, employerPayeSchemesTask);
 
                     var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumberTask.Result, employerPayeSchemesTask.Result);
-                    await context.CallActivityAsync(requestActivityName, employmentCheckData);
+                    
+                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), employmentCheckData);
+                }
+                else
+                {
+                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckActivity)} returned no results. Nothing to process.");
+
+                    // No data found so sleep for 10 seconds then execute the orchestrator again
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
             catch (Exception e)
@@ -53,9 +55,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
             finally
             {
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"{thisMethodName}: Completed.");
-
                 context.ContinueAsNew(null);
             }
         }

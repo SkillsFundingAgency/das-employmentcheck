@@ -29,27 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
         }
 
         [Test]
-        public async Task And_There_Are_No_Learners_Then_An_Empty_List_Is_Returned()
-        {
-            // Arrange
-            var request = _fixture.Create<GetPayeSchemesQueryRequest>();
-            var payeSchemes = _fixture.Create<EmployerPayeSchemes>();
-
-            _employerAccountClient
-                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
-                .ReturnsAsync(payeSchemes);
-
-            var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
-
-            // Act
-            var result = await sut.Handle(new GetPayeSchemesQueryRequest(new Data.Models.EmploymentCheck()),
-                CancellationToken.None);
-
-            // Assert
-            result.EmployersPayeSchemes.Should().BeEquivalentTo(new EmployerPayeSchemes());
-        }
-
-        [Test]
         public async Task And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
         {
             // Arrange
@@ -79,7 +58,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
 
             _employerAccountClient
                 .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
-                .ReturnsAsync(new EmployerPayeSchemes());
+                .ReturnsAsync(new EmployerPayeSchemes(request.EmploymentCheck.AccountId));
 
             var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
 
@@ -87,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
             var result = await sut.Handle(request, CancellationToken.None);
 
             // Assert
-            result.EmployersPayeSchemes.Should().BeEquivalentTo(new EmployerPayeSchemes());
+            result.EmployersPayeSchemes.Should().BeEquivalentTo(new EmployerPayeSchemes(request.EmploymentCheck.AccountId));
         }
     }
 }

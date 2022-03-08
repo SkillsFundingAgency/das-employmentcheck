@@ -1,10 +1,9 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Data.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
 {
@@ -27,25 +26,12 @@ namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
             GetPayeSchemesQueryRequest getPayeSchemesRequest,
             CancellationToken cancellationToken)
         {
-            const string thisMethodName = "GetPayeSchemesQueryHandler.Handle";
-
             Guard.Against.Null(getPayeSchemesRequest, nameof(getPayeSchemesRequest));
             Guard.Against.Null(getPayeSchemesRequest.EmploymentCheck, nameof(getPayeSchemesRequest.EmploymentCheck));
 
-            var employersPayeSchemes =
-                await _employerAccountClient.GetEmployersPayeSchemes(getPayeSchemesRequest.EmploymentCheck) ?? new EmployerPayeSchemes();
+            var result = await _employerAccountClient.GetEmployersPayeSchemes(getPayeSchemesRequest.EmploymentCheck);
 
-            if (employersPayeSchemes.EmployerAccountId != 0)
-            {
-                _logger.LogInformation($"{thisMethodName} returned {employersPayeSchemes.PayeSchemes.Count} PAYE scheme(s)");
-            }
-            else
-            {
-                _logger.LogInformation($"{thisMethodName} returned null/zero PAYE schemes");
-                employersPayeSchemes = new EmployerPayeSchemes();
-            }
-
-            return new GetPayeSchemesQueryResult(employersPayeSchemes);
+            return new GetPayeSchemesQueryResult(result);
         }
     }
 }

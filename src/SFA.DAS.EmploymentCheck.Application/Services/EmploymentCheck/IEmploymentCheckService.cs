@@ -15,5 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response);
 
         Task InsertEmploymentCheckCacheResponse(EmploymentCheckCacheResponse response);
+
+        Task SaveEmploymentCheck(Data.Models.EmploymentCheck check);
     }
 }

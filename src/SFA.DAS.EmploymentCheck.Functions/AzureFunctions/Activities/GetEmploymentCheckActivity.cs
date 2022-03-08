@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         {
             var result = await _mediator.Send(new GetEmploymentCheckQueryRequest());
 
-            return result.EmploymentCheck ?? new Data.Models.EmploymentCheck();
+            return result.EmploymentCheck;
         }
     }
 }
