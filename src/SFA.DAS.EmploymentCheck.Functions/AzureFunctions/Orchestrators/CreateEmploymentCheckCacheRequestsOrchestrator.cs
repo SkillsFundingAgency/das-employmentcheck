@@ -15,7 +15,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         private const string ThisClassName = nameof(CreateEmploymentCheckCacheRequestsOrchestrator);
         private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
-        private readonly IEmploymentCheckService _service;
 
         public CreateEmploymentCheckCacheRequestsOrchestrator(
             ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> logger,
@@ -23,7 +22,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         )
         {
             _logger = logger;
-            _service = service;
         }
 
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestsOrchestrator))]
@@ -31,27 +29,32 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             [OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var thisMethodName = $"{ThisClassName}.CreateEmploymentCheckRequestsTask";
+            var checkActivityName = nameof(GetEmploymentCheckActivity);
+            var ninoActivityName = nameof(GetLearnerNiNumberActivity);
+            var payeActivityName = nameof(GetEmployerPayeSchemesActivity);
+            var requestActivityName = nameof(CreateEmploymentCheckCacheRequestActivity);
+            var storeActivityName = nameof(StoreCompletedEmploymentCheckActivity);
 
             try
             {
                 if (!context.IsReplaying)
                     _logger.LogInformation($"\n\n{thisMethodName}: Started.");
 
-                var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null);
+                var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(checkActivityName, null);
                 if (employmentCheck != null && employmentCheck.Id > 0)
                 {
-                    var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), employmentCheck);
-                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), employmentCheck);
+                    var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(ninoActivityName, employmentCheck);
+                    var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(payeActivityName, employmentCheck);
                     await Task.WhenAll(learnerNiNumberTask, employerPayeSchemesTask);
 
                     var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumberTask.Result, employerPayeSchemesTask.Result);
                     if (IsValidEmploymentCheckData(employmentCheckData))
                     {
-                        await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), employmentCheckData);
+                        await context.CallActivityAsync(requestActivityName, employmentCheckData);
                     }
                     else
                     {
-                        await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheck);
+                        await context.CallActivityAsync(storeActivityName, employmentCheck);
                     }
                 }
             }
@@ -119,42 +122,56 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
             if (employmentCheckData.EmployerPayeSchemes != null)
             {
-                if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.OK)
-                {
-                    if(employmentCheckData.EmployerPayeSchemes.PayeSchemes == null || !employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
-                    {
-                        employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
-                        isValidPayeScheme = false;
-                    }
-                    else
-                    {
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
-                        foreach (var employerPayeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes)
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
-                        {
-                            if(string.IsNullOrEmpty(employerPayeScheme))
-                            {
-                                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
-                                isValidPayeScheme = false;
-                            }
-                        }
-                    }
-                }
-                else if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
+                isValidPayeScheme = PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+            }
+            else
+            {
+                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeFailure : $"{existingError}And{PayeFailure}";
+                isValidPayeScheme = false;
+            }
+
+            return isValidPayeScheme;
+        }
+
+        private static bool PayeSchemeValueValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, string PayeFailure, bool isValidPayeScheme, string existingError)
+        {
+            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.OK)
+            {
+                if (employmentCheckData.EmployerPayeSchemes.PayeSchemes == null || !employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
                 {
                     employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
                     isValidPayeScheme = false;
                 }
                 else
                 {
-                    employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeFailure : $"{existingError}And{PayeFailure}";
-                    isValidPayeScheme = false;
+                    isValidPayeScheme = IndividualPayeSchemeValidation(employmentCheckData, PayeNotFound, isValidPayeScheme, existingError);
                 }
+            }
+            else if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
+                isValidPayeScheme = false;
             }
             else
             {
                 employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeFailure : $"{existingError}And{PayeFailure}";
                 isValidPayeScheme = false;
+            }
+
+            return isValidPayeScheme;
+        }
+
+        private static bool IndividualPayeSchemeValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, bool isValidPayeScheme, string existingError)
+        {
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
+            foreach (var employerPayeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes)
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
+            {
+                if (string.IsNullOrEmpty(employerPayeScheme))
+                {
+                    employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
+                    isValidPayeScheme = false;
+                }
             }
 
             return isValidPayeScheme;
