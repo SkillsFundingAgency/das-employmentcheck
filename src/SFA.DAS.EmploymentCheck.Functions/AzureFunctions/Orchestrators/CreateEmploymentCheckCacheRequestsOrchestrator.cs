@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
@@ -55,6 +56,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     {
                         await context.CallActivityAsync(storeActivityName, employmentCheck);
                     }
+                }
+                else
+                {
+                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckActivity)} returned no results. Nothing to process.");
+
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
             catch (Exception e)
