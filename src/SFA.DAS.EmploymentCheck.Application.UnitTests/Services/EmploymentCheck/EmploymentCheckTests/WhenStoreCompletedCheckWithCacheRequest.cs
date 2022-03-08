@@ -12,7 +12,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck.EmploymentCheckTests
 {
-    public class WhenStoreCompletedCheck
+    public class WhenStoreCompletedCheckWithCacheRequest
     {
         private IEmploymentCheckService _sut;
         private Fixture _fixture;

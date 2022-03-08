@@ -36,5 +36,20 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
             // Assert
             _serviceMock.Verify(s => s.StoreCompletedCheck(cmd.EmploymentCheck), Times.Once);
         }
+
+        [Test]
+        public async Task Then_EmploymentCheck_Is_Assigned()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            var cmd = new StoreCompletedEmploymentCheckCommand(employmentCheck);
+
+            // Act
+            await _sut.Handle(cmd, CancellationToken.None);
+
+            // Assert
+            _serviceMock.Verify(s => s.StoreCompletedCheck(cmd.EmploymentCheck), Times.Once);
+            Assert.AreEqual(employmentCheck, cmd.EmploymentCheck);
+        }
     }
 }

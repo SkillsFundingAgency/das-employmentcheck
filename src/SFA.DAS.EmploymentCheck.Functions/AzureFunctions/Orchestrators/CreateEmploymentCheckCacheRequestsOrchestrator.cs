@@ -17,8 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
 
         public CreateEmploymentCheckCacheRequestsOrchestrator(
-            ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> logger,
-            IEmploymentCheckService service
+            ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> logger
         )
         {
             _logger = logger;
@@ -71,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
         }
 
-        private bool IsValidEmploymentCheckData(EmploymentCheckData employmentCheckData)
+        public bool IsValidEmploymentCheckData(EmploymentCheckData employmentCheckData)
         {
             var isValidEmploymentcheckData = true;
             var isValidNino = IsValidNino(employmentCheckData);
@@ -85,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             return isValidEmploymentcheckData;
         }
 
-        private static bool IsValidNino(EmploymentCheckData employmentCheckData)
+        public bool IsValidNino(EmploymentCheckData employmentCheckData)
         {
             const int validNinoLength = 9;
             const string NinoNotFound = "NinoNotFound";
@@ -108,7 +107,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             return isValidNino;
         }
 
-        private static bool IsValidPayeScheme(EmploymentCheckData employmentCheckData)
+        public bool IsValidPayeScheme(EmploymentCheckData employmentCheckData)
         {
             const string PayeNotFound = "PAYENotFound";
             const string PayeFailure = "PAYEFailure";
@@ -133,7 +132,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             return isValidPayeScheme;
         }
 
-        private static bool PayeSchemeValueValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, string PayeFailure, bool isValidPayeScheme, string existingError)
+        public bool PayeSchemeValueValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, string PayeFailure, bool isValidPayeScheme, string existingError)
         {
             if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.OK)
             {
@@ -141,10 +140,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 {
                     employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(existingError) ? PayeNotFound : $"{existingError}And{PayeNotFound}";
                     isValidPayeScheme = false;
-                }
-                else
-                {
-                    isValidPayeScheme = IndividualPayeSchemeValidation(employmentCheckData, PayeNotFound, isValidPayeScheme, existingError);
                 }
             }
             else if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
@@ -161,7 +156,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             return isValidPayeScheme;
         }
 
-        private static bool IndividualPayeSchemeValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, bool isValidPayeScheme, string existingError)
+        public bool IndividualPayeSchemeValidation(EmploymentCheckData employmentCheckData, string PayeNotFound, bool isValidPayeScheme, string existingError)
         {
 #pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
             foreach (var employerPayeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes)

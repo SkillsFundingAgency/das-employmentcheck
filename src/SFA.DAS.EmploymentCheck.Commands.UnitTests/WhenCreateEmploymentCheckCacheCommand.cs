@@ -9,7 +9,7 @@ using SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
 {
-    public class WhenCreateEmploymentCheckCacheCommand
+    public class WhenCreateEmploymentCheckCacheCommand_Fixture
     {
         private CreateEmploymentCheckCacheRequestCommandHandler _sut;
         private Mock<IEmploymentCheckService> _serviceMock;
