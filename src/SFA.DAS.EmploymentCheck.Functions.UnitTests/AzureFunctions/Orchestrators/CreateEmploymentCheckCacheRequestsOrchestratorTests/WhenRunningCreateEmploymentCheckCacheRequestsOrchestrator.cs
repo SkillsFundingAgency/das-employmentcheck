@@ -17,6 +17,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 {
     public class WhenRunningCreateEmploymentCheckCacheRequestsOrchestrator
     {
+        const string NinoNotFound = "NinoNotFound";
+        const string NinoInvalid = "NinoInvalid";
+        const string PayeNotFound = "PAYENotFound";
+        const string PayeFailure = "PAYEFailure";
+
         private readonly string _checkActivityName = nameof(GetEmploymentCheckActivity);
         private readonly string _ninoActivityName = nameof(GetLearnerNiNumberActivity);
         private readonly string _payeActivityName = nameof(GetEmployerPayeSchemesActivity);
@@ -121,7 +126,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             LearnerNiNumber learnerNiNumber = null;
             var payeScheme = _fixture.Create<EmployerPayeSchemes>();
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -143,7 +147,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             LearnerNiNumber learnerNiNumber = null;
             EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string> { "" } };
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -158,6 +161,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Null_With_Existing_Nino_Error_IndividualPayeSchemeValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string> { "" } };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            bool isValidPayeScheme = true;
+            string existingError = employmentCheck.ErrorType;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.IndividualPayeSchemeValidation(employmentCheckData, PayeNotFound, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual($"{NinoNotFound}And{PayeNotFound}", employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+
+        [Test]
         public void When_An_Individual_EmployerPayeScheme_Is_Valid_PayeSchemeValueValidation_Returns_True()
         {
             // Arrange
@@ -165,8 +190,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             LearnerNiNumber learnerNiNumber = null;
             var payeScheme = _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.OK).Create();
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
-            string PayeFailure = "PAYEFailure";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -188,8 +211,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             LearnerNiNumber learnerNiNumber = null;
             EmployerPayeSchemes payeScheme = null;
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
-            string PayeFailure = "PAYEFailure";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -211,8 +232,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             LearnerNiNumber learnerNiNumber = null;
             EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.OK };
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
-            string PayeFailure = "PAYEFailure";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -227,15 +246,55 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Empty_With_Existing_Nino_Error_StatusOK_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.OK };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            bool isValidPayeScheme = true;
+            string existingError = employmentCheck.ErrorType;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual($"{NinoNotFound}And{PayeNotFound}", employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
         public void When_An_Individual_EmployerPayeScheme_Is_Empty_StatusNotFound_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.NotFound };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            bool isValidPayeScheme = true;
+            string existingError = employmentCheck.ErrorType;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual($"{NinoNotFound}And{PayeNotFound}", employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Empty_With_Existing_Nino_Error_StatusNotFound_PayeSchemeValueValidation_Returns_False()
         {
             // Arrange
             var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, string.Empty).Create();
             LearnerNiNumber learnerNiNumber = null;
             EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.NotFound };
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
-            string PayeFailure = "PAYEFailure";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -257,8 +316,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             LearnerNiNumber learnerNiNumber = null;
             EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.NoContent };
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
-            string PayeNotFound = "PAYENotFound";
-            string PayeFailure = "PAYEFailure";
             bool isValidPayeScheme = true;
             string existingError = string.Empty;
 
@@ -271,6 +328,28 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             result.Equals(false);
             Assert.AreEqual(PayeFailure, employmentCheckData.EmploymentCheck.ErrorType);
         }
+
+        [Test]
+        public void When_An_Individual_EmployerPayeScheme_Is_Empty_With_Existing_Nino_Error_StatusNoContent_PayeSchemeValueValidation_Returns_False()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
+            LearnerNiNumber learnerNiNumber = null;
+            EmployerPayeSchemes payeScheme = new EmployerPayeSchemes { EmployerAccountId = 1, PayeSchemes = new List<string>(), HttpStatusCode = HttpStatusCode.NoContent };
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            bool isValidPayeScheme = true;
+            string existingError = employmentCheck.ErrorType;
+
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.PayeSchemeValueValidation(employmentCheckData, PayeNotFound, PayeFailure, isValidPayeScheme, existingError);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual($"{NinoNotFound}And{PayeFailure}", employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
 
         [Test]
         public void When_The_Nino_Is_Valid_IsValidNino_Returns_True()
