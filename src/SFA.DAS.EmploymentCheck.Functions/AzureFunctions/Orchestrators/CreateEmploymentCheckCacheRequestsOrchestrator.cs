@@ -73,8 +73,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 {
                     _logger.LogInformation($"{thisMethodName}: Nothing to process, waiting for 10 seconds before retrying");
 
-                    // TODO: Logic for re-executing failed requests in the 'sleep' time when there are no other requests to process
-
                     var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
