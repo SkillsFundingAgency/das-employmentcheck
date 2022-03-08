@@ -10,7 +10,7 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
-namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.EmploymentCheckTests
+namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck.EmploymentCheckTests
 {
     public class WhenStoreCompletedCheck
     {
@@ -136,7 +136,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, true).Create();
-            
+
             // Act
             await _sut.StoreCompletedCheck(request, response);
 
@@ -151,7 +151,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, false).Create();
-            
+
             // Act
             await _sut.StoreCompletedCheck(request, response);
 

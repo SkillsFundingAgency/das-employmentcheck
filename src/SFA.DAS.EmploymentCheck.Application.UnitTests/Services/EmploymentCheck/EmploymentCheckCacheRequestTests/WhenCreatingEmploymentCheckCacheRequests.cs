@@ -11,7 +11,7 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
-namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.EmploymentCheckCacheRequestTests
+namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck.EmploymentCheckCacheRequestTests
 {
     public class WhenCreatingEmploymentCheckCacheRequests
     {
