@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -15,17 +14,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
     public class LearnerService : ILearnerService
     {
-        private readonly ILogger<ILearnerService> _logger;
         private readonly IDataCollectionsApiClient<DataCollectionsApiConfiguration> _apiClient;
         private readonly IDataCollectionsResponseRepository _repository;
 
         public LearnerService(
-            ILogger<ILearnerService> logger,
             IDataCollectionsApiClient<DataCollectionsApiConfiguration> apiClient,
             IDataCollectionsResponseRepository repository
         )
         {
-            _logger = logger;
             _apiClient = apiClient;
             _repository = repository;
         }
@@ -104,10 +100,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             if (!string.IsNullOrEmpty(jsonContent))
             {
                 var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
-                if (learnerNiNumbers != null)
-                {
-                    return learnerNiNumbers.FirstOrDefault();
-                }
+                return learnerNiNumbers?.FirstOrDefault();
             }
 
             return new LearnerNiNumber(dataCollectionsResponse.Uln, string.Empty);
@@ -122,12 +115,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
         private async Task Save(DataCollectionsResponse dataCollectionsResponse)
         {
-            if (dataCollectionsResponse == null)
-            {
-                _logger.LogError($"{nameof(LearnerService)}.Save: ERROR: The dataCollectionsResponse model is null.");
-                return;
-            }
-
             await _repository.InsertOrUpdate(dataCollectionsResponse);
         }
     }

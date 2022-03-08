@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
@@ -27,7 +26,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>(MockBehavior.Strict);
 
             _sut = new LearnerService(
-                Mock.Of<ILogger<ILearnerService>>(),
                 _apiClientMock.Object,
                 _repositoryMock.Object);
         }

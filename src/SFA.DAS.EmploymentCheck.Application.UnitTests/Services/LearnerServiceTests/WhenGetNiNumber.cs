@@ -1,14 +1,15 @@
-﻿using System.Net;
-using System.Net.Http;
-using AutoFixture;
-using Microsoft.Extensions.Logging;
+﻿using AutoFixture;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceTests
 {
@@ -30,9 +31,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
 
             _sut = new LearnerService(
-                Mock.Of<ILogger<ILearnerService>>(),
                 _apiClientMock.Object,
-                _repositoryMock.Object);
+                _repositoryMock.Object
+            );
         }
 
         [Test]
@@ -47,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_ReturnedNiNo_Is_Saved()
+        public async Task Then_Response_Is_Saved()
         {
             // Arrange
             var nino = _fixture.Build<LearnerNiNumber>()
@@ -56,9 +57,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 .Create();
             nino.NiNumber = _fixture.Create<string>()[..20];
 
-        var httpResponse = new HttpResponseMessage
+            var httpResponse = new HttpResponseMessage
             {
-                Content = new StringContent($"[{{\"uln\":{nino.Uln},\"niNumber\":\"{nino.NiNumber}\"}}]"),
+                Content = new StringContent($"[{{\"uln\":{nino.Uln},\"niNumber\":\"{nino.NiNumber}\"}},{{\"uln\":{nino.Uln},\"niNumber\":\"{{NOT_USED}}\"}}]"),
                 StatusCode = HttpStatusCode.OK
             };
 
@@ -70,9 +71,187 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            _repositoryMock.Verify(_ => _.InsertOrUpdate(It.Is<DataCollectionsResponse>(
-                    r => r.NiNumber == nino.NiNumber))
+            _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
+                        response => response.NiNumber == nino.NiNumber
+                                    && response.Uln == _employmentCheck.Uln
+                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
+                                    && response.CorrelationId == _employmentCheck.CorrelationId
+                                    && response.HttpResponse == httpResponse.ToString()
+                                    && response.HttpStatusCode == (short)httpResponse.StatusCode
+                    )
+                )
                 , Times.Once());
+        }
+
+        [Test]
+        public async Task Then_ReturnedNiNo_Is_Returned_To_Caller()
+        {
+            // Arrange
+            var nino = _fixture.Build<LearnerNiNumber>()
+                .With(n => n.Uln, _employmentCheck.Uln)
+                .Without(n => n.NiNumber)
+                .Create();
+            nino.NiNumber = _fixture.Create<string>()[..20];
+
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent($"[{{\"uln\":{nino.Uln},\"niNumber\":\"{nino.NiNumber}\"}}]"),
+                StatusCode = HttpStatusCode.OK
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
+                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            result.Should().BeEquivalentTo(nino);
+        }
+
+        [Test]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Null_Response()
+        {
+            // Arrange
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync((HttpResponseMessage)null);
+
+            // Act
+            await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
+                        response => response.NiNumber == null
+                                    && response.Uln == _employmentCheck.Uln
+                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
+                                    && response.CorrelationId == _employmentCheck.CorrelationId
+                                    && response.HttpResponse == ""
+                                    && response.HttpStatusCode == (short)HttpStatusCode.InternalServerError
+                    )
+                )
+                , Times.Once());
+        }
+
+        [Test]
+        public async Task Then_Default_NiNo_Is_Returned_To_Caller_In_Case_Of_Null_Response()
+        {
+            // Arrange
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync((HttpResponseMessage)null);
+
+            // Act
+            var result = await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            result.Should().BeEquivalentTo(new LearnerNiNumber());
+        }
+
+        [Test]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response()
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(_fixture.Create<string>()),
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
+                        response => response.NiNumber == null
+                                    && response.Uln == _employmentCheck.Uln
+                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
+                                    && response.CorrelationId == _employmentCheck.CorrelationId
+                                    && response.HttpResponse == httpResponse.ToString()
+                                    && response.HttpStatusCode == (short)httpResponse.StatusCode
+                    )
+                )
+                , Times.Once());
+        }
+
+        [Test]
+        public async Task Then_Default_NiNo_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(_fixture.Create<string>()),
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            result.Should().BeEquivalentTo(new LearnerNiNumber());
+        }
+
+        [Test]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unexpected_Exception()
+        {
+            // Arrange
+            var exception = _fixture.Create<Exception>();
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ThrowsAsync(exception);
+
+            // Act
+            await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
+                        response => response.NiNumber == null
+                                    && response.Uln == _employmentCheck.Uln
+                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
+                                    && response.CorrelationId == _employmentCheck.CorrelationId
+                                    && response.HttpResponse == exception.Message
+                                    && response.HttpStatusCode == (short)HttpStatusCode.InternalServerError
+                    )
+                )
+                , Times.Once());
+        }
+
+        [Test]
+        public async Task Then_Default_NiNo_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
+        {
+            // Arrange
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ThrowsAsync(_fixture.Create<Exception>());
+
+            // Act
+            var result = await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            result.Should().BeEquivalentTo(new LearnerNiNumber());
+        }
+
+        [Test]
+        public async Task Then_Empty_String_As_NiNo_Is_Returned_In_Case_Of_Empty_Response()
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(""),
+                StatusCode = HttpStatusCode.OK
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            result.Should().BeEquivalentTo(new LearnerNiNumber { Uln = _employmentCheck.Uln, NiNumber = string.Empty});
         }
     }
 }

@@ -58,7 +58,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
                 ApprenticeEmploymentCheckId = employmentCheckId,
                 CorrelationId = correlationId,
                 Uln = uln,
-                HttpResponse = $"{httpResponse[Range.EndAt(Math.Min(8000, httpResponse.Length))]}",
+                HttpResponse = $"{httpResponse?[Range.EndAt(Math.Min(8000, httpResponse.Length))]}",
                 HttpStatusCode = statusCode,
                 LastUpdatedOn = DateTime.Now
             };

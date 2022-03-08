@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -16,19 +15,16 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
     public class EmployerAccountService : IEmployerAccountService
     {
-        private readonly ILogger<IEmployerAccountService> _logger;
         private readonly IHashingService _hashingService;
         private readonly IAccountsResponseRepository _repository;
         private readonly IEmployerAccountApiClient<EmployerAccountApiConfiguration> _apiClient;
 
         public EmployerAccountService(
-            ILogger<IEmployerAccountService> logger,
             IHashingService hashingService,
             IAccountsResponseRepository repository,
             IEmployerAccountApiClient<EmployerAccountApiConfiguration> apiClient
         )
         {
-            _logger = logger;
             _hashingService = hashingService;
             _repository = repository;
             _apiClient = apiClient;
@@ -113,12 +109,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
         private async Task Save(AccountsResponse accountsResponse)
         {
-            if (accountsResponse == null)
-            {
-                _logger.LogError($"{nameof(EmployerAccountService)}.Save: ERROR: The accountsResponse model is null.");
-                return;
-            }
-
             await _repository.InsertOrUpdate(accountsResponse);
         }
     }
