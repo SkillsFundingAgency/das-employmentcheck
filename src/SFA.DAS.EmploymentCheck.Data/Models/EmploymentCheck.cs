@@ -1,5 +1,6 @@
 ﻿using System;
 using Dapper.Contrib.Extensions;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Data.Models
 {
@@ -32,6 +33,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
+
+        public void SetRequestCompletionStatus(ProcessingCompletionStatus status)
+        {
+            RequestCompletionStatus = (short)status;
+        }
     }
 }
 

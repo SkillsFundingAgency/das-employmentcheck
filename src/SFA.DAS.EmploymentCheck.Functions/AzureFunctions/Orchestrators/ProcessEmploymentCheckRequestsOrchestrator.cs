@@ -20,15 +20,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         }
 
         [FunctionName(nameof(ProcessEmploymentCheckRequestsOrchestrator))]
-        public async Task ProcessEmploymentChecksWithRateLimiterOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public async Task ProcessEmploymentCheckRequestsOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsOrchestrator)}.ProcessEmploymentChecksWithRateLimiterOrchestratorTask";
+            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsOrchestrator)}.ProcessEmploymentCheckRequestsOrchestratorTask";
 
             try
             {
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"{thisMethodName}: Started.");
-
                 // Get the next request
                 var employmentCheckCacheRequest = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
 
@@ -45,9 +42,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
-
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"{nameof(ProcessEmploymentCheckRequestsOrchestrator)}: Completed.");
             }
             catch (Exception e)
             {
@@ -55,13 +49,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
             }
             finally
             {
-                if (!context.IsReplaying)
-                    _logger.LogInformation($"{thisMethodName}: Completed.");
-
-                // execute the orchestrator again with a new context to process the next message
-                // Note: The orchestrator may have been unloaded from memory whilst the activity
-                // functions were running so this could be a new instance of the orchestrator which
-                // will run though the table storage 'event sourcing' state.
                 context.ContinueAsNew(null);
             }
 

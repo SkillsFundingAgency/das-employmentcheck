@@ -1,15 +1,15 @@
-﻿using AutoFixture;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.CreateEmploymentCheckCacheRequestsOrchestratorTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.ProcessEmploymentCheckRequestsWithRateLimiterOrchestratorTests
 {
     public class WhenRunningProcessEmploymentCheckRequestsWithRateLimiterOrchestrator
     {
@@ -17,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>> _logger;
 
-        private EmploymentCheckCacheRequest employmentCheckCacheRequest;
+        private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
         private IList<Data.Models.EmploymentCheck> _employmentChecks;
 
         [SetUp]
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>>();
 
-            employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
+            _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
             _employmentChecks = new List<Data.Models.EmploymentCheck> { _fixture.Create<Data.Models.EmploymentCheck>() };
             _employmentChecks = new List<Data.Models.EmploymentCheck> { _fixture.Create<Data.Models.EmploymentCheck>() };
         }
@@ -40,17 +40,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
-                .ReturnsAsync(employmentCheckCacheRequest);
+                .ReturnsAsync(_employmentCheckCacheRequest);
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), _employmentChecks))
-                .ReturnsAsync(employmentCheckCacheRequest);
+                .ReturnsAsync(_employmentCheckCacheRequest);
 
             _context
                 .Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<EmploymentCheckData>()));
 
             // Act
-            await sut.ProcessEmploymentChecksWithRateLimiterOrchestratorTask(_context.Object);
+            await sut.ProcessEmploymentCheckRequestsOrchestratorTask(_context.Object);
 
             // Assert
             _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Once);
