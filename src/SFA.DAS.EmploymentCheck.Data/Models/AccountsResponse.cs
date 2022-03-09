@@ -68,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         public void SetPayeSchemes(IList<string> payeSchemes)
         {
-           PayeSchemes = string.Join(',', payeSchemes);
+            if (payeSchemes != null) PayeSchemes = string.Join(',', payeSchemes);
         }
     }
 }

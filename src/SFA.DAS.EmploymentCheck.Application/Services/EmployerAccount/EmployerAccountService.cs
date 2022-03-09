@@ -67,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var employerPayeSchemes = DeserialiseContent(jsonContent, response);
 
-            response.SetPayeSchemes(employerPayeSchemes.PayeSchemes);
+            response.SetPayeSchemes(employerPayeSchemes?.PayeSchemes);
 
             await Save(response);
 
