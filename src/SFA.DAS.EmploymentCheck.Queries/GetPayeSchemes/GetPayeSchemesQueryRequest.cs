@@ -1,9 +1,6 @@
-﻿using MediatR;
-
-namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
+﻿namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
 {
-    public class GetPayeSchemesQueryRequest
-        : IRequest<GetPayeSchemesQueryResult>
+    public class GetPayeSchemesQueryRequest : IQuery
     {
         public GetPayeSchemesQueryRequest(Data.Models.EmploymentCheck employmentCheck)
         {

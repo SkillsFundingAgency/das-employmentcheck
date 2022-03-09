@@ -1,12 +1,11 @@
 ﻿using AutoFixture;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmploymentCheckCacheRequestActivityTests
@@ -15,15 +14,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     {
         private Fixture _fixture;
         private EmploymentCheckCacheRequest _request;
-        private Mock<IMediator> _mediator;
-        private Mock<ILogger<GetEmploymentCheckCacheRequestActivity>> _logger;
+        private Mock<IQueryDispatcher> _dispatcher;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _mediator = new Mock<IMediator>();
-            _logger = new Mock<ILogger<GetEmploymentCheckCacheRequestActivity>>();
+            _dispatcher = new Mock<IQueryDispatcher>();
             _request = _fixture.Create<EmploymentCheckCacheRequest>();
         }
 
@@ -31,13 +28,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_EmploymentCheckCacheRequest_Is_Returned()
         {
             // Arrange
-            var sut = new GetEmploymentCheckCacheRequestActivity(_mediator.Object, _logger.Object);
+            var sut = new GetEmploymentCheckCacheRequestActivity(_dispatcher.Object);
 
-            var queryResult = new ProcessEmploymentCheckCacheRequestQueryResult();
-            queryResult.EmploymentCheckCacheRequest = _request;
+            var queryResult = new ProcessEmploymentCheckCacheRequestQueryResult(_request);
 
-            _mediator
-                .Setup(x => x.Send(It.IsAny<ProcessEmploymentCheckCacheRequestQueryRequest>(), CancellationToken.None))
+            _dispatcher
+                .Setup(x => x.Send<ProcessEmploymentCheckCacheRequestQueryRequest, ProcessEmploymentCheckCacheRequestQueryResult>(It.IsAny<ProcessEmploymentCheckCacheRequestQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
             // Act

@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -9,30 +8,30 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 namespace SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber
 {
     public class GetDbNiNumberQueryHandler
-        : IRequestHandler<GetDbNiNumberQueryRequest,
+        : IQueryHandler<GetDbNiNumberQueryRequest,
             GetDbNiNumberQueryResult>
     {
-        private readonly ILearnerService _learnerService;
+        private readonly ILearnerService _service;
         private readonly ILogger<GetDbNiNumberQueryHandler> _logger;
 
         public GetDbNiNumberQueryHandler(
-            ILearnerService learnerService,
+            ILearnerService service,
             ILogger<GetDbNiNumberQueryHandler> logger)
         {
-            _learnerService = learnerService;
+            _service = service;
             _logger = logger;
         }
 
         public async Task<GetDbNiNumberQueryResult> Handle(
-            GetDbNiNumberQueryRequest getDbNiNumbersQueryRequest,
-            CancellationToken cancellationToken)
+            GetDbNiNumberQueryRequest request,
+            CancellationToken cancellationToken = default)
         {
             var thisMethodName = $"{nameof(GetDbNiNumberQueryHandler)}.Handle";
 
-            Guard.Against.Null(getDbNiNumbersQueryRequest, nameof(getDbNiNumbersQueryRequest));
-            Guard.Against.Null(getDbNiNumbersQueryRequest.EmploymentCheck, nameof(getDbNiNumbersQueryRequest.EmploymentCheck));
+            Guard.Against.Null(request, nameof(request));
+            Guard.Against.Null(request.EmploymentCheck, nameof(request.EmploymentCheck));
 
-            var learnerNiNumber = await _learnerService.GetDbNiNumber(getDbNiNumbersQueryRequest.EmploymentCheck);
+            var learnerNiNumber = await _service.GetDbNiNumber(request.EmploymentCheck);
 
             if (learnerNiNumber != null && learnerNiNumber.NiNumber != null)
             {
@@ -41,7 +40,6 @@ namespace SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber
             else
             {
                 _logger.LogInformation($"{thisMethodName} returned null/zero NiNumbers");
-                learnerNiNumber = new LearnerNiNumber();
             }
 
             return new GetDbNiNumberQueryResult(learnerNiNumber);

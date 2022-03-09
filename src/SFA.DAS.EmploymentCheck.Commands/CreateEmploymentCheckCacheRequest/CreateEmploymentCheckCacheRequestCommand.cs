@@ -1,9 +1,8 @@
-﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
 {
-    public class CreateEmploymentCheckCacheRequestCommand : IRequest
+    public class CreateEmploymentCheckCacheRequestCommand : ICommand
     {
         public CreateEmploymentCheckCacheRequestCommand(EmploymentCheckData employmentCheckData)
         {

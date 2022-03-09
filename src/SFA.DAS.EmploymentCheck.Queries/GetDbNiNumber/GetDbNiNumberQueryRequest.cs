@@ -1,9 +1,6 @@
-﻿using MediatR;
-
-namespace SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber
+﻿namespace SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber
 {
-    public class GetDbNiNumberQueryRequest
-        : IRequest<GetDbNiNumberQueryResult>
+    public class GetDbNiNumberQueryRequest: IQuery
     {
         public GetDbNiNumberQueryRequest(Data.Models.EmploymentCheck employmentCheck)
         {
