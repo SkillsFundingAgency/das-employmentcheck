@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
@@ -27,20 +26,8 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             // Assert
             _actual = await Get<Models.EmploymentCheckCacheResponse>(expected.Id);
 
-            _actual.Should().BeEquivalentTo(expected,
-                opts => opts
-                    .Excluding(x => x.CreatedOn)
-                    .Excluding(x => x.LastUpdatedOn)
-                );
-            _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
+            _actual.Should().BeEquivalentTo(expected);
         }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await Delete(_actual);
-        }
-
     }
 }
 
