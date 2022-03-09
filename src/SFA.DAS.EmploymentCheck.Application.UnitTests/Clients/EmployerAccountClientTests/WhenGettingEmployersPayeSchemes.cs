@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -59,16 +60,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmployerAccountC
 
             // Assert
             result.PayeSchemes.First().Should().BeEquivalentTo(expected.PayeSchemes.First());
-        }
-
-        [Test]
-        public async Task And_Null_Is_Passed_In_The_Then_An_Empty_Paye_Scheme_Is_Returned()
-        {
-            // Act
-            var result = await _sut.GetEmployersPayeSchemes(new Data.Models.EmploymentCheck());
-
-            // Assert
-            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
         }
     }
 }

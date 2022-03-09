@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
 {
@@ -18,7 +20,25 @@ namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
             CreateEmploymentCheckCacheRequestCommand request,
             CancellationToken cancellationToken)
         {
-            await _service.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
+            if (IsValid(request))
+            {
+                await _service.CreateEmploymentCheckCacheRequests(request.EmploymentCheckData);
+            }
+            else
+            {
+                request.EmploymentCheckData.EmploymentCheck.SetRequestCompletionStatus(ProcessingCompletionStatus.Completed);
+               
+                await _service.SaveEmploymentCheck(request.EmploymentCheckData.EmploymentCheck);
+            }
+        }
+
+        private static bool IsValid(CreateEmploymentCheckCacheRequestCommand request)
+        {
+            return request.EmploymentCheckData.ApprenticeNiNumber != null
+                   && !string.IsNullOrEmpty(request.EmploymentCheckData.ApprenticeNiNumber.NiNumber)
+                   && request.EmploymentCheckData.EmployerPayeSchemes != null
+                   && request.EmploymentCheckData.EmployerPayeSchemes.PayeSchemes != null
+                   && request.EmploymentCheckData.EmployerPayeSchemes.PayeSchemes.Any();
         }
     }
 }

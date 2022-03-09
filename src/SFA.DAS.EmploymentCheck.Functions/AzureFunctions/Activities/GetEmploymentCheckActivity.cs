@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         {
             var result = await _dispatcher.Send<GetEmploymentCheckQueryRequest, GetEmploymentCheckQueryResult>(new GetEmploymentCheckQueryRequest());
 
-            return result.EmploymentCheck ?? new Data.Models.EmploymentCheck();
+            return result.EmploymentCheck;
         }
     }
 }
