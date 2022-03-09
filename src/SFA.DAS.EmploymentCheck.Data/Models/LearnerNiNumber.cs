@@ -4,8 +4,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     public class LearnerNiNumber
     {
-        public LearnerNiNumber() { }
-
         public LearnerNiNumber(
             long uln,
             string niNumber)

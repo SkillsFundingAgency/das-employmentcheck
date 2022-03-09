@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck
 
         public async Task<GetEmploymentCheckQueryResult> Handle(
             GetEmploymentCheckQueryRequest request,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken = default
         )
         {
             var employmentCheck = await _service.GetEmploymentCheck();

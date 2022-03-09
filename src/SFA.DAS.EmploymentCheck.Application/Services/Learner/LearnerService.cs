@@ -1,220 +1,117 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Ardalis.GuardClauses;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Ardalis.GuardClauses;
+using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
     public class LearnerService : ILearnerService
     {
-        private const string LearnersNiUrl = "/api/v1/ilr-data/learnersNi/2122?ulns=";
-        private readonly ILogger<ILearnerService> _logger;
-        private readonly IDcTokenService _dcTokenService;
-        private readonly IHttpClientFactory _httpFactory;
-        private readonly DcApiSettings _dcApiSettings;
+        private readonly IDataCollectionsApiClient<DataCollectionsApiConfiguration> _apiClient;
         private readonly IDataCollectionsResponseRepository _repository;
 
         public LearnerService(
-            ILogger<ILearnerService> logger,
-            IDcTokenService dcTokenService,
-            IHttpClientFactory httpClientFactory,
-            IOptions<DcApiSettings> dcApiSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider,
-            ApplicationSettings applicationSettings,
+            IDataCollectionsApiClient<DataCollectionsApiConfiguration> apiClient,
             IDataCollectionsResponseRepository repository
         )
         {
-            _logger = logger;
-            _dcTokenService = dcTokenService;
-            _httpFactory = httpClientFactory;
-            _dcApiSettings = dcApiSettings.Value;
+            _apiClient = apiClient;
             _repository = repository;
         }
 
         public async Task<LearnerNiNumber> GetDbNiNumber(Data.Models.EmploymentCheck employmentCheck)
         {
-            LearnerNiNumber learnerNiNumber = null;
             var response = await _repository.GetByEmploymentCheckId(employmentCheck.Id);
             if (response != null && response.NiNumber != null)
             {
-                learnerNiNumber = new LearnerNiNumber { Uln = employmentCheck.Uln, NiNumber = response.NiNumber };
+                return new LearnerNiNumber(employmentCheck.Uln, response.NiNumber);
             }
 
-            return learnerNiNumber ?? new LearnerNiNumber();
+            return null;
         }
 
         public async Task<LearnerNiNumber> GetNiNumber(Data.Models.EmploymentCheck employmentCheck)
         {
-            var token = GetDcToken().Result;
-            var learnerNiNumber = await SendIndividualRequest(employmentCheck, token);
-
-            return learnerNiNumber;
-        }
-
-        private async Task<LearnerNiNumber> SendIndividualRequest(Data.Models.EmploymentCheck employmentCheck, AuthResult token)
-        {
-            HttpClient client;
-            string url;
-            SetupDataCollectionsApiConfig(employmentCheck, token, out client, out url);
-
-            var learnerNiNumber = await ExecuteDataCollectionsApiCall(employmentCheck, client, url);
-
-            return learnerNiNumber ?? new LearnerNiNumber();
-        }
-
-        private void SetupDataCollectionsApiConfig(Data.Models.EmploymentCheck employmentCheck, AuthResult token, out HttpClient client, out string url)
-        {
-            client = _httpFactory.CreateClient("LearnerNiApi");
-            client.BaseAddress = new Uri(_dcApiSettings.BaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-            url = LearnersNiUrl + employmentCheck.Uln;
-        }
-
-        private async Task<LearnerNiNumber> ExecuteDataCollectionsApiCall(Data.Models.EmploymentCheck employmentCheck, HttpClient client, string url)
-        {
-            LearnerNiNumber learnerNiNumber = null;
             try
             {
-                var response = await client.GetAsync(url);
-                learnerNiNumber = await GetNiNumberFromApiResponse(employmentCheck, response);
+                var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
+                var response = await _apiClient.Get(request);
+                
+                return await ProcessNiNumberFromApiResponse(employmentCheck, response);
             }
             catch (Exception e)
             {
                 await HandleException(employmentCheck, e);
+                return null;
             }
-
-            return learnerNiNumber ?? new LearnerNiNumber();
         }
 
-        private async Task<LearnerNiNumber> GetNiNumberFromApiResponse(
-            Data.Models.EmploymentCheck employmentCheck,
-            HttpResponseMessage httpResponseMessage
-        )
+        private async Task<LearnerNiNumber> ProcessNiNumberFromApiResponse(Data.Models.EmploymentCheck employmentCheck, HttpResponseMessage httpResponseMessage)
         {
             Guard.Against.Null(employmentCheck, nameof(employmentCheck));
 
-            var dataCollectionsResponse = await InitialiseDataCollectionsResponseModel(employmentCheck);
             if (httpResponseMessage == null)
             {
-                await Save(dataCollectionsResponse);
-                return await Task.FromResult(new LearnerNiNumber());
-            }
-
-            dataCollectionsResponse.HttpResponse = httpResponseMessage.ToString();
-            dataCollectionsResponse.HttpStatusCode = (short)httpResponseMessage.StatusCode;
-
-            if (!httpResponseMessage.IsSuccessStatusCode)
-            {
-                await Save(dataCollectionsResponse);
-                return await Task.FromResult(new LearnerNiNumber());
-            }
-
-            var jsonContent = await ReadResponseContent(httpResponseMessage, dataCollectionsResponse);
-            var learnerNiNumber = await DeserialiseContent(jsonContent, dataCollectionsResponse);
-
-            return learnerNiNumber;
-        }
-
-        private static async Task<DataCollectionsResponse> InitialiseDataCollectionsResponseModel(Data.Models.EmploymentCheck employmentCheck)
-        {
-            return await Task.FromResult(new DataCollectionsResponse(
-                    0,
-                    employmentCheck.Id,
-                    employmentCheck.CorrelationId,
-                    employmentCheck.Uln,
-                    string.Empty, // NiNumber
-                    string.Empty, // Response
-                    (short)HttpStatusCode.InternalServerError // Http Status Code
-                )
-            );
-        }
-
-        private async Task<Stream> ReadResponseContent(
-            HttpResponseMessage httpResponseMessage,
-            DataCollectionsResponse dataCollectionsResponse
-        )
-        {
-            Guard.Against.Null(dataCollectionsResponse, nameof(dataCollectionsResponse));
-            Guard.Against.Null(httpResponseMessage, nameof(httpResponseMessage));
-
-            var stream = await httpResponseMessage.Content.ReadAsStreamAsync();
-            if ((stream == null || stream.Length == 0))
-            {
-                await Save(dataCollectionsResponse);
+                await Save(CreateResponseModel(employmentCheck));
                 return null;
             }
 
-            return stream;
-        }
+            var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
 
-        private async Task<LearnerNiNumber> DeserialiseContent(
-            Stream stream,
-            DataCollectionsResponse dataCollectionsResponse
-        )
-        {
-            if (stream == null)
+            if (!httpResponseMessage.IsSuccessStatusCode)
             {
-                await Save(dataCollectionsResponse);
-                return await Task.FromResult(new LearnerNiNumber());
+                await Save(response);
+                return null;
             }
 
-            Guard.Against.Null(dataCollectionsResponse, nameof(dataCollectionsResponse));
-
-            var learnerNiNumbers = await JsonSerializer.DeserializeAsync<List<LearnerNiNumber>>(stream);
-            if (learnerNiNumbers == null)
-            {
-                await Save(dataCollectionsResponse);
-                return await Task.FromResult(new LearnerNiNumber());
-            }
-
-            var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
-            dataCollectionsResponse.NiNumber = learnerNiNumber?.NiNumber;
-            await Save(dataCollectionsResponse);
+            var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var learnerNiNumber = DeserialiseContent(jsonContent, response);
+            
+            response.SetNiNumber(learnerNiNumber?.NiNumber);
+            
+            await Save(response);
 
             return learnerNiNumber;
         }
 
-        private async Task<AuthResult> GetDcToken()
+        private static DataCollectionsResponse CreateResponseModel(Data.Models.EmploymentCheck employmentCheck, string httpResponseMessage = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)
         {
-            var result = await _dcTokenService.GetTokenAsync(
-                $"https://login.microsoftonline.com/{_dcApiSettings.Tenant}",
-                "client_credentials",
-                _dcApiSettings.ClientSecret,
-                _dcApiSettings.ClientId,
-                _dcApiSettings.IdentifierUri);
-
-            return result;
+            return DataCollectionsResponse.CreateResponse(
+                employmentCheck.Id,
+                employmentCheck.CorrelationId,
+                employmentCheck.Uln,
+                httpResponseMessage,
+                (short)statusCode);
         }
 
-        private async Task Save(DataCollectionsResponse dataCollectionsResponse)
+        private static LearnerNiNumber DeserialiseContent(string jsonContent, DataCollectionsResponse dataCollectionsResponse)
         {
-            if (dataCollectionsResponse == null)
-            {
-                _logger.LogError($"LearnerService.Save(): ERROR: The dataCollectionsResponse model is null.");
-                return;
-            }
+            Guard.Against.Null(dataCollectionsResponse, nameof(dataCollectionsResponse));
 
-            await _repository.InsertOrUpdate(dataCollectionsResponse);
+            if (string.IsNullOrEmpty(jsonContent)) return null;
+            
+            var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
+            
+            return learnerNiNumbers?.FirstOrDefault();
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
-            var dataCollectionsResponse = await InitialiseDataCollectionsResponseModel(employmentCheck);
+            var dataCollectionsResponse = CreateResponseModel(employmentCheck, e.Message);
 
-            dataCollectionsResponse.HttpResponse = e.Message;
             await Save(dataCollectionsResponse);
+        }
+
+        private async Task Save(DataCollectionsResponse dataCollectionsResponse)
+        {
+            await _repository.InsertOrUpdate(dataCollectionsResponse);
         }
     }
 }

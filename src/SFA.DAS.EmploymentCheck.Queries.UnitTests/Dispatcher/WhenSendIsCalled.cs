@@ -112,27 +112,5 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.Dispatcher
                 e.Message.StartsWith(expectedMessage) &&
                 e.InnerException == expectedBaseException);
         }
-
-        [Test]
-        public void Then_a_Serializable_QueryException_is_raised_if_query_fails()
-        {
-            // Arrange
-            var query = _fixture.Create<TestQuery1>();
-            var mockHandler = new Mock<IQueryHandler<TestQuery1, string>>();
-            const string expectedMessage = "Unable to execute query 'TestQuery1'.";
-            _mockServiceProvider.Setup(m => m.GetService(typeof(IQueryHandler<TestQuery1, string>))).Returns(mockHandler.Object);
-            var expectedBaseException = new DataException();
-
-            mockHandler.Setup(m => m.Handle(query, It.IsAny<CancellationToken>()))
-                .Callback(() => throw expectedBaseException);
-
-            // Act
-            Action action = () => _sut.Send<TestQuery1, string>(query);
-
-            // Assert
-            action.Should().Throw<QueryException>().Where(e =>
-                e.Message.StartsWith(expectedMessage) &&
-                e.InnerException == expectedBaseException);
-        }
     }
 }

@@ -19,14 +19,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         [FunctionName(nameof(GetLearnerNiNumberActivity))]
         public async Task<LearnerNiNumber> Get([ActivityTrigger] Data.Models.EmploymentCheck employmentCheck)
         {
-            if (employmentCheck == null)
-            {
-                return new LearnerNiNumber();
-            }
+            var result = await _dispatcher.Send<GetNiNumberQueryRequest, GetNiNumberQueryResult>(new GetNiNumberQueryRequest(employmentCheck));
 
-            var getLearnerNiNumbersQueryResult = await _dispatcher.Send<GetNiNumberQueryRequest, GetNiNumberQueryResult>(new GetNiNumberQueryRequest(employmentCheck));
-
-            return getLearnerNiNumbersQueryResult.LearnerNiNumber;
+            return result.LearnerNiNumber;
         }
     }
 }

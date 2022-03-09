@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Dapper.Contrib.Extensions;
-using KeyAttribute = Dapper.Contrib.Extensions.KeyAttribute;
 
 namespace SFA.DAS.EmploymentCheck.Data.Models
 {
@@ -31,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
             LastUpdatedOn = null;
         }
 
-        [Key]
+        [Dapper.Contrib.Extensions.Key]
         public long Id { get; set; }
 
         public long? ApprenticeEmploymentCheckId { get; set; }
@@ -43,6 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         [StringLength(20)]
         public string NiNumber { get; set; }
 
+        [StringLength(8000)]
         public string HttpResponse { get; set; }
 
         public short HttpStatusCode { get; set; }
@@ -50,5 +50,23 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         public DateTime CreatedOn { get; set; }
 
         public DateTime? LastUpdatedOn { get; set; }
+
+        public static DataCollectionsResponse CreateResponse(long employmentCheckId, Guid correlationId, long uln, string httpResponse, short statusCode)
+        {
+            return new DataCollectionsResponse
+            {
+                ApprenticeEmploymentCheckId = employmentCheckId,
+                CorrelationId = correlationId,
+                Uln = uln,
+                HttpResponse = $"{httpResponse?[Range.EndAt(Math.Min(8000, httpResponse.Length))]}",
+                HttpStatusCode = statusCode,
+                LastUpdatedOn = DateTime.Now
+            };
+        }
+
+        public void SetNiNumber(string niNumber)
+        {
+            NiNumber = niNumber;
+        }
     }
 }
