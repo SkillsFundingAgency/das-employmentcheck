@@ -1,15 +1,15 @@
-﻿using AutoFixture;
+﻿using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.EmploymentCheckCacheRequestTests
+namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheckServiceTests
 {
-    public class WhenSaveEmploymentCheck
+    public class WhenGettingEmploymentCheck
     {
         private IEmploymentCheckService _sut;
         private Fixture _fixture;
@@ -30,16 +30,29 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.
         }
 
         [Test]
-        public async Task The_Repository_InsertOrUpdate_Is_Called()
+        public async Task Then_The_Repository_Is_Called()
         {
-            // Arrange
-            var expected = _fixture.Create<Data.Models.EmploymentCheck>();
-
             // Act
-            await _sut.SaveEmploymentCheck(expected);
+            await _sut.GetEmploymentCheck();
 
             // Assert
-            _repositoryMock.Verify(x => x.InsertOrUpdate(expected), Times.Once);
+            _repositoryMock.Verify(x => x.GetEmploymentCheck(), Times.AtLeastOnce());
+        }
+
+        [Test]
+        public async Task And_The_Repository_Returns_EmploymentChecks_Then_They_Are_Returned()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
+
+            _repositoryMock.Setup(x => x.GetEmploymentCheck())
+                .ReturnsAsync(employmentCheck);
+
+            // Act
+            var result = await _sut.GetEmploymentCheck();
+
+            // Assert
+            Assert.AreEqual(employmentCheck, result);
         }
     }
 }

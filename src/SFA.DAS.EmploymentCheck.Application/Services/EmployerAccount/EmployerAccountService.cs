@@ -42,7 +42,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             catch (Exception ex)
             {
                 await HandleException(employmentCheck, ex);
-                return new EmployerPayeSchemes();
+                return null;
             }
         }
 
@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (httpResponseMessage == null)
             {
                 await Save(CreateResponseModel(employmentCheck));
-                return new EmployerPayeSchemes();
+                return null;
             }
 
             var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
@@ -61,7 +61,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
-                return new EmployerPayeSchemes();
+                return null;
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -97,7 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 }
             }
 
-            return new EmployerPayeSchemes();
+            return null;
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)

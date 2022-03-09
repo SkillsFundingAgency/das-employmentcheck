@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetApprentices.GetApprenticesMediatorResultTests
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmploymentCheck
 {
     public class WhenBuildingTheResult
     {

@@ -8,9 +8,9 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.ProcessEmploymentCheckCacheRequest
 {
-    public class WhenProcessEmploymentCheckCacheRequestQuery
+    public class WhenHandlingTheRequest
     {
         private ProcessEmploymentCheckCacheRequestQueryHandler _sut;
         private Mock<IEmploymentCheckService> _serviceMock;

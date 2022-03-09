@@ -3,7 +3,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetDbLearnerNiNumbers.GetDbLearnerNiNumberMediatorResult
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetDbLearnerNiNumbers
 {
     public class WhenBuildingTheResult
     {

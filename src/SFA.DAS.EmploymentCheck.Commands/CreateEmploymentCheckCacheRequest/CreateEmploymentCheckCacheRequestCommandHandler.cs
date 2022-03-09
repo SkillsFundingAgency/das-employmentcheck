@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
 
         public async Task Handle(
             CreateEmploymentCheckCacheRequestCommand request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             if (IsValid(request))
             {

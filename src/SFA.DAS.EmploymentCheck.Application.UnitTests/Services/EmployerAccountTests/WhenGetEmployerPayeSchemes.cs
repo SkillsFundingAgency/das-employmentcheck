@@ -143,7 +143,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        public async Task Then_Default_EmployerPayeSchemes_Is_Returned_To_Caller_In_Case_Of_Null_Response()
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Null_Response()
         {
             // Arrange
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
@@ -153,7 +153,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
+            result.Should().BeNull();
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        public async Task Then_Default_EmployerPayeSchemes_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
@@ -202,7 +202,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
+            result.Should().BeNull();
         }
 
         [Test]
@@ -230,7 +230,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        public async Task Then_Default_EmployerPayeSchemes_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
         {
             // Arrange
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
@@ -240,11 +240,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
+            result.Should().BeNull();
         }
 
         [Test]
-        public async Task Then_Empty_String_As_EmployerPayeSchemes_Is_Returned_In_Case_Of_Empty_Response()
+        public async Task Then_Null_As_EmployerPayeSchemes_Is_Returned_In_Case_Of_Empty_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
@@ -260,7 +260,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new EmployerPayeSchemes());
+            result.Should().BeNull();
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
+using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEmployersPayeSchemesMediatorResultTests
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetApprenticesNiNumbers
 {
     public class WhenBuildingTheResult
     {
@@ -19,13 +19,13 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
         public void Then_The_Result_Is_Built_Successfully()
         {
             // Arrange
-            var payeScheme = _fixture.Create<EmployerPayeSchemes>();
+            var apprenticeNiNumber = _fixture.Create<LearnerNiNumber>();
 
             // Act
-            var result = new GetPayeSchemesQueryResult(payeScheme);
+            var result = new GetNiNumberQueryResult(apprenticeNiNumber);
 
             // Assert
-            Assert.AreEqual(payeScheme, result.EmployersPayeSchemes);
+            Assert.AreEqual(apprenticeNiNumber, result.LearnerNiNumber);
         }
     }
 }

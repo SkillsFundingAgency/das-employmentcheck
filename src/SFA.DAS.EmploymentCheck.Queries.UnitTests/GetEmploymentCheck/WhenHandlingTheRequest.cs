@@ -7,9 +7,9 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmploymentCheck
 {
-    public class WhenGetEmploymentCheckQuery
+    public class WhenHandlingTheRequest
     {
         private GetEmploymentCheckQueryHandler _sut;
         private Mock<IEmploymentCheckService> _serviceMock;

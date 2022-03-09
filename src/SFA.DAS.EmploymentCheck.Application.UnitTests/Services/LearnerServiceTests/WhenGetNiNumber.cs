@@ -134,7 +134,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Default_NiNo_Is_Returned_To_Caller_In_Case_Of_Null_Response()
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Null_Response()
         {
             // Arrange
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
@@ -144,7 +144,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new LearnerNiNumber());
+            result.Should().BeNull();
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Default_NiNo_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
@@ -193,7 +193,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new LearnerNiNumber());
+            result.Should().BeNull();
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Default_NiNo_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
         {
             // Arrange
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
@@ -231,11 +231,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new LearnerNiNumber());
+            result.Should().BeNull();
         }
 
         [Test]
-        public async Task Then_Empty_String_As_NiNo_Is_Returned_In_Case_Of_Empty_Response()
+        public async Task Then_Null_Is_Returned_In_Case_Of_Empty_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
@@ -251,7 +251,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeEquivalentTo(new LearnerNiNumber { Uln = _employmentCheck.Uln, NiNumber = string.Empty});
+            result.Should().BeNull();
         }
     }
 }

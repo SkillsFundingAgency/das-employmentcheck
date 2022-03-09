@@ -1,34 +1,27 @@
 ﻿using Ardalis.GuardClauses;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
 {
-    public class GetPayeSchemeQueryHandler
-        : IQueryHandler<GetPayeSchemesQueryRequest,
-            GetPayeSchemesQueryResult>
+    public class GetPayeSchemeQueryHandler : IQueryHandler<GetPayeSchemesQueryRequest, GetPayeSchemesQueryResult>
     {
-        private readonly ILogger<GetPayeSchemeQueryHandler> _logger;
-        private readonly IEmployerAccountClient _employerAccountClient;
+        private readonly IEmployerAccountService _service;
 
-        public GetPayeSchemeQueryHandler(
-            ILogger<GetPayeSchemeQueryHandler> logger,
-            IEmployerAccountClient employerAccountClient)
+        public GetPayeSchemeQueryHandler(IEmployerAccountService service)
         {
-            _logger = logger;
-            _employerAccountClient = employerAccountClient;
+            _service = service;
         }
 
         public async Task<GetPayeSchemesQueryResult> Handle(
-            GetPayeSchemesQueryRequest getPayeSchemesRequest,
-            CancellationToken cancellationToken)
+            GetPayeSchemesQueryRequest request,
+            CancellationToken cancellationToken = default)
         {
-            Guard.Against.Null(getPayeSchemesRequest, nameof(getPayeSchemesRequest));
-            Guard.Against.Null(getPayeSchemesRequest.EmploymentCheck, nameof(getPayeSchemesRequest.EmploymentCheck));
+            Guard.Against.Null(request, nameof(request));
+            Guard.Against.Null(request.EmploymentCheck, nameof(request.EmploymentCheck));
 
-            var result = await _employerAccountClient.GetEmployersPayeSchemes(getPayeSchemesRequest.EmploymentCheck);
+            var result = await _service.GetEmployerPayeSchemes(request.EmploymentCheck);
 
             return new GetPayeSchemesQueryResult(result);
         }

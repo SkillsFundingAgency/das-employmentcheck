@@ -3,27 +3,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Application.Clients.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEmployerPayeSchemesMediatorHandlerTests
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes
 {
     public class WhenHandlingTheRequest
     {
         private Fixture _fixture;
-        private Mock<IEmployerAccountClient> _employerAccountClient;
-        private Mock<ILogger<GetPayeSchemeQueryHandler>> _logger;
+        private Mock<IEmployerAccountService> _employerAccountService;
         private Data.Models.EmploymentCheck _employmentCheck;
 
         [SetUp]
         public void SetUp()
         {
-            _employerAccountClient = new Mock<IEmployerAccountClient>();
-            _logger = new Mock<ILogger<GetPayeSchemeQueryHandler>>();
+            _employerAccountService = new Mock<IEmployerAccountService>();
             _fixture = new Fixture();
             _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
@@ -35,18 +32,16 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
             var request = new GetPayeSchemesQueryRequest(_employmentCheck);
             var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
 
-            _employerAccountClient
-                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
+            _employerAccountService
+                .Setup(x => x.GetEmployerPayeSchemes(request.EmploymentCheck))
                 .ReturnsAsync(payeScheme);
 
-            var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
+            var sut = new GetPayeSchemeQueryHandler(_employerAccountService.Object);
 
             // Act
-
             var result = await sut.Handle(request, CancellationToken.None);
 
             // Assert
-
             Assert.AreEqual(result.EmployersPayeSchemes, payeScheme);
         }
 
@@ -56,11 +51,11 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes.GetEm
             // Arrange
             var request = new GetPayeSchemesQueryRequest(_employmentCheck);
 
-            _employerAccountClient
-                .Setup(x => x.GetEmployersPayeSchemes(request.EmploymentCheck))
+            _employerAccountService
+                .Setup(x => x.GetEmployerPayeSchemes(request.EmploymentCheck))
                 .ReturnsAsync(new EmployerPayeSchemes(request.EmploymentCheck.AccountId));
 
-            var sut = new GetPayeSchemeQueryHandler(_logger.Object, _employerAccountClient.Object);
+            var sut = new GetPayeSchemeQueryHandler(_employerAccountService.Object);
 
             // Act
             var result = await sut.Handle(request, CancellationToken.None);

@@ -6,9 +6,9 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus;
 
-namespace SFA.DAS.EmploymentCheck.Queries.UnitTests
+namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetHmrcLearnerEmploymentStatus
 {
-    public class WhenGetHmrcLearnerEmploymentStatusQuery
+    public class WhenHandlingTheRequest
     {
         private GetHmrcLearnerEmploymentStatusQueryHandler _sut;
         private Mock<IHmrcService> _serviceMock;

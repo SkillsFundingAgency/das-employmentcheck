@@ -8,9 +8,9 @@ using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 
-namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
+namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.CreateEmploymentCheckCache
 {
-    public class WhenCreateEmploymentCheckCacheCommand
+    public class WhenHandlingTheRequest
     {
         private CreateEmploymentCheckCacheRequestCommandHandler _sut;
         private Mock<IEmploymentCheckService> _serviceMock;

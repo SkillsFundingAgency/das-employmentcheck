@@ -1,10 +1,9 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetDbNiNumber;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -21,11 +20,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         public async Task<LearnerNiNumber> Get(
             [ActivityTrigger] Data.Models.EmploymentCheck employmentCheck)
         {
-            Guard.Against.Null(employmentCheck, nameof(employmentCheck));
+            var result = await _dispatcher.Send<GetDbNiNumberQueryRequest, GetDbNiNumberQueryResult>(new GetDbNiNumberQueryRequest(employmentCheck));
 
-            var getDbLearnerNiNumbersQueryResult = await _dispatcher.Send<GetDbNiNumberQueryRequest, GetDbNiNumberQueryResult>(new GetDbNiNumberQueryRequest(employmentCheck));
-
-            return getDbLearnerNiNumbersQueryResult?.LearnerNiNumber ?? new LearnerNiNumber();
+            return result.LearnerNiNumber;
         }
     }
 }
