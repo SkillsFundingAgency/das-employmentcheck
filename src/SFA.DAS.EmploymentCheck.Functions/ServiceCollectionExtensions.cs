@@ -4,22 +4,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
+using SFA.DAS.HashingService;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
-using SFA.DAS.EmploymentCheck.TokenServiceStub;
-using SFA.DAS.HashingService;
-using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Functions.Configuration.TokenServiceApiClientConfiguration;
-using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.Api.Common.Infrastructure;
+using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -28,8 +27,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
         public static IServiceCollection AddEmploymentCheckService(this IServiceCollection serviceCollection, string environmentName)
         {
             serviceCollection.AddHttpClient();
-            serviceCollection.AddTransient<ILearnerClient, LearnerClient>();
-            serviceCollection.AddTransient<IEmployerAccountClient, EmployerAccountClient>();
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
@@ -45,9 +42,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
+            
+            serviceCollection.AddTransient<IDataCollectionsApiClient<DataCollectionsApiConfiguration>, DataCollectionsApiClient>();
             serviceCollection.AddTransient<ILearnerService, LearnerService>();
+            
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
+
+            serviceCollection.AddTransient<IEmployerAccountApiClient<EmployerAccountApiConfiguration>, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
+            
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
 
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))

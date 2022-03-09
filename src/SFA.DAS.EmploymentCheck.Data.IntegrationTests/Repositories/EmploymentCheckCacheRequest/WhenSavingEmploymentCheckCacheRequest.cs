@@ -1,13 +1,13 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NUnit.Framework;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SFA.DAS.EmploymentCheck.Functions.Application.Enums;
+using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {

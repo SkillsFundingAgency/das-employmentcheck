@@ -3,23 +3,31 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.CreateEmploymentCheckCacheRequestsOrchestratorTests
 {
     public class WhenRunningCreateEmploymentCheckCacheRequestsOrchestrator
     {
+        private readonly string _checkActivityName = nameof(GetEmploymentCheckActivity);
+        private readonly string _ninoActivityName = nameof(GetLearnerNiNumberActivity);
+        private readonly string _payeActivityName = nameof(GetEmployerPayeSchemesActivity);
+        private readonly string _requestActivityName = nameof(CreateEmploymentCheckCacheRequestActivity);
+
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>> _logger;
-        private IList<Models.EmploymentCheck> _employmentChecks;
-        private IList<LearnerNiNumber> _learnerNiNumbers;
-        private IList<EmployerPayeSchemes> _employerPayeSchemes;
+
+        private Data.Models.EmploymentCheck _employmentCheck;
+        private Task<LearnerNiNumber> _learnerNiNumberTask;
+        private Task<EmployerPayeSchemes> _employerPayeSchemesTask;
+        private EmploymentCheckData _employmentCheckData;
+
+        private CreateEmploymentCheckCacheRequestsOrchestrator _sut;
 
         [SetUp]
         public void SetUp()
@@ -27,48 +35,41 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
+            _learnerNiNumberTask = _fixture.Create<Task<LearnerNiNumber>>();
+            _employerPayeSchemesTask = _fixture.Create<Task<EmployerPayeSchemes>>();
+            _employmentCheckData = new EmploymentCheckData(_employmentCheck, _learnerNiNumberTask.Result, _employerPayeSchemesTask.Result);
 
-            _employmentChecks = new List<Models.EmploymentCheck>
-            {
-                _fixture.Create<Models.EmploymentCheck>()
-            };
-
-            _learnerNiNumbers = new List<LearnerNiNumber> { _fixture.Create<LearnerNiNumber>() };
-            _employerPayeSchemes = new List<EmployerPayeSchemes> { _fixture.Create<EmployerPayeSchemes>() };
+            _sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
         }
 
         [Test]
         public async Task Then_The_Activities_Are_Called()
         {
             // Arrange
-            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+            _context
+                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(_checkActivityName, null))
+                .ReturnsAsync(_employmentCheck);
 
             _context
-                .Setup(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), It.IsAny<object>()))
-                .ReturnsAsync(_employmentChecks);
+                .Setup(a => a.CallActivityAsync<LearnerNiNumber>(_ninoActivityName, _employmentCheck))
+                .Returns(_learnerNiNumberTask);
 
             _context
-                .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetDbLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
-                .ReturnsAsync(_learnerNiNumbers);
+                .Setup(a => a.CallActivityAsync<EmployerPayeSchemes>(_payeActivityName, _employmentCheck))
+                .Returns(_employerPayeSchemesTask);
 
-            _context
-                .Setup(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
-                .ReturnsAsync(_learnerNiNumbers);
-
-            _context
-                .Setup(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), It.IsAny<IList<Models.EmploymentCheck>>()))
-                .ReturnsAsync(_employerPayeSchemes);
-
-            _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()));
+            _context.Setup(a => a.CallActivityAsync(_requestActivityName, It.IsAny<Object>()))
+                .Verifiable();
 
             // Act
-            await sut.CreateEmploymentCheckRequestsTask(_context.Object);
+            await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<IList<Models.EmploymentCheck>>(nameof(GetEmploymentChecksBatchActivity), It.IsAny<object>()), Times.Once);
-            _context.Verify(a => a.CallActivityAsync<IList<LearnerNiNumber>>(nameof(GetLearnerNiNumbersActivity), It.IsAny<IList<Models.EmploymentCheck>>()), Times.Once);
-            _context.Verify(a => a.CallActivityAsync<IList<EmployerPayeSchemes>>(nameof(GetEmployerPayeSchemesActivity), It.IsAny<IList<Models.EmploymentCheck>>()), Times.Once);
-            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestsActivity), It.IsAny<EmploymentCheckData>()), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(_checkActivityName, null), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<LearnerNiNumber>(_ninoActivityName, _employmentCheck), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<EmployerPayeSchemes>(_payeActivityName, _employmentCheck), Times.Once);
+            _context.Verify(a => a.CallActivityAsync(_requestActivityName, It.IsAny<Object>()), Times.Once);
         }
     }
 }

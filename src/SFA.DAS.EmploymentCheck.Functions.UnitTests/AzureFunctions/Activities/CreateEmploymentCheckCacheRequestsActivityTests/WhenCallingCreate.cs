@@ -1,9 +1,11 @@
 ﻿using AutoFixture;
-using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.CreateEmploymentCheckCacheRequestsActivityTests
@@ -11,19 +13,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     public class WhenCallingCreate
     {
         private Fixture _fixture;
-        private Mock<IMediator> _mediator;
-        private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
+        private Mock<ICommandDispatcher> _dispatcher;
         private EmploymentCheckData _employmentCheckData;
 
         [SetUp]
         public void SetUp()
-
         {
             _fixture = new Fixture();
-            _mediator = new Mock<IMediator>();
-
-            _employmentCheckCacheRequest = _fixture
-                .Create<EmploymentCheckCacheRequest>();
+            _dispatcher = new Mock<ICommandDispatcher>();
 
             _employmentCheckData = _fixture
                 .Create<EmploymentCheckData>();
@@ -33,15 +30,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_Command_Was_Executed()
         {
             // Arrange
-            var sut = new CreateEmploymentCheckCacheRequestsActivity(_mediator.Object);
+            var sut = new CreateEmploymentCheckCacheRequestActivity(_dispatcher.Object);
 
             // Act
-            await sut
-                .Create(_employmentCheckData);
+            await sut.Create(_employmentCheckData);
 
             // Assert
-            Assert
-                .IsTrue(true);
+            _dispatcher.Verify(d => d.Send(
+                It.Is<CreateEmploymentCheckCacheRequestCommand>(
+                    c => c.EmploymentCheckData == _employmentCheckData
+                ), CancellationToken.None
+            ), Times.Once);
         }
     }
 }

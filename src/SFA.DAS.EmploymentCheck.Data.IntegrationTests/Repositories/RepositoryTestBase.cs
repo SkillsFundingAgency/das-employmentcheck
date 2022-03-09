@@ -4,8 +4,8 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                 DbConnectionString = _database.DatabaseInfo.ConnectionString
             };
 
-            UnitOfWorkInstance = new Functions.Repositories.UnitOfWork(Settings);
+            UnitOfWorkInstance = new Data.Repositories.UnitOfWork(Settings);
 
             AssertionOptions.AssertEquivalencyUsing(options =>
             {

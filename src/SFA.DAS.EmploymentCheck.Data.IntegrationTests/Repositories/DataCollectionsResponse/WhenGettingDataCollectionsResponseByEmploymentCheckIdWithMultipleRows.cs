@@ -1,10 +1,10 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using System;
 using System.Threading.Tasks;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.DataCollectionsResponse
 {
@@ -38,22 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.DataCollect
             _actual = await _sut.GetByEmploymentCheckId(savedLast.ApprenticeEmploymentCheckId.Value);
 
             // Assert
-            _actual.Should().BeEquivalentTo(savedLast,
-                opts => opts
-                    .Excluding(x => x.Id)
-                    .Excluding(x => x.CreatedOn)
-                    .Excluding(x => x.LastUpdatedOn)
-                );
-
-            _actual.CreatedOn.Should().BeCloseTo(savedLast.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.LastUpdatedOn.Should().BeCloseTo(savedLast.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
-            _actual.Id.Should().BeGreaterThan(savedFirst.Id);
-        }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await Delete(_actual);
+            _actual.Should().BeEquivalentTo(savedLast);
         }
     }
 }
