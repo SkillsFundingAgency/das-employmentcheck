@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
             Guard.Against.Null(employmentCheck, nameof(employmentCheck));
             var result = await _mediator.Send(new GetPayeSchemesQueryRequest(employmentCheck));
 
-            return result.EmployersPayeSchemes ?? new EmployerPayeSchemes();
+            return result.EmployersPayeSchemes;
         }
     }
 }

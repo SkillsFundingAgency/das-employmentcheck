@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .ReturnsAsync(_employmentCheckCacheRequest);
 
             // Act
-            await sut.ProcessEmploymentChecksWithRateLimiterOrchestratorTask(_context.Object);
+            await sut.ProcessEmploymentCheckRequestsOrchestratorTask(_context.Object);
 
             // Assert
             _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Once);

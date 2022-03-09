@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
@@ -70,58 +69,31 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(
-            EmploymentCheckData employmentCheckData)
+        public async Task SaveEmploymentCheck(Data.Models.EmploymentCheck check)
         {
-            CheckParametersAreNotNullOrEmpty(employmentCheckData);
-            var employmentCheckRequests = await BuildEmploymentCheckCacheRequestModel(employmentCheckData);
-            return await Task.FromResult(employmentCheckRequests);
+           await _employmentCheckRepository.InsertOrUpdate(check);
         }
 
-        private async Task<IList<EmploymentCheckCacheRequest>> BuildEmploymentCheckCacheRequestModel(EmploymentCheckData employmentCheckData)
+        public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData)
         {
-            var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
-
-            IList<EmploymentCheckCacheRequest> employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
+            var employmentCheckRequests = new List<EmploymentCheckCacheRequest>();
             foreach (var payeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes)
             {
-                if (string.IsNullOrEmpty(payeScheme))
+                var employmentCheckCacheRequest = new EmploymentCheckCacheRequest
                 {
-                    _logger.LogError($"{thisMethodName}: An empty PAYE scheme was found for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] accountId [{employmentCheckData.EmploymentCheck.AccountId}].");
-                    continue;
-                }
-
-                var employmentCheckCacheRequest = new EmploymentCheckCacheRequest();
-                employmentCheckCacheRequest.ApprenticeEmploymentCheckId = employmentCheckData.EmploymentCheck.Id;
-                employmentCheckCacheRequest.CorrelationId = employmentCheckData.EmploymentCheck.CorrelationId;
-                employmentCheckCacheRequest.Nino = employmentCheckData.ApprenticeNiNumber.NiNumber;
-                employmentCheckCacheRequest.PayeScheme = payeScheme;
-                employmentCheckCacheRequest.MinDate = employmentCheckData.EmploymentCheck.MinDate;
-                employmentCheckCacheRequest.MaxDate = employmentCheckData.EmploymentCheck.MaxDate;
+                    ApprenticeEmploymentCheckId = employmentCheckData.EmploymentCheck.Id,
+                    CorrelationId = employmentCheckData.EmploymentCheck.CorrelationId,
+                    Nino = employmentCheckData.ApprenticeNiNumber.NiNumber,
+                    PayeScheme = payeScheme,
+                    MinDate = employmentCheckData.EmploymentCheck.MinDate,
+                    MaxDate = employmentCheckData.EmploymentCheck.MaxDate
+                };
                 employmentCheckRequests.Add(employmentCheckCacheRequest);
 
                 await _employmentCheckCacheRequestRepository.Save(employmentCheckCacheRequest);
             }
 
             return employmentCheckRequests;
-        }
-
-        private void CheckParametersAreNotNullOrEmpty(EmploymentCheckData employmentCheckData)
-        {
-            var thisMethodName = $"{nameof(EmploymentCheckService)}.CreateEmploymentCheckCacheRequests";
-            Guard.Against.Null(employmentCheckData, nameof(employmentCheckData));
-
-            if (string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
-            {
-                _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (Nino not found).");
-                throw new ArgumentException("Nino not found");
-            }
-
-            if (employmentCheckData.EmployerPayeSchemes == null || employmentCheckData.EmployerPayeSchemes.PayeSchemes == null)
-            {
-                _logger.LogError($"{thisMethodName}: ERROR - Unable to create an EmploymentCheckCacheRequest for apprentice Uln: [{employmentCheckData.EmploymentCheck.Uln}] (PayeScheme not found).");
-                throw new ArgumentException("Paye scheme not found");
-            }
         }
     }
 }
