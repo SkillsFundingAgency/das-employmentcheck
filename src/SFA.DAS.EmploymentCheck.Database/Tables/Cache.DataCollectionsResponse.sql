@@ -15,3 +15,9 @@
 	CONSTRAINT UC_Cache_DataCollectionsResponse UNIQUE ([ApprenticeEmploymentCheckId], [CorrelationId], [Uln], [NiNumber])
 )
 GO
+
+CREATE NONCLUSTERED INDEX [Ix_Cache_DataCollectionsResponse_ApprenticeEmploymentCheckId] ON [Cache].[DataCollectionsResponse]
+(
+	[ApprenticeEmploymentCheckId] ASC
+)
+GO

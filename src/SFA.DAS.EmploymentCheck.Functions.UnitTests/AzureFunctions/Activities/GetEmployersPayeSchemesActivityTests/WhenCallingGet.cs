@@ -1,64 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using AutoFixture;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using Moq;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using SFA.DAS.EmploymentCheck.Queries;
+using SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes;
 
-namespace SFA.DAS.EmploymentCheck.Functions.Tests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetEmployersPayeSchemesActivityTests
 {
     public class WhenCallingGet
     {
-        Fixture _fixture;
-        private Mock<IMediator> _mediator;
-        private Mock<ILogger<GetEmployerPayeSchemesActivity>> _logger;
-        private IList<Models.EmploymentCheck> _apprentices;
+        private Fixture _fixture;
+        private Mock<IQueryDispatcher> _dispatcher;
+        private Data.Models.EmploymentCheck _employmentCheck;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _mediator = new Mock<IMediator>();
-            _logger = new Mock<ILogger<GetEmployerPayeSchemesActivity>>();
-
-            _apprentices = new List<Models.EmploymentCheck>
-            {
-                _fixture
-                .Create<Models.EmploymentCheck>()
-            };
+            _dispatcher = new Mock<IQueryDispatcher>();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
         [Test]
         public void Then_The_EmployerPayeSchemes_Are_Returned()
         {
-            //Arrange
-            var sut = new GetEmployerPayeSchemesActivity(_mediator.Object, _logger.Object);
+            // Arrange
+            var sut = new GetEmployerPayeSchemesActivity(_dispatcher.Object);
+            var employersPayeSchemes = _fixture.Create<GetPayeSchemesQueryResult>();
 
-            var payes = new List<EmployerPayeSchemes>
-            {
-                _fixture
-                .Build<EmployerPayeSchemes>()
-                .Create()
-            };
-
-            var employersPayeSchemes = new GetPayeSchemesQueryResult(payes);
-
-            _mediator
-                .Setup(x => x.Send(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
+            _dispatcher
+                .Setup(x => x.Send<GetPayeSchemesQueryRequest, GetPayeSchemesQueryResult>(It.IsAny<GetPayeSchemesQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(employersPayeSchemes);
 
-            //Act
-            var result = sut.Get(_apprentices).Result;
+            // Act
+            var result = sut.Get(_employmentCheck).Result;
 
-            //Assert
+            // Assert
             Assert.NotNull(result);
-            Assert.AreEqual(employersPayeSchemes.EmployersPayeSchemes.Count, result.Count);
             Assert.AreEqual(employersPayeSchemes.EmployersPayeSchemes, result);
         }
     }

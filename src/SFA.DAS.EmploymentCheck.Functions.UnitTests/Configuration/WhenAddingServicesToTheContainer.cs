@@ -5,14 +5,16 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Api.Common.Interfaces;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Clients.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmployerAccount;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Hmrc;
-using SFA.DAS.EmploymentCheck.Functions.Application.Services.Learner;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
+using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.EmploymentCheck.Queries;
+using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
@@ -40,8 +42,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             _provider.Dispose();
         }
 
-        [TestCase(typeof(ILearnerClient))]
-        [TestCase(typeof(IEmployerAccountClient))]
         [TestCase(typeof(IHmrcApiOptionsRepository))]
         [TestCase(typeof(IHmrcApiRetryPolicies))]
         [TestCase(typeof(IDcTokenService))]
@@ -56,6 +56,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IEmploymentCheckCacheRequestRepository))]
         [TestCase(typeof(IHashingService))]
         [TestCase(typeof(ITokenServiceApiClient))]
+        [TestCase(typeof(ICommandDispatcher))]
+        [TestCase(typeof(ICommandHandler<CreateEmploymentCheckCacheRequestCommand>))]
+        [TestCase(typeof(IQueryDispatcher))]
+        [TestCase(typeof(IQueryHandler<GetNiNumberQueryRequest, GetNiNumberQueryResult>))]
         public void Then_The_Dependencies_Are_Correctly_Resolved(Type toResolve)
         {
             // Act
@@ -79,16 +83,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .Create();
             serviceCollection.AddSingleton<IOptions<HmrcApiConfiguration>>(new OptionsWrapper<HmrcApiConfiguration>(hmrcApiSettings));
             
-            var accountsApiSettings = _fixture.Build<EmployerAccountApiConfiguration>()
+            var apiConfiguration = _fixture.Build<EmployerAccountApiConfiguration>()
                 .With(x => x.Url, "https://hostname.co")
                 .Create();
-            serviceCollection.AddSingleton(accountsApiSettings);
+            serviceCollection.AddSingleton(apiConfiguration);
 
-            serviceCollection.AddEmploymentCheckService("PROD");
-            serviceCollection.AddPersistenceServices();
-            serviceCollection.AddNLog();
-            serviceCollection.AddApprenticeshipLevyApiClient();
-            serviceCollection.AddHashingService();
+            var dataCollectionsApiConfiguration = _fixture.Build<DataCollectionsApiConfiguration>()
+                .With(x => x.Url, "https://hostname.co")
+                .Create();
+            serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
+
+            serviceCollection.AddEmploymentCheckService("PROD")
+                .AddPersistenceServices()
+                .AddNLog()
+                .AddApprenticeshipLevyApiClient()
+                .AddHashingService()
+                .AddCommandServices()
+                .AddQueryServices()
+                ;
         }
     }
 }

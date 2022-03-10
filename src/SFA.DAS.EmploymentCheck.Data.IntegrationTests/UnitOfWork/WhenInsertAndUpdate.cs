@@ -1,11 +1,10 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
 using System.Threading.Tasks;
 using FluentAssertions;
-using SFA.DAS.EmploymentCheck.Functions.Repositories;
-using Models = SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
 {
@@ -28,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
             // change everything but ID
             _updated = Fixture.Build<Models.EmploymentCheck>().With(x => x.Id, _updated.Id).Create();
 
-            _sut = new Functions.Repositories.UnitOfWork(Settings);
+            _sut = new Data.Repositories.UnitOfWork(Settings);
 
             // Act
             await _sut.BeginAsync();
@@ -41,14 +40,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.UnitOfWork
             Get<Models.EmploymentCheck>(_updated.Id).Result.Should().BeEquivalentTo(_updated);
             Get<EmploymentCheckCacheRequest>(_inserted1.Id).Result.Should().BeEquivalentTo(_inserted1);
             Get<EmploymentCheckCacheResponse>(_inserted2.Id).Result.Should().BeEquivalentTo(_inserted2);
-        }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await Delete(_updated);
-            await Delete(_inserted1);
-            await Delete(_inserted2);
         }
     }
 }

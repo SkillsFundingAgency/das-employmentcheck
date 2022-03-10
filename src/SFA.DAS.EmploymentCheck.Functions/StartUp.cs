@@ -1,17 +1,14 @@
-﻿using MediatR;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.EmploymentCheck.Functions.Configuration;
-using System.IO;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetEmploymentChecksBatch;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetNiNumbers;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetPayeSchemes;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -49,11 +46,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             builder.Services.AddOptions();
 
-            // MediatR configuration
-            builder.Services.AddMediatR(typeof(GetEmploymentCheckBatchQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetNiNumbersQueryRequest).Assembly);
-            builder.Services.AddMediatR(typeof(GetPayeSchemesQueryRequest).Assembly);
-
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountApiConfiguration>>().Value);
@@ -71,14 +63,16 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApplicationSettings>>().Value);
 
             //DC Api Settings
-            builder.Services.Configure<DcApiSettings>(config.GetSection("DcApiSettings"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DcApiSettings>>().Value);
+            builder.Services.Configure<DataCollectionsApiConfiguration>(config.GetSection("DcApiSettings"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<DataCollectionsApiConfiguration>>().Value);
 
             // HmrcAuthTokenService Settings
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
             builder.Services
+                .AddCommandServices()
+                .AddQueryServices()
                 .AddApprenticeshipLevyApiClient()
                 .AddHashingService()
                 .AddEmploymentCheckService(config["EnvironmentName"])

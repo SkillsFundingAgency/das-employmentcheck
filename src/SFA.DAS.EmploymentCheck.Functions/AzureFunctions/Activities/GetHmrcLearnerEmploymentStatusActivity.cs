@@ -1,31 +1,28 @@
-﻿using MediatR;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.Application.Models;
-using SFA.DAS.EmploymentCheck.Functions.Mediators.Queries.GetHmrcLearnerEmploymentStatus;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Queries;
+using SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
     public class GetHmrcLearnerEmploymentStatusActivity
     {
-        private readonly IMediator _mediator;
+        private readonly IQueryDispatcher _dispatcher;
 
-        public GetHmrcLearnerEmploymentStatusActivity(
-            ILogger<GetHmrcLearnerEmploymentStatusActivity> logger,
-            IMediator mediator)
+        public GetHmrcLearnerEmploymentStatusActivity(IQueryDispatcher dispatcher)
         {
-            _mediator = mediator;
+            _dispatcher = dispatcher;
         }
 
         [FunctionName(nameof(GetHmrcLearnerEmploymentStatusActivity))]
         public async Task<EmploymentCheckCacheRequest> GetHmrcEmploymentStatusTask(
             [ActivityTrigger] EmploymentCheckCacheRequest request)
         {
-            var checkEmploymentStatusQueryResult = await _mediator.Send(new GetHmrcLearnerEmploymentStatusQueryRequest(request));
+            var result = await _dispatcher.Send<GetHmrcLearnerEmploymentStatusQueryRequest, GetHmrcLearnerEmploymentStatusQueryResult>(new GetHmrcLearnerEmploymentStatusQueryRequest(request));
 
-            return checkEmploymentStatusQueryResult.EmploymentCheckCacheRequest;
+            return result.EmploymentCheckCacheRequest;
         }
     }
 }

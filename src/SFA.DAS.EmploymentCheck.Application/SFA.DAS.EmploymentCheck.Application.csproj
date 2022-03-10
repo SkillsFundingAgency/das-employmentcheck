@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HMRC.ESFA.Levy.Api.Client" Version="2.0.4" />
+    <PackageReference Include="Polly" Version="7.2.2" />
+    <PackageReference Include="SFA.DAS.Account.Api.Types" Version="1.6.2978" />
+    <PackageReference Include="SFA.DAS.Api.Common" Version="1.0.13" />
+    <PackageReference Include="SFA.DAS.HashingService" Version="1.0.183" />
+    <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Data\SFA.DAS.EmploymentCheck.Data.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Domain\SFA.DAS.EmploymentCheck.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
