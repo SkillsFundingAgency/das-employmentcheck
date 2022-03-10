@@ -13,17 +13,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
     public class EmploymentCheckService : IEmploymentCheckService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
-            ILogger<IEmploymentCheckService> logger,
             IEmploymentCheckRepository employmentCheckRepository,
             IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
             IUnitOfWork unitOfWork)
         {
-            _logger = logger;
             _employmentCheckRepository = employmentCheckRepository;
             _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
             _unitOfWork = unitOfWork;

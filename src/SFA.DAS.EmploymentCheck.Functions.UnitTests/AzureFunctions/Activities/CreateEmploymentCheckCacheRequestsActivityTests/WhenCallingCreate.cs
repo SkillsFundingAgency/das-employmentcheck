@@ -32,8 +32,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Arrange
             var sut = new CreateEmploymentCheckCacheRequestActivity(_dispatcher.Object);
 
-            var sut = new CreateEmploymentCheckCacheRequestActivity(_dispatcher.Object);
-
             // Act
             await sut.Create(_employmentCheckData);
 
