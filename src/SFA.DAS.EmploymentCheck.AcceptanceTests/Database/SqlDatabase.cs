@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using Microsoft.Data.SqlClient;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Database
 {
     public class SqlDatabase : IDisposable
     {
@@ -14,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
         public SqlDatabase(string dbName)
         {
             DatabaseInfo.SetDatabaseName(dbName);
-            CreateTestDatabase();
+            //CreateTestDatabase();
         }
 
         private void CreateTestDatabase()
@@ -79,7 +80,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
             catch (Exception ex)
             {
                 Console.WriteLine($"[{nameof(SqlDatabase)}] {nameof(DeleteTestDatabase)} exception thrown: {ex.Message}");
-                throw;
+                throw ex;
             }
         }
 

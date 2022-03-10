@@ -62,8 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.EmployerAccountApiClient
             _sut = new Application.Services.EmployerAccount.EmployerAccountApiClient(
                 clientFactory.Object,
                 _configuration,
-                hostingEnvironment.Object,
-                _tokenServiceMock.Object);
+                _tokenServiceMock.Object, hostingEnvironment.Object);
         }
 
         [Test]

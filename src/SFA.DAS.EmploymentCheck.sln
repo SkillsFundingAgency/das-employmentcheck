@@ -49,9 +49,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Que
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Data.UnitTests", "SFA.DAS.EmploymentCheck.Data.UnitTests\SFA.DAS.EmploymentCheck.Data.UnitTests.csproj", "{9AC153F1-7867-45CD-AE13-F678759259F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Api.UnitTests", "SFA.DAS.EmploymentCheck.Api.UnitTests\SFA.DAS.EmploymentCheck.Api.UnitTests.csproj", "{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Api.UnitTests", "SFA.DAS.EmploymentCheck.Api.UnitTests\SFA.DAS.EmploymentCheck.Api.UnitTests.csproj", "{3F24A86D-32D9-4F9A-9D12-A324CD7BD890}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Api.IntegrationTests", "SFA.DAS.EmploymentCheck.Api.IntegrationTests\SFA.DAS.EmploymentCheck.Api.IntegrationTests.csproj", "{51831FB0-BDB8-480E-B10B-19DA5279D1A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Api.IntegrationTests", "SFA.DAS.EmploymentCheck.Api.IntegrationTests\SFA.DAS.EmploymentCheck.Api.IntegrationTests.csproj", "{51831FB0-BDB8-480E-B10B-19DA5279D1A8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.AcceptanceTests", "..\..\das-employmentcheck-jan-2022\src\SFA.DAS.EmploymentCheck.AcceptanceTests\SFA.DAS.EmploymentCheck.AcceptanceTests.csproj", "{9C1203ED-2183-436D-ABA9-9706374B86B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Tests.Database", "SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.Tests.Database.csproj", "{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Tests.AzureFunctions", "SFA.DAS.EmploymentCheck.Tests.AzureFunctions\SFA.DAS.EmploymentCheck.Tests.AzureFunctions.csproj", "{402229A3-27D8-4F4E-B8AB-13C60CA26C07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +147,18 @@ Global
 		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51831FB0-BDB8-480E-B10B-19DA5279D1A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C1203ED-2183-436D-ABA9-9706374B86B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C1203ED-2183-436D-ABA9-9706374B86B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C1203ED-2183-436D-ABA9-9706374B86B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C1203ED-2183-436D-ABA9-9706374B86B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{402229A3-27D8-4F4E-B8AB-13C60CA26C07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{402229A3-27D8-4F4E-B8AB-13C60CA26C07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{402229A3-27D8-4F4E-B8AB-13C60CA26C07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{402229A3-27D8-4F4E-B8AB-13C60CA26C07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -164,6 +182,9 @@ Global
 		{9AC153F1-7867-45CD-AE13-F678759259F2} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{3F24A86D-32D9-4F9A-9D12-A324CD7BD890} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 		{51831FB0-BDB8-480E-B10B-19DA5279D1A8} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{9C1203ED-2183-436D-ABA9-9706374B86B8} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
+		{402229A3-27D8-4F4E-B8AB-13C60CA26C07} = {B5324D91-FA6E-4538-86ED-92A14B602EA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {281C331D-5A42-42E4-AA0A-E82FB88EA18C}

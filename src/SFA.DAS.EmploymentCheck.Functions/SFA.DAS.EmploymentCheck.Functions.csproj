@@ -16,7 +16,7 @@
     <PackageReference Include="HMRC.ESFA.Levy.Api.Types" Version="2.0.4" />
     <PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.18.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.5.1" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.3.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.22" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.13" />

@@ -14,11 +14,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
         private readonly DataCollectionsApiConfiguration _configuration;
         private readonly IDcTokenService _tokenService;
 
-        public DataCollectionsApiClient(
-            IHttpClientFactory httpClientFactory,
-            DataCollectionsApiConfiguration configuration, 
-            IWebHostEnvironment hostingEnvironment,
-            IDcTokenService tokenService) : base(httpClientFactory, configuration, hostingEnvironment)
+        public DataCollectionsApiClient(IHttpClientFactory httpClientFactory,
+            DataCollectionsApiConfiguration configuration,
+            IDcTokenService tokenService,
+            IWebHostEnvironment hostingEnvironment = null) : base(httpClientFactory, configuration, hostingEnvironment)
         {
             _configuration = configuration;
             _tokenService = tokenService;
@@ -26,10 +25,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
         protected override async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            var accessToken = await GetDataCollectionsApiAccessToken();
-            if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
+            if (HostingEnvironment != null && !HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
             {
-                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
+                var accessToken = await GetDataCollectionsApiAccessToken();
+
+                if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
+                {
+                    httpRequestMessage.Headers.Authorization =
+                        new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
+                }
             }
         }
 

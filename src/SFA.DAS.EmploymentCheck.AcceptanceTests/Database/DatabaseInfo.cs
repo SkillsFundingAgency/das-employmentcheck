@@ -1,5 +1,5 @@
 ﻿
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Database
 {
     public class DatabaseInfo
     {
@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
             if (string.IsNullOrEmpty(connectionString))
             {
                 connectionString =
-                    "Server=(localdb)\\MSSQLLocalDB;Database=SFA.DAS.EmploymentCheck.Database;Integrated Security=True;";
+                    "Server=(localdb)\\MSSQLLocalDB;Database=SFA.DAS.EmploymentCheck.Database;Integrated Security=True;"; // TODO
             }
             SetConnectionString(connectionString);
         }
