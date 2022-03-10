@@ -142,7 +142,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             // Arrange
             var employmentCheck = _fixture.Build<Models.EmploymentCheck>().Without(x => x.ErrorType).Create();
-            var learnerNiNumber = _fixture.Build<LearnerNiNumber>().Without(x => x.NiNumber).Create();
+            var learnerNiNumber = new LearnerNiNumber(1, null, HttpStatusCode.NoContent);
             var payeScheme = _fixture.Create<EmployerPayeSchemes>();
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
             var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
