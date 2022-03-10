@@ -1,16 +1,14 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using Dapper.Contrib.Extensions;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Data.SqlClient;
+using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
@@ -19,20 +17,24 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         protected Fixture Fixture;
         protected ApplicationSettings Settings;
         protected IUnitOfWork UnitOfWorkInstance;
-        protected IList<object> ToBeDeleted = new List<object>();
-        private const string AzureResource = "https://database.windows.net/";
+        private string _databaseName; 
+        private SqlDatabase _database;
 
         [SetUp]
         public void SetUp()
         {
             Fixture = new Fixture();
 
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json", optional: false).Build();
+            SqlDatabaseModel.Update();
 
-            Settings = new ApplicationSettings();
-            config.Bind(Settings);
+            _databaseName = Fixture.Create<string>();
+
+            _database = new SqlDatabase(_databaseName);
+
+            Settings = new ApplicationSettings
+            {
+                DbConnectionString = _database.DatabaseInfo.ConnectionString
+            };
 
             UnitOfWorkInstance = new Data.Repositories.UnitOfWork(Settings);
 
@@ -42,6 +44,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
                 options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTimeOffset>();
                 return options;
             });
+        }
+
+
+        [TearDown]
+        public void CleanUp()
+        {
+            _database.Dispose();
         }
 
         public async Task<T> Get<T>(object id) where T : class
@@ -58,7 +67,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
         public async Task<int> Insert<T>(T entity) where T : class
         {
-            ToBeDeleted.Add(entity);
             await using var dbConnection = GetSqlConnection();
             return await dbConnection.InsertAsync(entity);
         }
@@ -77,9 +85,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
         private SqlConnection GetSqlConnection()
         {
-            return new SqlConnection { ConnectionString = Settings.DbConnectionString, AccessToken = Settings.DbConnectionString.Contains("Integrated Security") ? null : new AzureServiceTokenProvider().GetAccessTokenAsync(AzureResource).Result };
+            return new SqlConnection { ConnectionString = Settings.DbConnectionString };
         }
-
-
     }
 }

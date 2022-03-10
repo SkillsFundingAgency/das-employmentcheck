@@ -1,12 +1,11 @@
-﻿using System.Threading;
+﻿using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest
 {
     public class ProcessEmploymentCheckCacheRequestQueryHandler
-        : IRequestHandler<ProcessEmploymentCheckCacheRequestQueryRequest,
+        : IQueryHandler<ProcessEmploymentCheckCacheRequestQueryRequest,
             ProcessEmploymentCheckCacheRequestQueryResult>
     {
         private readonly IEmploymentCheckService _service;

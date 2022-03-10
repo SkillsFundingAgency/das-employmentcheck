@@ -99,12 +99,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             // Assert
             Get<Models.EmploymentCheck>(_expected.Id).Result.Should().BeEquivalentTo(_expected); // i.e. unchanged
         }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            if (_expected != null) await Delete(_expected);
-        }
     }
 }
 

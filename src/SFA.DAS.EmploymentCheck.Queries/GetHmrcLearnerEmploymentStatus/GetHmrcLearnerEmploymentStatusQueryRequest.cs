@@ -1,10 +1,8 @@
-﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
 {
-    public class GetHmrcLearnerEmploymentStatusQueryRequest
-        : IRequest<GetHmrcLearnerEmploymentStatusQueryResult>
+    public class GetHmrcLearnerEmploymentStatusQueryRequest : IQuery
     {
         public GetHmrcLearnerEmploymentStatusQueryRequest(
             EmploymentCheckCacheRequest employmentCheckCacheRequest)

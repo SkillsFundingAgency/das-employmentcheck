@@ -1,14 +1,13 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Data.Repositories;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
 {
@@ -33,27 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             _actual = (await GetAll<Models.EmploymentCheckCacheRequest>())
                 .Single(x => x.Id == expected.Id);
 
-            _actual.Should().BeEquivalentTo(expected,
-                opts => opts
-                    .Excluding(x => x.Id)
-                    .Excluding(x => x.MinDate)
-                    .Excluding(x => x.MaxDate)
-                    .Excluding(x => x.CreatedOn)
-                    .Excluding(x => x.LastUpdatedOn)
-                );
-
-            _actual.CreatedOn.Should().BeCloseTo(expected.CreatedOn, TimeSpan.FromSeconds(1));
-            _actual.LastUpdatedOn.Should().BeCloseTo(expected.LastUpdatedOn.Value, TimeSpan.FromSeconds(1));
-            _actual.MinDate.Should().BeCloseTo(expected.MinDate, TimeSpan.FromMilliseconds(100));
-            _actual.MaxDate.Should().BeCloseTo(expected.MaxDate, TimeSpan.FromMilliseconds(100));
-            _actual.Id.Should().BeGreaterThan(0);
-            _actual.RequestCompletionStatus.Should().Be((short)ProcessingCompletionStatus.Completed);
-        }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await Delete(_actual);
+            _actual.Should().BeEquivalentTo(expected);
         }
     }
 }

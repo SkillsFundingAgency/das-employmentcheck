@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
-using MediatR;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
@@ -13,16 +13,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     public class WhenCallingCreate
     {
         private Fixture _fixture;
-        private Mock<IMediator> _mediator;
+        private Mock<ICommandDispatcher> _dispatcher;
         private EmploymentCheckData _employmentCheckData;
 
         [SetUp]
         public void SetUp()
-
         {
             _fixture = new Fixture();
-            _mediator = new Mock<IMediator>();
-            _employmentCheckData = _fixture.Create<EmploymentCheckData>();
+            _dispatcher = new Mock<ICommandDispatcher>();
+
+            _employmentCheckData = _fixture
+                .Create<EmploymentCheckData>();
         }
 
         [Test]
@@ -31,13 +32,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Arrange
             _mediator.Setup(x => x.Send(It.IsAny<CreateEmploymentCheckCacheRequestCommand>(), It.IsAny<CancellationToken>())).Verifiable();
 
-            var sut = new CreateEmploymentCheckCacheRequestActivity(_mediator.Object);
+            var sut = new CreateEmploymentCheckCacheRequestActivity(_dispatcher.Object);
 
             // Act
             await sut.Create(_employmentCheckData);
 
             // Assert
-            _mediator.Verify(x => x.Send(It.IsAny<CreateEmploymentCheckCacheRequestCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _dispatcher.Verify(d => d.Send(
+                It.Is<CreateEmploymentCheckCacheRequestCommand>(
+                    c => c.EmploymentCheckData == _employmentCheckData
+                ), CancellationToken.None
+            ), Times.Once);
         }
     }
 }

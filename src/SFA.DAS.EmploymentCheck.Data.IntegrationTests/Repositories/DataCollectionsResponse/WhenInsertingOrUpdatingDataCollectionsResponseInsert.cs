@@ -28,12 +28,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.DataCollect
 
             _actual.Should().BeEquivalentTo(expected);
         }
-
-        [TearDown]
-        public async Task CleanUp()
-        {
-            await Delete(_actual);
-        }
     }
 }
 

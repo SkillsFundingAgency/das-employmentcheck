@@ -1,14 +1,13 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
 {
     public class CreateEmploymentCheckCacheRequestCommandHandler
-        : IRequestHandler<CreateEmploymentCheckCacheRequestCommand>
+        : ICommandHandler<CreateEmploymentCheckCacheRequestCommand>
     {
         private readonly IEmploymentCheckService _service;
 
@@ -17,9 +16,9 @@ namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
             _service = service;
         }
 
-        public async Task<Unit> Handle(
+        public async Task Handle(
             CreateEmploymentCheckCacheRequestCommand request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             if (IsValid(request))
             {
@@ -31,8 +30,6 @@ namespace SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest
                
                 await _service.SaveEmploymentCheck(request.EmploymentCheckData.EmploymentCheck);
             }
-
-            return Unit.Value;
         }
 
         private static bool IsValid(CreateEmploymentCheckCacheRequestCommand request)
