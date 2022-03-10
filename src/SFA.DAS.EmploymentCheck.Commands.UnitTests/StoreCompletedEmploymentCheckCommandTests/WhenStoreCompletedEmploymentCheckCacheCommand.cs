@@ -1,16 +1,13 @@
 ﻿using AutoFixture;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
-using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck;
-using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System.Threading;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
+namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.StoreCompletedEmploymentCheckCommandTests
 {
     public class WhenStoreCompletedEmploymentCheckCacheCommand
     {

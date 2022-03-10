@@ -123,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 return false;
             }
 
-            if (employmentCheckData.ApprenticeNiNumber?.NiNumber.Length < validNinoLength)
+            if (employmentCheckData.ApprenticeNiNumber.NiNumber.Length < validNinoLength)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = NinoInvalid;
                 return false;
@@ -139,13 +139,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 return false;
             }
 
-            if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.NoContent)
+            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NoContent)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
                 return false;
             }
 
-            if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.NotFound)
+            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
                 return false;
@@ -169,14 +169,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 return false;
             }
 
-            if (employmentCheckData.EmployerPayeSchemes.PayeSchemes == null)
+            if (!employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
             {
                 employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
                 return false;
             }
 
-            if (employmentCheckData.EmployerPayeSchemes.PayeSchemes != null
-                && employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
+            if (employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
             {
                 var emptyValue = false;
                 foreach (var employerPayeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes.Where(x => x.Length == 0))

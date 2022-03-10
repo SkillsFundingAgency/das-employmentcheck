@@ -117,6 +117,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             // Assert
             result.Should().BeEquivalentTo(expected);
+            result.HttpStatusCode = expected.HttpStatusCode;
         }
 
         [Test]

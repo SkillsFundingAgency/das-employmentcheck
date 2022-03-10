@@ -174,6 +174,25 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
+        public void When_There_Is_A_LearnerNiNumber_And_The_Status_Is_NotFound_IsValidNino_Returns_False_And_ErrorType_Is_Set_To_NinoNotFound()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().Without(x => x.ErrorType).Create();
+            var learnerNiNumber = _fixture.Build<LearnerNiNumber>().With(x => x.HttpStatusCode, HttpStatusCode.NotFound).Create();
+            var payeScheme = _fixture.Create<EmployerPayeSchemes>();
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.IsValidNino(employmentCheckData);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(NinoNotFound, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+
+        [Test]
         public void When_There_Is_A_LearnerNiNumber_And_The_Status_Is_Between_400_and_599_IsValidNino_Returns_False_And_ErrorType_Is_Set_To_NinoFailure()
         {
             // Arrange
@@ -271,7 +290,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
-        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Is_Null_And_ErrorType_Is_Empty_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_PAYENotFound()
+        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Is_Empty_And_ErrorType_Is_Empty_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_PAYENotFound()
         {
             // Arrange
             var employmentCheck = _fixture.Build<Models.EmploymentCheck>().Without(x => x.ErrorType).Create();
@@ -289,12 +308,48 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
-        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Is_Null_And_ErrorType_Is_NinoNotFound_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_NinoNotFoundAndPAYENotFound()
+        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Is_Empty_And_ErrorType_Is_NinoNotFound_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_NinoNotFoundAndPAYENotFound()
         {
             // Arrange
             var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
             var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
             EmployerPayeSchemes payeScheme = new EmployerPayeSchemes(1, HttpStatusCode.NoContent, null);
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.IsValidPayeScheme(employmentCheckData);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual($"{NinoNotFound}And{PAYENotFound}", employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_There_Is_An_EmployerPayeSchemes_And_The_Status_Is_NoContent_And_ErrorType_Is_Empty_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_PAYENotFound()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().Without(x => x.ErrorType).Create();
+            var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
+            var payeScheme = _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.NoContent).Create();
+            var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
+            var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
+
+            // Act
+            var result = sut.IsValidPayeScheme(employmentCheckData);
+
+            // Assert
+            result.Equals(false);
+            Assert.AreEqual(PAYENotFound, employmentCheckData.EmploymentCheck.ErrorType);
+        }
+
+        [Test]
+        public void When_There_Is_An_EmployerPayeSchemes_And_The_Status_Is_NoContent_And_ErrorType_NinoNotFound_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_NinoNotFoundAndPAYENotFound()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
+            var learnerNiNumber = _fixture.Create<LearnerNiNumber>();
+            var payeScheme = _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.NoContent).Create();
             var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumber, payeScheme);
             var sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object);
 
@@ -393,7 +448,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
-        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Has_An_Empty_PayeScheme_And_ErrorType_Is_Empty_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_PAYENotFound()
+        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Has_A_Blank_PayeScheme_And_ErrorType_Is_Empty_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_PAYENotFound()
         {
             // Arrange
             var employmentCheck = _fixture.Build<Models.EmploymentCheck>().Without(x => x.ErrorType).Create();
@@ -411,7 +466,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         }
 
         [Test]
-        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Has_An_Empty_PayeScheme_And_ErrorType_Is_NinoNotFound_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_NinoNotFoundAndPAYENotFound()
+        public void When_There_Is_An_EmployerPayeSchemes_And_The_PayeScheme_Has_A_Blank_PayeScheme_And_ErrorType_Is_NinoNotFound_IsValidPayeScheme_Returns_False_And_ErrorType_Is_Set_To_NinoNotFoundAndPAYENotFound()
         {
             // Arrange
             var employmentCheck = _fixture.Build<Models.EmploymentCheck>().With(x => x.ErrorType, NinoNotFound).Create();
