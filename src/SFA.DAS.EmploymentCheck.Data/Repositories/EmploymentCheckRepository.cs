@@ -145,10 +145,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             parameter.Add("@apprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
             parameter.Add("@employed", request.Employed, DbType.Boolean);
             parameter.Add("@requestCompletionStatus", (short)ProcessingCompletionStatus.Completed, DbType.Int16);
+            parameter.Add("@errorType", request.Employed == null ? "HmrcFailure" : null, DbType.String);
             parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql = "UPDATE [Business].[EmploymentCheck] " +
-                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, ErrorType = @errorType, LastUpdatedOn = @lastUpdatedOn " +
                                "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ";
 
 

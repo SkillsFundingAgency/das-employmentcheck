@@ -21,10 +21,11 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         {
             // Arrange
             _sut = new EmploymentCheckRepository(Settings, Mock.Of<ILogger<EmploymentCheckRepository>>());
-            
+
             var check = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
                 .Without(x => x.Employed)
+                .Without(x => x.ErrorType)
                 .Create();
             await Insert(check);
 
@@ -43,6 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             actual.Employed = request.Employed;
             actual.RequestCompletionStatus.Should().Be((short)ProcessingCompletionStatus.Completed);
             actual.LastUpdatedOn?.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            actual.ErrorType.Should().Be("HmrcFailure");
         }
 
         [Test]
@@ -54,6 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             var check = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
                 .With(x => x.Employed, false)
+                .Without(x => x.ErrorType)
                 .Create();
             await Insert(check);
 
@@ -72,6 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             actual.Employed = request.Employed;
             actual.RequestCompletionStatus.Should().Be((short)ProcessingCompletionStatus.Completed);
             actual.LastUpdatedOn?.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            actual.ErrorType.Should().BeNull();
         }
 
         [Test]
@@ -83,6 +87,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             _expected = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
                 .With(x => x.Employed, true)
+                .Without(x => x.ErrorType)
                 .Create();
             await Insert(_expected);
 
