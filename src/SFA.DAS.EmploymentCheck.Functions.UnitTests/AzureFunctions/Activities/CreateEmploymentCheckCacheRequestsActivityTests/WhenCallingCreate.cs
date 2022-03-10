@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_Command_Was_Executed()
         {
             // Arrange
-            _mediator.Setup(x => x.Send(It.IsAny<CreateEmploymentCheckCacheRequestCommand>(), It.IsAny<CancellationToken>())).Verifiable();
+            _dispatcher.Setup(x => x.Send(It.IsAny<CreateEmploymentCheckCacheRequestCommand>(), It.IsAny<CancellationToken>())).Verifiable();
 
             var sut = new CreateEmploymentCheckCacheRequestActivity(_dispatcher.Object);
 

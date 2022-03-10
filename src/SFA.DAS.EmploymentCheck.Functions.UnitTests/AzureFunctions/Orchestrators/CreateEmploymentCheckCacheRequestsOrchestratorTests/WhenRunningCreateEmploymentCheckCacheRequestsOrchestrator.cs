@@ -468,7 +468,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task When_The_EmploymentCheckData_Is_Valid_Then_The_CreateCashRequestActivity_Is_Called()
         {
             // Arrange
-            var learnerNiNumberTask = Task.FromResult(new LearnerNiNumber { Uln = 1, NiNumber = "123456789" });
+            var learnerNiNumberTask = Task.FromResult(new LearnerNiNumber(1, "123456789", HttpStatusCode.OK));
             var employerPayeSchemesTask = Task.FromResult(new EmployerPayeSchemes(1, HttpStatusCode.OK, new List<string> { "paye" }));
 
             _context
@@ -500,7 +500,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task When_The_EmploymentCheckData_Nino_Is_InValid_Then_The_StoreCompletedEmploymentCheckActivity_Is_Called()
         {
             // Arrange
-            var learnerNiNumberTask = Task.FromResult(new LearnerNiNumber());
+            var learnerNiNumberTask = Task.FromResult(new LearnerNiNumber(1, "", HttpStatusCode.NoContent));
             var employerPayeSchemesTask = Task.FromResult(new EmployerPayeSchemes(1, HttpStatusCode.OK, new List<string> { "paye" }));
 
             _context
@@ -532,7 +532,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task When_The_EmploymentCheckData_PayeScheme_Is_InValid_Then_The_StoreCompletedEmploymentCheckActivity_Is_Called()
         {
             // Arrange
-            var learnerNiNumberTask = Task.FromResult(new LearnerNiNumber { Uln = 1, NiNumber = "123456789" });
+            var learnerNiNumberTask = Task.FromResult(new LearnerNiNumber(1, "123456789", HttpStatusCode.OK));
             var employerPayeSchemesTask = Task.FromResult(new EmployerPayeSchemes(1, HttpStatusCode.NotFound, null));
 
             _context

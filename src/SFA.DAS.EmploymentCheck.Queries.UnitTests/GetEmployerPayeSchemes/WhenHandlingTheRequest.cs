@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes
 
             _employerAccountService
                 .Setup(x => x.GetEmployerPayeSchemes(request.EmploymentCheck))
-                .ReturnsAsync(new EmployerPayeSchemes(request.EmploymentCheck.AccountId));
+                .ReturnsAsync(new EmployerPayeSchemes(request.EmploymentCheck.AccountId, HttpStatusCode.OK));
 
             var sut = new GetPayeSchemeQueryHandler(_employerAccountService.Object);
 

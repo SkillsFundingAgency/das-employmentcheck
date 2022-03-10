@@ -1,12 +1,11 @@
-﻿using MediatR;
-using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+﻿using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck
 {
     public class StoreCompletedEmploymentCheckCommandHandler
-        : IRequestHandler<StoreCompletedEmploymentCheckCommand>
+        : ICommandHandler<StoreCompletedEmploymentCheckCommand>
     {
         private readonly IEmploymentCheckService _service;
 
@@ -15,14 +14,12 @@ namespace SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck
             _service = service;
         }
 
-        public async Task<Unit> Handle(
+        public async Task Handle(
             StoreCompletedEmploymentCheckCommand command,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken = default
         )
         {
             await _service.StoreCompletedEmploymentCheck(command.EmploymentCheck);
-
-            return Unit.Value;
         }
     }
 }

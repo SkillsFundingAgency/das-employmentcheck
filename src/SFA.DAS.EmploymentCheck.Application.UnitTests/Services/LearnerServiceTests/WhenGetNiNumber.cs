@@ -90,6 +90,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var nino = _fixture.Build<LearnerNiNumber>()
                 .With(n => n.Uln, _employmentCheck.Uln)
                 .Without(n => n.NiNumber)
+                .With(n => n.HttpStatusCode, HttpStatusCode.OK)
                 .Create();
             nino.NiNumber = _fixture.Create<string>()[..20];
 
