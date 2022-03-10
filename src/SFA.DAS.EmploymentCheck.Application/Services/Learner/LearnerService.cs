@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             {
                 var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
                 var response = await _apiClient.Get(request);
-
+                
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
             }
             catch (Exception e)
@@ -74,9 +74,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var learnerNiNumber = DeserialiseContent(jsonContent, response);
             learnerNiNumber.HttpStatusCode = HttpStatusCode.OK;
-
+            
             response.SetNiNumber(learnerNiNumber?.NiNumber);
-
+            
             await Save(response);
 
             return learnerNiNumber;
@@ -97,9 +97,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             Guard.Against.Null(dataCollectionsResponse, nameof(dataCollectionsResponse));
 
             if (string.IsNullOrEmpty(jsonContent)) return null;
-
+            
             var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
-
+            
             return learnerNiNumbers?.FirstOrDefault();
         }
 

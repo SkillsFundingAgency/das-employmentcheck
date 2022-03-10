@@ -22,6 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _repositoryMock = new Mock<IEmploymentCheckRepository>();
 
             _sut = new EmploymentCheckService(
+                Mock.Of<ILogger<IEmploymentCheckService>>(),
                 _repositoryMock.Object,
                 Mock.Of<IEmploymentCheckCacheRequestRepository>(),
                 Mock.Of<IUnitOfWork>()

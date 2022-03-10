@@ -23,6 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes
         {
             _employerAccountService = new Mock<IEmployerAccountService>();
             _fixture = new Fixture();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
         }
 
         [Test]

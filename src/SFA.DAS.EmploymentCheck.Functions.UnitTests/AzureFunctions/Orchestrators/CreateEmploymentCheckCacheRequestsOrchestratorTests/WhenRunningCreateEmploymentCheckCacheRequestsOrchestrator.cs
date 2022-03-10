@@ -35,6 +35,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Models.EmploymentCheck _employmentCheck;
         private CreateEmploymentCheckCacheRequestsOrchestrator _sut;
 
+        private Data.Models.EmploymentCheck _employmentCheck;
+        private Task<LearnerNiNumber> _learnerNiNumberTask;
+        private Task<EmployerPayeSchemes> _employerPayeSchemesTask;
+        private EmploymentCheckData _employmentCheckData;
+
+        private CreateEmploymentCheckCacheRequestsOrchestrator _sut;
+
         [SetUp]
         public void SetUp()
         {

@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            _apiClientMock.Verify(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(r =>
+            _apiClientMock.Verify(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(r => 
                 r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")));
         }
 
@@ -212,7 +212,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var exception = _fixture.Create<Exception>();
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ThrowsAsync(exception);
-
+            
             // Act
             await _sut.GetEmployerPayeSchemes(_employmentCheck);
 

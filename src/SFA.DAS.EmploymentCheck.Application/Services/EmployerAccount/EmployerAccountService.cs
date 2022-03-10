@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             }
 
             var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
-
+          
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
@@ -104,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
             var accountsResponse = CreateResponseModel(employmentCheck, e.Message);
-
+           
             await Save(accountsResponse);
         }
 
