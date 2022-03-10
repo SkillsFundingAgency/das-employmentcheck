@@ -51,7 +51,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     }
                     else
                     {
-                        await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheck);
+                        var storeActivity = nameof(StoreCompletedEmploymentCheckActivity);
+                        await context.CallActivityAsync(storeActivity, employmentCheck);
                     }
                 }
                 else
