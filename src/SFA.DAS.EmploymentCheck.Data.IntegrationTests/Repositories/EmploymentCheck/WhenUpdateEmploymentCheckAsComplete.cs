@@ -31,6 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             var request = Fixture.Build<Models.EmploymentCheckCacheRequest>()
                 .With(x => x.ApprenticeEmploymentCheckId, check.Id)
+                .Without(x => x.Employed)
                 .Create();
 
             // Act
