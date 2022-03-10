@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
     public class EmploymentCheckService : IEmploymentCheckService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
-            ILogger<IEmploymentCheckService> logger,
             IEmploymentCheckRepository employmentCheckRepository,
             IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
             IUnitOfWork unitOfWork)
         {
-            _logger = logger;
             _employmentCheckRepository = employmentCheckRepository;
             _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
             _unitOfWork = unitOfWork;
@@ -35,6 +34,16 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();
+        }
+
+        public async Task StoreCompletedEmploymentCheck(Models.EmploymentCheck employmentCheck)
+        {
+            if (employmentCheck.Id > 0)
+            {
+                employmentCheck.LastUpdatedOn = DateTime.Now;
+                employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+                await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
+            }
         }
 
         public async Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response)

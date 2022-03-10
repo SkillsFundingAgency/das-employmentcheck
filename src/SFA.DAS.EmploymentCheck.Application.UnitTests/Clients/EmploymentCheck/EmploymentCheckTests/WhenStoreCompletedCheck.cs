@@ -29,7 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             _sut = new EmploymentCheckService(
-                Mock.Of<ILogger<IEmploymentCheckService>>(),
                 _employmentCheckRepositoryMock.Object,
                 _employmentCheckCacheRequestRepositoryMock.Object,
                 _unitOfWorkMock.Object
@@ -136,7 +135,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, true).Create();
-            
+
             // Act
             await _sut.StoreCompletedCheck(request, response);
 
@@ -151,7 +150,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.EmploymentCheck.
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, false).Create();
-            
+
             // Act
             await _sut.StoreCompletedCheck(request, response);
 

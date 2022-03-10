@@ -29,13 +29,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.SubmitLearnerDat
             // Arrange
             var check = _fixture.Create<Data.Models.EmploymentCheck>();
 
-            _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
+            _submitLearnerDataService
+                .Setup(x => x.GetNiNumber(check))
                 .ReturnsAsync(new LearnerNiNumber());
 
-            var sut = new LearnerClient(_submitLearnerDataService.Object);
-
             // Act
-            await sut.GetNiNumber(check);
+            await _sut.GetNiNumber(check);
 
             // Assert
             _submitLearnerDataService.Verify(x => x.GetNiNumber(check), Times.Exactly(1));
@@ -47,13 +46,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.SubmitLearnerDat
             // Arrange
             var check = _fixture.Create<Data.Models.EmploymentCheck>();
 
-            _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
+            _submitLearnerDataService
+                .Setup(x => x.GetNiNumber(check))
                 .ReturnsAsync((LearnerNiNumber)null);
 
-            var sut = new LearnerClient(_submitLearnerDataService.Object);
-
             // Act
-            var result = await sut.GetNiNumber(check);
+            var result = await _sut.GetNiNumber(check);
 
             // Assert
             result.Should().BeNull();
@@ -64,15 +62,14 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Clients.SubmitLearnerDat
         {
             // Arrange
             var check = _fixture.Create<Data.Models.EmploymentCheck>();
-            var niNumber = new LearnerNiNumber(1000001, "1000001");
+            var niNumber = _fixture.Create<LearnerNiNumber>();
 
-            _submitLearnerDataService.Setup(x => x.GetNiNumber(check))
+            _submitLearnerDataService
+                .Setup(x => x.GetNiNumber(check))
                 .ReturnsAsync(niNumber);
 
-            var sut = new LearnerClient(_submitLearnerDataService.Object);
-
             // Act
-            var result = await sut.GetNiNumber(check);
+            var result = await _sut.GetNiNumber(check);
 
             // Assert
             Assert.AreEqual(niNumber, result);

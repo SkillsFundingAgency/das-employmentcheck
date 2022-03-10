@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -71,7 +72,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests
         {
             // Arrange
             var request = _fixture.Create<CreateEmploymentCheckCacheRequestCommand>();
-            request.EmploymentCheckData.EmployerPayeSchemes = new EmployerPayeSchemes(_fixture.Create<long>());
+            request.EmploymentCheckData.EmployerPayeSchemes = new EmployerPayeSchemes(_fixture.Create<long>(), HttpStatusCode.NoContent);
 
             // Act
             await _sut.Handle(request, CancellationToken.None);

@@ -11,14 +11,11 @@ namespace SFA.DAS.EmploymentCheck.Queries.GetPayeSchemes
         : IRequestHandler<GetPayeSchemesQueryRequest,
             GetPayeSchemesQueryResult>
     {
-        private readonly ILogger<GetPayeSchemeQueryHandler> _logger;
         private readonly IEmployerAccountClient _employerAccountClient;
 
         public GetPayeSchemeQueryHandler(
-            ILogger<GetPayeSchemeQueryHandler> logger,
             IEmployerAccountClient employerAccountClient)
         {
-            _logger = logger;
             _employerAccountClient = employerAccountClient;
         }
 
