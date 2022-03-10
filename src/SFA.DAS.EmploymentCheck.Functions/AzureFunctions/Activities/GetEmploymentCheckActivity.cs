@@ -1,8 +1,9 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
+using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
@@ -17,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 
         [FunctionName(nameof(GetEmploymentCheckActivity))]
         public async Task<Data.Models.EmploymentCheck> Get(
-            [ActivityTrigger] object input)
+            [ActivityTrigger] Models.EmploymentCheck employmentCheck)
         {
             var result = await _dispatcher.Send<GetEmploymentCheckQueryRequest, GetEmploymentCheckQueryResult>(new GetEmploymentCheckQueryRequest());
 

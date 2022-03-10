@@ -92,13 +92,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             const int validNinoLength = 9;
 
-            if(employmentCheckData.ApprenticeNiNumber == null)
+            if (employmentCheckData.ApprenticeNiNumber == null)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = NinoFailure;
                 return false;
             }
 
-            if(string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
+            if (string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
             {
                 employmentCheckData.EmploymentCheck.ErrorType = NinoNotFound;
                 return false;
@@ -123,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 return false;
             }
 
-            if(employmentCheckData.ApprenticeNiNumber?.NiNumber.Length < validNinoLength)
+            if (employmentCheckData.ApprenticeNiNumber?.NiNumber.Length < validNinoLength)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = NinoInvalid;
                 return false;
@@ -134,7 +134,36 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
         public bool IsValidPayeScheme(EmploymentCheckData employmentCheckData)
         {
-            if(employmentCheckData.EmployerPayeSchemes == null)
+            if (!IsValidPayeSchemeNullOrEmptyChecks(employmentCheckData))
+            {
+                return false;
+            }
+
+            if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.NoContent)
+            {
+                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
+                return false;
+            }
+
+            if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
+                return false;
+            }
+
+            if ((int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode >= 400
+                && (int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode <= 599)
+            {
+                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeFailure : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeFailure}";
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsValidPayeSchemeNullOrEmptyChecks(EmploymentCheckData employmentCheckData)
+        {
+            if (employmentCheckData.EmployerPayeSchemes == null)
             {
                 employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeFailure : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeFailure}";
                 return false;
@@ -146,26 +175,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 return false;
             }
 
-            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NoContent)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
-                return false;
-            }
-
-            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
-                return false;
-            }
-
-            if( (int) employmentCheckData.EmployerPayeSchemes.HttpStatusCode >= 400
-                && (int) employmentCheckData.EmployerPayeSchemes.HttpStatusCode <= 599)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeFailure : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeFailure}";
-                return false;
-            }
-
-            if(employmentCheckData.EmployerPayeSchemes.PayeSchemes != null
+            if (employmentCheckData.EmployerPayeSchemes.PayeSchemes != null
                 && employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
             {
                 var emptyValue = false;
@@ -173,7 +183,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 {
                     emptyValue = true;  // there is no longer any validation in the 'create cache request' code so this is to stop a request being created with a 'blank' paye scheme
                 }
-                if(emptyValue == true)
+                if (emptyValue == true)
                 {
                     employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
                     return false;
