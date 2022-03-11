@@ -1,34 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Functions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Moq;
+using SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions;
+using SFA.DAS.TokenService.Api.Client;
+using SFA.DAS.TokenService.Api.Types;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
     public class TestFunction : IDisposable
     {
-        private readonly TestContext _testContext;
-        private readonly Dictionary<string, string> _appConfig;
         private readonly IHost _host;
         private readonly OrchestrationData _orchestrationData;
-        private bool isDisposed;
+        private bool _isDisposed;
 
         private IJobHost Jobs => _host.Services.GetService<IJobHost>();
         public string HubName { get; }
         public HttpResponseMessage LastResponse => ResponseObject as HttpResponseMessage;
-        public ObjectResult HttpObjectResult => ResponseObject as ObjectResult;
         public object ResponseObject { get; private set; }
 
         public TestFunction(TestContext testContext, string hubName)
@@ -36,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             HubName = hubName;
             _orchestrationData = new OrchestrationData();
 
-            _appConfig = new Dictionary<string, string>
+            var appConfig = new Dictionary<string, string>
             {
                 { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
                 { "AzureWebJobsStorage", "UseDevelopmentStorage=true" },
@@ -45,13 +44,19 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "ApplicationSettings:LogLevel", "DEBUG" }
             };
 
-            _testContext = testContext;
+            var hmrcApiTokenServiceMock = new Mock<ITokenServiceApiClient>();
+            hmrcApiTokenServiceMock.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
+                .ReturnsAsync(new PrivilegedAccessToken()
+                {
+                    AccessCode = "test_access_code",
+                    ExpiryTime = DateTime.MaxValue
+                });
 
             _host = new HostBuilder()
                 .ConfigureAppConfiguration(a =>
                 {
                     a.Sources.Clear();
-                    a.AddInMemoryCollection(_appConfig);
+                    a.AddInMemoryCollection(appConfig);
                 })
                 .ConfigureWebJobs(builder => builder
                     .AddHttp(options => options.SetResponse = (request, o) => { ResponseObject = o; })
@@ -73,22 +78,31 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
                         s.Configure<EmployerAccountApiConfiguration>(l =>
                         {
-                            l.Url = _testContext.EmployerAccountsApi.BaseAddress;
+                            l.Url = testContext.EmployerAccountsApi.BaseAddress;
                             l.Identifier = "";
                         });
 
-                        s.Configure<HmrcApiConfiguration>(c => { c.BaseUrl = _testContext.HmrcApi.BaseAddress; });
+                        s.Configure<HmrcApiConfiguration>(c =>
+                        {
+                            c.BaseUrl = testContext.HmrcApi.BaseAddress;
+                        });
 
-                        s.Configure<DcApiSettings>(c => { c.BaseUrl = _testContext.DataCollectionsApi.BaseAddress; });
+                        s.Configure<DataCollectionsApiConfiguration>(c =>
+                        {
+                            c.BaseUrl = testContext.DataCollectionsApi.BaseAddress;
+                        });
 
                         s.Configure<ApplicationSettings>(a =>
                         {
-                            a.DbConnectionString = _testContext.SqlDatabase.DatabaseInfo.ConnectionString;
+                            a.DbConnectionString = testContext.SqlDatabase.DatabaseInfo.ConnectionString;
                             a.AllowedHashstringCharacters = "46789BCDFGHJKLMNPRSTVWXY";
                             a.Hashstring = "test hash string";
                         });
 
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
+
+                        s.AddSingleton(typeof(ITokenServiceApiClient), hmrcApiTokenServiceMock.Object);
+
                     })
                 )
                 .Build();
@@ -144,14 +158,14 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
         protected virtual void Dispose(bool disposing)
         {
-            if (isDisposed) return;
+            if (_isDisposed) return;
 
             if (disposing)
             {
                 _host.Dispose();
             }
 
-            isDisposed = true;
+            _isDisposed = true;
         }
 
         public void ClearQueues()

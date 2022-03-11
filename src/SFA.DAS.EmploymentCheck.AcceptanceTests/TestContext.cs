@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
-using Dapper.Contrib.Extensions;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.Database;
+﻿using AutoFixture;
+using SFA.DAS.EmploymentCheck.Tests.Database;
 using SFA.DAS.HashingService;
+using System;
+using System.IO;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
     public class TestContext : IDisposable
     {
         public Fixture Fixture;
-        public string InstanceId { get; private set; }
+        public string InstanceId { get; }
         public DirectoryInfo TestDirectory { get; set; }
         public TestFunction TestFunction { get; set; }
         public SqlDatabase SqlDatabase { get; set; }
@@ -28,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         {
             Fixture = new Fixture();
             InstanceId = Guid.NewGuid().ToString();
-            TestDirectory = new DirectoryInfo(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.Parent.Parent.FullName, $"TestDirectory/{InstanceId}"));
+            TestDirectory = new DirectoryInfo(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent?.Parent?.Parent?.Parent?.Parent?.FullName!, $"TestDirectory/{InstanceId}"));
             if (!TestDirectory.Exists)
             {
                 Directory.CreateDirectory(TestDirectory.FullName);

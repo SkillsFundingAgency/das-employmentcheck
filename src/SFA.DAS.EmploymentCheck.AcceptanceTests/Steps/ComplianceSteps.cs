@@ -1,20 +1,17 @@
-﻿using System;
-using AutoFixture;
-using Dapper;
+﻿using AutoFixture;
 using Dapper.Contrib.Extensions;
 using HMRC.ESFA.Levy.Api.Types;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.HouseKeeping;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -30,6 +27,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         private Data.Models.EmploymentCheck _check;
         private List<LearnerNiNumber> _dcApiResponse;
         private ResourceList _accountsApiResponse;
+        private const int MaxWaitTimeInSeconds = 30;
 
         public ComplianceSteps(TestContext context)
         {
@@ -39,8 +37,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Given(@"an unprocessed employment check for AccountId (.*) and ULN number (.*)")]
         public async Task GivenAnUnprocessedEmploymentCheckForAccountIdAndUlnNumber(int accountId, int uln)
         {
-            await CleanThingsUp();
-
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
             _check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
                 .With(c => c.AccountId, accountId)
@@ -51,28 +47,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Create();
             
             await dbConnection.InsertAsync(_check);
-        }
-
-        private async Task CleanThingsUp()
-        {
-            // db
-            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            await dbConnection.ExecuteAsync("DELETE [Business].[EmploymentCheck]");
-            await dbConnection.ExecuteAsync("DELETE [Cache].[AccountsResponse]");
-            await dbConnection.ExecuteAsync("DELETE [Cache].[EmploymentCheckCacheRequest]");
-            await dbConnection.ExecuteAsync("DELETE [Cache].[EmploymentCheckCacheResponse]");
-            await dbConnection.ExecuteAsync("DELETE [Cache].[DataCollectionsResponse]");
-
-            // task histories
-            await _context.TestFunction.Start(
-                new OrchestrationStarterInfo(
-                    "CleanupWorkflowsHttpTrigger",
-                    nameof(CleanupWorkflowsHttpTrigger),
-                    new Dictionary<string, object>
-                    {
-                        ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/CleanupWorkflowsHttpTrigger" }
-                    }
-                ));
         }
 
         [Given(@"a valid PAYE scheme is returned for the Account")]
@@ -141,12 +115,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             await _context.TestFunction.Start(
                 new OrchestrationStarterInfo(
                     "EmploymentChecksHttpTrigger",
-                    nameof(EmploymentChecksOrchestrator),
+                    nameof(ProcessEmploymentCheckRequestsOrchestrator),
                     new Dictionary<string, object>
                     {
                         ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/EmploymentChecksOrchestrator" }
                     },
-                    expectedCustomStatus: "Running"
+                    expectedCustomStatus: "Idle"
                 ));
         }
 
@@ -155,19 +129,22 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
 
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            while (stopwatch.Elapsed.TotalSeconds < 30)
+            var attempt = 0;
+            while (attempt < MaxWaitTimeInSeconds)
             {
+                attempt++;
                 var result = await dbConnection.GetAsync<Data.Models.EmploymentCheck>(_check.Id);
                 if (result.Employed.HasValue)
                 {
                     Assert.IsTrue(result.Employed);
-                    stopwatch.Stop();
                     break;
                 }
                 Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+
+            if (attempt == MaxWaitTimeInSeconds)
+            {
+                Assert.Inconclusive("Timed out, try increasing MaxWaitTimeInSeconds");
             }
         }
     }
