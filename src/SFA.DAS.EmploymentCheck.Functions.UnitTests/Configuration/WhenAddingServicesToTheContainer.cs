@@ -18,7 +18,6 @@ using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
-using NLog.Common;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
@@ -43,7 +42,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             _provider.Dispose();
         }
 
-        [TestCase(typeof(InternalLogger))]
         [TestCase(typeof(IHmrcApiOptionsRepository))]
         [TestCase(typeof(IHmrcApiRetryPolicies))]
         [TestCase(typeof(IDcTokenService))]
