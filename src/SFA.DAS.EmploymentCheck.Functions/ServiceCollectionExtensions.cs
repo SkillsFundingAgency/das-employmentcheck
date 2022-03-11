@@ -32,8 +32,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var hmrcApiRateLimiterConfiguration = new HmrcApiRateLimiterConfiguration
                 {
-                    EnvironmentName = Environment.GetEnvironmentVariable("EnvironmentName"),
-                    StorageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                    EnvironmentName = environmentName,
+                    StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
+                        Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
+                        "UseDevelopmentStorage=true",
                 };
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
