@@ -21,7 +21,6 @@
     <ItemGroup>
         <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
         <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.Tests.Database.csproj" />
-        <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Tests.AzureFunctions\SFA.DAS.EmploymentCheck.Tests.AzureFunctions.csproj" />
     </ItemGroup>
 
 </Project>

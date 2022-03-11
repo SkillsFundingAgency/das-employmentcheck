@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
 {
     public class EndpointInfo
     {

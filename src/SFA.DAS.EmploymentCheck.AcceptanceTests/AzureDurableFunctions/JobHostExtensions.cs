@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 
-namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
 {
 
     public static class JobHostExtensions
@@ -35,17 +35,21 @@ namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
         }
 
         public static async Task<IJobHost> Start(this IJobHost jobs, OrchestrationStarterInfo starterInfo,
-            bool throwIfFailed)
+            bool throwIfFailed, bool doNotWait = false)
         {
             await jobs.CallAsync(starterInfo.StarterName, starterInfo.StarterArgs);
 
+            if (doNotWait) return jobs;
+            
             if (throwIfFailed)
             {
-                await jobs.WaitFor(starterInfo.OrchestrationName, starterInfo.Timeout, starterInfo.ExpectedCustomStatus).ThrowIfFailed();
+                await jobs.WaitFor(starterInfo.OrchestrationName, starterInfo.Timeout,
+                    starterInfo.ExpectedCustomStatus).ThrowIfFailed();
             }
             else
             {
-                await jobs.WaitFor(starterInfo.OrchestrationName, starterInfo.Timeout, starterInfo.ExpectedCustomStatus);
+                await jobs.WaitFor(starterInfo.OrchestrationName, starterInfo.Timeout,
+                    starterInfo.ExpectedCustomStatus);
             }
 
             return jobs;

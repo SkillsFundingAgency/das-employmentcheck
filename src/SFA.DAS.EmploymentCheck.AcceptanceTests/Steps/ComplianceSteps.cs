@@ -4,14 +4,14 @@ using HMRC.ESFA.Levy.Api.Types;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -34,13 +34,11 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             _context = context;
         }
 
-        [Given(@"an unprocessed employment check for AccountId (.*) and ULN number (.*)")]
-        public async Task GivenAnUnprocessedEmploymentCheckForAccountIdAndUlnNumber(int accountId, int uln)
+        [Given(@"an unprocessed employment check")]
+        public async Task GivenAnUnprocessedEmploymentCheck()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
             _check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
-                .With(c => c.AccountId, accountId)
-                .With(c => c.Uln, uln)
                 .Without(c => c.RequestCompletionStatus)
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)
@@ -112,15 +110,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(hmrcApiResponse));
 
-            await _context.TestFunction.Start(
+            await _context.TestFunction.StartAndForget(
                 new OrchestrationStarterInfo(
-                    "EmploymentChecksHttpTrigger",
-                    nameof(ProcessEmploymentCheckRequestsOrchestrator),
-                    new Dictionary<string, object>
+                    starterName: nameof(EmploymentChecksHttpTrigger),
+                    args: new Dictionary<string, object>
                     {
                         ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/EmploymentChecksOrchestrator" }
-                    },
-                    expectedCustomStatus: "Idle"
+                    }
                 ));
         }
 

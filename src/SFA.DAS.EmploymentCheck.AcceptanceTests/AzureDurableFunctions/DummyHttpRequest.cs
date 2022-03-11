@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -7,16 +6,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
 {
     public sealed class DummyHttpRequest : HttpRequest
     {
         private readonly string _content;
         private Stream _stream;
 
-        public DummyHttpRequest() : this("")
-        {
-        }
+        public DummyHttpRequest() : this("") { }
 
         public DummyHttpRequest(string content)
         {
@@ -47,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
             set => _stream = value;
         }
 
-        public override bool HasFormContentType { get; } = false;
+        public override bool HasFormContentType => false;
         public override IFormCollection Form { get; set; }
     }
 

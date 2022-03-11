@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Authentication;
-using Microsoft.AspNetCore.Http.Features;
 
-namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
 {
     public class DummyHttpContext : HttpContext
     {
@@ -24,8 +23,6 @@ namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
         public override HttpResponse Response { get; } = null;
         public override ConnectionInfo Connection { get; } = null;
         public override WebSocketManager WebSockets { get; } = null;
-        [Obsolete]
-        public override AuthenticationManager Authentication { get; } = null;
         public override ClaimsPrincipal User { get; set; }
         public override IDictionary<object, object> Items { get; set; } = new Dictionary<object, object>();
         public override IServiceProvider RequestServices { get; set; }

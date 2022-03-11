@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
 {
     internal static class DurableOrchestrationClientExtensions
     {

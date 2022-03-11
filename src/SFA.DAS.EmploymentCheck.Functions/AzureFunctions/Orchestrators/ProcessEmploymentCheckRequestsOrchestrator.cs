@@ -31,15 +31,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
                 if (employmentCheckCacheRequest != null)
                 {
-                    context.SetCustomStatus("Processing");
-
                     // Do the employment status check on this request
                     await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
                 }
                 else
                 {
-                    context.SetCustomStatus("Idle");
-                   
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
 
                     // No data found so sleep for 10 seconds then execute the orchestrator again

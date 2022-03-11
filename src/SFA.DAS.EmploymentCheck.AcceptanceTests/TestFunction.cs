@@ -13,7 +13,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Moq;
-using SFA.DAS.EmploymentCheck.Tests.AzureFunctions.AzureDurableFunctions;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 
@@ -123,6 +123,11 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         public Task Start(OrchestrationStarterInfo starter, bool throwIfFailed = true)
         {
             return Jobs.Start(starter, throwIfFailed);
+        }
+
+        public Task StartAndForget(OrchestrationStarterInfo starter)
+        {
+            return Jobs.Start(starter, false, true);
         }
 
         public async Task<ObjectResult> CallEndpoint(EndpointInfo endpoint)
