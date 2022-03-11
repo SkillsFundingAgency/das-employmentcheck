@@ -282,11 +282,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             );
 
             _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
