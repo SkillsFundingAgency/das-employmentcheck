@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 
-namespace SFA.DAS.EmploymentCheck.Data.UnitTests.EmploymentCheckDataValidatorTests
+namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 {
     public class WhenCallingEmploymentCheckDataValidator_IsValidEmploymentCheckData
     {
