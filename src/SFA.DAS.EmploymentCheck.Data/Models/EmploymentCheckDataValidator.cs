@@ -1,118 +1,88 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 
 namespace SFA.DAS.EmploymentCheck.Data.Models
 {
-    public class EmploymentCheckDataValidator
+    public class EmploymentCheckDataValidator : IEmploymentCheckDataValidator
     {
-        private const string NinoNotFound = "NinoNotFound";
-        private const string NinoInvalid = "NinoInvalid";
-        private const string NinoFailure = "NinoFailure";
-        private const string PayeNotFound = "PAYENotFound";
-        private const string PayeFailure = "PAYEFailure";
-
-        public bool IsValidEmploymentCheckData(EmploymentCheckData employmentCheckData)
+        public (bool IsValid, string ErrorType) IsValidEmploymentCheckData(EmploymentCheckData employmentCheckData)
         {
-            if(employmentCheckData == null) { throw new ArgumentNullException("employmentCheckData", "EmploymentCheckDataValidator: EmploymentCheckData argument is null."); }
+            var isValid = true;
+            var errorType = string.Empty;
 
-            var isValidEmploymentcheckData = true;
-            var isValidNino = IsValidNino(employmentCheckData);
-            var isValidPayeScheme = IsValidPayeScheme(employmentCheckData);
+            var ninoStatus = IsValidNino(employmentCheckData);
+            var payeSchemeStatus = IsValidPayeScheme(employmentCheckData);
 
-            if (!isValidNino || !isValidPayeScheme)
+            if(!ninoStatus.IsValid && payeSchemeStatus.IsValid)
             {
-                isValidEmploymentcheckData = false;
+                isValid = false;
+                errorType = ninoStatus.ErrorType;
+            }
+            else if (ninoStatus.IsValid && !payeSchemeStatus.IsValid)
+            {
+                isValid = false;
+                errorType = payeSchemeStatus.ErrorType;
+            }
+            else if (!ninoStatus.IsValid && !payeSchemeStatus.IsValid)
+            {
+                isValid = false;
+                errorType = ninoStatus.ErrorType + "And" + payeSchemeStatus.ErrorType;
             }
 
-            return isValidEmploymentcheckData;
+            return (isValid, errorType);
         }
 
-        public bool IsValidNino(EmploymentCheckData employmentCheckData)
+        public (bool IsValid, string ErrorType) IsValidNino(EmploymentCheckData employmentCheckData)
         {
+            const string NinoNotFound = "NinoNotFound";
+            const string NinoInvalid = "NinoInvalid";
+            const string NinoFailure = "NinoFailure";
             const int validNinoLength = 9;
 
-            if (employmentCheckData.ApprenticeNiNumber == null)
+            var learnerNiNumber = employmentCheckData.ApprenticeNiNumber;
+
+            if (learnerNiNumber == null)
             {
-                employmentCheckData.EmploymentCheck.ErrorType = NinoFailure;
-                return false;
+                return (false, NinoFailure);
             }
 
-            if (string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
+            if (string.IsNullOrEmpty(learnerNiNumber.NiNumber))
             {
-                employmentCheckData.EmploymentCheck.ErrorType = NinoNotFound;
-                return false;
-            }
-
-            if (employmentCheckData.ApprenticeNiNumber.HttpStatusCode == HttpStatusCode.NoContent)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = NinoNotFound;
-                return false;
-            }
-
-            if (employmentCheckData.ApprenticeNiNumber.HttpStatusCode == HttpStatusCode.NotFound)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = NinoNotFound;
-                return false;
-            }
-
-            if ((int)employmentCheckData.ApprenticeNiNumber.HttpStatusCode >= 400
-                && (int)employmentCheckData.ApprenticeNiNumber.HttpStatusCode <= 599)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = NinoFailure;
-                return false;
+                return (false, NinoNotFound);
             }
 
             if (employmentCheckData.ApprenticeNiNumber.NiNumber.Length < validNinoLength)
             {
-                employmentCheckData.EmploymentCheck.ErrorType = NinoInvalid;
-                return false;
+                return (false, NinoInvalid);
             }
 
-            return true;
+            var httpStatusCode = employmentCheckData.ApprenticeNiNumber.HttpStatusCode;
+            if (httpStatusCode == HttpStatusCode.NotFound || httpStatusCode == HttpStatusCode.NoContent)
+            {
+                return (false, NinoNotFound);
+            }
+
+            if ((int)httpStatusCode >= 400 && (int)httpStatusCode <= 599)
+            {
+                return (false, NinoFailure);
+            }
+
+            return (true, string.Empty);
         }
 
-        public bool IsValidPayeScheme(EmploymentCheckData employmentCheckData)
+        public (bool IsValid, string ErrorType) IsValidPayeScheme(EmploymentCheckData employmentCheckData)
         {
-            if (!IsValidPayeSchemeNullOrEmptyChecks(employmentCheckData))
-            {
-                return false;
-            }
+            const string PayeNotFound = "PAYENotFound";
+            const string PayeFailure = "PAYEFailure";
 
-            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NoContent)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
-                return false;
-            }
-
-            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
-                return false;
-            }
-
-            if ((int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode >= 400
-                && (int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode <= 599)
-            {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeFailure : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeFailure}";
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool IsValidPayeSchemeNullOrEmptyChecks(EmploymentCheckData employmentCheckData)
-        {
             if (employmentCheckData.EmployerPayeSchemes == null)
             {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeFailure : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeFailure}";
-                return false;
+                return (false, PayeFailure);
             }
 
             if (!employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
             {
-                employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
-                return false;
+                return (false, PayeNotFound);
             }
 
             if (employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
@@ -120,17 +90,27 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
                 var emptyValue = false;
                 foreach (var employerPayeScheme in employmentCheckData.EmployerPayeSchemes.PayeSchemes.Where(x => x.Length == 0))
                 {
-                    emptyValue = true;  // there is no longer any validation in the 'create cache request' code so this is to stop a request being created with a 'blank' paye scheme
+                    emptyValue = true;
                 }
+
                 if (emptyValue == true)
                 {
-                    employmentCheckData.EmploymentCheck.ErrorType = string.IsNullOrEmpty(employmentCheckData.EmploymentCheck.ErrorType) ? PayeNotFound : $"{employmentCheckData.EmploymentCheck.ErrorType}And{PayeNotFound}";
-                    return false;
+                    return (false, PayeNotFound);
                 }
             }
 
-            return true;
-        }
+            var httpStatusCode = employmentCheckData.EmployerPayeSchemes.HttpStatusCode;
+            if (httpStatusCode == HttpStatusCode.NotFound || httpStatusCode == HttpStatusCode.NoContent)
+            {
+                return (false, PayeNotFound);
+            }
 
+            if ((int)httpStatusCode >= 400 && (int)httpStatusCode <= 599)
+            {
+                return (false, PayeFailure);
+            }
+
+            return (true, string.Empty);
+        }
     }
 }
