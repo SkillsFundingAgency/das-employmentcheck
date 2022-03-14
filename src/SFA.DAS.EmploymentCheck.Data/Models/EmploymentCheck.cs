@@ -30,7 +30,12 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         public short? RequestCompletionStatus { get; set; }
 
-        public string ErrorType { get; set; }
+        private string _errorType;
+        public string ErrorType
+        {
+            get { return Employed == null ? "HmrcFailure" : _errorType; }
+            set { _errorType = value; }
+        }
 
         public DateTime? LastUpdatedOn { get; set; }
 

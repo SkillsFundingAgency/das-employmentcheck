@@ -52,7 +52,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
                 await _unitOfWork.InsertAsync(response);
-                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(request, _unitOfWork);
+
+                var employmentCheck = CreateEmploymentCheck(request);
+                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
                 if (response.Employed == true)
                 {
@@ -100,6 +102,18 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             }
 
             return employmentCheckRequests;
+        }
+
+        private Data.Models.EmploymentCheck CreateEmploymentCheck(EmploymentCheckCacheRequest request)
+        {
+            var employmentCheck = new Data.Models.EmploymentCheck();
+
+            employmentCheck.Id = request.ApprenticeEmploymentCheckId;
+            employmentCheck.Employed = request.Employed;
+            employmentCheck.RequestCompletionStatus = request.RequestCompletionStatus;
+            employmentCheck.ErrorType = request.Employed == null ? "HmrcFailure" : null;
+
+            return employmentCheck;
         }
     }
 }
