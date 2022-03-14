@@ -38,12 +38,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
         public async Task StoreCompletedEmploymentCheck(Models.EmploymentCheck employmentCheck)
         {
-            if (employmentCheck.Id > 0)
-            {
-                employmentCheck.LastUpdatedOn = DateTime.Now;
-                employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
-                await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
-            }
+            employmentCheck.LastUpdatedOn = DateTime.Now;
+            employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+            await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
         }
 
         public async Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response)
