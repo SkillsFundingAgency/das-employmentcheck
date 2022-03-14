@@ -1,26 +1,24 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using System;
 using System.Collections.Generic;
 using System.Net;
 
 namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 {
-    public class WhenCallingEmploymentCheckDataValidator_IsValidPayeSchemes
+    public class WhenCallingEmployerPayeSchemesValidator
     {
-        const string NinoNotFound = "NinoNotFound";
         const string PAYENotFound = "PAYENotFound";
         const string PAYEFailure = "PAYEFailure";
 
         private Fixture _fixture;
-        private EmploymentCheckDataValidator _sut;
+        private IEmployerPayeSchemesValidator _sut;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _sut = new EmploymentCheckDataValidator();
+            _sut = new EmployerPayeSchemesValidator();
         }
 
         [Test]
@@ -145,7 +143,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 
             // Assert
             result.IsValid.Equals(true);
-            Assert.AreEqual(string.Empty, result.ErrorType);
+            Assert.IsNull(result.ErrorType);
         }
     }
 }

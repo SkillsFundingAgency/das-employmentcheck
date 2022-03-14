@@ -53,6 +53,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
 
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<ILearnerNiNumberValidator, LearnerNiNumberValidator>();
+            serviceCollection.AddSingleton<IEmployerPayeSchemesValidator, EmployerPayeSchemesValidator>();
             serviceCollection.AddSingleton<IEmploymentCheckDataValidator, EmploymentCheckDataValidator>();
 
             if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
