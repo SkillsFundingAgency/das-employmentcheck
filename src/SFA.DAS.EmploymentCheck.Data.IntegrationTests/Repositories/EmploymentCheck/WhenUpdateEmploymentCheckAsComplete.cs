@@ -25,6 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             var check = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
+                .With(x =>x.ErrorType, "HmrcFailure")
                 .Without(x => x.Employed)
                 .Create();
             await Insert(check);

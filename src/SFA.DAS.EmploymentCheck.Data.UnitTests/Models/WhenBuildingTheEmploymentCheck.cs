@@ -15,21 +15,10 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void With_Employed_Null_Then_ErrorType_Is_HmrcFailure()
+        public void With_Employed_Null_Then_ErrorType_Has_Assigned_Value()
         {
             // Act
-            var result = _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.Employed).Create();
-
-            // Assert
-            result.Employed.Should().BeNull();
-            result.ErrorType.Should().Be("HmrcFailure");
-        }
-
-        [Test]
-        public void With_Employed_Null_And_ErrorType_Has_A_Value_The_ErrorType_Should_Be_HmrcFailure()
-        {
-            // Act
-            var result = _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.Employed).With(x => x.ErrorType, "TEST").Create();
+            var result = _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.Employed).With(x => x.ErrorType, "HmrcFailure").Create();
 
             // Assert
             result.Employed.Should().BeNull();
