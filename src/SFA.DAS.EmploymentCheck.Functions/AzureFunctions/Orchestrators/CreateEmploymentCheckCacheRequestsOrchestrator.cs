@@ -49,8 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     else
                     {
                         employmentCheckData.EmploymentCheck.ErrorType = checkDataValidationStatus.ErrorType;
-                        var storeActivity = nameof(StoreCompletedEmploymentCheckActivity);
-                        await context.CallActivityAsync(storeActivity, employmentCheck);
+                        await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheckData);
                     }
                 }
                 else

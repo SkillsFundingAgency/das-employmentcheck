@@ -3,22 +3,22 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using System.Net;
 
-namespace SFA.DAS.EmploymentCheck.Data.UnitTests.EmploymentCheckDataValidatorTests
+namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 {
-    public class WhenCallingEmploymentCheckDataValidator_IsValidNino
+    public class WhenCallingLearneNiNumberValidator
     {
         const string NinoNotFound = "NinoNotFound";
         const string NinoFailure = "NinoFailure";
         const string NinoInvalid = "NinoInvalid";
 
         private Fixture _fixture;
-        private EmploymentCheckDataValidator _sut;
+        private ILearnerNiNumberValidator _sut;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _sut = new EmploymentCheckDataValidator();
+            _sut = new LearnerNiNumberValidator();
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.EmploymentCheckDataValidatorTes
         }
 
         [Test]
-        public void When_LearnerNiNumber_IsValid_Return_True_EmptyString()
+        public void When_LearnerNiNumber_IsValid_Return_True_Null()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>().Create();
@@ -80,7 +80,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.EmploymentCheckDataValidatorTes
 
             // Assert
             result.IsValid.Equals(true);
-            Assert.AreEqual(string.Empty, result.ErrorType);
+            Assert.IsNull(result.ErrorType);
         }
 
         [Test]
