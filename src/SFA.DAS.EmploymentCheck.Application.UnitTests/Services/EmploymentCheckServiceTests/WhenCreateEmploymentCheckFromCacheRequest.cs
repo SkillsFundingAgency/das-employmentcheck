@@ -11,7 +11,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
 {
     public class WhenCreateEmploymentCheckFromCacheRequest
     {
-        private IEmploymentCheckService _sut;
         private Fixture _fixture;
         private Mock<IEmploymentCheckRepository> _employmentCheckRepositoryMock;
         private Mock<IEmploymentCheckCacheRequestRepository> _employmentCheckCacheRequestRepositoryMock;
@@ -61,5 +60,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             result.RequestCompletionStatus.Should().Be(request.RequestCompletionStatus);
             result.ErrorType.Should().Be("HmrcFailure");
         }
+
     }
 }

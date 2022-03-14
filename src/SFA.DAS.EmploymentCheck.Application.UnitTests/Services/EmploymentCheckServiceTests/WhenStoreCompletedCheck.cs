@@ -102,7 +102,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Create<EmploymentCheckCacheResponse>();
-            var check = _fixture.Create<Data.Models.EmploymentCheck>();
 
             _unitOfWorkMock
                 .Setup(x => x.UpdateAsync(request))

@@ -20,7 +20,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<IEmploymentCheckDataValidator> _employmentCheckDataValidator;
         private Models.EmploymentCheck _employmentCheck;
-        private EmploymentCheckData _employmentCheckData;
         private CreateEmploymentCheckCacheRequestsOrchestrator _sut;
 
         [SetUp]
@@ -31,11 +30,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>>();
             _employmentCheckDataValidator = new Mock<IEmploymentCheckDataValidator>();
             _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
-            _employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
-                .With(ni => ni.ApprenticeNiNumber, _fixture.Build<LearnerNiNumber>().With(x => x.HttpStatusCode, HttpStatusCode.OK).Create())
-                .With(paye => paye.EmployerPayeSchemes, _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.OK).Create())
-                .Create();
             _sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object, _employmentCheckDataValidator.Object);
         }
 
