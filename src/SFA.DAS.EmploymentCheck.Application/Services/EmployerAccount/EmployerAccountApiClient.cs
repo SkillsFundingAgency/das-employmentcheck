@@ -15,8 +15,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
         public EmployerAccountApiClient(
-            IHttpClientFactory httpClientFactory,
-            EmployerAccountApiConfiguration configuration,
+            IHttpClientFactory httpClientFactory, 
+            EmployerAccountApiConfiguration configuration, 
             IWebHostEnvironment hostingEnvironment,
             IAzureClientCredentialHelper azureClientCredentialHelper) : base(httpClientFactory, configuration, hostingEnvironment)
         {

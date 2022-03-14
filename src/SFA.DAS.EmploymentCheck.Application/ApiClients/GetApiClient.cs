@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Net.Http;
@@ -26,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Application.ApiClients
         public async Task<HttpResponseMessage> Get(IGetApiRequest request)
         {
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, request.GetUrl);
-
+            
             await AddAuthenticationHeader(httpRequestMessage);
 
             var response = await HttpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
