@@ -3,7 +3,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using System.Net;
 
-namespace SFA.DAS.EmploymentCheck.Data.UnitTests.EmploymentCheckDataValidatorTests
+namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 {
     public class WhenCallingLearneNiNumberValidator
     {
