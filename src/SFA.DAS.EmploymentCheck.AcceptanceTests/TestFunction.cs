@@ -1,21 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Moq;
 using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Functions;
+using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.TokenService.Api.Client;
+using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Moq;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions;
-using SFA.DAS.TokenService.Api.Client;
-using SFA.DAS.TokenService.Api.Types;
+using Microsoft.AspNetCore.Hosting;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -51,6 +51,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                     AccessCode = "test_access_code",
                     ExpiryTime = DateTime.MaxValue
                 });
+
+            var webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
+            webHostEnvironmentMock.SetupGet(he => he.EnvironmentName).Returns("Development");
 
             _host = new HostBuilder()
                 .ConfigureAppConfiguration(a =>
@@ -100,9 +103,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         });
 
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
-
                         s.AddSingleton(typeof(ITokenServiceApiClient), hmrcApiTokenServiceMock.Object);
-
+                        s.AddSingleton(typeof(IWebHostEnvironment), webHostEnvironmentMock.Object);
                     })
                 )
                 .Build();
@@ -125,15 +127,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             return Jobs.Start(starter, throwIfFailed);
         }
 
-        public Task StartAndForget(OrchestrationStarterInfo starter)
-        {
-            return Jobs.Start(starter, false, true);
-        }
-
-        public async Task<ObjectResult> CallEndpoint(EndpointInfo endpoint)
+        public async Task<HttpResponseMessage> CallEndpoint(EndpointInfo endpoint)
         {
             await Jobs.Start(endpoint);
-            return ResponseObject as ObjectResult;
+            return ResponseObject as HttpResponseMessage;
         }
 
         public async Task<OrchestratorStartResponse> GetOrchestratorStartResponse()

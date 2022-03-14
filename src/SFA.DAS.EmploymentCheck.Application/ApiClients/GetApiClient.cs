@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Application.ApiClients
         protected GetApiClient(
             IHttpClientFactory httpClientFactory,
             T apiConfiguration,
-            IWebHostEnvironment hostingEnvironment = null)
+            IWebHostEnvironment hostingEnvironment)
         {
             HttpClient = httpClientFactory.CreateClient();
             HttpClient.BaseAddress = new Uri(apiConfiguration.Url);
@@ -26,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Application.ApiClients
         public async Task<HttpResponseMessage> Get(IGetApiRequest request)
         {
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, request.GetUrl);
-            
+
             await AddAuthenticationHeader(httpRequestMessage);
 
             var response = await HttpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);

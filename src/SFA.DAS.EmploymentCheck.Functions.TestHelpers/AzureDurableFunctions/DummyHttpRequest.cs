@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
-namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
 {
     public sealed class DummyHttpRequest : HttpRequest
     {

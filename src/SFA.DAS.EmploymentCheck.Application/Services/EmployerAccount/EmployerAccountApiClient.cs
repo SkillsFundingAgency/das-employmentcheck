@@ -14,10 +14,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
         private readonly EmployerAccountApiConfiguration _configuration;
         private readonly IAzureClientCredentialHelper _azureClientCredentialHelper;
 
-        public EmployerAccountApiClient(IHttpClientFactory httpClientFactory,
+        public EmployerAccountApiClient(
+            IHttpClientFactory httpClientFactory,
             EmployerAccountApiConfiguration configuration,
-            IAzureClientCredentialHelper azureClientCredentialHelper,
-            IWebHostEnvironment hostingEnvironment = null) : base(httpClientFactory, configuration, hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IAzureClientCredentialHelper azureClientCredentialHelper) : base(httpClientFactory, configuration, hostingEnvironment)
         {
             _configuration = configuration;
             _azureClientCredentialHelper = azureClientCredentialHelper;
@@ -25,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
         protected override async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            if (HostingEnvironment != null && !HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
+            if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
             {
                 var accessToken = await _azureClientCredentialHelper.GetAccessTokenAsync(_configuration.Identifier);
                 httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

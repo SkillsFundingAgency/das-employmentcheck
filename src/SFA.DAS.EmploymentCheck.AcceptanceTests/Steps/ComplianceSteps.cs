@@ -4,9 +4,9 @@ using HMRC.ESFA.Levy.Api.Types;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
+using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -110,8 +110,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(hmrcApiResponse));
 
-            await _context.TestFunction.StartAndForget(
-                new OrchestrationStarterInfo(
+            await _context.TestFunction.CallEndpoint(
+                new EndpointInfo(
                     starterName: nameof(EmploymentChecksHttpTrigger),
                     args: new Dictionary<string, object>
                     {

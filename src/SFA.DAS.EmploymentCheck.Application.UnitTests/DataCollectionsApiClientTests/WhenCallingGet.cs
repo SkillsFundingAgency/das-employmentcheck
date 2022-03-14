@@ -67,7 +67,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
             _sut = new DataCollectionsApiClient(
                 clientFactory.Object,
                 _configuration,
-                _tokenServiceMock.Object, hostingEnvironment.Object);
+                hostingEnvironment.Object,
+                _tokenServiceMock.Object);
         }
 
         [Test]

@@ -2,7 +2,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
 {
     public class GetStatusFunction
     {

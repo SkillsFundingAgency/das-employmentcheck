@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace SFA.DAS.EmploymentCheck.AcceptanceTests
+namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
 {
     public class OrchestrationData : IOrchestrationData
     {  

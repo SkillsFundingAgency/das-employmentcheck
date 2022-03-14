@@ -14,7 +14,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
             _featureContext = featureContext;
         }
 
-        [BeforeScenario()]
+        [BeforeScenario]
         public async Task InitialiseHost()
         {
             _testContext.TestFunction = new TestFunction(_testContext, $"TEST{_featureContext.FeatureInfo.Title}");
@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
             await _testContext.TestFunction.StartHost();
         }
 
-        [AfterScenario()]
+        [AfterScenario]
         public async Task Cleanup()
         { 
             await _testContext.TestFunction.DisposeAsync();

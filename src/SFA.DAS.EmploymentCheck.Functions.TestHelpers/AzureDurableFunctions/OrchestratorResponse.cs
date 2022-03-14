@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
+﻿namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
 {
     public class OrchestratorStartResponse
     {

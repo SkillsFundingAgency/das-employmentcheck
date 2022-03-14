@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 {
-    public class DataCollectionsApiClient : GetApiClient<DataCollectionsApiConfiguration>, IDataCollectionsApiClient<DataCollectionsApiConfiguration> 
+    public class DataCollectionsApiClient : GetApiClient<DataCollectionsApiConfiguration>, IDataCollectionsApiClient<DataCollectionsApiConfiguration>
     {
         private readonly DataCollectionsApiConfiguration _configuration;
         private readonly IDcTokenService _tokenService;
 
-        public DataCollectionsApiClient(IHttpClientFactory httpClientFactory,
+        public DataCollectionsApiClient(
+            IHttpClientFactory httpClientFactory,
             DataCollectionsApiConfiguration configuration,
-            IDcTokenService tokenService,
-            IWebHostEnvironment hostingEnvironment = null) : base(httpClientFactory, configuration, hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IDcTokenService tokenService) : base(httpClientFactory, configuration, hostingEnvironment)
         {
             _configuration = configuration;
             _tokenService = tokenService;
@@ -25,15 +26,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
         protected override async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            if (HostingEnvironment != null && !HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
+            var accessToken = await GetDataCollectionsApiAccessToken();
+            if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
             {
-                var accessToken = await GetDataCollectionsApiAccessToken();
-
-                if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
-                {
-                    httpRequestMessage.Headers.Authorization =
-                        new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
-                }
+                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
             }
         }
 

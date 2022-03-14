@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
+namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
 {
     public class OrchestrationStarterInfo
     {
@@ -19,17 +19,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.AzureDurableFunctions
             string expectedCustomStatus = null)
         {
             if (string.IsNullOrEmpty(starterName)) throw new ArgumentException("Missing starter name");
+            if (string.IsNullOrEmpty(orchestrationName)) throw new ArgumentException("Missing starter name");
 
             StarterName = starterName;
             OrchestrationName = orchestrationName;
-            if (args == null)
-            {
-                args = new Dictionary<string, object>();
-            }
-            if (timeout == null)
-            {
-                timeout = new TimeSpan(0, 60, 0);
-            }
+            args ??= new Dictionary<string, object>();
+            timeout ??= new TimeSpan(0, 60, 0);
             Timeout = timeout;
             StarterArgs = args;
             ExpectedCustomStatus = expectedCustomStatus;
