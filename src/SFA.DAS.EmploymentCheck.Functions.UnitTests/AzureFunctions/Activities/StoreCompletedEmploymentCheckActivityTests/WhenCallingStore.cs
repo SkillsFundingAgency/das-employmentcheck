@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,14 +15,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     {
         private Fixture _fixture;
         private Mock<ICommandDispatcher> _dispatcher;
-        private Models.EmploymentCheck _employmentCheck;
+        private EmploymentCheckData _employmentCheckData;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
             _dispatcher = new Mock<ICommandDispatcher>();
-            _employmentCheck = _fixture.Create<Models.EmploymentCheck>();
+            _employmentCheckData = _fixture.Create<EmploymentCheckData>();
         }
 
         [Test]
@@ -32,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             var sut = new StoreCompletedEmploymentCheckActivity(_dispatcher.Object);
 
             // Act
-            await sut.Store(_employmentCheck);
+            await sut.Store(_employmentCheckData);
 
             // Assert
             _dispatcher.Verify(x => x.Send(It.IsAny<StoreCompletedEmploymentCheckCommand>(), It.IsAny<CancellationToken>()), Times.Once);

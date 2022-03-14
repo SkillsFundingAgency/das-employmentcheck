@@ -49,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     else
                     {
                         employmentCheckData.EmploymentCheck.ErrorType = checkDataValidationStatus.ErrorType;
-                        await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheck);
+                        await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheckData);
                     }
                 }
                 else
