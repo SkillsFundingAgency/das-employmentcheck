@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Data.Models;
-using Models = SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
@@ -104,7 +103,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return employmentCheckRequests;
         }
 
-        private Data.Models.EmploymentCheck CreateEmploymentCheck(EmploymentCheckCacheRequest request)
+        public Data.Models.EmploymentCheck CreateEmploymentCheck(EmploymentCheckCacheRequest request)
         {
             var employmentCheck = new Data.Models.EmploymentCheck();
 
