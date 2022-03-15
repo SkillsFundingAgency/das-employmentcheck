@@ -2,6 +2,6 @@
 {
     public interface IEmployerPayeSchemesValidator
     {
-        (bool IsValid, string ErrorType) IsValidPayeScheme(EmploymentCheckData employmentCheckData);
+        string PayeSchemesHasError(EmploymentCheckData employmentCheckData);
     }
 }

@@ -7,7 +7,6 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
@@ -20,7 +19,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<IEmploymentCheckDataValidator> _employmentCheckDataValidator;
         private Models.EmploymentCheck _employmentCheck;
-        private EmploymentCheckData _employmentCheckData;
         private CreateEmploymentCheckCacheRequestsOrchestrator _sut;
 
         [SetUp]
@@ -31,11 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _logger = new Mock<ILogger<CreateEmploymentCheckCacheRequestsOrchestrator>>();
             _employmentCheckDataValidator = new Mock<IEmploymentCheckDataValidator>();
             _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
-            _employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
-                .With(ni => ni.ApprenticeNiNumber, _fixture.Build<LearnerNiNumber>().With(x => x.HttpStatusCode, HttpStatusCode.OK).Create())
-                .With(paye => paye.EmployerPayeSchemes, _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.OK).Create())
-                .Create();
             _sut = new CreateEmploymentCheckCacheRequestsOrchestrator(_logger.Object, _employmentCheckDataValidator.Object);
         }
 
@@ -45,7 +38,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Arrange
             var learnerNiNumberTask = Task.FromResult(_fixture.Create<LearnerNiNumber>());
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
-            (bool IsValid, string ErrorType) validStatus = (true, string.Empty);
 
             _context
                 .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
@@ -60,8 +52,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Returns(employerPayeSchemesTask);
 
             _employmentCheckDataValidator
-                .Setup(x => x.IsValidEmploymentCheckData(It.IsAny<EmploymentCheckData>()))
-                .Returns(validStatus);
+                .Setup(x => x.EmploymentCheckDataHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns( () => null);
 
             _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<Object>()))
                 .Verifiable();
@@ -82,7 +74,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Arrange
             var learnerNiNumberTask = Task.FromResult(_fixture.Create<LearnerNiNumber>());
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
-            (bool IsValid, string ErrorType) validStatus = (true, string.Empty);
 
             _context
                 .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
@@ -97,8 +88,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Returns(employerPayeSchemesTask);
 
             _employmentCheckDataValidator
-                .Setup(x => x.IsValidEmploymentCheckData(It.IsAny<EmploymentCheckData>()))
-                .Returns(validStatus);
+                .Setup(x => x.EmploymentCheckDataHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(() => null);
 
             _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<Object>()))
                 .Verifiable();
@@ -119,7 +110,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Arrange
             var learnerNiNumberTask = Task.FromResult(_fixture.Create<LearnerNiNumber>());
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
-            (bool IsValid, string ErrorType) validStatus = (true, string.Empty);
 
             _context
                 .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
@@ -134,8 +124,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Returns(employerPayeSchemesTask);
 
             _employmentCheckDataValidator
-                .Setup(x => x.IsValidEmploymentCheckData(It.IsAny<EmploymentCheckData>()))
-                .Returns(validStatus);
+                .Setup(x => x.EmploymentCheckDataHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(() => null);
 
             _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<Object>()))
                 .Verifiable();
@@ -156,7 +146,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Arrange
             var learnerNiNumberTask = Task.FromResult(_fixture.Create<LearnerNiNumber>());
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
-            (bool IsValid, string ErrorType) validStatus = (true, string.Empty);
 
             _context
                 .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
@@ -171,8 +160,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Returns(employerPayeSchemesTask);
 
             _employmentCheckDataValidator
-                .Setup(x => x.IsValidEmploymentCheckData(It.IsAny<EmploymentCheckData>()))
-                .Returns(validStatus);
+                .Setup(x => x.EmploymentCheckDataHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(() => null);
 
             _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<EmploymentCheckData>()))
                 .Verifiable();
@@ -194,7 +183,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Arrange
             var learnerNiNumberTask = Task.FromResult(_fixture.Create<LearnerNiNumber>());
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
-            (bool IsValid, string ErrorType) validStatus = (false, string.Empty);
 
             _context
                 .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
@@ -209,8 +197,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Returns(employerPayeSchemesTask);
 
             _employmentCheckDataValidator
-                .Setup(x => x.IsValidEmploymentCheckData(It.IsAny<EmploymentCheckData>()))
-                .Returns(validStatus);
+                .Setup(x => x.EmploymentCheckDataHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns("NinoNotFound");
 
             _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<EmploymentCheckData>()))
                 .Verifiable();

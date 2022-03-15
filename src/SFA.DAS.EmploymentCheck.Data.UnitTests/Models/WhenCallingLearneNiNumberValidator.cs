@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using System.Net;
@@ -22,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_LearnerNiNumber_Is_Null_Return_False_NinoFailure()
+        public void When_LearnerNiNumber_Is_Null_Return_NinoFailure()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -30,15 +31,14 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidNino(employmentCheckData);
+            var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoFailure, result.ErrorType);
+            result.Should().Be(NinoFailure);
         }
 
         [Test]
-        public void When_LearnerNiNumber_NiNumber_Is_Null_IsValidNino_Returns_NinoNotFound()
+        public void When_LearnerNiNumber_NiNumber_Is_Null_Return_NinoNotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -46,15 +46,14 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidNino(employmentCheckData);
+            var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoNotFound, result.ErrorType);
+            result.Should().Be(NinoNotFound);
         }
 
         [Test]
-        public void When_LearnerNiNumber_NiNumber_Length_Is_Less_Than_9_IsValidNino_Returns_NinoInvalid()
+        public void When_LearnerNiNumber_NiNumber_Length_Is_Less_Than_9_Return_NinoInvalid()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -62,29 +61,27 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidNino(employmentCheckData);
+            var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoInvalid, result.ErrorType);
+            result.Should().Be(NinoInvalid);
         }
 
         [Test]
-        public void When_LearnerNiNumber_IsValid_Return_True_Null()
+        public void When_LearnerNiNumber_IsValid_Return_Null()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>().Create();
 
             // Act
-            var result = _sut.IsValidNino(employmentCheckData);
+            var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(true);
-            Assert.IsNull(result.ErrorType);
+            result.Should().BeNull();
         }
 
         [Test]
-        public void When_LearnerNiNumber_Status_Is_NotFound_Validation_Returns_NinoNotFound()
+        public void When_LearnerNiNumber_Status_Is_NotFound_Return_NinoNotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -92,15 +89,14 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                  .Create();
 
             // Act
-            var result = _sut.IsValidNino(employmentCheckData);
+            var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoNotFound, result.ErrorType);
+            result.Should().Be(NinoNotFound);
         }
 
         [Test]
-        public void When_LearnerNiNumber_Status_Is_NoContent_Validation_Returns_NinoNotFound()
+        public void When_LearnerNiNumber_Status_Is_NoContent_Returns_NinoNotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -108,15 +104,14 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                  .Create();
 
             // Act
-            var result = _sut.IsValidNino(employmentCheckData);
+            var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoNotFound, result.ErrorType);
+            result.Should().Be(NinoNotFound);
         }
 
         [Test]
-        public void When_LearnerNiNumber_Status_Is_Between_400_and_599_Validation_Returns_NinoFailure()
+        public void When_LearnerNiNumber_Status_Is_Between_400_and_599_Return_NinoFailure()
         {
             // Arrange
             for (var i = 400; i <= 599; ++i)
@@ -129,11 +124,10 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                     .Create();
 
                 // Act
-                var result = _sut.IsValidNino(employmentCheckData);
+                var result = _sut.NinoHasError(employmentCheckData);
 
                 // Assert
-                result.IsValid.Equals(false);
-                Assert.AreEqual(NinoFailure, result.ErrorType);
+                result.Should().Be(NinoFailure);
             }
         }
     }

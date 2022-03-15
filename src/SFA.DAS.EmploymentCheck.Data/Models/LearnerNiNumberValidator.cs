@@ -4,7 +4,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 {
     public class LearnerNiNumberValidator : ILearnerNiNumberValidator
     {
-        public (bool IsValid, string ErrorType) IsValidNino(EmploymentCheckData employmentCheckData)
+        public string NinoHasError(EmploymentCheckData employmentCheckData)
         {
             const string NinoNotFound = "NinoNotFound";
             const string NinoInvalid = "NinoInvalid";
@@ -15,31 +15,31 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
             if (learnerNiNumber == null)
             {
-                return (false, NinoFailure);
+                return NinoFailure;
             }
 
             if (string.IsNullOrEmpty(learnerNiNumber.NiNumber))
             {
-                return (false, NinoNotFound);
+                return NinoNotFound;
             }
 
             if (employmentCheckData.ApprenticeNiNumber.NiNumber.Length < validNinoLength)
             {
-                return (false, NinoInvalid);
+                return NinoInvalid;
             }
 
             var httpStatusCode = employmentCheckData.ApprenticeNiNumber.HttpStatusCode;
             if (httpStatusCode == HttpStatusCode.NotFound || httpStatusCode == HttpStatusCode.NoContent)
             {
-                return (false, NinoNotFound);
+                return NinoNotFound;
             }
 
             if ((int)httpStatusCode >= 400 && (int)httpStatusCode <= 599)
             {
-                return (false, NinoFailure);
+                return NinoFailure;
             }
 
-            return (true, null);
+            return null;
         }
     }
 }

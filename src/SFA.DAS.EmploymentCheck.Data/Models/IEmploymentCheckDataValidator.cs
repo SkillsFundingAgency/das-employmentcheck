@@ -2,6 +2,6 @@
 {
     public interface IEmploymentCheckDataValidator
     {
-        (bool IsValid, string ErrorType) IsValidEmploymentCheckData(EmploymentCheckData employmentCheckData);
+        string EmploymentCheckDataHasError(EmploymentCheckData employmentCheckData);
     }
 }
