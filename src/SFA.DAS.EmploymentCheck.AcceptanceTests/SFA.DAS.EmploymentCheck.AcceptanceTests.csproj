@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.msbuild" Version="3.1.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+        <PackageReference Include="Moq" Version="4.16.1" />
+        <PackageReference Include="NUnit" Version="3.13.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageReference Include="AutoFixture" Version="4.17.0" />
+        <PackageReference Include="FluentAssertions" Version="6.4.0" />
+        <PackageReference Include="SpecFlow" Version="3.9.58" />
+        <PackageReference Include="SpecFlow.NUnit" Version="3.9.58" />
+        <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.58" />
+        <PackageReference Include="WireMock.Net" Version="1.4.34" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions.TestHelpers\SFA.DAS.EmploymentCheck.Functions.TestHelpers.csproj" />
+        <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
+        <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.Tests.Database.csproj" />
+    </ItemGroup>
+
+</Project>

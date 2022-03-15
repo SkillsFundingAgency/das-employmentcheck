@@ -4,7 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
+namespace SFA.DAS.EmploymentCheck.Tests.Database
 {
     public class SqlDatabase : IDisposable
     {
