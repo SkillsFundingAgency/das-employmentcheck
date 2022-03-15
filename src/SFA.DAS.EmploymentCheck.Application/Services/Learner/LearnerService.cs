@@ -73,7 +73,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var learnerNiNumber = DeserialiseContent(jsonContent, response);
-            learnerNiNumber.HttpStatusCode = httpResponseMessage.StatusCode;
+            if (learnerNiNumber != null) { learnerNiNumber.HttpStatusCode = httpResponseMessage.StatusCode; }
 
             response.SetNiNumber(learnerNiNumber?.NiNumber);
 

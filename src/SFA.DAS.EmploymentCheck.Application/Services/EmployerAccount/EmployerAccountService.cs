@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             }
 
             var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
-          
+
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
@@ -66,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var employerPayeSchemes = DeserialiseContent(jsonContent, response);
-            employerPayeSchemes.HttpStatusCode = httpResponseMessage.StatusCode;
+            if (employerPayeSchemes != null) { employerPayeSchemes.HttpStatusCode = httpResponseMessage.StatusCode; }
 
             response.SetPayeSchemes(employerPayeSchemes?.PayeSchemes);
 
@@ -104,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
             var accountsResponse = CreateResponseModel(employmentCheck, e.Message);
-           
+
             await Save(accountsResponse);
         }
 
