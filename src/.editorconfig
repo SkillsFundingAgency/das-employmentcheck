@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# S1125: Boolean literals should not be redundant
+dotnet_diagnostic.S1125.severity = none

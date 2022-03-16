@@ -74,7 +74,9 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
         private static void ReadSettings()
         {
             _csvDataFile = Path.Combine(Directory.GetCurrentDirectory(), "Files\\testdata.csv");
+#pragma warning disable S112 // General exceptions should never be thrown
             if (!File.Exists(_csvDataFile)) throw new Exception($"Input file not found in: {_csvDataFile}");
+#pragma warning restore S112 // General exceptions should never be thrown
 
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -93,11 +95,11 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
 
         private static async Task ClearData()
         {
-           await _dataAccess.DeleteAll("[Business].[EmploymentCheck]");
-           await _dataAccess.DeleteAll("[Cache].[AccountsResponse]");
-           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckCacheRequest]");
-           await _dataAccess.DeleteAll("[Cache].[EmploymentCheckCacheResponse]");
-           await _dataAccess.DeleteAll("[Cache].[DataCollectionsResponse]");
+            await _dataAccess.DeleteAll("[Business].[EmploymentCheck]");
+            await _dataAccess.DeleteAll("[Cache].[AccountsResponse]");
+            await _dataAccess.DeleteAll("[Cache].[EmploymentCheckCacheRequest]");
+            await _dataAccess.DeleteAll("[Cache].[EmploymentCheckCacheResponse]");
+            await _dataAccess.DeleteAll("[Cache].[DataCollectionsResponse]");
         }
     }
 }
