@@ -68,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_Nino_IsNotValid_And_PayeScheme_IsNotValid_Return_NinoFailureAndPAYEFailure()
+        public void When_Nino_IsNotValid_And_PayeScheme_IsNotValid_Return_NinoAndPAYENotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -86,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             var result = _sut.EmploymentCheckDataHasError(employmentCheckData);
 
             // Assert
-            result.Should().Be($"{NinoFailure}And{PAYEFailure}");
+            result.Should().Be("NinoAndPAYENotFound");
         }
 
         [Test]

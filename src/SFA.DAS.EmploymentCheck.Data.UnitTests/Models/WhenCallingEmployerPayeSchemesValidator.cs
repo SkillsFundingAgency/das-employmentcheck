@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_EmployerPayeSchemes_Is_Null_Return_PAYEFailure()
+        public void When_EmployerPayeSchemes_Is_Null_Return_PAYENotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             var result = _sut.PayeSchemesHasError(employmentCheckData);
 
             // Assert
-            result.Should().Be(PAYEFailure);
+            result.Should().Be(PAYENotFound);
         }
 
         [Test]
@@ -45,39 +45,6 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
                 .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
                 .With(ecd => ecd.EmployerPayeSchemes, new EmployerPayeSchemes(1, HttpStatusCode.NoContent, null))
-                .Create();
-
-            // Act
-            var result = _sut.PayeSchemesHasError(employmentCheckData);
-
-            // Assert
-            result.Should().Be(PAYENotFound);
-        }
-
-        [Test]
-        public void When_EmployerPayeSchemes_PayeScheme_Has_A_Blank_PayeScheme_Return_PAYENotFound()
-        {
-            // Arrange
-            var employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
-                .With(ecd => ecd.EmployerPayeSchemes, new EmployerPayeSchemes(1, HttpStatusCode.OK, new List<string> { { "Paye" }, { "" } }))
-                .Create();
-
-
-            // Act
-            var result = _sut.PayeSchemesHasError(employmentCheckData);
-
-            // Assert
-            result.Should().Be(PAYENotFound);
-        }
-
-        [Test]
-        public void When_EmployerPayeSchemes_Status_Is_NoContent_Return_PAYENotFound()
-        {
-            // Arrange
-            var employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
-                .With(ecd => ecd.EmployerPayeSchemes, _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.NoContent).Create())
                 .Create();
 
             // Act

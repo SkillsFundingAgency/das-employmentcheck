@@ -31,7 +31,7 @@
 
             if (ninoHasError != null)
             {
-                return $"{ninoHasError}And{payeSchemesHasError}";
+                return "NinoAndPAYENotFound";
             }
 
             return null;

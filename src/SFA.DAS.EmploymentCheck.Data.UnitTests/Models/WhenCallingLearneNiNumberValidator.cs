@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_LearnerNiNumber_Is_Null_Return_NinoFailure()
+        public void When_LearnerNiNumber_Is_Null_Return_NinoNotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             var result = _sut.NinoHasError(employmentCheckData);
 
             // Assert
-            result.Should().Be(NinoFailure);
+            result.Should().Be(NinoNotFound);
         }
 
         [Test]

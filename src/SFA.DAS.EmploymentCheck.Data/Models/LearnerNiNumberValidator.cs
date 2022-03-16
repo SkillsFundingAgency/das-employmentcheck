@@ -13,12 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
             var learnerNiNumber = employmentCheckData.ApprenticeNiNumber;
 
-            if (learnerNiNumber == null)
-            {
-                return NinoFailure;
-            }
-
-            if (string.IsNullOrEmpty(learnerNiNumber.NiNumber))
+            if (learnerNiNumber == null || string.IsNullOrEmpty(learnerNiNumber.NiNumber))
             {
                 return NinoNotFound;
             }

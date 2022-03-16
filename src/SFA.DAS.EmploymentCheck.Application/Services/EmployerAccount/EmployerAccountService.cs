@@ -66,7 +66,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var employerPayeSchemes = DeserialiseContent(jsonContent, response);
-            if (employerPayeSchemes != null) { employerPayeSchemes.HttpStatusCode = httpResponseMessage.StatusCode; }
 
             response.SetPayeSchemes(employerPayeSchemes?.PayeSchemes);
 
@@ -98,7 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 }
             }
 
-            return null;
+            return new EmployerPayeSchemes(accountsResponse.AccountId, (HttpStatusCode)accountsResponse.HttpStatusCode, null); // HTB-358 defect - if the api returns an HttpStatusCode then it needs to be returned to the Validator for it to set the correct validation status 
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
