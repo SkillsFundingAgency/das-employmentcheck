@@ -53,11 +53,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Api
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Api.IntegrationTests", "SFA.DAS.EmploymentCheck.Api.IntegrationTests\SFA.DAS.EmploymentCheck.Api.IntegrationTests.csproj", "{51831FB0-BDB8-480E-B10B-19DA5279D1A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Tests.Database", "SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.Tests.Database.csproj", "{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests", "SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests.csproj", "{AAAFA2ED-0D78-4E00-A1D3-59E5AA72D936}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.AcceptanceTests", "SFA.DAS.EmploymentCheck.AcceptanceTests\SFA.DAS.EmploymentCheck.AcceptanceTests.csproj", "{10C9FF70-D80A-4FCD-8F66-8D35688EEBCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Functions.TestHelpers", "SFA.DAS.EmploymentCheck.Functions.TestHelpers\SFA.DAS.EmploymentCheck.Functions.TestHelpers.csproj", "{188D176E-DC69-41C4-97EC-17AEF968F343}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.TestHelpers", "SFA.DAS.EmploymentCheck.Functions.TestHelpers\SFA.DAS.EmploymentCheck.Functions.TestHelpers.csproj", "{188D176E-DC69-41C4-97EC-17AEF968F343}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
