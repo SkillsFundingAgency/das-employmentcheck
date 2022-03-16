@@ -1,0 +1,58 @@
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+using SFA.DAS.EmploymentCheck.Commands;
+
+namespace SFA.DAS.EmploymentCheck.AcceptanceTests
+{
+    public class TestCommandHandlerReceived<T> : ICommandHandler<T> where T : ICommand
+    {
+        private readonly ICommandHandler<T> _handler;
+        private readonly IHook<ICommand> _hook;
+
+        public TestCommandHandlerReceived(
+            ICommandHandler<T> handler,
+            IHook<ICommand> hook)
+        {
+            _handler = handler;
+            _hook = hook;
+        }
+
+        public async Task Handle(T command, CancellationToken cancellationToken = default)
+        {
+            if (_hook != null)
+            {
+                try
+                {
+                    if (_hook?.OnReceived != null)
+                    {
+                        _hook.OnReceived(command);
+                    }
+                    await _handler.Handle(command, cancellationToken);
+
+                    if (_hook?.OnHandled != null)
+                    {
+                        _hook.OnHandled(command);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    bool suppressError = false;
+                    if (_hook?.OnErrored != null)
+                    {
+                        suppressError = _hook.OnErrored(ex, command);
+                    }
+                    if (!suppressError)
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+            {
+                await _handler.Handle(command, cancellationToken);
+            }
+        }
+    }
+}

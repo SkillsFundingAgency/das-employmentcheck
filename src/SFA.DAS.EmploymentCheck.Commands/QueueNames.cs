@@ -2,6 +2,6 @@
 {
     public class QueueNames
     {
-        public const string UpdateVendorRegistrationCaseStatus = "SFA.DAS.EmploymentCheck.PublishEmploymentCheckResult";
+        public const string PublishEmploymentCheckResult = "SFA.DAS.EmploymentCheck.PublishEmploymentCheckResult";
     }
 }

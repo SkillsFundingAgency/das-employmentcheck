@@ -16,6 +16,9 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -30,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         public HttpResponseMessage LastResponse => ResponseObject as HttpResponseMessage;
         public object ResponseObject { get; private set; }
 
-        public TestFunction(TestContext testContext, string hubName)
+        public TestFunction(TestContext testContext, string hubName, Hook<object> eventMessageHook, IHook<ICommand> commandMessageHook)
         {
             HubName = hubName;
             _orchestrationData = new OrchestrationData();
@@ -105,9 +108,25 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), hmrcApiTokenServiceMock.Object);
                         s.AddSingleton(typeof(IWebHostEnvironment), webHostEnvironmentMock.Object);
+                        
+                        s.AddCommandServices(AddDecorators);
+
+                        s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
+                        s.Decorate<ICommandPublisher>((handler, sp) => new TestCommandPublisher(handler, commandMessageHook));
                     })
                 )
                 .Build();
+        }
+
+        public IServiceCollection AddDecorators(IServiceCollection serviceCollection)
+        {
+            serviceCollection
+                .Decorate(typeof(ICommandHandler<>), typeof(TestCommandHandlerReceived<>));
+
+            serviceCollection
+                .Decorate(typeof(ICommandHandler<>), typeof(TestCommandHandlerProcessed<>));
+
+            return serviceCollection;
         }
 
         public async Task StartHost()

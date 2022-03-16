@@ -32,6 +32,7 @@
     <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
     <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj" />

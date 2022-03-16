@@ -1,24 +1,20 @@
-﻿using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.NServiceBus.AzureFunction.Attributes;
 
 namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 {
     public class PublishEmploymentCheckResultCommandHandler : ICommandHandler<PublishEmploymentCheckResultCommand>
     {
-        private readonly ICommandService _service;
+        private readonly ICommandPublisher _commandPublisher;
 
-        public PublishEmploymentCheckResultCommandHandler(ICommandService service)
+        public PublishEmploymentCheckResultCommandHandler(ICommandPublisher commandPublisher)
         {
-            _service = service;
+            _commandPublisher = commandPublisher;
         }
 
-        public Task Handle([NServiceBusTrigger(Endpoint = QueueNames.UpdateVendorRegistrationCaseStatus)] PublishEmploymentCheckResultCommand command, CancellationToken cancellationToken = default)
+        public Task Handle(PublishEmploymentCheckResultCommand command, CancellationToken cancellationToken = default)
         {
-             _service.Dispatch(command);
-
-             return Task.CompletedTask;
+            return _commandPublisher.Publish(command, cancellationToken);
         }
     }
 }

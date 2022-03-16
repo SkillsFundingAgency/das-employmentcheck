@@ -10,14 +10,14 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
     public class WhenHandlingTheRequest
     {
         private PublishEmploymentCheckResultCommandHandler _sut;
-        private Mock<ICommandService> _serviceMock;
+        private Mock<ICommandPublisher> _serviceMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _serviceMock = new Mock<ICommandService>();
+            _serviceMock = new Mock<ICommandPublisher>();
             _sut = new PublishEmploymentCheckResultCommandHandler(_serviceMock.Object);
         }
 
@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
             await _sut.Handle(request, CancellationToken.None);
 
             // Assert
-            _serviceMock.Verify(_ => _.Dispatch(request), Times.Once);
+            _serviceMock.Verify(_ => _.Publish(request, CancellationToken.None), Times.Once);
         }
     }
 }
