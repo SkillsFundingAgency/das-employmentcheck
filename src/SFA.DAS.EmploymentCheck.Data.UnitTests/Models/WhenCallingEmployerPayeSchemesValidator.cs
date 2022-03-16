@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_EmployerPayeSchemes_Is_Null_Return_False_PAYEFailure()
+        public void When_EmployerPayeSchemes_Is_Null_Return_PAYENotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -31,15 +32,14 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidPayeScheme(employmentCheckData);
+            var result = _sut.PayeSchemesHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(PAYEFailure, result.ErrorType);
+            result.Should().Be(PAYENotFound);
         }
 
         [Test]
-        public void When_EmployerPayeSchemes_PayeScheme_Is_Empty_Return_False_PAYENotFound()
+        public void When_EmployerPayeSchemes_PayeScheme_Is_Empty_Return_PAYENotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -48,50 +48,14 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidPayeScheme(employmentCheckData);
+            var result = _sut.PayeSchemesHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(PAYENotFound, result.ErrorType);
+            result.Should().Be(PAYENotFound);
         }
 
         [Test]
-        public void When_EmployerPayeSchemes_PayeScheme_Has_A_Blank_PayeScheme_Return_False_PAYENotFound()
-        {
-            // Arrange
-            var employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
-                .With(ecd => ecd.EmployerPayeSchemes, new EmployerPayeSchemes(1, HttpStatusCode.OK, new List<string> { { "Paye" }, { "" } }))
-                .Create();
-
-
-            // Act
-            var result = _sut.IsValidPayeScheme(employmentCheckData);
-
-            // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(PAYENotFound, result.ErrorType);
-        }
-
-        [Test]
-        public void When_EmployerPayeSchemes_Status_Is_NoContent_Return_False_PAYENotFound()
-        {
-            // Arrange
-            var employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
-                .With(ecd => ecd.EmployerPayeSchemes, _fixture.Build<EmployerPayeSchemes>().With(x => x.HttpStatusCode, HttpStatusCode.NoContent).Create())
-                .Create();
-
-            // Act
-            var result = _sut.IsValidPayeScheme(employmentCheckData);
-
-            // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(PAYENotFound, result.ErrorType);
-        }
-
-        [Test]
-        public void When_EmployerPayeSchemes_Status_Is_NotFound_Return_False_PAYENotFound()
+        public void When_EmployerPayeSchemes_Status_Is_NotFound_Return_PAYENotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -100,19 +64,18 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidPayeScheme(employmentCheckData);
+            var result = _sut.PayeSchemesHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(PAYENotFound, result.ErrorType);
+            result.Should().Be(PAYENotFound);
         }
 
         [Test]
-        public void When_EmployerPayeSchemes_Status_Is_Between_400_And_599__Return_False_PAYEFailure()
+        public void When_EmployerPayeSchemes_Status_Is_Between_400_And_599__Return_PAYEFailure()
         {
             for (var i = 400; i <= 599; ++i)
             {
-                if (i == 404) // skip the NotFound which returns PAYENotFound instead of PAYEFailure
+                if (i == 404)
                     continue;
 
                 // Arrange
@@ -122,16 +85,15 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                     .Create();
 
                 // Act
-                var result = _sut.IsValidPayeScheme(employmentCheckData);
+                var result = _sut.PayeSchemesHasError(employmentCheckData);
 
                 // Assert
-                result.IsValid.Equals(false);
-                Assert.AreEqual(PAYEFailure, result.ErrorType);
+                result.Should().Be(PAYEFailure);
             }
         }
 
         [Test]
-        public void When_EmployerPayeSchemes_IsValid_Return_True_EmptyString()
+        public void When_EmployerPayeSchemes_IsValid_Return_Null()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -139,11 +101,10 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .Create();
 
             // Act
-            var result = _sut.IsValidPayeScheme(employmentCheckData);
+            var result = _sut.PayeSchemesHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(true);
-            Assert.IsNull(result.ErrorType);
+            result.Should().BeNull();
         }
     }
 }

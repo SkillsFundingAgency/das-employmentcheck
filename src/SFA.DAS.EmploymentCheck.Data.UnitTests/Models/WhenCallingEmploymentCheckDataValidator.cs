@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -25,51 +26,49 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_IsValidNino_IsNotValid_And_IsValidPayeScheme_IsValid_Return_False_NinoFailure()
+        public void When_Nino_IsNotValid_And_PayeScheme_IsValid_Return_NinoFailure()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
                 .With(ecd => ecd.ApprenticeNiNumber, () => null)
                 .Create();
 
-            _learnerNiNumberValidatorMock.Setup(x => x.IsValidNino(It.IsAny<EmploymentCheckData>()))
-                .Returns((false, NinoFailure));
+            _learnerNiNumberValidatorMock.Setup(x => x.NinoHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(NinoFailure);
 
-            _employerPayeSchemesMock.Setup(x => x.IsValidPayeScheme(It.IsAny<EmploymentCheckData>()))
-                .Returns((true, null));
+            _employerPayeSchemesMock.Setup(x => x.PayeSchemesHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns( () => null );
 
             // Act
-            var result = _sut.IsValidEmploymentCheckData(employmentCheckData);
+            var result = _sut.EmploymentCheckDataHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoFailure, result.ErrorType);
+            result.Should().Be(NinoFailure);
         }
 
         [Test]
-        public void When_IsValidNino_IsValid_And_IsValidPayeScheme_IsNotValid_Return_False_PAYEFailure()
+        public void When_Nino_IsValid_And_PayeScheme_IsNotValid_Return_False_PAYEFailure()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
                 .With(ecd => ecd.EmployerPayeSchemes, () => null)
                 .Create();
 
-            _learnerNiNumberValidatorMock.Setup(x => x.IsValidNino(It.IsAny<EmploymentCheckData>()))
-                .Returns((true, null));
+            _learnerNiNumberValidatorMock.Setup(x => x.NinoHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns( () => null );
 
-            _employerPayeSchemesMock.Setup(x => x.IsValidPayeScheme(It.IsAny<EmploymentCheckData>()))
-                .Returns((false, PAYEFailure));
+            _employerPayeSchemesMock.Setup(x => x.PayeSchemesHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(PAYEFailure);
 
             // Act
-            var result = _sut.IsValidEmploymentCheckData(employmentCheckData);
+            var result = _sut.EmploymentCheckDataHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(PAYEFailure, result.ErrorType);
+            result.Should().Be(PAYEFailure);
         }
 
         [Test]
-        public void When_IsValidNino_IsNotValid_And_IsValidPayeScheme_IsNotValid_Return_False_NinoFailureAndPAYEFailure()
+        public void When_Nino_IsNotValid_And_PayeScheme_IsNotValid_Return_NinoAndPAYENotFound()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
@@ -77,41 +76,38 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
                 .With(ecd => ecd.EmployerPayeSchemes, () => null)
                 .Create();
 
-            _learnerNiNumberValidatorMock.Setup(x => x.IsValidNino(It.IsAny<EmploymentCheckData>()))
-                .Returns((false, NinoFailure));
+            _learnerNiNumberValidatorMock.Setup(x => x.NinoHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(NinoFailure);
 
-            _employerPayeSchemesMock.Setup(x => x.IsValidPayeScheme(It.IsAny<EmploymentCheckData>()))
-                .Returns((false, PAYEFailure));
+            _employerPayeSchemesMock.Setup(x => x.PayeSchemesHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns(PAYEFailure);
 
             // Act
-            var result = _sut.IsValidEmploymentCheckData(employmentCheckData);
+            var result = _sut.EmploymentCheckDataHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.AreEqual(NinoFailure + "And" + PAYEFailure, result.ErrorType);
+            result.Should().Be("NinoAndPAYENotFound");
         }
 
         [Test]
-        public void When_IsValidNino_IsValid_And_IsValidPayeScheme_IsValid_Return_True_EmptyString()
+        public void When_Nino_IsValid_And_PayeScheme_IsValid_Return_Null()
         {
             // Arrange
             var employmentCheckData = _fixture.Build<EmploymentCheckData>()
                 .With(ecd => ecd.EmploymentCheck, _fixture.Build<Data.Models.EmploymentCheck>().Without(x => x.ErrorType).Create())
                 .Create();
 
-            _learnerNiNumberValidatorMock.Setup(x => x.IsValidNino(It.IsAny<EmploymentCheckData>()))
-                .Returns((true, null));
+            _learnerNiNumberValidatorMock.Setup(x => x.NinoHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns( () => null );
 
-            _employerPayeSchemesMock.Setup(x => x.IsValidPayeScheme(It.IsAny<EmploymentCheckData>()))
-                .Returns((true, null));
-
+            _employerPayeSchemesMock.Setup(x => x.PayeSchemesHasError(It.IsAny<EmploymentCheckData>()))
+                .Returns( () => null );
 
             // Act
-            var result = _sut.IsValidEmploymentCheckData(employmentCheckData);
+            var result = _sut.EmploymentCheckDataHasError(employmentCheckData);
 
             // Assert
-            result.IsValid.Equals(false);
-            Assert.IsNull(result.ErrorType);
+            result.Should().BeNull();
         }
     }
 }

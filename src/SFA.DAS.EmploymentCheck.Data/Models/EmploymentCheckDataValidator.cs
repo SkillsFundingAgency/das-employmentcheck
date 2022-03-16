@@ -14,25 +14,27 @@
             _employerPayeSchemesValidator = employerPayeSchemesValidator;
         }
 
-        public (bool IsValid, string ErrorType) IsValidEmploymentCheckData(EmploymentCheckData employmentCheckData)
+        public string EmploymentCheckDataHasError(EmploymentCheckData employmentCheckData)
         {
-            var ninoStatus = _learnerNiValidator.IsValidNino(employmentCheckData);
-            var payeSchemeStatus = _employerPayeSchemesValidator.IsValidPayeScheme(employmentCheckData);
+            var ninoHasError = _learnerNiValidator.NinoHasError(employmentCheckData);
+            var payeSchemesHasError = _employerPayeSchemesValidator.PayeSchemesHasError(employmentCheckData);
 
-            if(!ninoStatus.IsValid && payeSchemeStatus.IsValid)
+            if(ninoHasError != null && payeSchemesHasError == null)
             {
-                return (false, ninoStatus.ErrorType);
-            }
-            else if (ninoStatus.IsValid && !payeSchemeStatus.IsValid)
-            {
-                return (false, payeSchemeStatus.ErrorType);
-            }
-            else if (!ninoStatus.IsValid && !payeSchemeStatus.IsValid)
-            {
-                return (false, $"{ninoStatus.ErrorType}And{payeSchemeStatus.ErrorType}");
+                return ninoHasError;
             }
 
-            return (true, null);
+            if (ninoHasError == null && payeSchemesHasError != null)
+            {
+                return payeSchemesHasError;
+            }
+
+            if (ninoHasError != null)
+            {
+                return "NinoAndPAYENotFound";
+            }
+
+            return null;
         }
     }
 }

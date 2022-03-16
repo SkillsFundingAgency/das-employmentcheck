@@ -73,7 +73,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var learnerNiNumber = DeserialiseContent(jsonContent, response);
-            learnerNiNumber.HttpStatusCode = httpResponseMessage.StatusCode;
 
             response.SetNiNumber(learnerNiNumber?.NiNumber);
 
@@ -96,11 +95,18 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
         {
             Guard.Against.Null(dataCollectionsResponse, nameof(dataCollectionsResponse));
 
-            if (string.IsNullOrEmpty(jsonContent)) return null;
+            if (!string.IsNullOrEmpty(jsonContent))
+            {
+                var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
+                if(learnerNiNumbers != null)
+                {
+                    var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
+                    learnerNiNumber.HttpStatusCode = (HttpStatusCode)dataCollectionsResponse.HttpStatusCode;
+                    return learnerNiNumber;
+                }
+            }
 
-            var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
-
-            return learnerNiNumbers?.FirstOrDefault();
+            return new LearnerNiNumber(dataCollectionsResponse.Uln, null, (HttpStatusCode)dataCollectionsResponse.HttpStatusCode);
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)

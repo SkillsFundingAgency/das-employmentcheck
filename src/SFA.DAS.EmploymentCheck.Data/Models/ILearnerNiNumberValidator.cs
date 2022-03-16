@@ -2,6 +2,6 @@
 {
     public interface ILearnerNiNumberValidator
     {
-        (bool IsValid, string ErrorType) IsValidNino(EmploymentCheckData employmentCheckData);
+        string NinoHasError(EmploymentCheckData employmentCheckData);
     }
 }

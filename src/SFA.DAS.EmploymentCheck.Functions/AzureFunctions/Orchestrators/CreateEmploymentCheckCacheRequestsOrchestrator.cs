@@ -41,14 +41,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     await Task.WhenAll(learnerNiNumberTask, employerPayeSchemesTask);
                     var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumberTask.Result, employerPayeSchemesTask.Result);
 
-                    var checkDataValidationStatus = _employmentCheckDataValidator.IsValidEmploymentCheckData(employmentCheckData);
-                    if (checkDataValidationStatus.IsValid)
+                    var checkDataValidationStatus = _employmentCheckDataValidator.EmploymentCheckDataHasError(employmentCheckData);
+                    if (string.IsNullOrEmpty(checkDataValidationStatus))
                     {
                         await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), employmentCheckData);
                     }
                     else
                     {
-                        employmentCheckData.EmploymentCheck.ErrorType = checkDataValidationStatus.ErrorType;
+                        employmentCheckData.EmploymentCheck.ErrorType = checkDataValidationStatus;
                         await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheckData);
                     }
                 }
@@ -56,7 +56,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 {
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckActivity)} returned no results. Nothing to process.");
 
-                    // No data found so sleep for 10 seconds then execute the orchestrator again (ContinueAsNew() call)
                     var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
