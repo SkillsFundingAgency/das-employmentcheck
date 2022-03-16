@@ -8,7 +8,7 @@ using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Tests.Database;
+using SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {

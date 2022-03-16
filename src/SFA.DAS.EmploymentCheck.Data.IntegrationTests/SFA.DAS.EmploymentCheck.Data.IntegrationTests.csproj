@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
+      <ProjectReference Include="..\SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests\SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests.csproj" />
       <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Functions\SFA.DAS.EmploymentCheck.Functions.csproj" />
-      <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

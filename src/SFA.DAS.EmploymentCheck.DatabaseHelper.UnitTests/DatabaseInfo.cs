@@ -1,5 +1,5 @@
 ﻿
-namespace SFA.DAS.EmploymentCheck.Tests.Database
+namespace SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests
 {
     public class DatabaseInfo
     {

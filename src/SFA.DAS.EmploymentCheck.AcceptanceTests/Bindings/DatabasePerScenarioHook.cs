@@ -1,4 +1,4 @@
-﻿using SFA.DAS.EmploymentCheck.Tests.Database;
+﻿using SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests;
 using TechTalk.SpecFlow;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
