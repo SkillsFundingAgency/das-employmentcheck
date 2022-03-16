@@ -97,7 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 }
             }
 
-            return new EmployerPayeSchemes(accountsResponse.AccountId, (HttpStatusCode)accountsResponse.HttpStatusCode, null); // HTB-358 defect - if the api returns an HttpStatusCode then it needs to be returned to the Validator for it to set the correct validation status 
+            return new EmployerPayeSchemes(accountsResponse.AccountId, (HttpStatusCode)accountsResponse.HttpStatusCode, null);
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)

@@ -267,7 +267,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             // Assert
             result.Should().NotBeNull();
             result.HttpStatusCode.Should().Be(employerPayeSchemes.HttpStatusCode);
-            result.PayeSchemes.Should().NotBeNull(); // Although the value is set to null above, the EmployerPayeSchemes constructor converts it to an empty list
+            result.PayeSchemes.Should().NotBeNull();
             result.PayeSchemes.Count().Should().Be(0);
         }
     }

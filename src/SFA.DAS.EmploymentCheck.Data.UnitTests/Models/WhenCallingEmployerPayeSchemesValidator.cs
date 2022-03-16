@@ -75,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         {
             for (var i = 400; i <= 599; ++i)
             {
-                if (i == 404) // skip the NotFound which returns PAYENotFound instead of PAYEFailure
+                if (i == 404)
                     continue;
 
                 // Arrange

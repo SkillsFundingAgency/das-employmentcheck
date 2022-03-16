@@ -6,7 +6,7 @@ using System.Net;
 
 namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 {
-    public class WhenCallingLearneNiNumberValidator
+    public class WhenCallingLearnerNiNumberValidator
     {
         const string NinoNotFound = "NinoNotFound";
         const string NinoFailure = "NinoFailure";
@@ -116,7 +116,7 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             // Arrange
             for (var i = 400; i <= 599; ++i)
             {
-                if (i == 404) // skip the NotFound status which returns NinoNotFound instead of NinoFailure
+                if (i == 404)
                     continue;
 
                 var employmentCheckData = _fixture.Build<EmploymentCheckData>()

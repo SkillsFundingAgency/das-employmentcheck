@@ -106,7 +106,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
                 }
             }
 
-            return new LearnerNiNumber(dataCollectionsResponse.Uln, null, (HttpStatusCode)dataCollectionsResponse.HttpStatusCode);  // HTB-358 defect - if the api returns an HttpStatusCode then it needs to be returned to the Validator for it to set the correct validation status
+            return new LearnerNiNumber(dataCollectionsResponse.Uln, null, (HttpStatusCode)dataCollectionsResponse.HttpStatusCode);
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
