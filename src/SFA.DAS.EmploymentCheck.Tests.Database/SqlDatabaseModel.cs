@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.SqlServer.Dac;
 using Polly;
 
-namespace SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests
+namespace SFA.DAS.EmploymentCheck.Tests.Database
 {
     public static class SqlDatabaseModel
     {

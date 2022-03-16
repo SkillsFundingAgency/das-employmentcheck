@@ -1,8 +1,8 @@
 ﻿using AutoFixture;
+using SFA.DAS.EmploymentCheck.Tests.Database;
 using SFA.DAS.HashingService;
 using System;
 using System.IO;
-using SFA.DAS.EmploymentCheck.DatabaseHelper.UnitTests;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
