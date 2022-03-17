@@ -192,7 +192,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
-                Content = new StringContent(_fixture.Create<string>()),
+                Content = new StringContent(""),
                 StatusCode = HttpStatusCode.BadRequest
             };
 
@@ -203,7 +203,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().NotBeNull();
+            result.HttpStatusCode.Should().Be(httpResponse.StatusCode);
+            result.PayeSchemes.Count().Should().Be(0);
         }
 
         [Test]

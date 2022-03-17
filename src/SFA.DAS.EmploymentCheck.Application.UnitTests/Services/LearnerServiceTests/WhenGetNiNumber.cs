@@ -178,12 +178,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
+        public async Task Then_LearnerNiNumber_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
-                Content = new StringContent(_fixture.Create<string>()),
+                Content = new StringContent(""),
                 StatusCode = HttpStatusCode.BadRequest
             };
 
@@ -194,7 +194,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().NotBeNull();
+            result.HttpStatusCode.Should().Be(httpResponse.StatusCode);
+            result.NiNumber.Should().BeNull();
         }
 
         [Test]

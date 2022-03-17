@@ -6,6 +6,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.HashingService;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -61,7 +62,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
-                return null;
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);

@@ -81,21 +81,6 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
-        public void When_LearnerNiNumber_Status_Is_NotFound_Return_NinoNotFound()
-        {
-            // Arrange
-            var employmentCheckData = _fixture.Build<EmploymentCheckData>()
-                 .With(ecd => ecd.ApprenticeNiNumber, _fixture.Build<LearnerNiNumber>().With(ni => ni.HttpStatusCode, HttpStatusCode.NotFound).Create())
-                 .Create();
-
-            // Act
-            var result = _sut.NinoHasError(employmentCheckData);
-
-            // Assert
-            result.Should().Be(NinoNotFound);
-        }
-
-        [Test]
         public void When_LearnerNiNumber_Status_Is_NoContent_Returns_NinoNotFound()
         {
             // Arrange
@@ -116,9 +101,6 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
             // Arrange
             for (var i = 400; i <= 599; ++i)
             {
-                if (i == 404)
-                    continue;
-
                 var employmentCheckData = _fixture.Build<EmploymentCheckData>()
                     .With(ecd => ecd.ApprenticeNiNumber, _fixture.Build<LearnerNiNumber>().With(ni => ni.HttpStatusCode, (HttpStatusCode)i).Create())
                     .Create();

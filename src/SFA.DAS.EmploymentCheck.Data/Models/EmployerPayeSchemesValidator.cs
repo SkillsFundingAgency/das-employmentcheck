@@ -10,22 +10,22 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
             const string PayeNotFound = "PAYENotFound";
             const string PayeFailure = "PAYEFailure";
 
-            if (employmentCheckData.EmployerPayeSchemes?.HttpStatusCode == HttpStatusCode.NotFound)
+            if (employmentCheckData.EmployerPayeSchemes == null)
             {
                 return PayeNotFound;
             }
 
-            if(employmentCheckData.EmployerPayeSchemes != null)
+            if (employmentCheckData.EmployerPayeSchemes.HttpStatusCode == HttpStatusCode.NotFound)
             {
-#pragma warning disable S1066 // Collapsible "if" statements should be merged
-                if ((int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode >= 400 && (int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode <= 599)
-#pragma warning restore S1066 // Collapsible "if" statements should be merged
-                {
-                    return PayeFailure;
-                }
+                return PayeNotFound;
             }
 
-            if (employmentCheckData.EmployerPayeSchemes?.PayeSchemes == null || !employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
+            if ((int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode >= 400 && (int)employmentCheckData.EmployerPayeSchemes.HttpStatusCode <= 599)
+            {
+                return PayeFailure;
+            }
+
+            if (employmentCheckData.EmployerPayeSchemes.PayeSchemes == null || !employmentCheckData.EmployerPayeSchemes.PayeSchemes.Any())
             {
                 return PayeNotFound;
             }
