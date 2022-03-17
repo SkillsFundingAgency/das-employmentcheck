@@ -11,9 +11,22 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
             const string NinoFailure = "NinoFailure";
             const int validNinoLength = 9;
 
-            var learnerNiNumber = employmentCheckData.ApprenticeNiNumber;
+            if (employmentCheckData.ApprenticeNiNumber == null)
+            {
+                return NinoNotFound;
+            }
 
-            if (learnerNiNumber == null || string.IsNullOrEmpty(learnerNiNumber.NiNumber))
+            if (employmentCheckData.ApprenticeNiNumber.HttpStatusCode == HttpStatusCode.NoContent)
+            {
+                return NinoNotFound;
+            }
+
+            if ((int)employmentCheckData.ApprenticeNiNumber.HttpStatusCode >= 400 && (int)employmentCheckData.ApprenticeNiNumber.HttpStatusCode <= 599)
+            {
+                return NinoFailure;
+            }
+
+            if (string.IsNullOrEmpty(employmentCheckData.ApprenticeNiNumber.NiNumber))
             {
                 return NinoNotFound;
             }
@@ -21,17 +34,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
             if (employmentCheckData.ApprenticeNiNumber.NiNumber.Length < validNinoLength)
             {
                 return NinoInvalid;
-            }
-
-            var httpStatusCode = employmentCheckData.ApprenticeNiNumber.HttpStatusCode;
-            if (httpStatusCode == HttpStatusCode.NotFound || httpStatusCode == HttpStatusCode.NoContent)
-            {
-                return NinoNotFound;
-            }
-
-            if ((int)httpStatusCode >= 400 && (int)httpStatusCode <= 599)
-            {
-                return NinoFailure;
             }
 
             return null;

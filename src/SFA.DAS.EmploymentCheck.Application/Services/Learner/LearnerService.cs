@@ -68,7 +68,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
-                return null;
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
