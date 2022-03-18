@@ -24,21 +24,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             try
             {
-                var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetResponseEmploymentCheckActivity), null);
-                if (employmentCheck != null)
+                var loop = true;
+                while(loop)
                 {
-                    //await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheck);
+                    var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetResponseEmploymentCheckActivity), null);
+                    if (employmentCheck != null)
+                    {
+                        //await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheck);
+                    }
+                    else
+                    {
+                        loop = false;
+                    }
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError($"\n\n{nameof(ResponseOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
             }
-            finally
-            {
-                //context.ContinueAsNew(null);
-            }
-
         }
     }
 }

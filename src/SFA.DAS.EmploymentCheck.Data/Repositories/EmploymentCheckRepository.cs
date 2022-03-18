@@ -131,9 +131,10 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
                     if (employmentCheck != null)
                     {
+                        var dateTimeNow = DateTime.Now;
                         var parameter = new DynamicParameters();
                         parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
-                        parameter.Add("@messageSentDate", DateTime.Now, DbType.DateTime);
+                        parameter.Add("@messageSentDate", dateTimeNow, DbType.DateTime);
                         parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
                         await sqlConnection.ExecuteAsync(
@@ -144,6 +145,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                             commandType: CommandType.Text,
                             transaction: transaction);
 
+                        employmentCheck.MessageSentDate = dateTimeNow;
                         transaction.Commit();
                     }
                 }
