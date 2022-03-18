@@ -3,12 +3,12 @@ using Dapper.Contrib.Extensions;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Tests.Database;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 {
