@@ -47,6 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             try
             {
                 request.LastUpdatedOn = DateTime.Now;
+                request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
