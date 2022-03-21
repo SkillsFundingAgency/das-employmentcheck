@@ -115,29 +115,29 @@ namespace SFA.DAS.EmploymentCheck.Functions
             logger.LogInformation($"Startup AddNServiceBus: using NServiceBusConnectionString={configuration["NServiceBusConnectionString"]} from config");
             builder.Services.AddNServiceBus(logger);
 
-            //if (!configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
-            //{
-            //    Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration["NServiceBusConnectionString"]);
-            //    builder.Services.AddNServiceBus(logger);
-            //}
-            //else
-            //{
-            //    builder.Services.AddNServiceBus(
-            //        logger, options =>
-            //        {
-            //            options.EndpointConfiguration = endpoint =>
-            //            {
-            //                endpoint.UseTransport<LearningTransport>().StorageDirectory(
-            //                    Path.Combine(
-            //                        Directory.GetCurrentDirectory()[
-            //                            ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
-            //                        @"src\.learningtransport"));
-            //                endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
+            if (!configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration["NServiceBusConnectionString"]);
+                builder.Services.AddNServiceBus(logger);
+            }
+            else
+            {
+                builder.Services.AddNServiceBus(
+                    logger, options =>
+                    {
+                        options.EndpointConfiguration = endpoint =>
+                        {
+                            endpoint.UseTransport<LearningTransport>().StorageDirectory(
+                                Path.Combine(
+                                    Directory.GetCurrentDirectory()[
+                                        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
+                                    @"src\.learningtransport"));
+                            endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
 
-            //                return endpoint;
-            //            };
-            //        });
-            //}
+                            return endpoint;
+                        };
+                    });
+            }
         }
     }
 }
