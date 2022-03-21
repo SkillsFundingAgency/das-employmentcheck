@@ -1,9 +1,20 @@
 ﻿using Microsoft.Azure.WebJobs;
+using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
+using SFA.DAS.NServiceBus.Configuration;
+using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
+using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.NServiceBus.Hosting;
+using SFA.DAS.NServiceBus.SqlServer.Configuration;
+using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System;
 
 namespace SFA.DAS.EmploymentCheck.Commands
@@ -66,6 +77,48 @@ namespace SFA.DAS.EmploymentCheck.Commands
             webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(options));
 
             return serviceCollection;
+        }
+
+        public static void StartNServiceBus(this UpdateableServiceProvider serviceProvider,
+            IConfiguration configuration, bool configurationIsLocalOrDev)
+        {
+            var endpointName = configuration["ApplicationSettings:NServiceBusEndpointName"];
+            if (string.IsNullOrEmpty(endpointName))
+            {
+                endpointName = "SFA.DAS.EmploymentCheck.DomainMessageHandlers";
+            }
+
+            var endpointConfiguration = new EndpointConfiguration(endpointName)
+                .UseErrorQueue()
+                .UseInstallers()
+                .UseMessageConventions()
+                .UseNewtonsoftJsonSerializer()
+                .UseOutbox(true)
+                .UseServicesBuilder(serviceProvider)
+                .UseSqlServerPersistence(() => new SqlConnection(configuration["DbConnectionString"]))
+                .UseUnitOfWork()
+                .UseSendOnly();
+
+            if (configurationIsLocalOrDev)
+            {
+                endpointConfiguration.UseLearningTransport();
+            }
+            else
+            {
+                endpointConfiguration.UseAzureServiceBusTransport(configuration["NServiceBusConnectionString"], r => r.AddRouting());
+            }
+
+            var license = configuration["NServiceBusLicense"];
+            if (!string.IsNullOrEmpty(license))
+            {
+                endpointConfiguration.License(license);
+            }
+
+            var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+
+            serviceProvider.AddSingleton(p => endpoint)
+                .AddSingleton<IMessageSession>(p => p.GetService<IEndpointInstance>())
+                .AddHostedService<NServiceBusHostedService>();
         }
     }
 }

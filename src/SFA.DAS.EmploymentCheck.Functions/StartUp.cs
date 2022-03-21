@@ -1,19 +1,19 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NServiceBus;
-using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
-using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
+using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -21,6 +21,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
 {
     public class Startup : FunctionsStartup
     {
+        protected IConfiguration Configuration;
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services
@@ -30,6 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var serviceProvider = builder.Services.BuildServiceProvider();
 
             var configuration = serviceProvider.GetService<IConfiguration>();
+            Configuration = configuration;
 
             var configBuilder = new ConfigurationBuilder()
                 .AddConfiguration(configuration)
@@ -78,19 +81,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
-
-            builder.Services.Configure<AzureActiveDirectoryConfiguration>(config.GetSection("AzureAd"));
-            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryConfiguration>>().Value);
-
-            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration["EnvironmentName"]))
-            {
-                var azureAdConfiguration = config
-                    .GetSection("AzureAd")
-                    .Get<AzureActiveDirectoryConfiguration>();
-
-                builder.Services.AddAuthentication(azureAdConfiguration);
-            }
-
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
@@ -102,6 +92,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             ;
 
             AddNServiceBus(builder, serviceProvider, configuration);
+
+        }
+
+        public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
+        {
+            serviceProvider.StartNServiceBus(Configuration, ServiceCollectionExtensions.ConfigurationIsLocalOrDev(Configuration["EnvironmentName"]));
         }
 
         private void AddNServiceBus(IFunctionsHostBuilder builder, IServiceProvider serviceProvider,
@@ -109,35 +105,28 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
 
-            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration["EnvironmentName"]))
+            if (!configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {
+                logger.LogInformation($"Startup: using NServiceBusConnectionString={configuration["NServiceBusConnectionString"]}");
+                Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration["NServiceBusConnectionString"]);
                 builder.Services.AddNServiceBus(logger);
             }
-            else if (ServiceCollectionExtensions.ConfigurationIsLocalOrDev(configuration["EnvironmentName"]))
+            else
             {
                 builder.Services.AddNServiceBus(
-                    logger,
-                    (options) =>
+                    logger, options =>
                     {
-                        if (configuration["NServiceBusConnectionString"] == "UseLearningEndpoint=true")
+                        options.EndpointConfiguration = endpoint =>
                         {
-                            options.EndpointConfiguration = (endpoint) =>
-                            {
-                                //var dir = configuration.GetValue<string>("UseLearningEndpointStorageDirectory");
-                                //var altDir = Path.Combine(
-                                //    Directory.GetCurrentDirectory()[
-                                //        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
-                                //    @"src\SFA.DAS.EmploymentCheck.Functions\.learningtransport");
+                            endpoint.UseTransport<LearningTransport>().StorageDirectory(
+                                Path.Combine(
+                                    Directory.GetCurrentDirectory()[
+                                        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
+                                    @"src\.learningtransport"));
+                            endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
 
-                                endpoint.UseTransport<LearningTransport>().StorageDirectory(@"c:\temp\.learningtransport");
-
-                                //endpoint.UseTransport<LearningTransport>().StorageDirectory(configuration.GetValue(
-                                //    "ApplicationSettings:UseLearningEndpointStorageDirectory", altDir
-                                //));
-                                endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
-                                return endpoint;
-                            };
-                        }
+                            return endpoint;
+                        };
                     });
             }
         }
