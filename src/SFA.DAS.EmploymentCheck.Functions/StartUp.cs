@@ -1,18 +1,19 @@
-﻿using System;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NServiceBus;
+using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using System.IO;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using System;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 
@@ -77,6 +78,19 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
+
+            builder.Services.Configure<AzureActiveDirectoryConfiguration>(config.GetSection("AzureAd"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryConfiguration>>().Value);
+
+            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration["EnvironmentName"]))
+            {
+                var azureAdConfiguration = config
+                    .GetSection("AzureAd")
+                    .Get<AzureActiveDirectoryConfiguration>();
+
+                builder.Services.AddAuthentication(azureAdConfiguration);
+            }
+
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
@@ -109,15 +123,17 @@ namespace SFA.DAS.EmploymentCheck.Functions
                         {
                             options.EndpointConfiguration = (endpoint) =>
                             {
-                                var dir = configuration.GetValue<string>("UseLearningEndpointStorageDirectory");
-                                var altDir = Path.Combine(
-                                    Directory.GetCurrentDirectory()[
-                                        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
-                                    @"src\SFA.DAS.EmploymentCheck.Functions\.learningtransport");
+                                //var dir = configuration.GetValue<string>("UseLearningEndpointStorageDirectory");
+                                //var altDir = Path.Combine(
+                                //    Directory.GetCurrentDirectory()[
+                                //        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
+                                //    @"src\SFA.DAS.EmploymentCheck.Functions\.learningtransport");
 
-                                endpoint.UseTransport<LearningTransport>().StorageDirectory(configuration.GetValue(
-                                    "ApplicationSettings:UseLearningEndpointStorageDirectory", altDir
-                                ));
+                                endpoint.UseTransport<LearningTransport>().StorageDirectory(@"c:\temp\.learningtransport");
+
+                                //endpoint.UseTransport<LearningTransport>().StorageDirectory(configuration.GetValue(
+                                //    "ApplicationSettings:UseLearningEndpointStorageDirectory", altDir
+                                //));
                                 endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
                                 return endpoint;
                             };
