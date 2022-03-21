@@ -1,9 +1,10 @@
-﻿using SFA.DAS.EmploymentCheck.Infrastructure.DistributedLock;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.EmploymentCheck.Infrastructure.DistributedLock;
 using SFA.DAS.EmploymentCheck.Infrastructure.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 {
-    public class PublishEmploymentCheckResultCommand : DomainCommand, ILockIdentifier, ILogWriter, ICommand
+    public class PublishEmploymentCheckResultCommand : DomainCommand, ILockIdentifier, ILogWriter
     {
         public PublishEmploymentCheckResultCommand(Data.Models.EmploymentCheck employmentCheck)
         {

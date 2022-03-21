@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmploymentCheck.Commands
+﻿namespace SFA.DAS.EmploymentCheck.Infrastructure
 {
     public class QueueNames
     {

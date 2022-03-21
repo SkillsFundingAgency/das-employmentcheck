@@ -4,6 +4,7 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.EmploymentCheck.Commands;
 using System;
 using System.Linq;
+using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {

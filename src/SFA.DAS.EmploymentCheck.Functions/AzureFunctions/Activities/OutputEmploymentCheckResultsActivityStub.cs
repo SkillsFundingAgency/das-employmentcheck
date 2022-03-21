@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
 using System;
 using System.Threading.Tasks;
@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         [FunctionName(nameof(OutputEmploymentCheckResultsActivityStub))]
         public async Task Create([ActivityTrigger] object whatever)
         {
-            await _dispatcher.Send(new PublishEmploymentCheckResultCommand(new Data.Models.EmploymentCheck
+            await _dispatcher.Send(new EmploymentCheckCompletedEvent(new Data.Models.EmploymentCheck
             {
                 AccountId = 123456,
                 ApprenticeshipId = 223456,

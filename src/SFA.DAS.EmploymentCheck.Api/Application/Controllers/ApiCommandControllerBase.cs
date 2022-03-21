@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers

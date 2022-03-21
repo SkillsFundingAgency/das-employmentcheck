@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
 using System.Threading.Tasks;
 

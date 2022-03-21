@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Commands
+namespace SFA.DAS.EmploymentCheck.Abstractions
 {
     public interface ICommandHandler<in T> where T: ICommand
     {

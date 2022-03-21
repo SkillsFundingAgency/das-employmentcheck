@@ -18,6 +18,7 @@ using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {

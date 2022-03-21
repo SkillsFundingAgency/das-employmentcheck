@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.NServiceBus.Services;

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.EmploymentCheck.Commands;
 using TechTalk.SpecFlow;

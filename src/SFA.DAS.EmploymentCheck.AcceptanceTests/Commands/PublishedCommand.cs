@@ -1,5 +1,5 @@
-﻿using System;
-using SFA.DAS.EmploymentCheck.Commands;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Commands
 {

@@ -1,4 +1,5 @@
-﻿using SFA.DAS.NServiceBus.Services;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.NServiceBus.Services;
 using System.Threading;
 using System.Threading.Tasks;
 

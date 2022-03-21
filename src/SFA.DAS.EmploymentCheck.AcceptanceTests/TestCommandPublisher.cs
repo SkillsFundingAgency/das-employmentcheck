@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
-using SFA.DAS.EmploymentCheck.Commands;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
