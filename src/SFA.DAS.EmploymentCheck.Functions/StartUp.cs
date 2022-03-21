@@ -81,6 +81,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
+
+            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+            Console.Write($"Logger is not null: {logger != null}");
+            logger.LogInformation($"Startup: using NServiceBusConnectionString={configuration["NServiceBusConnectionString"]} from config");
+            logger.LogInformation($"Startup: using NServiceBusConnectionString={Environment.GetEnvironmentVariable("NServiceBusConnectionString")} from environment variables");
+            
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
@@ -92,7 +98,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             ;
 
             AddNServiceBus(builder, serviceProvider, configuration);
-
         }
 
         public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
@@ -103,32 +108,31 @@ namespace SFA.DAS.EmploymentCheck.Functions
         private void AddNServiceBus(IFunctionsHostBuilder builder, IServiceProvider serviceProvider,
             IConfiguration configuration)
         {
-            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+            //var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
 
-            if (!configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
-            {
-                logger.LogInformation($"Startup: using NServiceBusConnectionString={configuration["NServiceBusConnectionString"]}");
-                Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration["NServiceBusConnectionString"]);
-                builder.Services.AddNServiceBus(logger);
-            }
-            else
-            {
-                builder.Services.AddNServiceBus(
-                    logger, options =>
-                    {
-                        options.EndpointConfiguration = endpoint =>
-                        {
-                            endpoint.UseTransport<LearningTransport>().StorageDirectory(
-                                Path.Combine(
-                                    Directory.GetCurrentDirectory()[
-                                        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
-                                    @"src\.learningtransport"));
-                            endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
+            //if (!configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            //{
+            //    Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration["NServiceBusConnectionString"]);
+            //    builder.Services.AddNServiceBus(logger);
+            //}
+            //else
+            //{
+            //    builder.Services.AddNServiceBus(
+            //        logger, options =>
+            //        {
+            //            options.EndpointConfiguration = endpoint =>
+            //            {
+            //                endpoint.UseTransport<LearningTransport>().StorageDirectory(
+            //                    Path.Combine(
+            //                        Directory.GetCurrentDirectory()[
+            //                            ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
+            //                        @"src\.learningtransport"));
+            //                endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
 
-                            return endpoint;
-                        };
-                    });
-            }
+            //                return endpoint;
+            //            };
+            //        });
+            //}
         }
     }
 }
