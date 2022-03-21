@@ -25,9 +25,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            builder.UseNServiceBusContainer();
+
             builder.Services
                 .AddNLog()
-                .AddOptions();
+                .AddOptions()
+                ;
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -83,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
-            Console.Write($"Logger is not null: {logger != null}");
+            logger.LogInformation($"Logger is not null: {logger != null}");
             logger.LogInformation($"Startup: using NServiceBusConnectionString={configuration["NServiceBusConnectionString"]} from config");
             logger.LogInformation($"Startup: using NServiceBusConnectionString={Environment.GetEnvironmentVariable("NServiceBusConnectionString")} from environment variables");
             
@@ -108,7 +111,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
         private void AddNServiceBus(IFunctionsHostBuilder builder, IServiceProvider serviceProvider,
             IConfiguration configuration)
         {
-            //var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+            logger.LogInformation($"Startup AddNServiceBus: using NServiceBusConnectionString={configuration["NServiceBusConnectionString"]} from config");
+            builder.Services.AddNServiceBus(logger);
 
             //if (!configuration["NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             //{
