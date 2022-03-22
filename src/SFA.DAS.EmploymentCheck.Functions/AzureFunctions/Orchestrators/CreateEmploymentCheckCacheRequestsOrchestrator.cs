@@ -56,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 {
                     _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckActivity)} returned no results. Nothing to process.");
 
-                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
+                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(1));
                     await context.CreateTimer(sleep, CancellationToken.None);
                 }
             }
