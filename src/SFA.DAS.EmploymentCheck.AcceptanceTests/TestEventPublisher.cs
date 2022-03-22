@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+﻿using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.NServiceBus.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -22,20 +22,15 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             {
                 try
                 {
-                    if (_hook?.OnReceived != null)
-                    {
-                        _hook.OnReceived(message);
-                    }
+                    _hook?.OnReceived?.Invoke(message);
+                   
                     await _eventPublisher.Publish(message);
 
-                    if (_hook?.OnProcessed != null)
-                    {
-                        _hook.OnProcessed(message);
-                    }
+                    _hook?.OnProcessed?.Invoke(message);
                 }
                 catch (Exception ex)
                 {
-                    bool suppressError = false;
+                    var suppressError = false;
                     if (_hook?.OnErrored != null)
                     {
                         suppressError = _hook.OnErrored(ex, message);

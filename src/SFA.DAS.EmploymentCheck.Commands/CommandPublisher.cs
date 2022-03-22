@@ -18,10 +18,5 @@ namespace SFA.DAS.EmploymentCheck.Commands
         {
             return _eventPublisher.Publish(command);
         }
-
-        public Task Publish(object command, CancellationToken cancellationToken = default)
-        {
-            return _eventPublisher.Publish(command);
-        }
     }
 }
