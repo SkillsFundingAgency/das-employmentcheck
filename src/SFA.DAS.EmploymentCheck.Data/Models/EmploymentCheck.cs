@@ -40,6 +40,19 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         {
             RequestCompletionStatus = (short)status;
         }
+
+        public static EmploymentCheck CreateEmploymentCheck(EmploymentCheckCacheRequest request)
+        {
+            var employmentCheck = new EmploymentCheck();
+
+            employmentCheck.Id = request.ApprenticeEmploymentCheckId;
+            employmentCheck.CorrelationId = (Guid)request.CorrelationId;
+            employmentCheck.Employed = request.Employed;
+            employmentCheck.RequestCompletionStatus = request.RequestCompletionStatus;
+            employmentCheck.ErrorType = request.Employed == null ? "HmrcFailure" : null;
+
+            return employmentCheck;
+        }
     }
 }
 

@@ -2,12 +2,11 @@
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
-namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheckServiceTests
+namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
 {
     public class WhenCreateEmploymentCheckFromCacheRequest
     {
