@@ -17,10 +17,6 @@ using SFA.DAS.EmploymentCheck.Api.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NServiceBus.ObjectBuilder.MSDependencyInjection;
-using SFA.DAS.EmploymentCheck.Abstractions;
-using SFA.DAS.EmploymentCheck.Commands;
-using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using PolicyNames = SFA.DAS.Api.Common.Infrastructure.PolicyNames;
 
 namespace SFA.DAS.EmploymentCheck.Api
@@ -28,8 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Api
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        private const string EndpointName = "SFA.DAS.EmploymentCheck.Api";
-
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -59,8 +54,6 @@ namespace SFA.DAS.EmploymentCheck.Api
             services.AddHealthChecks();
             services.AddNLogForApi();
 
-            AddCommandServices(services);
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
@@ -71,9 +64,6 @@ namespace SFA.DAS.EmploymentCheck.Api
 
             services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
-
-            services.Configure<NServiceBusConfiguration>(Configuration.GetSection(nameof(NServiceBusConfiguration)));
-            services.AddSingleton(cfg => cfg.GetService<IOptions<NServiceBusConfiguration>>().Value);
 
             if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) &&
                 !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
@@ -100,37 +90,15 @@ namespace SFA.DAS.EmploymentCheck.Api
                 .AddRepositories()
                 .AddServices()
                 .AddHandlers()
-                .AddNServiceBusClientUnitOfWork()
                 ;
 
             services.AddApiVersioning(opt =>
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
+
+
         }
-
-        public static IServiceCollection AddCommandServices(IServiceCollection serviceCollection, Func<IServiceCollection, IServiceCollection> addDecorators = null)
-        {
-            serviceCollection.AddScoped<ICommandDispatcher, CommandDispatcher>();
-
-            serviceCollection.Scan(scan =>
-            {
-                scan.FromAssembliesOf(typeof(ServiceCollectionExtensions))
-                    .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime();
-            });
-
-            serviceCollection.AddScoped<ICommandPublisher, CommandPublisher>();
-
-            if (addDecorators != null)
-            {
-                serviceCollection = addDecorators(serviceCollection);
-            }
-
-            return serviceCollection;
-        }
-
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -152,11 +120,6 @@ namespace SFA.DAS.EmploymentCheck.Api
 
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SFA.DAS.EmploymentCheck.Api v1.0"));
-        }
-
-        public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
-        {
-            serviceProvider.StartNServiceBus(Configuration, EndpointName).GetAwaiter().GetResult();
         }
     }
 }

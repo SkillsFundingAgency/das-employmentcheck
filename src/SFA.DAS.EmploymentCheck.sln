@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Acc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Functions.TestHelpers", "SFA.DAS.EmploymentCheck.Functions.TestHelpers\SFA.DAS.EmploymentCheck.Functions.TestHelpers.csproj", "{188D176E-DC69-41C4-97EC-17AEF968F343}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.EmploymentCheck.Abstractions", "SFA.DAS.EmploymentCheck.Abstractions\SFA.DAS.EmploymentCheck.Abstractions.csproj", "{CB8BDC22-CE17-4085-9052-6E6D7F5E7E80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.EmploymentCheck.Abstractions", "SFA.DAS.EmploymentCheck.Abstractions\SFA.DAS.EmploymentCheck.Abstractions.csproj", "{CB8BDC22-CE17-4085-9052-6E6D7F5E7E80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
