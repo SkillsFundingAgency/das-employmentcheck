@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.SqlServer.Dac;
 using Polly;
 
-namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
+namespace SFA.DAS.EmploymentCheck.Tests.Database
 {
     public static class SqlDatabaseModel
     {
@@ -17,7 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
         {
             SetDacpacLocation();
 
-            var modelNeedsUpdating = false;
+            bool modelNeedsUpdating;
             try
             {
                 modelNeedsUpdating = DacpacFileHasBeenModified();
@@ -75,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
                 $"src\\{DatabaseProjectName}\\bin\\{environment}\\{DatabaseProjectName}.dacpac");
 
             if (!File.Exists(_dacpacFileLocation))
-                throw new FileNotFoundException($"DACPAC file not found in: {_dacpacFileLocation}.  Rebuid the database project.");
+                throw new FileNotFoundException($"DACPAC file not found in: {_dacpacFileLocation}.  Rebuild the database project.");
         }
 
         private static void PublishModel()
@@ -84,7 +84,6 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Database
 
             using (dbPackage)
             {
-
                 var services = new DacServices(ConnectionString);
 
                 var policy = Policy
