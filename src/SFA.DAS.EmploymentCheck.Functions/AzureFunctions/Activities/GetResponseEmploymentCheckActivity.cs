@@ -1,26 +1,25 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Queries;
-using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {
-    public class GetEmploymentCheckActivity
+    public class GetResponseEmploymentCheckActivity
     {
         private readonly IQueryDispatcher _dispatcher;
 
-        public GetEmploymentCheckActivity(IQueryDispatcher dispatcher)
+        public GetResponseEmploymentCheckActivity(IQueryDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
         }
 
-        [FunctionName(nameof(GetEmploymentCheckActivity))]
+        [FunctionName(nameof(GetResponseEmploymentCheckActivity))]
         public async Task<Data.Models.EmploymentCheck> Get(
             [ActivityTrigger] object input)
         {
-            var result = await _dispatcher.Send<GetEmploymentCheckQueryRequest, GetEmploymentCheckQueryResult>(new GetEmploymentCheckQueryRequest());
+            var result = await _dispatcher.Send<GetResponseEmploymentCheckQueryRequest, GetResponseEmploymentCheckQueryResult>(new GetResponseEmploymentCheckQueryRequest());
 
             return result.EmploymentCheck;
         }

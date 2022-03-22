@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Queries
 {

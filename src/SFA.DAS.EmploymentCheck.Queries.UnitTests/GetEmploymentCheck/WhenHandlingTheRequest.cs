@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmploymentCheck
 {
