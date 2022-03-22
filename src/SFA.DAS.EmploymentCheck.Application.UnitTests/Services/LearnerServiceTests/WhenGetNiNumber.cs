@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            _apiClientMock.Verify(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(r => 
+            _apiClientMock.Verify(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(r =>
                 r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")));
         }
 
@@ -90,6 +90,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var nino = _fixture.Build<LearnerNiNumber>()
                 .With(n => n.Uln, _employmentCheck.Uln)
                 .Without(n => n.NiNumber)
+                .With(n => n.HttpStatusCode, HttpStatusCode.OK)
                 .Create();
             nino.NiNumber = _fixture.Create<string>()[..20];
 
@@ -177,12 +178,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
+        public async Task Then_LearnerNiNumber_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
-                Content = new StringContent(_fixture.Create<string>()),
+                Content = new StringContent(""),
                 StatusCode = HttpStatusCode.BadRequest
             };
 
@@ -193,7 +194,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().NotBeNull();
+            result.HttpStatusCode.Should().Be(httpResponse.StatusCode);
+            result.NiNumber.Should().BeNull();
         }
 
         [Test]
@@ -235,7 +238,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Null_Is_Returned_In_Case_Of_Empty_Response()
+        public async Task Then_LearnerNiNumber_With_Null_NiNumber_Is_Returned_In_Case_Of_Empty_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
@@ -243,6 +246,10 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 Content = new StringContent(""),
                 StatusCode = HttpStatusCode.OK
             };
+            var learnerNiNumber = _fixture.Build<LearnerNiNumber>()
+                .With(x => x.NiNumber, () => null )
+                .With(x => x.HttpStatusCode, httpResponse.StatusCode)
+                .Create();
 
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync(httpResponse);
@@ -251,7 +258,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             var result = await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().NotBeNull();
+            result.HttpStatusCode.Should().Be(learnerNiNumber.HttpStatusCode);
+            result.NiNumber.Should().BeNull();
         }
     }
 }

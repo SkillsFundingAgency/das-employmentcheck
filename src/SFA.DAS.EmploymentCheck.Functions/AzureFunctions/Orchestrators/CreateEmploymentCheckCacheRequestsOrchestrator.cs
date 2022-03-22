@@ -13,11 +13,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         private const string ThisClassName = nameof(CreateEmploymentCheckCacheRequestsOrchestrator);
         private readonly ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> _logger;
+        private readonly IEmploymentCheckDataValidator _employmentCheckDataValidator;
 
         public CreateEmploymentCheckCacheRequestsOrchestrator(
-            ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> logger)
+            ILogger<CreateEmploymentCheckCacheRequestsOrchestrator> logger,
+            IEmploymentCheckDataValidator employmentCheckDataValidator
+        )
         {
             _logger = logger;
+            _employmentCheckDataValidator = employmentCheckDataValidator;
         }
 
         [FunctionName(nameof(CreateEmploymentCheckCacheRequestsOrchestrator))]
@@ -33,12 +37,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 {
                     var learnerNiNumberTask = context.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), employmentCheck);
                     var employerPayeSchemesTask = context.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), employmentCheck);
-                    
-                    await Task.WhenAll(learnerNiNumberTask, employerPayeSchemesTask);
 
+                    await Task.WhenAll(learnerNiNumberTask, employerPayeSchemesTask);
                     var employmentCheckData = new EmploymentCheckData(employmentCheck, learnerNiNumberTask.Result, employerPayeSchemesTask.Result);
-                    
-                    await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), employmentCheckData);
+
+                    var checkDataValidationStatus = _employmentCheckDataValidator.EmploymentCheckDataHasError(employmentCheckData);
+                    if (string.IsNullOrEmpty(checkDataValidationStatus))
+                    {
+                        await context.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), employmentCheckData);
+                    }
+                    else
+                    {
+                        employmentCheckData.EmploymentCheck.ErrorType = checkDataValidationStatus;
+                        await context.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), employmentCheckData);
+                    }
                 }
                 else
                 {
