@@ -33,8 +33,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var hmrcApiRateLimiterConfiguration = new HmrcApiRateLimiterConfiguration
                 {
-                    EnvironmentName = Environment.GetEnvironmentVariable("EnvironmentName"),
-                    StorageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                    EnvironmentName = environmentName,
+                    StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
+                        Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
+                        "UseDevelopmentStorage=true",
                 };
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
@@ -57,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddSingleton<IEmployerPayeSchemesValidator, EmployerPayeSchemesValidator>();
             serviceCollection.AddSingleton<IEmploymentCheckDataValidator, EmploymentCheckDataValidator>();
 
-            if (!environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase) && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
+            if (NotDevelopmentOrAcceptanceTests(environmentName))
             {
                 serviceCollection.AddSingleton(new AzureServiceTokenProvider());
             }
@@ -143,6 +145,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
             });
 
             return serviceCollection;
+        }
+
+        public static bool NotDevelopmentOrAcceptanceTests(string environmentName)
+        {
+            return !environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase)
+                   && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase)
+                   && !environmentName.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }
