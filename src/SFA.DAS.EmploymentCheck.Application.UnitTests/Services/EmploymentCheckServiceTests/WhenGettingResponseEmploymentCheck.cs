@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-using AutoFixture;
-using Microsoft.Extensions.Logging;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheckServiceTests
 {
@@ -23,7 +22,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _repositoryMock = new Mock<IEmploymentCheckRepository>();
 
             _sut = new EmploymentCheckService(
-                Mock.Of<ILogger<IEmploymentCheckService>>(),
                 _repositoryMock.Object,
                 Mock.Of<IEmploymentCheckCacheRequestRepository>(),
                 Mock.Of<IUnitOfWork>()

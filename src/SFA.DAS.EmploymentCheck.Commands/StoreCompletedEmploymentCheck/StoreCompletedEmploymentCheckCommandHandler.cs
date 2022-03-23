@@ -1,4 +1,5 @@
-﻿using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
