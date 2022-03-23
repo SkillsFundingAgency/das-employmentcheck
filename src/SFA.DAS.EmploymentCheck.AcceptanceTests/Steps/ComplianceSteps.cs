@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         private Data.Models.EmploymentCheck _check;
         private List<LearnerNiNumber> _dcApiResponse;
         private ResourceList _accountsApiResponse;
-        private const int MaxWaitTimeInSeconds = 30;
+        private const int MaxWaitTimeInSeconds = 60;
 
         public ComplianceSteps(TestContext context)
         {
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)
                 .Create();
-            
+
             await dbConnection.InsertAsync(_check);
         }
 
@@ -88,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(_dcApiResponse));
         }
-        
+
         [When(@"the Employment Check is performed")]
         public async Task WhenTheEmploymentCheckIsPerformed()
         {
@@ -144,5 +144,5 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             }
         }
     }
-    
+
 }

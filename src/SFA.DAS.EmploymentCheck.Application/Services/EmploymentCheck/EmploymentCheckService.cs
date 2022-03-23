@@ -37,7 +37,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return await _employmentCheckRepository.GetResponseEmploymentCheck();
         }
 
-
         public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
         {
             return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();

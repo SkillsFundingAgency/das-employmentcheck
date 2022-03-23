@@ -1,13 +1,14 @@
 ﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Queries;
-using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.OutputEmploymentCheckResultsActivity
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.GetResponseEmploymentCheckActivityTests
 {
     public class WhenCallingGet
     {
@@ -20,18 +21,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             _fixture = new Fixture();
             _dispatcher = new Mock<IQueryDispatcher>();
-            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
+            _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().With(x => x.RequestCompletionStatus, (short)ProcessingCompletionStatus.Completed).Create();
         }
 
         [Test]
-        public async Task Then_The_Processed_EmploymentChecks_Are_Returned()
+        public async Task Then_The_EmploymentChecks_Are_Returned()
         {
             // Arrange
-            var sut = new GetEmploymentCheckActivity(_dispatcher.Object);
-            var queryResult = new GetEmploymentCheckQueryResult(_employmentCheck);
+            var sut = new GetResponseEmploymentCheckActivity(_dispatcher.Object);
+            var queryResult = new GetResponseEmploymentCheckQueryResult(_employmentCheck);
 
             _dispatcher
-                .Setup(x => x.Send<GetEmploymentCheckQueryRequest, GetEmploymentCheckQueryResult>(It.IsAny<GetEmploymentCheckQueryRequest>(), CancellationToken.None))
+                .Setup(x => x.Send<GetResponseEmploymentCheckQueryRequest, GetResponseEmploymentCheckQueryResult>(
+                    It.IsAny<GetResponseEmploymentCheckQueryRequest>(), CancellationToken.None))
                 .ReturnsAsync(queryResult);
 
             // Act

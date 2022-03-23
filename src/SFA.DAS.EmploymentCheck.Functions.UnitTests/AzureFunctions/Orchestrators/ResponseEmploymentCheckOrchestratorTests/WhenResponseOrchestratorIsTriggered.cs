@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
@@ -13,10 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
     {
         private Fixture _fixture;
         private Mock<IDurableOrchestrationContext> _context;
-        private Mock<ILogger<ResponseOrchestrator>> _logger;
-
         private Data.Models.EmploymentCheck _employmentCheck;
-
         private ResponseOrchestrator _sut;
 
         [SetUp]
@@ -24,10 +20,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
-            _logger = new Mock<ILogger<ResponseOrchestrator>>();
             _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
 
-            _sut = new ResponseOrchestrator(_logger.Object);
+            _sut = new ResponseOrchestrator();
         }
 
         [Test]
