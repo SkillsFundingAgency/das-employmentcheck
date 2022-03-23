@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
 
             if (!existingInstances.DurableOrchestrationState.Any())
             {
-                log.LogInformation($"Triggering {nameof(ProcessEmploymentCheckRequestsOrchestrator)}");
+                log.LogInformation($"Triggering {nameof(ResponseOrchestrator)}");
 
                 string instanceId = await starter.StartNewAsync(nameof(ResponseOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
 
