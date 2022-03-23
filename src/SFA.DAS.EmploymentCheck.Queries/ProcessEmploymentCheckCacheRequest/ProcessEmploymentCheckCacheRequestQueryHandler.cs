@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest
 
         public async Task<ProcessEmploymentCheckCacheRequestQueryResult> Handle(
             ProcessEmploymentCheckCacheRequestQueryRequest request,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             var employmentCheckCacheRequest = await _service.GetEmploymentCheckCacheRequest();
 
