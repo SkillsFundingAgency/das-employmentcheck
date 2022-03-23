@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                     var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetResponseEmploymentCheckActivity), null);
                     if (employmentCheck != null)
                     {
-                        //await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheck);
+                        await context.CallActivityAsync(nameof(OutputEmploymentCheckResultsActivity), employmentCheck);
                     }
                     else
                     {

@@ -49,14 +49,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Cr
                 .ReturnsAsync(instances);
 
             _starter
-                .Setup(x => x.StartNewAsync(nameof(ResponseOrchestrator), It.IsAny<string>()))
+                .Setup(x => x.StartNewAsync(nameof(ResponseOrchestrator), instanceId))
                 .ReturnsAsync($"{instanceId}");
 
             //Act
-            var result = await ResponseOrchestratorTimerTrigger.ResponseOrchestratorTimerTriggerTask(timerInfo, _starter.Object, _logger.Object);
+            await ResponseOrchestratorTimerTrigger.ResponseOrchestratorTimerTriggerTask(timerInfo, _starter.Object, _logger.Object);
 
             // Assert
-            Assert.AreEqual(instanceId, result);
+            _starter.Verify(x => x.StartNewAsync(It.Is<string>(x => x.Contains(nameof(ResponseOrchestrator))), It.IsAny<string>()), Times.Once);
         }
 
         [Test]
@@ -83,10 +83,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Cr
                 .ReturnsAsync($"{instanceId}");
 
             //Act
-            var result = await ResponseOrchestratorTimerTrigger.ResponseOrchestratorTimerTriggerTask(timerInfo, _starter.Object, _logger.Object);
+            await ResponseOrchestratorTimerTrigger.ResponseOrchestratorTimerTriggerTask(timerInfo, _starter.Object, _logger.Object);
 
             // Assert
-            Assert.AreEqual(string.Empty, result);
+            _starter.Verify(x => x.StartNewAsync(It.Is<string>(x => x.Contains(nameof(ResponseOrchestrator))), It.IsAny<string>()), Times.Never);
         }
     }
 }
