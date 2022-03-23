@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             var response = await _repository.GetByEmploymentCheckId(employmentCheck.Id);
             if (response != null && response.NiNumber != null)
             {
-                return new LearnerNiNumber(employmentCheck.Uln, response.NiNumber);
+                return new LearnerNiNumber(employmentCheck.Uln, response.NiNumber, HttpStatusCode.OK);
             }
 
             return null;
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             {
                 var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
                 var response = await _apiClient.Get(request);
-                
+
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
             }
             catch (Exception e)
@@ -68,14 +68,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
-                return null;
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             var learnerNiNumber = DeserialiseContent(jsonContent, response);
-            
+
             response.SetNiNumber(learnerNiNumber?.NiNumber);
-            
+
             await Save(response);
 
             return learnerNiNumber;
@@ -95,11 +94,18 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
         {
             Guard.Against.Null(dataCollectionsResponse, nameof(dataCollectionsResponse));
 
-            if (string.IsNullOrEmpty(jsonContent)) return null;
-            
-            var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
-            
-            return learnerNiNumbers?.FirstOrDefault();
+            if (!string.IsNullOrEmpty(jsonContent))
+            {
+                var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
+                if(learnerNiNumbers != null)
+                {
+                    var learnerNiNumber = learnerNiNumbers.FirstOrDefault();
+                    learnerNiNumber.HttpStatusCode = (HttpStatusCode)dataCollectionsResponse.HttpStatusCode;
+                    return learnerNiNumber;
+                }
+            }
+
+            return new LearnerNiNumber(dataCollectionsResponse.Uln, null, (HttpStatusCode)dataCollectionsResponse.HttpStatusCode);
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)

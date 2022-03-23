@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            _apiClientMock.Verify(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(r => 
+            _apiClientMock.Verify(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(r =>
                 r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")));
         }
 
@@ -100,7 +100,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var resourceList = new ResourceList(employerPayeSchemes);
 
             var payeSchemeList = employerPayeSchemes.Select(x => x.Id.ToUpperInvariant()).ToList();
-            var expected = new EmployerPayeSchemes(_employmentCheck.AccountId, payeSchemeList);
+            var expected = new EmployerPayeSchemes(_employmentCheck.AccountId, HttpStatusCode.OK, payeSchemeList);
 
             var httpResponse = new HttpResponseMessage
             {
@@ -117,6 +117,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             // Assert
             result.Should().BeEquivalentTo(expected);
+            result.HttpStatusCode = expected.HttpStatusCode;
         }
 
         [Test]
@@ -191,7 +192,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
-                Content = new StringContent(_fixture.Create<string>()),
+                Content = new StringContent(""),
                 StatusCode = HttpStatusCode.BadRequest
             };
 
@@ -202,7 +203,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().NotBeNull();
+            result.HttpStatusCode.Should().Be(httpResponse.StatusCode);
+            result.PayeSchemes.Count().Should().Be(0);
         }
 
         [Test]
@@ -212,7 +215,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var exception = _fixture.Create<Exception>();
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ThrowsAsync(exception);
-            
+
             // Act
             await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
@@ -244,7 +247,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        public async Task Then_Null_As_EmployerPayeSchemes_Is_Returned_In_Case_Of_Empty_Response()
+        public async Task Then_EmployerPayeSchemes_Is_Returned_In_Case_Of_Empty_Response()
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
@@ -252,6 +255,10 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 Content = new StringContent(""),
                 StatusCode = HttpStatusCode.OK
             };
+            var employerPayeSchemes = _fixture.Build<EmployerPayeSchemes>()
+                .With(x => x.PayeSchemes, () => null)
+                .With(x => x.HttpStatusCode, httpResponse.StatusCode)
+                .Create();
 
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ReturnsAsync(httpResponse);
@@ -260,7 +267,10 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            result.Should().BeNull();
+            result.Should().NotBeNull();
+            result.HttpStatusCode.Should().Be(employerPayeSchemes.HttpStatusCode);
+            result.PayeSchemes.Should().NotBeNull();
+            result.PayeSchemes.Count().Should().Be(0);
         }
     }
 }

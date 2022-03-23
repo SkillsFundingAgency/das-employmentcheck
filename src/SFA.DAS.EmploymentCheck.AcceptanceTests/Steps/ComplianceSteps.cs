@@ -71,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         public void GivenAValidNationalInsuranceNumberReturnedForTheLearner()
         {
             _dcApiResponse = new List<LearnerNiNumber>
-                { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10]) };
+                { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
 
             const string url = "/api/v1/ilr-data/learnersNi/2122";
 

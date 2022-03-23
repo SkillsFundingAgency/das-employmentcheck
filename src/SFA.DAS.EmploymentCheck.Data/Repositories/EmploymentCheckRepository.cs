@@ -206,18 +206,18 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             }
         }
 
-        public async Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheckCacheRequest request, IUnitOfWork unitOfWork)
+        public async Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheck check, IUnitOfWork unitOfWork)
         {
             var parameter = new DynamicParameters();
-            parameter.Add("@apprenticeEmploymentCheckId", request.ApprenticeEmploymentCheckId, DbType.Int64);
-            parameter.Add("@employed", request.Employed, DbType.Boolean);
+            parameter.Add("@Id", check.Id, DbType.Int64);
+            parameter.Add("@employed", check.Employed, DbType.Boolean);
             parameter.Add("@requestCompletionStatus", (short)ProcessingCompletionStatus.Completed, DbType.Int16);
+            parameter.Add("@errorType", check.ErrorType, DbType.String);
             parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql = "UPDATE [Business].[EmploymentCheck] " +
-                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                               "WHERE Id = @ApprenticeEmploymentCheckId AND (Employed IS NULL OR Employed = 0) ";
-
+                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, ErrorType = @errorType, LastUpdatedOn = @lastUpdatedOn " +
+                               "WHERE Id = @Id AND (Employed IS NULL OR Employed = 0) ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameter);
         }

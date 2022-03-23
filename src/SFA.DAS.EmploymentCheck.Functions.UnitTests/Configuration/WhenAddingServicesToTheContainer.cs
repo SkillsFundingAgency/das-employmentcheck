@@ -11,6 +11,7 @@ using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
@@ -51,7 +52,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IAzureClientCredentialHelper))]
         [TestCase(typeof(IEmployerAccountService))]
         [TestCase(typeof(IHmrcService))]
-        [TestCase(typeof(IEmploymentCheckRepository))]
+        [TestCase(typeof(ILearnerNiNumberValidator))]
+        [TestCase(typeof(IEmployerPayeSchemesValidator))]
+        [TestCase(typeof(IEmploymentCheckDataValidator))]
         [TestCase(typeof(IDataCollectionsResponseRepository))]
         [TestCase(typeof(IAccountsResponseRepository))]
         [TestCase(typeof(IEmploymentCheckCacheRequestRepository))]
@@ -83,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .With(x => x.BaseUrl, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton<IOptions<HmrcApiConfiguration>>(new OptionsWrapper<HmrcApiConfiguration>(hmrcApiSettings));
-            
+
             var apiConfiguration = _fixture.Build<EmployerAccountApiConfiguration>()
                 .With(x => x.Url, "https://hostname.co")
                 .Create();

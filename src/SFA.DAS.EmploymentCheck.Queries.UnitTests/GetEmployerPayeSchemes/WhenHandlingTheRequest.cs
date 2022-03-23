@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -29,8 +30,8 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes
         public async Task And_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_They_Returned()
         {
             // Arrange
-            var request = new GetPayeSchemesQueryRequest(_employmentCheck);
-            var payeScheme = new EmployerPayeSchemes(1, new List<string> { "paye scheme" });
+            var request = _fixture.Create<GetPayeSchemesQueryRequest>();
+            var payeScheme = _fixture.Create<EmployerPayeSchemes>();
 
             _employerAccountService
                 .Setup(x => x.GetEmployerPayeSchemes(request.EmploymentCheck))
@@ -49,11 +50,11 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes
         public async Task And_No_Paye_Schemes_Are_Returned_From_The_EmployerAccountClient_Then_An_Empty_List_Is_Returned()
         {
             // Arrange
-            var request = new GetPayeSchemesQueryRequest(_employmentCheck);
+            var request = _fixture.Create<GetPayeSchemesQueryRequest>();
 
             _employerAccountService
                 .Setup(x => x.GetEmployerPayeSchemes(request.EmploymentCheck))
-                .ReturnsAsync(new EmployerPayeSchemes(request.EmploymentCheck.AccountId));
+                .ReturnsAsync(new EmployerPayeSchemes(request.EmploymentCheck.AccountId, HttpStatusCode.OK));
 
             var sut = new GetPayeSchemeQueryHandler(_employerAccountService.Object);
 
@@ -61,7 +62,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetEmployerPayeSchemes
             var result = await sut.Handle(request, CancellationToken.None);
 
             // Assert
-            result.EmployersPayeSchemes.Should().BeEquivalentTo(new EmployerPayeSchemes(request.EmploymentCheck.AccountId));
+            result.EmployersPayeSchemes.PayeSchemes.Count.Should().Be(0);
         }
     }
 }

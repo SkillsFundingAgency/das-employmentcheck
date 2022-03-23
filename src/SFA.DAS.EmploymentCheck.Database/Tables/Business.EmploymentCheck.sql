@@ -9,6 +9,7 @@
 	[MaxDate] [datetime] NOT NULL,
 	[Employed] [bit] NULL,
 	[RequestCompletionStatus] [smallint] NULL,
+	[ErrorType] [nvarchar](50) NULL,
 	[MessageSentDate] [datetime] NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[LastUpdatedOn] [datetime] NULL,
