@@ -28,14 +28,17 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         public async Task Then_The_Command_Was_Executed()
         {
             // Arrange
-            _dispatcher.Setup(x => x.Send(It.IsAny<StoreCompletedEmploymentCheckCommand>(), It.IsAny<CancellationToken>())).Verifiable();
+            _dispatcher.Setup(x =>
+                x.Send(It.IsAny<StoreCompletedEmploymentCheckCommand>(), It.IsAny<CancellationToken>())).Verifiable();
             var sut = new StoreCompletedEmploymentCheckActivity(_dispatcher.Object);
 
             // Act
             await sut.Store(_employmentCheckData);
 
             // Assert
-            _dispatcher.Verify(x => x.Send(It.IsAny<StoreCompletedEmploymentCheckCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _dispatcher.Verify(x => x.Send(It.Is<StoreCompletedEmploymentCheckCommand>(
+                    c => c.EmploymentCheck == _employmentCheckData.EmploymentCheck),
+                It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
