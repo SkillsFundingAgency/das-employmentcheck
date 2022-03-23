@@ -69,12 +69,30 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Create<EmploymentCheckCacheResponse>();
+            var employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>()
+                .With(x => x.Id, request.ApprenticeEmploymentCheckId)
+                .With(x => x.Employed, request.Employed)
+                .With(x => x.RequestCompletionStatus, request.RequestCompletionStatus)
+                .Without(x => x.ErrorType)
+                .Create();
+
+            _employmentCheckRepositoryMock
+                .Setup(x => x.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWorkMock.Object))
+                .Returns(Task.CompletedTask);
 
             // Act
             await _sut.StoreCompletedCheck(request, response);
 
             // Assert
-            _employmentCheckRepositoryMock.Verify(x => x.UpdateEmploymentCheckAsComplete(request, _unitOfWorkMock.Object), Times.Once());
+            _employmentCheckRepositoryMock.Verify(x => x.UpdateEmploymentCheckAsComplete(
+                It.Is<Data.Models.EmploymentCheck>(
+                    x => x.Id == request.ApprenticeEmploymentCheckId
+                    && x.Employed == request.Employed
+                    && x.RequestCompletionStatus == request.RequestCompletionStatus
+                    && x.ErrorType == null
+                    )
+                ,_unitOfWorkMock.Object)
+                ,Times.Once());
         }
 
         [Test]
@@ -98,8 +116,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Create<EmploymentCheckCacheResponse>();
-            _employmentCheckRepositoryMock
-                .Setup(x => x.UpdateEmploymentCheckAsComplete(request, _unitOfWorkMock.Object))
+
+            _unitOfWorkMock
+                .Setup(x => x.UpdateAsync(request))
                 .Throws(new Exception());
 
             // Act
@@ -118,8 +137,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             var exception = new InvalidOperationException(_fixture.Create<string>());
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
             var response = _fixture.Create<EmploymentCheckCacheResponse>();
+            var check = _fixture.Create<Data.Models.EmploymentCheck>();
             _employmentCheckRepositoryMock
-                .Setup(x => x.UpdateEmploymentCheckAsComplete(request, _unitOfWorkMock.Object))
+                .Setup(x => x.UpdateEmploymentCheckAsComplete(check, _unitOfWorkMock.Object))
                 .Throws(exception);
 
             // Act

@@ -50,13 +50,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                 response = EmploymentCheckCacheResponse.CreateSuccessfulCheckResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
-                    request.CorrelationId, 
+                    request.CorrelationId,
                     result.Employed,
                     result.Empref);
 
                 await _employmentCheckService.StoreCompletedCheck(request, response);
                 await _retryPolicies.ReduceRetryDelay();
-                
+
                 return request;
             }
             catch (ApiHttpException e)
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                     (short)HttpStatusCode.InternalServerError);
             }
 
-            await _employmentCheckService.InsertEmploymentCheckCacheResponse(response);
+            await _employmentCheckService.StoreCompletedCheck(request, response);
 
             return request;
         }
@@ -98,10 +98,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         {
             var policyWrap = await _retryPolicies.GetAll(() => RetrieveAuthenticationToken(true));
             var result = await policyWrap.ExecuteAsync(() => GetEmploymentStatus(request));
-            
+
             return result;
         }
-        
+
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
             var employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(

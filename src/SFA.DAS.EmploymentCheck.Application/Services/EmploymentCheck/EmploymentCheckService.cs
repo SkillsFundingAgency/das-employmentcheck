@@ -47,11 +47,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             try
             {
                 request.LastUpdatedOn = DateTime.Now;
+                request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
                 await _unitOfWork.InsertAsync(response);
-                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(request, _unitOfWork);
+
+                var employmentCheck = Models.EmploymentCheck.CreateEmploymentCheck(request);
+                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
                 if (response.Employed == true)
                 {

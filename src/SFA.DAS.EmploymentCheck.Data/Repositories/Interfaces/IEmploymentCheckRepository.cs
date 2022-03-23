@@ -6,6 +6,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces
     {
         Task InsertOrUpdate(Models.EmploymentCheck check);
         Task<Models.EmploymentCheck> GetEmploymentCheck();
-        Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheckCacheRequest request, IUnitOfWork unitOfWork);
+        Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheck check, IUnitOfWork unitOfWork);
     }
 }
