@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -42,6 +43,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Without(c => c.RequestCompletionStatus)
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)
+                .Without(c => c.ErrorType)
                 .Create();
 
             await dbConnection.InsertAsync(_check);
@@ -110,7 +112,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(hmrcApiResponse));
 
-            await _context.TestFunction.CallEndpoint(
+            var response = await _context.TestFunction.CallEndpoint(
                 new EndpointInfo(
                     starterName: nameof(EmploymentChecksHttpTrigger),
                     args: new Dictionary<string, object>
@@ -118,6 +120,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                         ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/EmploymentChecksOrchestrator" }
                     }
                 ));
+
+            response.StatusCode.Should().NotBe(HttpStatusCode.Conflict,
+                "A running instance of the orchestrator detected. Manually delete it and retry.");
         }
 
         [Then(@"the Employment Check result is stored")]

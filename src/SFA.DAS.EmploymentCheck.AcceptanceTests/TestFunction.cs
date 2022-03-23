@@ -148,9 +148,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             }
         }
 
-        public Task Start(OrchestrationStarterInfo starter, bool throwIfFailed = true)
+        public async Task<HttpResponseMessage> Start(OrchestrationStarterInfo starter, bool throwIfFailed = true)
         {
-            return Jobs.Start(starter, throwIfFailed);
+            await Jobs.Start(starter, throwIfFailed);
+            return ResponseObject as HttpResponseMessage;
         }
 
         public async Task<HttpResponseMessage> CallEndpoint(EndpointInfo endpoint)
