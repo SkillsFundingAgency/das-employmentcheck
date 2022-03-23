@@ -1,10 +1,10 @@
 ﻿using AutoFixture;
+using FluentAssertions;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Commands;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
-using SFA.DAS.EmploymentCheck.Commands;
 using System;
 using System.Linq;
-using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -18,6 +18,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         {
             TestContext = testContext;
             Fixture = new Fixture();
+
+            AssertionOptions.AssertEquivalencyUsing(options =>
+            {
+                options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTime>();
+                options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1))).WhenTypeIs<DateTimeOffset>();
+                return options;
+            });
 
             if (testContext.Hooks.SingleOrDefault(h => h is Hook<object>) is Hook<object> hook)
             {
