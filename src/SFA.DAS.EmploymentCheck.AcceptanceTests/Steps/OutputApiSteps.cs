@@ -19,6 +19,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             _context = context;
         }
+
         [Given(@"Completed employment check")]
         public void GivenCompletedEmploymentCheck()
         {
@@ -37,7 +38,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                             { Path = "/api/orchestrators/OutputEmploymentCheckResultsStubOrchestrator" }
                     },
                     orchestrationName: nameof(OutputEmploymentCheckResultsStubOrchestrator)
-                ));
+                ),
+                false);
         }
 
         [Then(@"the message with completed employment check is published")]

@@ -1,25 +1,26 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Newtonsoft.Json;
+using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Functions;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using SFA.DAS.EmploymentCheck.Abstractions;
-using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
-using SFA.DAS.EmploymentCheck.Commands;
-using SFA.DAS.NServiceBus.Services;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -28,13 +29,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         private readonly IHost _host;
         private readonly OrchestrationData _orchestrationData;
         private bool _isDisposed;
-
         private IJobHost Jobs => _host.Services.GetService<IJobHost>();
         public string HubName { get; }
         public HttpResponseMessage LastResponse => ResponseObject as HttpResponseMessage;
         public object ResponseObject { get; private set; }
 
-        public TestFunction(TestContext testContext, string hubName, Hook<object> eventMessageHook, IHook<ICommand> commandMessageHook)
+        public TestFunction(TestContext testContext, string hubName, IHook<object> eventMessageHook, IHook<ICommand> commandMessageHook)
         {
             HubName = hubName;
             _orchestrationData = new OrchestrationData();
@@ -44,8 +44,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
                 { "AzureWebJobsStorage", "UseDevelopmentStorage=true" },
                 { "ConfigurationStorageConnectionString", "UseDevelopmentStorage=true" },
-                { "ConfigNames", "SFA.DAS.EmployerIncentives" },
-                { "ApplicationSettings:LogLevel", "DEBUG" }
+                { "ConfigNames", "SFA.DAS.EmploymentCheck.Functions" },
+                { "ApplicationSettings:LogLevel", "DEBUG" },
+                { "ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true" },
+                { "ApplicationSettings:UseLearningEndpointStorageDirectory", Path.Combine(testContext.TestDirectory.FullName, ".learningtransport") },
+                { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase.DatabaseInfo.ConnectionString },
+                { "ApplicationSettings:NServiceBusEndpointName", testContext.InstanceId },
             };
 
             var hmrcApiTokenServiceMock = new Mock<ITokenServiceApiClient>();
@@ -114,8 +118,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
                         s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
                         s.Decorate<ICommandPublisher>((handler, sp) => new TestCommandPublisher(handler, commandMessageHook));
+                        s.AddSingleton(commandMessageHook);
                     })
                 )
+                .UseEnvironment("LOCAL")
                 .Build();
         }
 
@@ -123,7 +129,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         {
             serviceCollection
                 .Decorate(typeof(ICommandHandler<>), typeof(TestCommandHandlerReceived<>));
-
+            
             serviceCollection
                 .Decorate(typeof(ICommandHandler<>), typeof(TestCommandHandlerProcessed<>));
 

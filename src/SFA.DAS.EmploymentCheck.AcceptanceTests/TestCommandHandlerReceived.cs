@@ -11,9 +11,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         private readonly ICommandHandler<T> _handler;
         private readonly IHook<ICommand> _hook;
 
-        public TestCommandHandlerReceived(
-            ICommandHandler<T> handler,
-            IHook<ICommand> hook)
+        public TestCommandHandlerReceived(ICommandHandler<T> handler, IHook<ICommand> hook)
         {
             _handler = handler;
             _hook = hook;
@@ -25,20 +23,15 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             {
                 try
                 {
-                    if (_hook?.OnReceived != null)
-                    {
-                        _hook.OnReceived(command);
-                    }
+                    _hook?.OnReceived?.Invoke(command);
+                    
                     await _handler.Handle(command, cancellationToken);
-
-                    if (_hook?.OnHandled != null)
-                    {
-                        _hook.OnHandled(command);
-                    }
+                    
+                    _hook?.OnHandled?.Invoke(command);
                 }
                 catch (Exception ex)
                 {
-                    bool suppressError = false;
+                    var suppressError = false;
                     if (_hook?.OnErrored != null)
                     {
                         suppressError = _hook.OnErrored(ex, command);

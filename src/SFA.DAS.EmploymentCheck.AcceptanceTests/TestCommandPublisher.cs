@@ -21,22 +21,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         {
             if (_hook != null)
             {
+                var suppressError = false;
                 try
                 {
-                    if (_hook?.OnReceived != null)
-                    {
-                        _hook.OnReceived(command);
-                    }
-                    await _commandPublisher.Publish(command);
+                    _hook?.OnReceived?.Invoke(command);
+                   
+                    await _commandPublisher.Publish(command, cancellationToken);
 
-                    if (_hook?.OnPublished != null)
-                    {
-                        _hook.OnPublished(command);
-                    }
+                    _hook?.OnPublished?.Invoke(command);
                 }
                 catch (Exception ex)
                 {
-                    bool suppressError = false;
                     if (_hook?.OnErrored != null)
                     {
                         suppressError = _hook.OnErrored(ex, command);
@@ -49,13 +44,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             }
             else
             {
-                await _commandPublisher.Publish(command);
+                await _commandPublisher.Publish(command, cancellationToken);
             }
-        }
-
-        public Task Publish(object command, CancellationToken cancellationToken = default)
-        {
-            return _commandPublisher.Publish(command);
         }
     }
 }

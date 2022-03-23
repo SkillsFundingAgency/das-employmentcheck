@@ -1,6 +1,6 @@
 ﻿@messageBus
 Feature: OutputApi
-	A short summary of the feature
+	Completed Employment Check is published onto the message bus
 
 Scenario: Completed Employment Check is published onto the message bus
 	Given Completed employment check

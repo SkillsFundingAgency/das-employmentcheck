@@ -10,9 +10,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         private readonly ICommandHandler<T> _handler;
         private readonly IHook<ICommand> _hook;
 
-        public TestCommandHandlerProcessed(
-            ICommandHandler<T> handler,
-            IHook<ICommand> hook)
+        public TestCommandHandlerProcessed(ICommandHandler<T> handler, IHook<ICommand> hook)
         {
             _handler = handler;
             _hook = hook;
@@ -24,10 +22,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             {
                 await _handler.Handle(command, cancellationToken);
 
-                if (_hook?.OnProcessed != null)
-                {
-                    _hook.OnProcessed(command);
-                }
+                _hook?.OnProcessed?.Invoke(command);
             }
             else
             {

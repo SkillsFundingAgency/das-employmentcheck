@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -9,13 +8,10 @@ using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
-using System.IO;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
-
 namespace SFA.DAS.EmploymentCheck.Functions
 {
     public class Startup : FunctionsStartup
@@ -24,7 +20,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             builder.Services
                 .AddNLog()
-                .AddOptions();
+                .AddOptions()
+                ;
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -85,45 +82,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .AddEmploymentCheckService(config["EnvironmentName"])
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()
+                .AddNServiceBus(config)
             ;
-
-            AddNServiceBus(builder, serviceProvider, configuration);
-        }
-
-        private void AddNServiceBus(IFunctionsHostBuilder builder, IServiceProvider serviceProvider,
-            IConfiguration configuration)
-        {
-            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
-
-            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration["EnvironmentName"]))
-            {
-                builder.Services.AddNServiceBus(logger);
-            }
-            else if (ServiceCollectionExtensions.ConfigurationIsLocalOrDev(configuration["EnvironmentName"]))
-            {
-                builder.Services.AddNServiceBus(
-                    logger,
-                    (options) =>
-                    {
-                        if (configuration["NServiceBusConnectionString"] == "UseLearningEndpoint=true")
-                        {
-                            options.EndpointConfiguration = (endpoint) =>
-                            {
-                                var dir = configuration.GetValue<string>("UseLearningEndpointStorageDirectory");
-                                var altDir = Path.Combine(
-                                    Directory.GetCurrentDirectory()[
-                                        ..Directory.GetCurrentDirectory().IndexOf("src", StringComparison.Ordinal)],
-                                    @"src\SFA.DAS.EmploymentCheck.Functions\.learningtransport");
-
-                                endpoint.UseTransport<LearningTransport>().StorageDirectory(configuration.GetValue(
-                                    "ApplicationSettings:UseLearningEndpointStorageDirectory", altDir
-                                ));
-                                endpoint.UseTransport<LearningTransport>().Routing().AddRouting();
-                                return endpoint;
-                            };
-                        }
-                    });
-            }
         }
     }
 }
