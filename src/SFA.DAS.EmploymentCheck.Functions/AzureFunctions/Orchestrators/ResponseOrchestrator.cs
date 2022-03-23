@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
                 var employmentCheck = await context.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetResponseEmploymentCheckActivity), null);
                 if (employmentCheck != null)
                 {
-                    await context.CallActivityAsync(nameof(GetResponseEmploymentCheckActivity), employmentCheck);
+                    await context.CallActivityAsync(nameof(OutputEmploymentCheckResultsActivity), employmentCheck);
                 }
                 else
                 {

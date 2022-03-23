@@ -120,6 +120,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                                 "[Employed], " +
                                 "[RequestCompletionStatus], " +
                                 "[MessageSentDate], " +
+                                "[ErrorType], " +
                                 "[CreatedOn], " +
                                 "[LastUpdatedOn] " +
                                 "FROM [Business].[EmploymentCheck] AEC " +

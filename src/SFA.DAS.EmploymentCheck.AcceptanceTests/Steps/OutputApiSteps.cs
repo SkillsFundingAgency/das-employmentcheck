@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
@@ -42,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [When(@"the output orchestrator is called")]
         public async Task WhenTheOutputOrchestratorIsCalled()
         {
-            await _context.TestFunction.Start(
+            var response = await _context.TestFunction.Start(
                 new OrchestrationStarterInfo(
                     "ResponseEmploymentChecksHttpTrigger",
                     args: new Dictionary<string, object>
@@ -53,6 +54,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     orchestrationName: nameof(ResponseOrchestrator)
                 ),
                 false);
+
+            response.StatusCode.Should().NotBe(HttpStatusCode.Conflict,
+                "A running instance of the orchestrator detected. Manually delete it and retry.");
         }
 
         [Then(@"the message with completed employment check is published")]

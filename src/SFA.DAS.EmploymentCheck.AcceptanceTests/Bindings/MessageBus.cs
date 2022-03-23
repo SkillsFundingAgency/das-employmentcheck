@@ -28,7 +28,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
         [AfterScenario]
         public async Task CleanUp()
         {
-            if (_context.MessageBus != null && _context.MessageBus.IsRunning)
+            if (_context.MessageBus is { IsRunning: true })
             {
                 await _context.MessageBus.Stop();
             }
