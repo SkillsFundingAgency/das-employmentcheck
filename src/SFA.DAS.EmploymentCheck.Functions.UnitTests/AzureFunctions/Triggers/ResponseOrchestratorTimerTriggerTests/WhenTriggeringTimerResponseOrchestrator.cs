@@ -56,7 +56,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Cr
             await ResponseOrchestratorTimerTrigger.ResponseOrchestratorTimerTriggerTask(timerInfo, _starter.Object, _logger.Object);
 
             // Assert
-            _starter.Verify(x => x.StartNewAsync(It.Is<string>(x => x.Contains(nameof(ResponseOrchestrator))), It.IsAny<string>()), Times.Once);
+            _starter.Verify(x => x.StartNewAsync(
+                It.Is<string>(
+                    x => x.Contains(nameof(ResponseOrchestrator)))
+                ,It.IsAny<string>())
+            , Times.Once);
         }
 
         [Test]
