@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
@@ -58,7 +59,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithStatusCode(statusCode)
                 );
 
-            await _context.TestFunction.Start(
+            var response = await _context.TestFunction.Start(
                 new OrchestrationStarterInfo(
                     "ProcessApprenticeEmploymentChecksHttpTrigger",
                     args: new Dictionary<string, object>
@@ -68,6 +69,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     orchestrationName: nameof(ProcessEmploymentCheckRequestsOrchestrator),
                     expectedCustomStatus: "Idle"
                 ));
+
+            response.StatusCode.Should().NotBe(HttpStatusCode.Conflict,
+                "A running instance of the orchestrator detected. Manually delete it and retry.");
         }
 
         [Then(@"the Api call is retried (.*) times")]
