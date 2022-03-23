@@ -282,11 +282,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             );
 
             _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
-                _token.AccessCode,
-                _request.PayeScheme,
-                _request.Nino,
-                _request.MinDate,
-                _request.MaxDate))
+                    _token.AccessCode,
+                    _request.PayeScheme,
+                    _request.Nino,
+                    _request.MinDate,
+                    _request.MaxDate))
                 .ThrowsAsync(exception);
 
             // Act
@@ -294,7 +294,18 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
+                It.Is<EmploymentCheckCacheRequest>(
+                    x =>
+                        x.Id == _request.Id
+                        && x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                        && x.CorrelationId == _request.CorrelationId
+                        && x.Nino == _request.Nino
+                        && x.PayeScheme == _request.PayeScheme
+                        && x.MinDate == _request.MinDate
+                        && x.Employed == _request.Employed
+                        && x.RequestCompletionStatus == _request.RequestCompletionStatus
+                ),
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -307,7 +318,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == code
                 )
-
             ), Times.Once);
 
             _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
@@ -344,7 +354,18 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
+                It.Is<EmploymentCheckCacheRequest>(
+                    x =>
+                        x.Id == _request.Id
+                        && x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                        && x.CorrelationId == _request.CorrelationId
+                        && x.Nino == _request.Nino
+                        && x.PayeScheme == _request.PayeScheme
+                        && x.MinDate == _request.MinDate
+                        && x.Employed == _request.Employed
+                        && x.RequestCompletionStatus == _request.RequestCompletionStatus
+                ),
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -356,9 +377,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                         && x.Count == 1
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == code
-                )
-
-            ), Times.Once);
+                    )
+                ), Times.Once);
         }
 
         [Test]
@@ -430,11 +450,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             _rateLimiterRepositoryMock.Verify(x => x.IncreaseDelaySetting(It.IsAny<HmrcApiRateLimiterOptions>()), Times.Exactly(_settings.TooManyRequestsRetryCount));
         }
 
-        [TestCase((short)HttpStatusCode.Unauthorized, TestName = "Then_Unauthorized_response_is_saved_as_incomplete")]
-        [TestCase((short)HttpStatusCode.BadGateway, TestName = "Then_BadGateway_response_is_saved_as_incomplete")]
-        [TestCase((short)HttpStatusCode.RequestTimeout, TestName = "Then_RequestTimeout_response_is_saved_as_incomplete")]
-        [TestCase((short)HttpStatusCode.InternalServerError, TestName = "Then_InternalServerError_response_is_saved_as_incomplete")]
-        [TestCase((short)HttpStatusCode.ServiceUnavailable, TestName = "Then_ServiceUnavailable_response_is_saved_as_incomplete")]
+        [TestCase((short)HttpStatusCode.Unauthorized, TestName = "Then_Unauthorized_response_is_saved_as_complete")]
+        [TestCase((short)HttpStatusCode.BadGateway, TestName = "Then_BadGateway_response_is_saved_as_complete")]
+        [TestCase((short)HttpStatusCode.RequestTimeout, TestName = "Then_RequestTimeout_response_is_saved_as_complete")]
+        [TestCase((short)HttpStatusCode.InternalServerError, TestName = "Then_InternalServerError_response_is_saved_as_complete")]
+        [TestCase((short)HttpStatusCode.ServiceUnavailable, TestName = "Then_ServiceUnavailable_response_is_saved_as_complete")]
         public async Task Then_Transient_Error_responses_are_saved_as_complete(short httpStatusCode)
         {
             // Arrange
@@ -458,7 +478,18 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
+                It.Is<EmploymentCheckCacheRequest>(
+                    x =>
+                        x.Id == _request.Id
+                        && x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                        && x.CorrelationId == _request.CorrelationId
+                        && x.Nino == _request.Nino
+                        && x.PayeScheme == _request.PayeScheme
+                        && x.MinDate == _request.MinDate
+                        && x.Employed == _request.Employed
+                        && x.RequestCompletionStatus == _request.RequestCompletionStatus
+                ),
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
                         x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
@@ -471,7 +502,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                         && x.HttpResponse == exception.ResourceUri
                         && x.HttpStatusCode == httpStatusCode
                 )
-
             ), Times.Once);
         }
 
@@ -540,20 +570,30 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
+                It.Is<EmploymentCheckCacheRequest>(
+                    x =>
+                        x.Id == _request.Id
+                        && x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                        && x.CorrelationId == _request.CorrelationId
+                        && x.Nino == _request.Nino
+                        && x.PayeScheme == _request.PayeScheme
+                        && x.MinDate == _request.MinDate
+                        && x.Employed == _request.Employed
+                        && x.RequestCompletionStatus == _request.RequestCompletionStatus
+                ),
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
-                        x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
-                        && x.EmploymentCheckCacheRequestId == _request.Id
-                        && x.CorrelationId == _request.CorrelationId
-                        && x.Employed == null
-                        && x.FoundOnPaye == null
-                        && x.ProcessingComplete
-                        && x.Count == 1
-                        && x.HttpResponse == exception.ResourceUri
-                        && x.HttpStatusCode == httpStatusCode
-                )
-
+                    x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                    && x.EmploymentCheckCacheRequestId == _request.Id
+                    && x.CorrelationId == _request.CorrelationId
+                    && x.Employed == null
+                    && x.FoundOnPaye == null
+                    && x.ProcessingComplete
+                    && x.Count == 1
+                    && x.HttpResponse == exception.ResourceUri
+                    && x.HttpStatusCode == httpStatusCode
+                 )
             ), Times.Once);
 
             _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
@@ -583,20 +623,30 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _employmentCheckServiceMock.Verify(r => r.InsertEmploymentCheckCacheResponse(
+            _employmentCheckServiceMock.Verify(r => r.StoreCompletedCheck(
+                It.Is<EmploymentCheckCacheRequest>(
+                    x =>
+                        x.Id == _request.Id
+                        && x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                        && x.CorrelationId == _request.CorrelationId
+                        && x.Nino == _request.Nino
+                        && x.PayeScheme == _request.PayeScheme
+                        && x.MinDate == _request.MinDate
+                        && x.Employed == _request.Employed
+                        && x.RequestCompletionStatus == _request.RequestCompletionStatus
+                ),
                 It.Is<EmploymentCheckCacheResponse>(
                     x =>
-                        x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
-                        && x.EmploymentCheckCacheRequestId == _request.Id
-                        && x.CorrelationId == _request.CorrelationId
-                        && x.Employed == null
-                        && x.FoundOnPaye == null
-                        && x.ProcessingComplete == true
-                        && x.Count == 1
-                        && x.HttpResponse == exception.Message
-                        && x.HttpStatusCode == 500
+                    x.ApprenticeEmploymentCheckId == _request.ApprenticeEmploymentCheckId
+                    && x.EmploymentCheckCacheRequestId == _request.Id
+                    && x.CorrelationId == _request.CorrelationId
+                    && x.Employed == null
+                    && x.FoundOnPaye == null
+                    && x.ProcessingComplete == true
+                    && x.Count == 1
+                    && x.HttpResponse == exception.Message
+                    && x.HttpStatusCode == 500
                 )
-
             ), Times.Once);
         }
 

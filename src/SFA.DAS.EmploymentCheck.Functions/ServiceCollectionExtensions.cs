@@ -10,6 +10,7 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
@@ -44,16 +45,19 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
-            
+
             serviceCollection.AddTransient<IDataCollectionsApiClient<DataCollectionsApiConfiguration>, DataCollectionsApiClient>();
             serviceCollection.AddTransient<ILearnerService, LearnerService>();
-            
+
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
             serviceCollection.AddTransient<IEmployerAccountApiClient<EmployerAccountApiConfiguration>, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
-            
+
             serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<ILearnerNiNumberValidator, LearnerNiNumberValidator>();
+            serviceCollection.AddSingleton<IEmployerPayeSchemesValidator, EmployerPayeSchemesValidator>();
+            serviceCollection.AddSingleton<IEmploymentCheckDataValidator, EmploymentCheckDataValidator>();
 
             if (NotDevelopmentOrAcceptanceTests(environmentName))
             {

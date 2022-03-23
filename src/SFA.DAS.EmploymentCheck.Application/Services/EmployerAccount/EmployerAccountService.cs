@@ -6,6 +6,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.HashingService;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -57,11 +58,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             }
 
             var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
-          
+
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 await Save(response);
-                return null;
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -93,17 +93,17 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 var resourceList = JsonConvert.DeserializeObject<ResourceList>(jsonContent);
                 if (resourceList != null && resourceList.Any())
                 {
-                    return new EmployerPayeSchemes(accountsResponse.AccountId, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList());
+                    return new EmployerPayeSchemes(accountsResponse.AccountId, (HttpStatusCode)accountsResponse.HttpStatusCode, resourceList.Select(x => x.Id.Trim().ToUpper()).ToList());
                 }
             }
 
-            return null;
+            return new EmployerPayeSchemes(accountsResponse.AccountId, (HttpStatusCode)accountsResponse.HttpStatusCode, null);
         }
 
         private async Task HandleException(Data.Models.EmploymentCheck employmentCheck, Exception e)
         {
             var accountsResponse = CreateResponseModel(employmentCheck, e.Message);
-           
+
             await Save(accountsResponse);
         }
 

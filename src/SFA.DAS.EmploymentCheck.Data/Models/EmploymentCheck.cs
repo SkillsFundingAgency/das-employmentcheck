@@ -30,6 +30,8 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         public short? RequestCompletionStatus { get; set; }
 
+        public string ErrorType { get; set; }
+
         public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
@@ -37,6 +39,19 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         public void SetRequestCompletionStatus(ProcessingCompletionStatus status)
         {
             RequestCompletionStatus = (short)status;
+        }
+
+        public static EmploymentCheck CreateEmploymentCheck(EmploymentCheckCacheRequest request)
+        {
+            var employmentCheck = new EmploymentCheck();
+
+            employmentCheck.Id = request.ApprenticeEmploymentCheckId;
+            employmentCheck.CorrelationId = (Guid)request.CorrelationId;
+            employmentCheck.Employed = request.Employed;
+            employmentCheck.RequestCompletionStatus = request.RequestCompletionStatus;
+            employmentCheck.ErrorType = request.Employed == null ? "HmrcFailure" : null;
+
+            return employmentCheck;
         }
     }
 }

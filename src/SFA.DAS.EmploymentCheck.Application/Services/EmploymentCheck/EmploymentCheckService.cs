@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 {
     public class EmploymentCheckService : IEmploymentCheckService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<IEmploymentCheckService> _logger;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
-            ILogger<IEmploymentCheckService> logger,
             IEmploymentCheckRepository employmentCheckRepository,
             IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
             IUnitOfWork unitOfWork)
         {
-            _logger = logger;
             _employmentCheckRepository = employmentCheckRepository;
             _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
             _unitOfWork = unitOfWork;
@@ -37,16 +35,26 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();
         }
 
+        public async Task StoreCompletedEmploymentCheck(Models.EmploymentCheck employmentCheck)
+        {
+            employmentCheck.LastUpdatedOn = DateTime.Now;
+            employmentCheck.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+            await _employmentCheckRepository.InsertOrUpdate(employmentCheck);
+        }
+
         public async Task StoreCompletedCheck(EmploymentCheckCacheRequest request, EmploymentCheckCacheResponse response)
         {
             try
             {
                 request.LastUpdatedOn = DateTime.Now;
+                request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
                 await _unitOfWork.InsertAsync(response);
-                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(request, _unitOfWork);
+
+                var employmentCheck = Models.EmploymentCheck.CreateEmploymentCheck(request);
+                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
                 if (response.Employed == true)
                 {

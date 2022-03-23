@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)
                 .Create();
-            
+
             await dbConnection.InsertAsync(_check);
         }
 
@@ -71,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         public void GivenAValidNationalInsuranceNumberReturnedForTheLearner()
         {
             _dcApiResponse = new List<LearnerNiNumber>
-                { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10]) };
+                { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
 
             const string url = "/api/v1/ilr-data/learnersNi/2122";
 
@@ -88,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(_dcApiResponse));
         }
-        
+
         [When(@"the Employment Check is performed")]
         public async Task WhenTheEmploymentCheckIsPerformed()
         {
@@ -144,5 +144,5 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             }
         }
     }
-    
+
 }

@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
@@ -21,28 +22,26 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
         {
             // Arrange
             _sut = new EmploymentCheckRepository(Settings, Mock.Of<ILogger<EmploymentCheckRepository>>());
-            
+
             var check = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
+                .With(x =>x.ErrorType, "HmrcFailure")
                 .Without(x => x.Employed)
                 .Create();
             await Insert(check);
 
-            var request = Fixture.Build<Models.EmploymentCheckCacheRequest>()
-                .With(x => x.ApprenticeEmploymentCheckId, check.Id)
-                .Create();
-
             // Act
             await UnitOfWorkInstance.BeginAsync();
-            await _sut.UpdateEmploymentCheckAsComplete(request, UnitOfWorkInstance);
+            await _sut.UpdateEmploymentCheckAsComplete(check, UnitOfWorkInstance);
             await UnitOfWorkInstance.CommitAsync();
 
             // Assert
             var actual = await Get<Models.EmploymentCheck>(check.Id);
 
-            actual.Employed = request.Employed;
+            actual.Employed = check.Employed;
             actual.RequestCompletionStatus.Should().Be((short)ProcessingCompletionStatus.Completed);
             actual.LastUpdatedOn?.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            actual.ErrorType.Should().Be("HmrcFailure");
         }
 
         [Test]
@@ -54,24 +53,22 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             var check = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
                 .With(x => x.Employed, false)
+                .Without(x => x.ErrorType)
                 .Create();
             await Insert(check);
 
-            var request = Fixture.Build<Models.EmploymentCheckCacheRequest>()
-                .With(x => x.ApprenticeEmploymentCheckId, check.Id)
-                .Create();
-
             // Act
             await UnitOfWorkInstance.BeginAsync();
-            await _sut.UpdateEmploymentCheckAsComplete(request, UnitOfWorkInstance);
+            await _sut.UpdateEmploymentCheckAsComplete(check, UnitOfWorkInstance);
             await UnitOfWorkInstance.CommitAsync();
 
             // Assert
             var actual = await Get<Models.EmploymentCheck>(check.Id);
 
-            actual.Employed = request.Employed;
+            actual.Employed = check.Employed;
             actual.RequestCompletionStatus.Should().Be((short)ProcessingCompletionStatus.Completed);
             actual.LastUpdatedOn?.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            actual.ErrorType.Should().BeNull();
         }
 
         [Test]
@@ -83,17 +80,13 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             _expected = Fixture.Build<Models.EmploymentCheck>()
                 .With(x => x.RequestCompletionStatus, (short?)-1)
                 .With(x => x.Employed, true)
+                .Without(x => x.ErrorType)
                 .Create();
             await Insert(_expected);
 
-            var request = Fixture.Build<Models.EmploymentCheckCacheRequest>()
-                .With(x => x.ApprenticeEmploymentCheckId, _expected.Id)
-                .With(x => x.Employed, false)
-                .Create();
-
             // Act
             await UnitOfWorkInstance.BeginAsync();
-            await _sut.UpdateEmploymentCheckAsComplete(request, UnitOfWorkInstance);
+            await _sut.UpdateEmploymentCheckAsComplete(_expected, UnitOfWorkInstance);
             await UnitOfWorkInstance.CommitAsync();
 
             // Assert

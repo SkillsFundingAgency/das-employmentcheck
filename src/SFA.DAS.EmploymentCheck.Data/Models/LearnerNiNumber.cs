@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Net;
+using System.Text.Json.Serialization;
 
 namespace SFA.DAS.EmploymentCheck.Data.Models
 {
@@ -6,10 +7,13 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
     {
         public LearnerNiNumber(
             long uln,
-            string niNumber)
+            string niNumber,
+            HttpStatusCode httpStatusCode
+        )
         {
             Uln = uln;
             NiNumber = niNumber;
+            HttpStatusCode = httpStatusCode;
         }
 
         [JsonPropertyName("uln")]
@@ -17,5 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         [JsonPropertyName("niNumber")]
         public string NiNumber { get; set; }
+
+        public HttpStatusCode HttpStatusCode { get; set; }
     }
 }
