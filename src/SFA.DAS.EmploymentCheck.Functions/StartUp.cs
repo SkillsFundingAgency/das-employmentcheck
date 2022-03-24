@@ -83,6 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()
                 .AddNServiceBus(config)
+                .AddNServiceBusMessageHandlers()
             ;
         }
     }

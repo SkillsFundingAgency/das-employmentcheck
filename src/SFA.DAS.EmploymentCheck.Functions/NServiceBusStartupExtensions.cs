@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.NServiceBus.AzureFunction.Configuration;
+using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
@@ -54,6 +56,39 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
             endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
             serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
+
+            return serviceCollection;
+        }
+
+        // TODO: delete when Employer Incentives have released a subscriber
+        public static IServiceCollection AddNServiceBusMessageHandlers(
+            this IServiceCollection serviceCollection,
+            Action<NServiceBusOptions> onConfigureOptions = null)
+        {
+            var webBuilder = serviceCollection.AddWebJobs(x => { });
+            webBuilder.AddExecutionContextBinding();
+
+            var options = new NServiceBusOptions
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
+                    context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
+                    context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
+                    context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
+                },
+                OnMessageErrored = (ex, context) =>
+                {
+                    context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
+                    context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
+                    context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
+                    context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
+                }
+            };
+
+            onConfigureOptions?.Invoke(options);
+
+            webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(options));
 
             return serviceCollection;
         }
