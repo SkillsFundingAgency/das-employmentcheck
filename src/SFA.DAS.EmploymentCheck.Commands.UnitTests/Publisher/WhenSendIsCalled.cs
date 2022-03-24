@@ -1,16 +1,17 @@
 ﻿using AutoFixture;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Abstractions;
-using SFA.DAS.NServiceBus.Services;
+using System;
 using System.Threading.Tasks;
+using ICommand = SFA.DAS.EmploymentCheck.Abstractions.ICommand;
 
 namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.Publisher
 {
     public class WhenSendIsCalled
     {
         private CommandPublisher _sut;
-        private Mock<IEventPublisher> _mockEventPublisher;
+        private Mock<IMessageSession> _mockEventPublisher;
         private Fixture _fixture;
 
         public class TestCommand : ICommand { }
@@ -19,9 +20,9 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.Publisher
         public void Arrange()
         {
             _fixture = new Fixture();
-            _mockEventPublisher = new Mock<IEventPublisher>();
+            _mockEventPublisher = new Mock<IMessageSession>();
 
-            _sut = new CommandPublisher(_mockEventPublisher.Object);
+            _sut = new CommandPublisher(new Lazy<IMessageSession>(() => _mockEventPublisher.Object));
         }
 
         [Test]
@@ -34,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.Publisher
             await _sut.Publish(command);
 
             // Assert
-            _mockEventPublisher.Verify(m => m.Publish(command), Times.Once);
+            _mockEventPublisher.Verify(m => m.Send(command, It.IsAny<SendOptions>()), Times.Once);
         }
     }
 }

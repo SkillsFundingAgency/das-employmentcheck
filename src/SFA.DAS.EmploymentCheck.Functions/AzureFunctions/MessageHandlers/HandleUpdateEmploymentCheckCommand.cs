@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.MessageHandlers
         public Task HandleCommand([NServiceBusTrigger(Endpoint = QueueNames.PublishEmploymentCheckResult)] PublishEmploymentCheckResultCommand command)
         {
             _logger.LogInformation(
-                "HandlePublishEmploymentCheckResultCommand: CorrelationId={1}, Employed={2}, ErrorType={3}, MessageSentTime=={4}",
+                "HandlePublishEmploymentCheckResultCommand: CorrelationId={0}, Employed={1}, ErrorType={2}, MessageSentTime=={3}",
                 command.EmploymentCheck.CorrelationId,
                 command.EmploymentCheck.Employed,
                 command.EmploymentCheck.ErrorType,

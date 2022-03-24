@@ -8,7 +8,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
     {
         private readonly ICommandPublisher _commandPublisher;
 
-        public EmploymentCheckCompletedEventHandler(ICommandPublisher commandPublisher = null)
+        public EmploymentCheckCompletedEventHandler(ICommandPublisher commandPublisher)
         {
             _commandPublisher = commandPublisher;
         }
