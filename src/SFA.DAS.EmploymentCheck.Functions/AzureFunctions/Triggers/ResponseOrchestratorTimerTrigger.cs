@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         private const string InstanceIdPrefix = "Response-";
 
         [FunctionName(nameof(ResponseOrchestratorTimerTriggerTask))]
-        public static async Task ResponseOrchestratorTimerTriggerTask([TimerTrigger("0 */5 * * * *")]
+        public static async Task ResponseOrchestratorTimerTriggerTask([TimerTrigger("%ResponseOrchestratorTriggerTime%")]
             TimerInfo timerInfo,
            [DurableClient] IDurableOrchestrationClient starter, ILogger log)
         {
@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             {
                 log.LogInformation($"Triggering {nameof(ResponseOrchestrator)}");
 
-                string instanceId = await starter.StartNewAsync(nameof(ResponseOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
+                var instanceId = await starter.StartNewAsync(nameof(ResponseOrchestrator), $"{InstanceIdPrefix}{Guid.NewGuid()}");
 
                 log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
             }
