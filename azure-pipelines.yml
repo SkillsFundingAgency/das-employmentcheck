@@ -54,6 +54,8 @@ stages:
       SolutionBaseName: $(DACPACSolutionBaseName)
       SqlProjectPath: src/SFA.DAS.EmploymentCheck.Database/SFA.DAS.EmploymentCheck.Database.sqlproj
 
+- template: azure-pipelines-templates/deploy/stage/nuget-publish.yml@das-platform-building-blocks
+
 - stage: Deploy_AT
   dependsOn: Build
   displayName: Deploy to AT
