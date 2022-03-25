@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmploymentCheck.Commands;
@@ -14,8 +15,6 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System;
 using System.IO;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.NServiceBus.Hosting;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -33,7 +32,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             _endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
-                .UseOutbox(true)
                 .UseSqlServerPersistence(() => new SqlConnection(configuration["ApplicationSettings:DbConnectionString"]))
                 .UseUnitOfWork();
 
