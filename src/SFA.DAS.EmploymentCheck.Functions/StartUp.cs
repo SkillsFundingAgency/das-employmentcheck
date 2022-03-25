@@ -10,6 +10,7 @@ using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -74,6 +75,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
+            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
@@ -83,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()
                 .AddNServiceBus(config)
-                .AddNServiceBusMessageHandlers()
+                .AddNServiceBusMessageHandlers(logger)
             ;
         }
     }

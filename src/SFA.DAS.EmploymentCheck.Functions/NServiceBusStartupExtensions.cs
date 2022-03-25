@@ -14,11 +14,15 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.NServiceBus.Hosting;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
     public static class NServiceBusStartupExtensions
     {
+        private static EndpointConfiguration _endpointConfiguration;
+
         public static IServiceCollection AddNServiceBus(
            this IServiceCollection serviceCollection,
            IConfiguration configuration)
@@ -26,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
 
-            var endpointConfiguration = new EndpointConfiguration("SFA.DAS.EmploymentCheck.Functions.DomainMessageHandlers")
+            _endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
                 .UseOutbox(true)
@@ -37,25 +41,25 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var dir = Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory()
                     .IndexOf("src", StringComparison.Ordinal)], "src\\.learningtransport");
-                endpointConfiguration
+                _endpointConfiguration
                     .UseTransport<LearningTransport>()
                     .StorageDirectory(dir);
-                endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+                _endpointConfiguration.UseLearningTransport(s => s.AddRouting());
             }
             else
             {
-                endpointConfiguration
+                _endpointConfiguration
                     .UseAzureServiceBusTransport(configuration["ApplicationSettings:NServiceBusConnectionString"], r => r.AddRouting());
             }
 
             if (!string.IsNullOrEmpty(configuration["ApplicationSettings:NServiceBusLicense"]))
             {
-                endpointConfiguration.License(configuration["ApplicationSettings:NServiceBusLicense"]);
+                _endpointConfiguration.License(configuration["ApplicationSettings:NServiceBusLicense"]);
             }
 
-            var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
-            endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
-            serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
+            var endpoint = EndpointWithExternallyManagedServiceProvider.Create(_endpointConfiguration, serviceCollection);
+            endpoint.Start(new UpdateableServiceProvider(serviceCollection));
+            serviceCollection.AddSingleton(p => endpoint.MessageSession.Value);
 
             return serviceCollection;
         }
@@ -63,6 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
         // TODO: delete when Employer Incentives have released a subscriber
         public static IServiceCollection AddNServiceBusMessageHandlers(
             this IServiceCollection serviceCollection,
+            ILogger logger,
             Action<NServiceBusOptions> onConfigureOptions = null)
         {
             var webBuilder = serviceCollection.AddWebJobs(x => { });
@@ -76,6 +81,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
                     context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
                     context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
+                    logger.LogDebug($"Received NServiceBusTriggerData Message of type '{(messageType != null ? messageType.Split(',')[0] : string.Empty)}' with messageId '{messageId}' and correlationId '{correlationId}' from endpoint '{originatingEndpoint}'");
                 },
                 OnMessageErrored = (ex, context) =>
                 {
@@ -83,6 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
                     context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
                     context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
+                    logger.LogError(ex, $"Error handling NServiceBusTriggerData Message of type '{(messageType != null ? messageType.Split(',')[0] : string.Empty)}' with messageId '{messageId}' and correlationId '{correlationId}' from endpoint '{originatingEndpoint}'");
                 }
             };
 
