@@ -1,6 +1,5 @@
 ﻿using NServiceBus;
 using SFA.DAS.EmploymentCheck.Commands.Types;
-using SFA.DAS.EmploymentCheck.Infrastructure;
 
 namespace SFA.DAS.EmploymentCheck.Commands
 {
