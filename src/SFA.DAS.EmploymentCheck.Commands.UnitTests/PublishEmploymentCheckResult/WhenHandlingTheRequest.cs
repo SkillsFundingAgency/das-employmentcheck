@@ -1,10 +1,11 @@
 ﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
+using SFA.DAS.EmploymentCheck.Commands.Types;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResult
 {
@@ -34,7 +35,11 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
             // Assert
             _serviceMock.Verify(
                 _ => _.Publish(
-                    It.Is<PublishEmploymentCheckResultCommand>(c => c.EmploymentCheck == request.EmploymentCheck),
+                    It.Is<PublishEmploymentCheckResultCommand>(c => 
+                        c.CorrelationId == request.EmploymentCheck.CorrelationId
+                        && c.CheckDate == request.EmploymentCheck.LastUpdatedOn
+                        && c.EmploymentResult == request.EmploymentCheck.Employed
+                        && c.ErrorType == request.EmploymentCheck.ErrorType),
                     CancellationToken.None), Times.Once);
         }
     }

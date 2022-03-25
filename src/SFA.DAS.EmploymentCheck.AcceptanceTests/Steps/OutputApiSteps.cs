@@ -1,12 +1,12 @@
-using System;
 using AutoFixture;
 using Dapper.Contrib.Extensions;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
-using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
+using SFA.DAS.EmploymentCheck.Commands.Types;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -71,14 +71,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
             _publishedCommand = (PublishEmploymentCheckResultCommand)publishedCommands.First().Command;
 
-            _publishedCommand.EmploymentCheck.Should().BeEquivalentTo(_check,
-                opts => opts.Excluding(check => check.MessageSentDate));
+            _publishedCommand.CorrelationId.Should().Be(_check.CorrelationId);
+            _publishedCommand.EmploymentResult.Should().Be(_check.Employed);
+            _publishedCommand.ErrorType.Should().Be(_check.ErrorType);
+            _publishedCommand.CheckDate.Should().Be(_check.LastUpdatedOn);
         }
 
         [Then(@"the employment check record is marked as sent")]
-        public void ThenTheEmploymentCheckRecordIsMarkedAsSent()
+        public async Task ThenTheEmploymentCheckRecordIsMarkedAsSent()
         {
-            _publishedCommand.EmploymentCheck.MessageSentDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMinutes(1));
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var actual = dbConnection.Get<Data.Models.EmploymentCheck>(_check);
+            actual.MessageSentDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMinutes(1));
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using System.Threading;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.EmploymentCheck.Commands.Types;
+using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 {
@@ -15,7 +16,12 @@ namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 
         public Task Handle(EmploymentCheckCompletedEvent @event, CancellationToken cancellationToken = default)
         {
-            var command = new PublishEmploymentCheckResultCommand(@event.EmploymentCheck);
+            var command = new PublishEmploymentCheckResultCommand(
+                @event.EmploymentCheck.CorrelationId,
+                @event.EmploymentCheck.Employed,
+                @event.EmploymentCheck.LastUpdatedOn ?? @event.EmploymentCheck.CreatedOn,
+                @event.EmploymentCheck.ErrorType
+            );
 
             return _commandPublisher.Publish(command, cancellationToken);
         }

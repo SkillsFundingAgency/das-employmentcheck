@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Commands;
@@ -10,7 +11,6 @@ using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using System.IO;
-using Microsoft.Extensions.Logging;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -76,6 +76,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+            var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
 
             builder.Services
                 .AddCommandServices()
@@ -85,9 +86,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .AddEmploymentCheckService(config["EnvironmentName"])
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()
-                .AddNServiceBus(config)
-                .AddNServiceBusMessageHandlers(logger)
-            ;
+                .AddNServiceBus(applicationSettings)
+                .AddNServiceBusMessageHandlers(logger);
         }
     }
 }

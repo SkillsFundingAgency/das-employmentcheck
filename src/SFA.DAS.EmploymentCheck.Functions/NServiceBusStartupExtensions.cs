@@ -1,11 +1,11 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Hosting;
 using SFA.DAS.NServiceBus.Configuration;
@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
         public static IServiceCollection AddNServiceBus(
            this IServiceCollection serviceCollection,
-           IConfiguration configuration)
+           ApplicationSettings configuration)
         {
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
@@ -32,10 +32,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             _endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
-                .UseSqlServerPersistence(() => new SqlConnection(configuration["ApplicationSettings:DbConnectionString"]))
+                .UseSqlServerPersistence(() => new SqlConnection(configuration.DbConnectionString))
                 .UseUnitOfWork();
 
-            if (configuration["ApplicationSettings:NServiceBusConnectionString"].Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            if (configuration.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {
                 var dir = Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory()
                     .IndexOf("src", StringComparison.Ordinal)], "src\\.learningtransport");
@@ -47,12 +47,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             else
             {
                 _endpointConfiguration
-                    .UseAzureServiceBusTransport(configuration["ApplicationSettings:NServiceBusConnectionString"], r => r.AddRouting());
+                    .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
             }
 
-            if (!string.IsNullOrEmpty(configuration["ApplicationSettings:NServiceBusLicense"]))
+            if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
             {
-                _endpointConfiguration.License(configuration["ApplicationSettings:NServiceBusLicense"]);
+                _endpointConfiguration.License(configuration.NServiceBusLicense);
             }
 
             var endpoint = EndpointWithExternallyManagedServiceProvider.Create(_endpointConfiguration, serviceCollection);
@@ -88,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
                     context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
                     logger.LogError(ex, $"Error handling NServiceBusTriggerData Message of type '{(messageType != null ? messageType.Split(',')[0] : string.Empty)}' with messageId '{messageId}' and correlationId '{correlationId}' from endpoint '{originatingEndpoint}'");
-                }
+                },
             };
 
             onConfigureOptions?.Invoke(options);

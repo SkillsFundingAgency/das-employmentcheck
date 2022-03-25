@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Abstractions\SFA.DAS.EmploymentCheck.Abstractions.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Commands.Types\SFA.DAS.EmploymentCheck.Commands.Types.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Infrastructure\SFA.DAS.EmploymentCheck.Infrastructure.csproj" />
   </ItemGroup>
 
