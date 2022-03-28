@@ -54,9 +54,6 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.ResetEmploymentChecksMessage
         public async Task Then_Guard_Throws_Exception_When_Input_Is_Null()
         {
             // Arrange
-            var request = new ResetEmploymentChecksMessageSentDateQueryRequest(null);
-            var employmentCheckMessageSentData = "CorrelationId=E269AE35-5A56-4DC8-A478-170E88280C31";
-
             // Act
             string error = string.Empty;
             try
