@@ -1,10 +1,9 @@
 ﻿using AutoFixture;
 using Moq;
-using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
 using SFA.DAS.EmploymentCheck.Types;
-using System;
+using SFA.DAS.NServiceBus.Services;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,16 +12,16 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
     public class WhenHandlingTheRequest
     {
         private PublishEmploymentCheckResultCommandHandler _sut;
-        private Mock<IMessageSession> _mockEventPublisher;
+        private Mock<IEventPublisher> _mockEventPublisher;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _mockEventPublisher = new Mock<IMessageSession>();
+            _mockEventPublisher = new Mock<IEventPublisher>();
 
-            _sut = new PublishEmploymentCheckResultCommandHandler(new Lazy<IMessageSession>(() => _mockEventPublisher.Object));
+            _sut = new PublishEmploymentCheckResultCommandHandler(_mockEventPublisher.Object);
         }
 
         [Test]
@@ -36,12 +35,12 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
 
             // Assert
             _mockEventPublisher.Verify(
-                _ => _.Send(
+                _ => _.Publish(
                     It.Is<EmploymentCheckCompletedEvent>(c => 
                         c.CorrelationId == request.EmploymentCheck.CorrelationId
                         && c.CheckDate == request.EmploymentCheck.LastUpdatedOn
                         && c.EmploymentResult == request.EmploymentCheck.Employed
-                        && c.ErrorType == request.EmploymentCheck.ErrorType), It.IsAny<SendOptions>()
+                        && c.ErrorType == request.EmploymentCheck.ErrorType)
                     ), Times.Once);
         }
     }

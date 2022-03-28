@@ -32,6 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             _endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
+                .UseOutbox(true)
                 .UseSqlServerPersistence(() => new SqlConnection(configuration.DbConnectionString))
                 .UseUnitOfWork();
 

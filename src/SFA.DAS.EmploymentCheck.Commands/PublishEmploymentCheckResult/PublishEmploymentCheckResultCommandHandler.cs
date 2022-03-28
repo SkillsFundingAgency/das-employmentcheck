@@ -1,7 +1,6 @@
-﻿using NServiceBus;
-using SFA.DAS.EmploymentCheck.Abstractions;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Types;
-using System;
+using SFA.DAS.NServiceBus.Services;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,11 +8,11 @@ namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 {
     public class PublishEmploymentCheckResultCommandHandler : ICommandHandler<PublishEmploymentCheckResultCommand>
     {
-        private readonly IMessageSession _eventPublisher;
+        private readonly IEventPublisher _eventPublisher;
 
-        public PublishEmploymentCheckResultCommandHandler(Lazy<IMessageSession> eventPublisher)
+        public PublishEmploymentCheckResultCommandHandler(IEventPublisher eventPublisher)
         {
-            _eventPublisher = eventPublisher.Value;
+            _eventPublisher = eventPublisher;
         }
 
         public Task Handle(PublishEmploymentCheckResultCommand command, CancellationToken cancellationToken = default)
@@ -25,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
                 command.EmploymentCheck.ErrorType
             );
 
-            return _eventPublisher.Send(@event);
+            return _eventPublisher.Publish(@event);
         }
     }
 }
