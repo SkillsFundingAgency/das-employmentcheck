@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.EmploymentCheck.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Data.Models;
@@ -22,5 +23,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         Task InsertEmploymentCheckCacheResponse(EmploymentCheckCacheResponse response);
 
         Task SaveEmploymentCheck(Data.Models.EmploymentCheck check);
+
+        Task<long> ResetEmploymentChecksMessageSentDate(Guid correlationId);
+
+        Task<long> ResetEmploymentChecksMessageSentDate(DateTime messageSentFromDate, DateTime messageSentToDate);
     }
 }

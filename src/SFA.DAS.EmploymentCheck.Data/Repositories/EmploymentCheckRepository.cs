@@ -5,11 +5,11 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
@@ -66,18 +66,18 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
                     if (employmentCheck != null)
                     {
-                            var parameter = new DynamicParameters();
-                            parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
-                            parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
-                            parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+                        var parameter = new DynamicParameters();
+                        parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
+                        parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
+                        parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
-                            await sqlConnection.ExecuteAsync(
-                                "UPDATE [Business].[EmploymentCheck] " +
-                                "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
-                                "WHERE Id = @Id ",
-                                parameter,
-                                commandType: CommandType.Text,
-                                transaction: transaction);
+                        await sqlConnection.ExecuteAsync(
+                            "UPDATE [Business].[EmploymentCheck] " +
+                            "SET RequestCompletionStatus = @requestCompletionStatus, LastUpdatedOn = @lastUpdatedOn " +
+                            "WHERE Id = @Id ",
+                            parameter,
+                            commandType: CommandType.Text,
+                            transaction: transaction);
 
                         transaction.Commit();
                     }
@@ -221,6 +221,59 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                                "WHERE Id = @Id AND (Employed IS NULL OR Employed = 0) ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameter);
+        }
+
+        public async Task<long> ResetEmploymentChecksMessageSentDate(Guid correlationId)
+        {
+            var dbConnection = new DbConnection();
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _settings.DbConnectionString,
+                _azureServiceTokenProvider)
+            )
+            {
+                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+                await sqlConnection.OpenAsync();
+
+                var parameter = new DynamicParameters();
+                parameter.Add("@correlationId", correlationId, DbType.Guid);
+                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                const string sql = "UPDATE [Business].[EmploymentCheck] " +
+                                    "SET MessageSentDate = null, LastUpdatedOn = @lastUpdatedOn " +
+                                    "WHERE RequestCompletionStatus = 2 " +
+                                    "AND CorrelationId = @correlationId ";
+
+                var result = await sqlConnection.ExecuteAsync(sql, parameter, commandType: CommandType.Text);
+
+                return result;
+            }
+        }
+
+        public async Task<long> ResetEmploymentChecksMessageSentDate(DateTime messageSentFromDate, DateTime messageSentToDate)
+        {
+            var dbConnection = new DbConnection();
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _settings.DbConnectionString,
+                _azureServiceTokenProvider)
+            )
+            {
+                Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+                await sqlConnection.OpenAsync();
+
+                var parameter = new DynamicParameters();
+                parameter.Add("@messageSentFromDate", messageSentFromDate, DbType.DateTime);
+                parameter.Add("@messageSentToDate", messageSentToDate, DbType.DateTime);
+                parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                const string sql = "UPDATE [Business].[EmploymentCheck] " +
+                                    "SET MessageSentDate = null, LastUpdatedOn = @lastUpdatedOn " +
+                                    "WHERE RequestCompletionStatus = 2 " +
+                                    "AND MessageSentDate BETWEEN @MessageSentFromDate AND @MessageSentToDate ";
+
+                var result = await sqlConnection.ExecuteAsync(sql, parameter, commandType: CommandType.Text);
+
+                return result;
+            }
         }
     }
 }

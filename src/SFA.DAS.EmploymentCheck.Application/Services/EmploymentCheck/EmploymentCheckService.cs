@@ -108,5 +108,19 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
             return employmentCheckRequests;
         }
+
+        public async Task<long> ResetEmploymentChecksMessageSentDate(Guid correlationId)
+        {
+            long updatedRowsCount = 0;
+            updatedRowsCount = await _employmentCheckRepository.ResetEmploymentChecksMessageSentDate(correlationId);
+
+            return updatedRowsCount;
+        }
+
+        public async Task<long> ResetEmploymentChecksMessageSentDate(DateTime messageSentFromDate, DateTime messageSentToDate)
+        {
+            return await _employmentCheckRepository.ResetEmploymentChecksMessageSentDate(messageSentFromDate, messageSentToDate);
+        }
+
     }
 }
