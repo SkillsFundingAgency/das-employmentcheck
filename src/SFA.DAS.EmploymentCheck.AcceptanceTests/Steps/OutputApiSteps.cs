@@ -2,10 +2,10 @@ using AutoFixture;
 using Dapper.Contrib.Extensions;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
-using SFA.DAS.EmploymentCheck.Commands.Types;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
+using SFA.DAS.EmploymentCheck.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     {
         private readonly TestContext _context;
         private Data.Models.EmploymentCheck _check;
-        private PublishEmploymentCheckResultCommand _publishedCommand;
+        private EmploymentCheckCompletedEvent _publishedEvent;
 
         public OutputApiSteps(TestContext context) : base(context)
         {
@@ -62,19 +62,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Then(@"the message with completed employment check is published")]
         public void ThenTheMessageWithCompletedEmploymentCheckIsPublished()
         {
-            var publishedCommands = _context
-                .CommandsPublished
-                .Where(c => c.IsPublished &&
-                            c.Command is PublishEmploymentCheckResultCommand).ToList();
+            var publishedEvents = _context
+                .EventsPublished
+                .Where(c => c is EmploymentCheckCompletedEvent).ToList();
 
-            publishedCommands.Should().HaveCount(1);
+            publishedEvents.Should().HaveCount(1);
 
-            _publishedCommand = (PublishEmploymentCheckResultCommand)publishedCommands.First().Command;
+            _publishedEvent = (EmploymentCheckCompletedEvent)publishedEvents.First();
 
-            _publishedCommand.CorrelationId.Should().Be(_check.CorrelationId);
-            _publishedCommand.EmploymentResult.Should().Be(_check.Employed);
-            _publishedCommand.ErrorType.Should().Be(_check.ErrorType);
-            _publishedCommand.CheckDate.Should().Be(_check.LastUpdatedOn);
+            _publishedEvent.CorrelationId.Should().Be(_check.CorrelationId);
+            _publishedEvent.EmploymentResult.Should().Be(_check.Employed);
+            _publishedEvent.ErrorType.Should().Be(_check.ErrorType);
+            _publishedEvent.CheckDate.Should().Be(_check.LastUpdatedOn);
         }
 
         [Then(@"the employment check record is marked as sent")]

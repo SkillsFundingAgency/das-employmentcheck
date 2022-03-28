@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Commands.Types;
+using SFA.DAS.EmploymentCheck.Types;
 using System.Linq;
 using System.Reflection;
 

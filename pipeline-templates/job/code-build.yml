@@ -45,4 +45,4 @@ jobs:
   - template: azure-pipelines-templates/build/step/nuget-pack.yml@das-platform-building-blocks
     parameters:
       DotNetStandardPackagesToPack: |
-        src/SFA.DAS.EmploymentCheck.Commands.Types/SFA.DAS.EmploymentCheck.Commands.Types.csproj;
+        src/SFA.DAS.EmploymentCheck.Types/SFA.DAS.EmploymentCheck.Types.csproj;

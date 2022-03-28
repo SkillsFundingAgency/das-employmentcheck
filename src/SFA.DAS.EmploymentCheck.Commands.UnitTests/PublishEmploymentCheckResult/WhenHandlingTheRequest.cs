@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
-using SFA.DAS.EmploymentCheck.Commands.Types;
+using SFA.DAS.EmploymentCheck.Types;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,36 +12,37 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
 {
     public class WhenHandlingTheRequest
     {
-        private EmploymentCheckCompletedEventHandler _sut;
-        private Mock<ICommandPublisher> _serviceMock;
+        private PublishEmploymentCheckResultCommandHandler _sut;
+        private Mock<IMessageSession> _mockEventPublisher;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _serviceMock = new Mock<ICommandPublisher>();
-            _sut = new EmploymentCheckCompletedEventHandler(_serviceMock.Object);
+            _mockEventPublisher = new Mock<IMessageSession>();
+
+            _sut = new PublishEmploymentCheckResultCommandHandler(new Lazy<IMessageSession>(() => _mockEventPublisher.Object));
         }
 
         [Test]
         public async Task Then_a_message_is_published()
         {
             // Arrange
-            var request = _fixture.Create<EmploymentCheckCompletedEvent>();
+            var request = _fixture.Create<PublishEmploymentCheckResultCommand>();
 
             // Act
             await _sut.Handle(request, CancellationToken.None);
 
             // Assert
-            _serviceMock.Verify(
-                _ => _.Publish(
-                    It.Is<PublishEmploymentCheckResultCommand>(c => 
+            _mockEventPublisher.Verify(
+                _ => _.Send(
+                    It.Is<EmploymentCheckCompletedEvent>(c => 
                         c.CorrelationId == request.EmploymentCheck.CorrelationId
                         && c.CheckDate == request.EmploymentCheck.LastUpdatedOn
                         && c.EmploymentResult == request.EmploymentCheck.Employed
-                        && c.ErrorType == request.EmploymentCheck.ErrorType),
-                    CancellationToken.None), Times.Once);
+                        && c.ErrorType == request.EmploymentCheck.ErrorType), It.IsAny<SendOptions>()
+                    ), Times.Once);
         }
     }
 }

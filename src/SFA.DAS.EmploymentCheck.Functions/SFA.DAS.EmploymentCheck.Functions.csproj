@@ -46,7 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj" />
-    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Commands.Types\SFA.DAS.EmploymentCheck.Commands.Types.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Commands\SFA.DAS.EmploymentCheck.Commands.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Data\SFA.DAS.EmploymentCheck.Data.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Queries\SFA.DAS.EmploymentCheck.Queries.csproj" />

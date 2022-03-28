@@ -8,7 +8,6 @@ using Moq;
 using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
-using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Functions;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
@@ -114,26 +113,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         s.AddSingleton(typeof(ITokenServiceApiClient), hmrcApiTokenServiceMock.Object);
                         s.AddSingleton(typeof(IWebHostEnvironment), webHostEnvironmentMock.Object);
                         
-                        s.AddCommandServices(AddDecorators);
-
                         s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
-                        s.Decorate<ICommandPublisher>((handler, sp) => new TestCommandPublisher(handler, commandMessageHook));
                         s.AddSingleton(commandMessageHook);
                     })
                 )
                 .UseEnvironment("LOCAL")
                 .Build();
-        }
-
-        public IServiceCollection AddDecorators(IServiceCollection serviceCollection)
-        {
-            serviceCollection
-                .Decorate(typeof(ICommandHandler<>), typeof(TestCommandHandlerReceived<>));
-            
-            serviceCollection
-                .Decorate(typeof(ICommandHandler<>), typeof(TestCommandHandlerProcessed<>));
-
-            return serviceCollection;
         }
 
         public async Task StartHost()

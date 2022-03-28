@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         [FunctionName(nameof(OutputEmploymentCheckResultsActivity))]
         public async Task Send([ActivityTrigger] Data.Models.EmploymentCheck employmentCheck)
         {
-            await _dispatcher.Send(new EmploymentCheckCompletedEvent(employmentCheck));
+            await _dispatcher.Send(new PublishEmploymentCheckResultCommand(employmentCheck));
         }
     }
 }

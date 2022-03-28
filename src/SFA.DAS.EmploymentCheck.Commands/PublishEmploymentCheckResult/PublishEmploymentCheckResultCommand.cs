@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 {
-    public class EmploymentCheckCompletedEvent : ICommand
+    public class PublishEmploymentCheckResultCommand : ICommand
     {
-        public EmploymentCheckCompletedEvent(Data.Models.EmploymentCheck employmentCheck)
+        public PublishEmploymentCheckResultCommand(Data.Models.EmploymentCheck employmentCheck)
         {
             EmploymentCheck = employmentCheck;
         }
