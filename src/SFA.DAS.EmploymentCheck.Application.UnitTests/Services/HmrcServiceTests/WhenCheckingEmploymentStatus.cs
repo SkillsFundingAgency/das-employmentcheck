@@ -155,7 +155,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             {
                 AccessCode = _fixture
                 .Create<string>(),
-                ExpiryTime = DateTime.Now.AddSeconds(-1)
+                ExpiryTime = DateTime.UtcNow.AddSeconds(-1)
             };
 
             _tokenServiceMock.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
