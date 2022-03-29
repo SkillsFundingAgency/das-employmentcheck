@@ -40,8 +40,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
 
             _context
-                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
-                .ReturnsAsync(_employmentCheck);
+                .SetupSequence(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
+                .ReturnsAsync(_employmentCheck)
+                .ReturnsAsync(() => null)
+                ;
 
             _context
                 .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck))
@@ -65,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null), Times.Exactly(2));
         }
 
         [Test]
@@ -76,8 +78,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
 
             _context
-                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
-                .ReturnsAsync(_employmentCheck);
+                .SetupSequence(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
+                .ReturnsAsync(_employmentCheck)
+                .ReturnsAsync(() => null)
+                ;
 
             _context
                 .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck))
@@ -91,10 +95,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
                 .Setup(x => x.EmploymentCheckDataHasError(It.IsAny<EmploymentCheckData>()))
                 .Returns(() => null);
 
-            _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<Object>()))
+            _context.Setup(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<object>()))
                 .Verifiable();
 
-            _context.Setup(a => a.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), It.IsAny<Object>()))
+            _context.Setup(a => a.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), It.IsAny<object>()))
                 .Verifiable();
 
             // Act
@@ -112,8 +116,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
 
             _context
-                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
-                .ReturnsAsync(_employmentCheck);
+                .SetupSequence(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
+                .ReturnsAsync(_employmentCheck)
+                .ReturnsAsync(() => null)
+                ;
 
             _context
                 .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck))
@@ -148,8 +154,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
 
             _context
-                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
-                .ReturnsAsync(_employmentCheck);
+                .SetupSequence(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
+                .ReturnsAsync(_employmentCheck)
+                .ReturnsAsync(() => null)
+                ;
 
             _context
                 .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck))
@@ -185,8 +193,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var employerPayeSchemesTask = Task.FromResult(_fixture.Create<EmployerPayeSchemes>());
 
             _context
-                .Setup(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
-                .ReturnsAsync(_employmentCheck);
+                .SetupSequence(a => a.CallActivityAsync<Data.Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
+                .ReturnsAsync(_employmentCheck)
+                .ReturnsAsync(() => null)
+                ;
 
             _context
                 .Setup(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck))
@@ -212,6 +222,26 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             // Assert
             _context.Verify(a => a.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), It.IsAny<Object>()), Times.Once);
             _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<Object>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Then_message_indicating_nothing_to_process_is_logged()
+        {
+            // Arrange
+            _context
+                .Setup(a => a.CallActivityAsync<Models.EmploymentCheck>(nameof(GetEmploymentCheckActivity), null))
+                .ReturnsAsync(() => null);
+
+            // Act
+            await _sut.CreateEmploymentCheckRequestsTask(_context.Object);
+
+            // Assert
+            _context.Verify(a => a.CallActivityAsync(nameof(StoreCompletedEmploymentCheckActivity), It.IsAny<object>()), Times.Never);
+            _context.Verify(a => a.CallActivityAsync(nameof(CreateEmploymentCheckCacheRequestActivity), It.IsAny<object>()), Times.Never);
+            _context.Verify(a => a.CallActivityAsync<EmployerPayeSchemes>(nameof(GetEmployerPayeSchemesActivity), _employmentCheck), Times.Never);
+            _context.Verify(a => a.CallActivityAsync<LearnerNiNumber>(nameof(GetLearnerNiNumberActivity), _employmentCheck), Times.Never);
+
+            _logger.VerifyLogContains(LogLevel.Information, Times.Once(), "CreateEmploymentCheckCacheRequestsOrchestrator: GetEmploymentCheckActivity returned no results. Nothing to process.");
         }
     }
 }

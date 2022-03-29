@@ -1,11 +1,9 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -22,40 +20,24 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         [FunctionName(nameof(ProcessEmploymentCheckRequestsOrchestrator))]
         public async Task ProcessEmploymentCheckRequestsOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var thisMethodName = $"{nameof(ProcessEmploymentCheckRequestsOrchestrator)}.ProcessEmploymentCheckRequestsOrchestratorTask";
+            EmploymentCheckCacheRequest request;
 
-            try
+            do
             {
-                // Get the next request
-                var employmentCheckCacheRequest = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
+                request = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
+                
+                await ProcessEmploymentCheckRequest(context, request);
 
-                if (employmentCheckCacheRequest != null)
-                {
-                    context.SetCustomStatus("Processing");
+            } while (request != null);
 
-                    // Do the employment status check on this request
-                    await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), employmentCheckCacheRequest);
-                }
-                else
-                {
-                    context.SetCustomStatus("Idle");
+            _logger.LogInformation($"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
+        }
 
-                    _logger.LogInformation($"\n\n{thisMethodName}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
+        private static async Task ProcessEmploymentCheckRequest(IDurableOrchestrationContext context, EmploymentCheckCacheRequest request)
+        {
+            if (request == null) return;
 
-                    // No data found so sleep for 10 seconds then execute the orchestrator again
-                    var sleep = context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10));
-                    await context.CreateTimer(sleep, CancellationToken.None);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)} Exception caught: {e.Message}. {e.StackTrace}");
-            }
-            finally
-            {
-                context.ContinueAsNew(null);
-            }
-
+            await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), request);
         }
     }
 }

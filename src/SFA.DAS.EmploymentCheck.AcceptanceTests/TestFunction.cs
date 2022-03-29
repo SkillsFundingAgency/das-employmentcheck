@@ -1,21 +1,23 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Newtonsoft.Json;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Functions;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -43,17 +45,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "ConfigNames", "SFA.DAS.EmployerIncentives" },
                 { "ApplicationSettings:LogLevel", "DEBUG" }
             };
-
-            var hmrcApiTokenServiceMock = new Mock<ITokenServiceApiClient>();
-            hmrcApiTokenServiceMock.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
-                .ReturnsAsync(new PrivilegedAccessToken()
-                {
-                    AccessCode = "test_access_code",
-                    ExpiryTime = DateTime.MaxValue
-                });
-
-            var webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
-            webHostEnvironmentMock.SetupGet(he => he.EnvironmentName).Returns("Development");
 
             _host = new HostBuilder()
                 .ConfigureAppConfiguration(a =>
@@ -103,11 +94,74 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         });
 
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
-                        s.AddSingleton(typeof(ITokenServiceApiClient), hmrcApiTokenServiceMock.Object);
-                        s.AddSingleton(typeof(IWebHostEnvironment), webHostEnvironmentMock.Object);
+                        s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
+                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);
+                        s.AddSingleton(typeof(IHmrcApiOptionsRepository), CreateHmrcApiOptionsRepository().Object);
                     })
                 )
                 .Build();
+        }
+
+        private static Mock<IWebHostEnvironment> CreateWebHostEnvironmentMock()
+        {
+            var webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
+            webHostEnvironmentMock.SetupGet(he => he.EnvironmentName).Returns("Development");
+            return webHostEnvironmentMock;
+        }
+
+        private static Mock<ITokenServiceApiClient> CreateHmrcApiTokenServiceMock()
+        {
+            var mock = new Mock<ITokenServiceApiClient>();
+            mock.Setup(_ => _.GetPrivilegedAccessTokenAsync())
+                .ReturnsAsync(new PrivilegedAccessToken
+                {
+                    AccessCode = "test_access_code",
+                    ExpiryTime = DateTime.MaxValue
+                });
+            return mock;
+        }
+
+        private static Mock<IHmrcApiOptionsRepository> CreateHmrcApiOptionsRepository()
+        {
+            var mock = new Mock<IHmrcApiOptionsRepository>();
+            mock.Setup(_ => _.GetHmrcRateLimiterOptions())
+                .ReturnsAsync(new HmrcApiRateLimiterOptions
+                {
+                    DelayInMs = 0,
+                    TokenFailureRetryDelayInMs = 0,
+                    TransientErrorDelayInMs = 0
+                });
+            return mock;
+        }
+
+        public async Task ExecuteCreateEmploymentCheckCacheRequestsOrchestrator()
+        {
+            var response = await Start(
+                new OrchestrationStarterInfo(
+                    starterName: nameof(CreateEmploymentCheckRequestsOrchestratorHttpTrigger),
+                    orchestrationName: nameof(CreateEmploymentCheckCacheRequestsOrchestrator),
+                    args: new Dictionary<string, object>
+                    {
+                        ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/CreateEmploymentCheckRequestsOrchestrator" }
+                    }
+                ));
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task ExecuteProcessEmploymentCheckRequestsOrchestrator()
+        {
+            var response = await Start(
+                new OrchestrationStarterInfo(
+                    starterName: nameof(ProcessEmploymentChecksOrchestratorHttpTrigger),
+                    orchestrationName: nameof(ProcessEmploymentCheckRequestsOrchestrator),
+                    args: new Dictionary<string, object>
+                    {
+                        ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/ProcessApprenticeEmploymentChecksOrchestrator" }
+                    }
+                ));
+
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task StartHost()
@@ -169,15 +223,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             }
 
             _isDisposed = true;
-        }
-
-        public void ClearQueues()
-        {
-            using var process = new Process();
-            process.StartInfo.FileName = "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\Storage Emulator\\AzureStorageEmulator.exe";
-            process.StartInfo.Arguments = "clear queue";
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.Start();
         }
     }
 }
