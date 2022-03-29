@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
 {
@@ -15,13 +16,17 @@ namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
     public class EmploymentCheckHttpTestHarnessController : ControllerBase
     {
         private readonly IHmrcAuthTokenBroker _authTokenBroker;
+        private readonly HmrcAuthTokenServiceConfiguration _configuration;
         private readonly ILogger<EmploymentCheckHttpTestHarnessController> _logger;
 
-        public EmploymentCheckHttpTestHarnessController(ILogger<EmploymentCheckHttpTestHarnessController> logger,
-            IHmrcAuthTokenBroker authTokenBroker)
+        public EmploymentCheckHttpTestHarnessController(
+            ILogger<EmploymentCheckHttpTestHarnessController> logger,
+            IHmrcAuthTokenBroker authTokenBroker,
+            HmrcAuthTokenServiceConfiguration configuration)
         {
             _logger = logger;
             _authTokenBroker = authTokenBroker;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -40,7 +45,7 @@ namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
             _logger.LogInformation("Triggering EmploymentCheckHttpTestHarness");
             var apprenticeshipLevyService = new ApprenticeshipLevyApiClient(new HttpClient()
             {
-                BaseAddress = new Uri("https://test-api.service.hmrc.gov.uk/")
+                BaseAddress = new Uri(_configuration.BaseUrl)
             });
 
             var accessCode = (await _authTokenBroker.GetTokenAsync()).AccessToken;
@@ -67,7 +72,7 @@ namespace SFA.DAS.EmploymentCheck.TestHarness.Controllers
 
             var apprenticeshipLevyService = new ApprenticeshipLevyApiClient(new HttpClient()
             {
-                BaseAddress = new Uri("https://test-api.service.hmrc.gov.uk/")
+                BaseAddress = new Uri(_configuration.BaseUrl)
             });
 
             var response = await apprenticeshipLevyService.GetEmploymentStatus(accessCode, "923/FEZ00059",

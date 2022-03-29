@@ -6,5 +6,6 @@
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string TotpSecret { get; set; }
+        public string BaseUrl { get; set; }
     }
 }
