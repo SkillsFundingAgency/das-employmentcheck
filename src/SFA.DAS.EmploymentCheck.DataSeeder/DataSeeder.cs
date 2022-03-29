@@ -74,9 +74,7 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
         private static void ReadSettings()
         {
             _csvDataFile = Path.Combine(Directory.GetCurrentDirectory(), "Files\\testdata.csv");
-#pragma warning disable S112 // General exceptions should never be thrown
-            if (!File.Exists(_csvDataFile)) throw new Exception($"Input file not found in: {_csvDataFile}");
-#pragma warning restore S112 // General exceptions should never be thrown
+            if (!File.Exists(_csvDataFile)) throw new FileNotFoundException($"Input file not found in: {_csvDataFile}");
 
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
