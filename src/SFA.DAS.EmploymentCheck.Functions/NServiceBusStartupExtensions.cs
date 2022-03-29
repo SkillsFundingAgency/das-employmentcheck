@@ -15,6 +15,7 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System;
 using System.IO;
+using Microsoft.Azure.ServiceBus.Primitives;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -67,6 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
         public static IServiceCollection AddNServiceBusMessageHandlers(
             this IServiceCollection serviceCollection,
             ILogger logger,
+            ApplicationSettings configuration,
             Action<NServiceBusOptions> onConfigureOptions = null)
         {
             var webBuilder = serviceCollection.AddWebJobs(x => { });
@@ -74,6 +76,18 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             var options = new NServiceBusOptions
             {
+                EndpointConfiguration = endpoint =>
+                {
+                    var transport = endpoint.UseTransport<AzureServiceBusTransport>();
+                    var ruleNameShortener = new RuleNameShortener();
+                    var tokenProvider = TokenProvider.CreateManagedIdentityTokenProvider();
+                    transport.CustomTokenProvider(tokenProvider);
+                    transport.ConnectionString(configuration.NServiceBusConnectionString);
+                    transport.RuleNameShortener(ruleNameShortener.Shorten);
+                    transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+                    transport.Routing().AddRouting();
+                    return endpoint;
+                },
                 OnMessageReceived = context =>
                 {
                     context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
