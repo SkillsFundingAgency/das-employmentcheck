@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
     {
         [FunctionName(nameof(EmploymentChecksTimerTrigger))]
         public static async Task EmploymentChecksTimerTriggerTask(
-            [TimerTrigger("%EmploymentChecksTimerTriggerTime%")] TimerInfo timerInfo,
+            [TimerTrigger("%EmploymentCheckTriggerTime%")] TimerInfo timerInfo,
             [DurableClient] IDurableOrchestrationClient starter, ILogger log
         )
         {
