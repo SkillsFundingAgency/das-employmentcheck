@@ -14,10 +14,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
     {
         private const string InstancePrefix = "ResetEmploymentCheckMessageSentDate-";
 
-        // Call with Postman POST request
-        // By CorrelationId: http://localhost:7071/api/orchestrators/ResetEmploymentChecksMessageSentDateOrchestratorHttpTrigger?CorrelationId=E269AE35-5A56-4DC8-A478-170E88280C31
-        // By MessageSentDate range: http://localhost:7071/api/orchestrators/ResetEmploymentChecksMessageSentDateOrchestratorHttpTrigger?MessageSentFromDate=2022-03-23&MessageSentToDate=2022-03-25)
-
         [FunctionName(nameof(ResetEmploymentChecksMessageSentDateOrchestratorHttpTrigger))]
         public static async Task<HttpResponseMessage> HttpStart(
              [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/ResetEmploymentChecksMessageSentDateOrchestratorHttpTrigger")] HttpRequestMessage httpRequestMessage,
