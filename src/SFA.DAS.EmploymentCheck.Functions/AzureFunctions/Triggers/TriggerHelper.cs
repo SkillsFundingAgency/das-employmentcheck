@@ -11,22 +11,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
     public class TriggerHelper : ITriggerHelper
     {
         private readonly string _createRequestsOrchestratorName;
-        private readonly string _procesRequestsOrchestratorName;
+        private readonly string _processRequestsOrchestratorName;
         private readonly string _createRequestsOrchestratorTriggerName;
         private readonly string _processRequestsOrchestratorTriggerName;
 
-        private readonly string _orchestratorHttpTriggerNameSuffix = "HttpTrigger";
-        private readonly string _createRequestsOrchestratorInstancePrefix = "CreateEmploymentCheck-";
-        private readonly string _processRequestsOrchestratorInstancePrefix = "ProcessEmploymentCheck-";
+        private const string OrchestratorHttpTriggerNameSuffix = "HttpTrigger";
 
         public TriggerHelper() { }
 
-        public TriggerHelper(string createRequestsOrchestratorName, string procesRequestsOrchestratorName)
+        public TriggerHelper(string createRequestsOrchestratorName, string processRequestsOrchestratorName)
         {
             _createRequestsOrchestratorName = createRequestsOrchestratorName;
-            _procesRequestsOrchestratorName = procesRequestsOrchestratorName;
-            _createRequestsOrchestratorTriggerName = _createRequestsOrchestratorName + _orchestratorHttpTriggerNameSuffix;
-            _processRequestsOrchestratorTriggerName = _procesRequestsOrchestratorName + _orchestratorHttpTriggerNameSuffix;
+            _processRequestsOrchestratorName = processRequestsOrchestratorName;
+            _createRequestsOrchestratorTriggerName = _createRequestsOrchestratorName + OrchestratorHttpTriggerNameSuffix;
+            _processRequestsOrchestratorTriggerName = _processRequestsOrchestratorName + OrchestratorHttpTriggerNameSuffix;
         }
 
         public async Task<OrchestrationStatusQueryResult> GetRunningInstances(string orchestratorName, string instanceIdPrefix, IDurableOrchestrationClient starter, ILogger log)
@@ -55,15 +53,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
         )
         {
 
-            HttpResponseMessage createRequestsOrchestratorResponseMessage =
+            var createRequestsOrchestratorResponseMessage =
                 await triggerHelper.StartOrchestrator(
                     req,
                     starter,
                     log,
                     triggerHelper,
                     _createRequestsOrchestratorName,
-                    _createRequestsOrchestratorTriggerName,
-                    _createRequestsOrchestratorInstancePrefix);
+                    _createRequestsOrchestratorTriggerName);
             if (createRequestsOrchestratorResponseMessage.StatusCode != HttpStatusCode.Accepted)
             {
                 var content = await createRequestsOrchestratorResponseMessage.Content.ReadAsStringAsync();
@@ -72,15 +69,14 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
                 return createRequestsOrchestratorResponseMessage;
             }
 
-            HttpResponseMessage processRequestsOrchestratorResponseMessage =
+            var processRequestsOrchestratorResponseMessage =
                 await triggerHelper.StartOrchestrator(
                     req,
                     starter,
                     log,
                     triggerHelper,
-                    _procesRequestsOrchestratorName,
-                    _processRequestsOrchestratorTriggerName,
-                    _processRequestsOrchestratorInstancePrefix);
+                    _processRequestsOrchestratorName,
+                    _processRequestsOrchestratorTriggerName);
             if (processRequestsOrchestratorResponseMessage.StatusCode != HttpStatusCode.Accepted)
             {
                 var content = await processRequestsOrchestratorResponseMessage.Content.ReadAsStringAsync();
@@ -102,12 +98,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             ILogger log,
             ITriggerHelper triggerHelper,
             string orchestratorName,
-            string triggerName,
-            string instancePrefix
+            string triggerName
         )
         {
             var existingInstances =
-                await triggerHelper.GetRunningInstances(triggerName, instancePrefix, starter, log);
+                await triggerHelper.GetRunningInstances(triggerName, orchestratorName, starter, log);
 
             if (existingInstances != null && existingInstances.DurableOrchestrationState.Any())
             {
@@ -117,7 +112,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             }
 
             log.LogInformation($"Triggering {orchestratorName}");
-            var instanceId = await starter.StartNewAsync(orchestratorName, $"{instancePrefix}{Guid.NewGuid()}");
+            var instanceId = await starter.StartNewAsync(orchestratorName, $"{orchestratorName}-{Guid.NewGuid()}");
             if(string.IsNullOrEmpty(instanceId))
             {
                 var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occured starting [{orchestratorName}], no instance id was returned.") };

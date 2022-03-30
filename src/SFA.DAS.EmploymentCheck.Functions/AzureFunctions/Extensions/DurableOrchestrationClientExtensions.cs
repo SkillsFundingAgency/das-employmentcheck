@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Extensions
 
             if (runningInstances.DurableOrchestrationState.Any()) return;
 
-            await starter.StartNewAsync(orchestrator, $"{orchestrator}{Guid.NewGuid()}");
+            await starter.StartNewAsync(orchestrator, $"{orchestrator}-{Guid.NewGuid()}");
         }
     }
 }

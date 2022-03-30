@@ -21,13 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
         private Mock<IDurableOrchestrationClient> _starterMock;
         private Mock<ILogger> _loggerMock;
 
-        private string _createRequestsOrchestratorName;
-        private string _createRequestsOrchestratorTriggerName;
-        private string _createRequestsOrchestratorInstancePrefix;
-        private string _processRequestsOrchestratorName;
-        private string _processRequestsOrchestratorTriggerName;
-        private string _processRequestsOrchestratorInstancePrefix;
-
         private string _orchestratorName;
         private string _triggerName;
         private string _instancePrefix;
@@ -41,13 +34,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
             _requestMock = new Mock<HttpRequestMessage>();
             _starterMock = new Mock<IDurableOrchestrationClient>();
             _loggerMock = new Mock<ILogger>();
-
-            _createRequestsOrchestratorName = _fixture.Create<string>();
-            _createRequestsOrchestratorTriggerName = _fixture.Create<string>();
-            _createRequestsOrchestratorInstancePrefix = _fixture.Create<string>();
-            _processRequestsOrchestratorName = _fixture.Create<string>();
-            _processRequestsOrchestratorTriggerName = _fixture.Create<string>();
-            _processRequestsOrchestratorInstancePrefix = _fixture.Create<string>();
 
             _orchestratorName = _fixture.Create<string>();
             _triggerName = _fixture.Create<string>();
@@ -79,8 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     _loggerMock.Object,
                     _triggerHelperMock.Object,
                     _orchestratorName,
-                    _triggerName,
-                    _instancePrefix))
+                    _triggerName))
              .ReturnsAsync(createRequestsOrchestratorResponse)
              .ReturnsAsync(processRequestsOrchestratorResponse);
 
@@ -136,8 +121,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     _loggerMock.Object,
                     _triggerHelperMock.Object,
                     _orchestratorName,
-                    _triggerName,
-                    _instancePrefix))
+                    _triggerName))
              .ReturnsAsync(createRequestsOrchestratorResponse)
              .ReturnsAsync(processRequestsOrchestratorResponse);
 
@@ -191,8 +175,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Em
                     _loggerMock.Object,
                     _triggerHelperMock.Object,
                     _orchestratorName,
-                    _triggerName,
-                    _instancePrefix))
+                    _triggerName))
              .ReturnsAsync(createRequestsOrchestratorResponse)
              .ReturnsAsync(processRequestsOrchestratorResponse);
 
