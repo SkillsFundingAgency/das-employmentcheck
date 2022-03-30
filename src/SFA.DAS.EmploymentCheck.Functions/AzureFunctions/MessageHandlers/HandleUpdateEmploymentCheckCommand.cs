@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.MessageHandlers
             _logger = logger;
         }
 
-        [FunctionName("HandleEmploymentCheckCompletedEvent")]
+        [FunctionName(nameof(HandleEmploymentCheckCompletedEvent))]
         public Task Handle(
             [NServiceBusTrigger(Endpoint = QueueNames.PublishEmploymentCheckResult)]
             EmploymentCheckCompletedEvent @event)

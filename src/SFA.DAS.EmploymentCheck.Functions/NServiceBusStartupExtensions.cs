@@ -15,7 +15,6 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System;
 using System.IO;
-using Microsoft.Azure.ServiceBus.Primitives;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -64,30 +63,19 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return serviceCollection;
         }
 
-        // TODO: delete when Employer Incentives have released a subscriber
         public static IServiceCollection AddNServiceBusMessageHandlers(
             this IServiceCollection serviceCollection,
             ILogger logger,
             ApplicationSettings configuration,
             Action<NServiceBusOptions> onConfigureOptions = null)
         {
+            Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration.NServiceBusConnectionString, EnvironmentVariableTarget.Process);
+
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
 
             var options = new NServiceBusOptions
             {
-                EndpointConfiguration = endpoint =>
-                {
-                    var transport = endpoint.UseTransport<AzureServiceBusTransport>();
-                    var ruleNameShortener = new RuleNameShortener();
-                    var tokenProvider = TokenProvider.CreateManagedIdentityTokenProvider();
-                    transport.CustomTokenProvider(tokenProvider);
-                    transport.ConnectionString(configuration.NServiceBusConnectionString);
-                    transport.RuleNameShortener(ruleNameShortener.Shorten);
-                    transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
-                    transport.Routing().AddRouting();
-                    return endpoint;
-                },
                 OnMessageReceived = context =>
                 {
                     context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);

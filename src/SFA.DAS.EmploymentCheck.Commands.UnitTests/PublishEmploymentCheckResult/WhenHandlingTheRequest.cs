@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
@@ -21,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResul
             _fixture = new Fixture();
             _mockEventPublisher = new Mock<IEventPublisher>();
 
-            _sut = new PublishEmploymentCheckResultCommandHandler(_mockEventPublisher.Object);
+            _sut = new PublishEmploymentCheckResultCommandHandler(_mockEventPublisher.Object, Mock.Of<ILogger<PublishEmploymentCheckResultCommandHandler>>());
         }
 
         [Test]
