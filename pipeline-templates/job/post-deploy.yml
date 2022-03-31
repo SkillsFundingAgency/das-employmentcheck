@@ -1,0 +1,7 @@
+jobs:
+- job: PostDeploymentJob
+  dependsOn:
+  - Build
+  steps:
+   - powershell: "curl https://$(UiCustomHostname)/api/orchestrators/TerminateRunningInstancesHttpTrigger -UseBasicParsing"
+   - powershell: "curl https://$(UiCustomHostname)/api/orchestrators/PurgeInstancesHttpTrigger -UseBasicParsing"
