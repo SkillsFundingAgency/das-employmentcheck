@@ -1,12 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrators.ProcessEmploymentCheckRequestsOrchestratorTests
 {
@@ -41,9 +40,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         public async Task Then_GetHmrcLearnerEmploymentStatusActivity_Is_Not_Called_When_Nothing_To_Process()
         {
             // Arrange
-            _mockOrchestrationContext.Setup(c =>
+            _mockOrchestrationContext.SetupSequence(c =>
                     c.CallActivityAsync<EmploymentCheckCacheRequest>("GetEmploymentCheckCacheRequestActivity", null))
-                .ReturnsAsync((EmploymentCheckCacheRequest)null);
+                .ReturnsAsync(() => null);
             
             // Act
             await _sut.ProcessEmploymentCheckRequestsOrchestratorTask(_mockOrchestrationContext.Object);
@@ -57,10 +56,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         {
             // Arrange
             var request = _fixture.Create<EmploymentCheckCacheRequest>();
-            _mockOrchestrationContext.Setup(c =>
+            _mockOrchestrationContext.SetupSequence(c =>
                     c.CallActivityAsync<EmploymentCheckCacheRequest>("GetEmploymentCheckCacheRequestActivity", null)
                 )
-                .ReturnsAsync(request);
+                .ReturnsAsync(request)
+                .ReturnsAsync(() => null);
 
             // Act
             await _sut.ProcessEmploymentCheckRequestsOrchestratorTask(_mockOrchestrationContext.Object);
@@ -69,22 +69,23 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _mockOrchestrationContext.Verify(c => c.CallActivityAsync<EmploymentCheckCacheRequest>("GetHmrcLearnerEmploymentStatusActivity", request), Times.Once);
         }
 
+
         [Test]
-        public async Task Then_Any_Exceptions_Are_Caught_And_Logged()
+        public async Task Then_message_indicating_nothing_to_process_is_logged()
         {
             // Arrange
-            var exception = _fixture.Create<Exception>();
             _mockOrchestrationContext.Setup(c =>
                     c.CallActivityAsync<EmploymentCheckCacheRequest>("GetEmploymentCheckCacheRequestActivity", null)
                 )
-                .Throws(exception);
+                .ReturnsAsync(() => null);
 
             // Act
             await _sut.ProcessEmploymentCheckRequestsOrchestratorTask(_mockOrchestrationContext.Object);
 
             // Assert
-            _mockLogger.VerifyLog(LogLevel.Error, Times.Once(), $"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)} Exception caught: {exception.Message}. {exception.StackTrace}");
-            _mockOrchestrationContext.Verify(c => c.CallActivityAsync<EmploymentCheckCacheRequest>("GetHmrcLearnerEmploymentStatusActivity", It.IsAny<EmploymentCheckCacheRequest>()), Times.Never);
+            _mockOrchestrationContext.Verify(c => c.CallActivityAsync<EmploymentCheckCacheRequest>("GetHmrcLearnerEmploymentStatusActivity", It.IsAny<object>()), Times.Never);
+
+            _mockLogger.VerifyLogContains(LogLevel.Information, Times.Once(), "ProcessEmploymentCheckRequestsOrchestrator: GetEmploymentCheckCacheRequestActivity returned no results. Nothing to process.");
         }
     }
 }

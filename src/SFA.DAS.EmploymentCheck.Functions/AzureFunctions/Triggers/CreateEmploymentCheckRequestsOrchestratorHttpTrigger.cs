@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
     {
         private const string InstanceIdPrefix = "CreateEmploymentCheck-";
 
-        [FunctionName("CreateEmploymentCheckRequestsOrchestratorHttpTrigger")]
+        [FunctionName(nameof(CreateEmploymentCheckRequestsOrchestratorHttpTrigger))]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/CreateEmploymentCheckRequestsOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,

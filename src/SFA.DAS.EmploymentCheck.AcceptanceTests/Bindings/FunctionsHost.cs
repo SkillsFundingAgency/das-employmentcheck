@@ -18,7 +18,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
         public async Task InitialiseHost()
         {
             _testContext.TestFunction = new TestFunction(_testContext, $"TEST{_featureContext.FeatureInfo.Title}");
-            _testContext.TestFunction.ClearQueues();
             await _testContext.TestFunction.StartHost();
         }
 

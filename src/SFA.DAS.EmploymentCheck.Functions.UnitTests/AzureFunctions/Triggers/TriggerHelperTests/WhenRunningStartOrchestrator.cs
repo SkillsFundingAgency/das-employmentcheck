@@ -1,14 +1,12 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
-using DurableTask.Core.Tracing;
+﻿using AutoFixture;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.TriggerHelperTests
 {
@@ -23,7 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
 
         private string _orchestratorName;
         private string _triggerName;
-        private string _instancePrefix;
         private string _instanceId;
 
         [SetUp]
@@ -38,7 +35,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
 
             _orchestratorName = _fixture.Create<string>();
             _triggerName = _fixture.Create<string>();
-            _instancePrefix = _fixture.Create<string>();
             _instanceId = _fixture.Create<string>();
         }
 
@@ -55,8 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
                     _loggerMock.Object,
                     _triggerHelperMock.Object,
                     _orchestratorName,
-                    _triggerName,
-                    _instancePrefix))
+                    _triggerName))
              .ReturnsAsync(response);
 
             _starterMock
@@ -76,8 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
                 _loggerMock.Object,
                 _triggerHelperMock.Object,
                 _orchestratorName,
-                _triggerName,
-                _instancePrefix);
+                _triggerName);
 
             // Assert
             var resultContent = await result.Content.ReadAsStringAsync();
@@ -99,8 +93,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
                     _loggerMock.Object,
                     _triggerHelperMock.Object,
                     _orchestratorName,
-                    _triggerName,
-                    _instancePrefix))
+                    _triggerName))
              .ReturnsAsync(response);
 
             _starterMock
@@ -120,8 +113,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
                 _loggerMock.Object,
                 _triggerHelperMock.Object,
                 _orchestratorName,
-                _triggerName,
-                _instancePrefix);
+                _triggerName);
 
             // Assert
             var resultContent = await result.Content.ReadAsStringAsync();
