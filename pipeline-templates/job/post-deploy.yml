@@ -1,5 +1,0 @@
-jobs:
-- job: PostDeploymentJob
-  steps:
-   - powershell: "curl https://$(FunctionAppName)/api/orchestrators/TerminateRunningInstancesHttpTrigger -UseBasicParsing"
-   - powershell: "curl https://$(FunctionAppName)/api/orchestrators/PurgeInstancesHttpTrigger -UseBasicParsing"

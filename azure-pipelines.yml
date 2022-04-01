@@ -69,7 +69,6 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
-  - template: pipeline-templates/job/post-deploy.yml
 
 - stage: Deploy_TEST
   dependsOn: Build
@@ -85,7 +84,6 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
-  - template: pipeline-templates/job/post-deploy.yml
 
 - stage: Deploy_TEST2
   dependsOn: Build
@@ -101,7 +99,6 @@ stages:
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
-  - template: pipeline-templates/job/post-deploy.yml
 
 - stage: Deploy_PP
   dependsOn: Build
@@ -117,7 +114,6 @@ stages:
       ServiceConnection: SFA-DIG-PreProd-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
-  - template: pipeline-templates/job/post-deploy.yml
 
 - stage: Deploy_PROD
   dependsOn: Build
@@ -133,7 +129,6 @@ stages:
       ServiceConnection: SFA-DIG-Prod-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
-  - template: pipeline-templates/job/post-deploy.yml
 
 - stage: Deploy_MO
   dependsOn: Build
@@ -148,7 +143,6 @@ stages:
       Environment: MO
       ServiceConnection: SFA-ASM-ModelOffice-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-FCS
-  - template: pipeline-templates/job/post-deploy.yml
 
 - stage: Deploy_DEMO
   dependsOn: Build
@@ -163,4 +157,3 @@ stages:
       Environment: DEMO
       ServiceConnection: SFA-DAS-DevTest-ARM
       AppRoleAssignmentsServiceConnection: das-app-role-assignments-CDS
-  - template: pipeline-templates/job/post-deploy.yml
