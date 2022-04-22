@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Types;
-using SFA.DAS.NServiceBus.Services;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,14 +10,14 @@ namespace SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult
 {
     public class PublishEmploymentCheckResultCommandHandler : ICommandHandler<PublishEmploymentCheckResultCommand>
     {
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IMessageSession _eventPublisher;
         private readonly ILogger<PublishEmploymentCheckResultCommandHandler> _logger;
 
         public PublishEmploymentCheckResultCommandHandler(
-            IEventPublisher eventPublisher,
+            Lazy<IMessageSession> eventPublisher,
             ILogger<PublishEmploymentCheckResultCommandHandler> logger)
         {
-            _eventPublisher = eventPublisher;
+            _eventPublisher = eventPublisher.Value;
             _logger = logger;
         }
 

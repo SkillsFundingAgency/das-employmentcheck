@@ -20,8 +20,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
 {
     public static class NServiceBusStartupExtensions
     {
-        private static EndpointConfiguration _endpointConfiguration;
-
         public static IServiceCollection AddNServiceBus(
            this IServiceCollection serviceCollection,
            ApplicationSettings configuration)
@@ -29,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
 
-            _endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
+            var endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
                 .UseOutbox(true)
@@ -40,25 +38,25 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var dir = Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory()
                     .IndexOf("src", StringComparison.Ordinal)], "src\\.learningtransport");
-                _endpointConfiguration
+                endpointConfiguration
                     .UseTransport<LearningTransport>()
                     .StorageDirectory(dir);
-                _endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+                endpointConfiguration.UseLearningTransport(s => s.AddRouting());
             }
             else
             {
-                _endpointConfiguration
+                endpointConfiguration
                     .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
             }
 
             if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
             {
-                _endpointConfiguration.License(configuration.NServiceBusLicense);
+                endpointConfiguration.License(configuration.NServiceBusLicense);
             }
 
-            var endpoint = EndpointWithExternallyManagedServiceProvider.Create(_endpointConfiguration, serviceCollection);
-            endpoint.Start(new UpdateableServiceProvider(serviceCollection));
-            serviceCollection.AddSingleton(p => endpoint.MessageSession.Value);
+            var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
+            endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
+            serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
 
             return serviceCollection;
         }
