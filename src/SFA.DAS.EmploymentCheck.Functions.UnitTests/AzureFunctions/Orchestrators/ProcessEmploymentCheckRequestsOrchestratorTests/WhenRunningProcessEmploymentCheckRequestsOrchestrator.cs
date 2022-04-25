@@ -38,8 +38,9 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var sut = new ProcessEmploymentCheckRequestsOrchestrator(_logger.Object);
 
             _context
-                .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
-                .ReturnsAsync(_employmentCheckCacheRequest);
+                .SetupSequence(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
+                .ReturnsAsync(_employmentCheckCacheRequest)
+                .ReturnsAsync(() => null);
 
             _context
                 .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), _employmentChecks))
@@ -49,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             await sut.ProcessEmploymentCheckRequestsOrchestratorTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Once);
+            _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Exactly(2));
         }
     }
 }

@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
     {
         private const string InstanceIdPrefix = "ProcessEmploymentCheck-";
 
-        [FunctionName("ProcessApprenticeEmploymentChecksHttpTrigger")]
+        [FunctionName(nameof(ProcessEmploymentChecksOrchestratorHttpTrigger))]
         public static async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "orchestrators/ProcessApprenticeEmploymentChecksOrchestrator")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient starter,

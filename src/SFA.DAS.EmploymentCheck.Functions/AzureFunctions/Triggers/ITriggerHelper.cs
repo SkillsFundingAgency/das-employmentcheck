@@ -25,7 +25,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             ILogger log,
             ITriggerHelper triggerHelper,
             string orchestratorName,
-            string triggerName,
-            string instancePrefix);
+            string triggerName);
     }
 }
