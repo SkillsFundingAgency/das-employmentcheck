@@ -76,6 +76,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("HMRC API returns unsuccessful status code")]
         [NUnit.Framework.TestCaseAttribute("401", "3", null)]
+        [NUnit.Framework.TestCaseAttribute("400", "0", null)]
         public void HMRCAPIReturnsUnsuccessfulStatusCode(string statusCode, string retryCount, string[] exampleTags)
         {
             string[] tagsOfScenario = exampleTags;
@@ -100,7 +101,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When(string.Format("Hmrc Api call returns {0} status code", statusCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 7
- testRunner.Then(string.Format("the Api call is retried {0} times", retryCount), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then(string.Format("the Api call with {0} is retried {1} times", statusCode, retryCount), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
