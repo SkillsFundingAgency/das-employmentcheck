@@ -63,6 +63,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             }
             catch (Exception e)
             {
+                _logger.LogError($"{nameof(LearnerService)}: Exception occurred [{e}]");
+
                 await HandleException(employmentCheck, e);
                 return null;
             }
