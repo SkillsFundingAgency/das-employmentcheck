@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
@@ -42,6 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             });
 
             serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();
+            serviceCollection.AddSingleton<IApiRetryPolicies, ApiRetryPolicies>();
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();

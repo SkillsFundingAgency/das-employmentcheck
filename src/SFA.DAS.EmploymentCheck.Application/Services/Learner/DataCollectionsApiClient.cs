@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
@@ -13,24 +14,40 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
     {
         private readonly DataCollectionsApiConfiguration _configuration;
         private readonly IDcTokenService _tokenService;
+        private readonly IApiRetryPolicies _apiRetryPolicies;
+        private readonly ILogger<DataCollectionsApiClient> _logger;
 
         public DataCollectionsApiClient(
             IHttpClientFactory httpClientFactory,
             DataCollectionsApiConfiguration configuration, 
             IWebHostEnvironment hostingEnvironment,
-            IDcTokenService tokenService) : base(httpClientFactory, configuration, hostingEnvironment)
+            IDcTokenService tokenService,
+            IApiRetryPolicies apiRetryPolicies,
+            ILogger<DataCollectionsApiClient> logger) : base(httpClientFactory, configuration, hostingEnvironment)
         {
             _configuration = configuration;
             _tokenService = tokenService;
+            _apiRetryPolicies = apiRetryPolicies;
+            _logger = logger;
         }
 
         protected override async Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
         {
-            var accessToken = await GetDataCollectionsApiAccessToken();
-            if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
+            await RetrieveAuthenticationToken(httpRequestMessage);
+        }
+
+        private async Task RetrieveAuthenticationToken(HttpRequestMessage httpRequestMessage)
+        {
+            var policy = await _apiRetryPolicies.GetRetrievalRetryPolicy();
+            await policy.ExecuteAsync(async () =>
             {
-                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
-            }
+                _logger.LogInformation($"{nameof(DataCollectionsApiClient)}: Getting access token...");
+                var accessToken = await GetDataCollectionsApiAccessToken();
+                if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
+                {
+                    httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
+                }
+            });
         }
 
         private async Task<AuthResult> GetDataCollectionsApiAccessToken()

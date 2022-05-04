@@ -1,7 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -20,6 +22,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
         private Data.Models.EmploymentCheck _employmentCheck;
+        private Mock<IHmrcApiOptionsRepository> _rateLimiterRepositoryMock;
+        private HmrcApiRateLimiterOptions _settings;
 
         [SetUp]
         public void SetUp()
@@ -30,9 +34,29 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>();
             _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
 
+            _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+
+            _settings = new HmrcApiRateLimiterOptions
+            {
+                DelayInMs = 0,
+                MinimumUpdatePeriodInDays = 0,
+                TooManyRequestsRetryCount = 10,
+                TransientErrorRetryCount = 2,
+                TransientErrorDelayInMs = 1,
+                TokenFailureRetryDelayInMs = 0
+            };
+
+            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_settings);
+
+            var retryPolicies = new ApiRetryPolicies(
+                Mock.Of<ILogger<ApiRetryPolicies>>(),
+                _rateLimiterRepositoryMock.Object);
+
             _sut = new LearnerService(
                 _apiClientMock.Object,
-                _repositoryMock.Object
+                _repositoryMock.Object,
+                retryPolicies,
+                Mock.Of<ILogger<LearnerService>>()
             );
         }
 

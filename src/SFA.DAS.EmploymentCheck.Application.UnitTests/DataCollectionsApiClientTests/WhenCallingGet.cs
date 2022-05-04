@@ -1,11 +1,14 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System.Net;
 using System.Net.Http;
@@ -26,6 +29,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
         private HttpClient _httpClient;
         private string _absoluteUrl;
         private HttpResponseMessage _response;
+        private HmrcApiRateLimiterOptions _settings;
+        private Mock<IHmrcApiOptionsRepository> _rateLimiterRepositoryMock;
 
         [SetUp]
         public void SetUp()
@@ -64,11 +69,32 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             hostingEnvironment.Setup(x => x.EnvironmentName).Returns("Staging");
 
+            _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+
+            _settings = new HmrcApiRateLimiterOptions
+            {
+                DelayInMs = 0,
+                MinimumUpdatePeriodInDays = 0,
+                TooManyRequestsRetryCount = 10,
+                TransientErrorRetryCount = 2,
+                TransientErrorDelayInMs = 1,
+                TokenFailureRetryDelayInMs = 0
+            };
+
+            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_settings);
+
+            var retryPolicies = new ApiRetryPolicies(
+                Mock.Of<ILogger<ApiRetryPolicies>>(),
+                _rateLimiterRepositoryMock.Object);
+
             _sut = new DataCollectionsApiClient(
                 clientFactory.Object,
                 _configuration,
                 hostingEnvironment.Object,
-                _tokenServiceMock.Object);
+                _tokenServiceMock.Object,
+                retryPolicies,
+                Mock.Of<ILogger<DataCollectionsApiClient>>()
+                );
         }
 
         [Test]

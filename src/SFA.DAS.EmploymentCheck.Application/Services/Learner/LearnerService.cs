@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -16,14 +17,20 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
     {
         private readonly IDataCollectionsApiClient<DataCollectionsApiConfiguration> _apiClient;
         private readonly IDataCollectionsResponseRepository _repository;
+        private readonly IApiRetryPolicies _apiRetryPolicies;
+        private readonly ILogger<LearnerService> _logger;
 
         public LearnerService(
             IDataCollectionsApiClient<DataCollectionsApiConfiguration> apiClient,
-            IDataCollectionsResponseRepository repository
+            IDataCollectionsResponseRepository repository,
+            IApiRetryPolicies apiRetryPolicies,
+            ILogger<LearnerService> logger
         )
         {
             _apiClient = apiClient;
             _repository = repository;
+            _apiRetryPolicies = apiRetryPolicies;
+            _logger = logger;
         }
 
         public async Task<LearnerNiNumber> GetDbNiNumber(Data.Models.EmploymentCheck employmentCheck)
@@ -41,10 +48,18 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
         {
             try
             {
+                var policy = await _apiRetryPolicies.GetRetrievalRetryPolicy();
                 var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
-                var response = await _apiClient.Get(request);
+                HttpResponseMessage response = null;
+                await policy.ExecuteAsync(async () =>
+                {
+                    _logger.LogInformation($"{nameof(LearnerService)}: Refreshing access token...");
+                    response = await _apiClient.Get(request);
+
+                });
 
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
+
             }
             catch (Exception e)
             {
