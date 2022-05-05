@@ -6,6 +6,7 @@ using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Wrap;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
@@ -14,10 +15,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
     public class ApiRetryPolicies : IApiRetryPolicies
     {
         private readonly ILogger<ApiRetryPolicies> _logger;
-        private readonly IHmrcApiOptionsRepository _optionsRepository;
-        private HmrcApiRateLimiterOptions _settings;
+        private readonly IApiOptionsRepository _optionsRepository;
+        private ApiRetryOptions _settings;
         public ApiRetryPolicies(ILogger<ApiRetryPolicies> logger,
-            IHmrcApiOptionsRepository optionsRepository)
+            IApiOptionsRepository optionsRepository)
         {
             _logger = logger;
             _optionsRepository = optionsRepository; 
@@ -25,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
 
         public async Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry)
         {
-            _settings = await _optionsRepository.GetHmrcRateLimiterOptions();
+            _settings = await _optionsRepository.GetOptions();
 
             var tooManyRequestsApiHttpExceptionRetryPolicy = Policy
                 .Handle<ApiHttpException>(e =>
@@ -79,14 +80,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
 
         private TimeSpan GetDelayAdjustmentInterval(int arg)
         {
-            _settings = _optionsRepository.GetHmrcRateLimiterOptions().Result;
+            _settings = _optionsRepository.GetOptions().Result;
 
             return TimeSpan.FromMilliseconds(_settings.DelayInMs);
         }
 
         public async Task<AsyncPolicy> GetRetrievalRetryPolicy()
         {
-            _settings = await _optionsRepository.GetHmrcRateLimiterOptions();
+            _settings = await _optionsRepository.GetOptions();
 
             return await Task.FromResult<AsyncPolicy>(Policy
                 .Handle<Exception>()

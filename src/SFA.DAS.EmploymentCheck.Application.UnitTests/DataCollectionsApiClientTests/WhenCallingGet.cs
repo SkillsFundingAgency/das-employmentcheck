@@ -29,8 +29,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
         private HttpClient _httpClient;
         private string _absoluteUrl;
         private HttpResponseMessage _response;
-        private HmrcApiRateLimiterOptions _settings;
-        private Mock<IHmrcApiOptionsRepository> _rateLimiterRepositoryMock;
+        private ApiRetryOptions _settings;
+        private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
 
         [SetUp]
         public void SetUp()
@@ -69,9 +69,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             hostingEnvironment.Setup(x => x.EnvironmentName).Returns("Staging");
 
-            _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+            _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
-            _settings = new HmrcApiRateLimiterOptions
+            _settings = new ApiRetryOptions
             {
                 DelayInMs = 0,
                 MinimumUpdatePeriodInDays = 0,
@@ -81,11 +81,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 TokenFailureRetryDelayInMs = 0
             };
 
-            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_settings);
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).ReturnsAsync(_settings);
 
             var retryPolicies = new ApiRetryPolicies(
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
-                _rateLimiterRepositoryMock.Object);
+                _apiOptionsRepositoryMock.Object);
 
             _sut = new DataCollectionsApiClient(
                 clientFactory.Object,

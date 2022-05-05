@@ -22,8 +22,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
         private Data.Models.EmploymentCheck _employmentCheck;
-        private Mock<IHmrcApiOptionsRepository> _rateLimiterRepositoryMock;
-        private HmrcApiRateLimiterOptions _settings;
+        private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
+        private ApiRetryOptions _settings;
 
         [SetUp]
         public void SetUp()
@@ -34,9 +34,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>();
             _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
 
-            _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+            _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
-            _settings = new HmrcApiRateLimiterOptions
+            _settings = new ApiRetryOptions
             {
                 DelayInMs = 0,
                 MinimumUpdatePeriodInDays = 0,
@@ -46,11 +46,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 TokenFailureRetryDelayInMs = 0
             };
 
-            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_settings);
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).ReturnsAsync(_settings);
 
             var retryPolicies = new ApiRetryPolicies(
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
-                _rateLimiterRepositoryMock.Object);
+                _apiOptionsRepositoryMock.Object);
 
             _sut = new LearnerService(
                 _apiClientMock.Object,

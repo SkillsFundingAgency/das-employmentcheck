@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
-                var hmrcApiRateLimiterConfiguration = new HmrcApiRateLimiterConfiguration
+                var hmrcApiRateLimiterConfiguration = new ApiConnectionConfiguration
                 {
                     EnvironmentName = environmentName,
                     StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
@@ -40,6 +40,18 @@ namespace SFA.DAS.EmploymentCheck.Functions
                         "UseDevelopmentStorage=true",
                 };
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
+            });
+
+            serviceCollection.AddSingleton<IApiOptionsRepository>(s =>
+            {
+                var apiConfiguration = new ApiConnectionConfiguration
+                {
+                    EnvironmentName = environmentName,
+                    StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
+                        Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
+                        "UseDevelopmentStorage=true",
+                };
+                return new ApiOptionsRepository(apiConfiguration, s.GetService<ILogger<ApiOptionsRepository>>());
             });
 
             serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();

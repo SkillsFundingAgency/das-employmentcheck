@@ -13,11 +13,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
     {
         private const string RowKey = "HmrcApiRateLimiterOptions";
         private const string StorageTableName = "EmploymentCheckHmrcApiRateLimiterOptions";
-        private readonly HmrcApiRateLimiterConfiguration _rateLimiterConfiguration;
+        private readonly ApiConnectionConfiguration _rateLimiterConfiguration;
         private readonly ILogger<HmrcApiOptionsRepository> _logger;
         private CloudTable _table;
 
-        public HmrcApiOptionsRepository(HmrcApiRateLimiterConfiguration options, ILogger<HmrcApiOptionsRepository> logger)
+        public HmrcApiOptionsRepository(ApiConnectionConfiguration options, ILogger<HmrcApiOptionsRepository> logger)
         {
             _rateLimiterConfiguration = options;
             _logger = logger;
