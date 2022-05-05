@@ -62,10 +62,10 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
                         switch (response.StatusCode)
                         {
                             case HttpStatusCode.Unauthorized:
-                                throw new Exception("StatusCode: 401 Unorthorised");
+                                throw new ArgumentException("StatusCode: 401 Unorthorised");
 
                             case HttpStatusCode.InternalServerError:
-                                throw new Exception("StatusCode: 500 Internal Server Error");
+                                throw new ArgumentException("StatusCode: 500 Internal Server Error");
                         }
                     }
                     

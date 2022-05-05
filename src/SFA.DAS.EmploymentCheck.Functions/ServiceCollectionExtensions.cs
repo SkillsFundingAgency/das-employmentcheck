@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                         Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
                         "UseDevelopmentStorage=true",
                 };
-                return new ApiOptionsRepository(apiConfiguration, s.GetService<ILogger<ApiOptionsRepository>>());
+                return new ApiOptionsRepository(apiConfiguration);
             });
 
             serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();

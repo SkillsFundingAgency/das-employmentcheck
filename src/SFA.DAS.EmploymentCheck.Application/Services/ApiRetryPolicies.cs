@@ -30,16 +30,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             var tooManyRequestsApiHttpExceptionRetryPolicy = Policy
                 .Handle<ApiHttpException>(e =>
                     e.HttpCode == (int)HttpStatusCode.TooManyRequests
-                )
-                .WaitAndRetryAsync(
-                    retryCount: _settings.TooManyRequestsRetryCount,
+                ).WaitAndRetry(
+                retryCount: _settings.TooManyRequestsRetryCount,
                     sleepDurationProvider: _ => TimeSpan.FromMilliseconds(0),
-                    onRetryAsync: async (exception, ts, retryNumber, context) =>
+                    onRetry: (exception, ts, retryNumber, context) =>
                     {
                         _logger.LogInformation(
                             $"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] TooManyRequests error occurred. Retry number {retryNumber}...");
-                    }
-                );
+                    });
 
             var unauthorizedAccessExceptionRetryPolicy = Policy
                 .Handle<UnauthorizedAccessException>()
@@ -72,7 +70,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                     }
                 );
 
-            return Policy.WrapAsync(tooManyRequestsApiHttpExceptionRetryPolicy, unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
+            Policy.Wrap(tooManyRequestsApiHttpExceptionRetryPolicy);
+
+            return Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
         }
 
         public async Task<AsyncPolicy> GetRetrievalRetryPolicy()

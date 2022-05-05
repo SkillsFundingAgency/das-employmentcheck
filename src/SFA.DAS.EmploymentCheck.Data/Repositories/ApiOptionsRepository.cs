@@ -14,13 +14,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         private const string RowKey = "ApiRetryOptions";
         private const string StorageTableName = "EmploymentCheckApiOptions";
         private readonly ApiConnectionConfiguration _apiConnectionConfiguration;
-        private readonly ILogger<ApiOptionsRepository> _logger;
         private CloudTable _table;
 
-        public ApiOptionsRepository(ApiConnectionConfiguration options, ILogger<ApiOptionsRepository> logger)
+        public ApiOptionsRepository(ApiConnectionConfiguration options)
         {
             _apiConnectionConfiguration = options;
-            _logger = logger;
         }
 
         private void InitTableStorage()
@@ -47,32 +45,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             return record ?? GetDefaultOptions();
         }
 
-        /*
-        public async Task IncreaseDelaySetting(ApiRetryOptions options)
-        {
-            options.DelayInMs += options.DelayAdjustmentIntervalInMs;
-            options.UpdateDateTime = DateTime.UtcNow;
-
-            _logger.LogInformation("[ApiOptionsRepository] Increasing DelayInMs setting to {0}ms", new { options.DelayInMs });
-
-            var operation = TableOperation.InsertOrReplace(options);
-            await GetTable().ExecuteAsync(operation);
-        }
-
-        public async Task ReduceDelaySetting(ApiRetryOptions options)
-        {
-            var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromDays(options.MinimumUpdatePeriodInDays)) return;
-
-            options.DelayInMs = Math.Max(0, options.DelayInMs - options.DelayAdjustmentIntervalInMs);
-            options.UpdateDateTime = DateTime.UtcNow;
-
-            _logger.LogInformation("[ApiOptionsRepository] Reducing DelayInMs setting to {0}ms", new { options.DelayInMs });
-
-            var operation = TableOperation.InsertOrReplace(options);
-            await GetTable().ExecuteAsync(operation);
-        }
-        */
         private ApiRetryOptions GetDefaultOptions()
         {
             return new ApiRetryOptions
