@@ -22,14 +22,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     [Binding]
     [Scope(Feature = "DataCollectionApiRetryTime")]
     public class DataCollectionApiRetryTimeStepDefinitions
-    {
-        private Data.Models.EmploymentCheck _checkCacheRequest;
+    { 
         private List<LearnerNiNumber> _dcApiResponse;
         private Data.Models.EmploymentCheck _check;
         private readonly TestContext _context;
         private int _statusCode = 0;
-        private DateTime _dtStart = DateTime.Now;
-        private DateTime _dtEnd = DateTime.Now;
+        private DateTime _dtStart = DateTime.MinValue;
+        private DateTime _dtEnd = DateTime.MaxValue;
 
         public DataCollectionApiRetryTimeStepDefinitions(TestContext context)
         {

@@ -22,8 +22,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     [Scope(Feature = "DataCollectionApiResponse")]
     public class DataCollectionApiResponseStepDefinitions
     {
-
-        private Data.Models.EmploymentCheck _checkCacheRequest;
         private List<LearnerNiNumber> _dcApiResponse;
         private Data.Models.EmploymentCheck _check;
         private readonly TestContext _context;
