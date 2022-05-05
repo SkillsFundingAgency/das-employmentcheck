@@ -16,19 +16,22 @@ using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using System;
 
+
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
-    [Scope(Feature = "DataCollectionApiResponse")]
-    public class DataCollectionApiResponseStepDefinitions
+    [Scope(Feature = "DataCollectionApiRetryTime")]
+    public class DataCollectionApiRetryTimeStepDefinitions
     {
-
         private Data.Models.EmploymentCheck _checkCacheRequest;
         private List<LearnerNiNumber> _dcApiResponse;
         private Data.Models.EmploymentCheck _check;
         private readonly TestContext _context;
+        private int _statusCode = 0;
+        private DateTime _dtStart = DateTime.Now;
+        private DateTime _dtEnd = DateTime.Now;
 
-        public DataCollectionApiResponseStepDefinitions(TestContext context)
+        public DataCollectionApiRetryTimeStepDefinitions(TestContext context)
         {
             _context = context;
         }
@@ -50,6 +53,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [When(@"DataCollection Api call returns (.*) status code")]
         public async Task WhenDataCollectionApiCallReturnsStatusCode(int statusCode)
         {
+            _dtStart = DateTime.Now;
+
+            _statusCode = statusCode;
             HttpStatusCode httpStatusCode = (HttpStatusCode)Enum.ToObject(typeof(HttpStatusCode), statusCode);
 
             _dcApiResponse = new List<LearnerNiNumber>
@@ -84,28 +90,19 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 "A running instance of the orchestrator detected. Manually delete it and retry.");
         }
 
-        [Then(@"the Api call with (.*) is retried (.*) times")]
-        public void ThenTheApiCallWithIsRetriedTimes(int statusCode, int noOfRetries)
+        [Then(@"then the Api has done (.*) retries within (.*) seconds")]
+        public void ThenThenTheApiHasDoneRetriesWithinSeconds(int retries, int withInTimeInSeconds)
         {
-            
+            _dtEnd = DateTime.Now;
+
             var logs = _context.DataCollectionsApi.MockServer.LogEntries
-               .Where(l => (int)l.ResponseMessage.StatusCode == statusCode)
+               .Where(l => (int)l.ResponseMessage.StatusCode == _statusCode)
                .ToList();
-            
-            switch(statusCode)
-            {
-                case 400:
-                case 404:
-                    logs.Should().HaveCount(noOfRetries + 1);
-                    break;
 
-                default:
-                    logs.Should().HaveCount(noOfRetries);
-                    break;
-            }
+            TimeSpan ts = _dtEnd - _dtStart;
+
+            logs.Should().HaveCount(retries);
+            ts.Seconds.Should().BeLessThan(withInTimeInSeconds);
         }
-
-
-        
     }
 }

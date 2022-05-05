@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Boxed.AspNetCore;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -55,11 +56,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                 );
 
             var apiHttpExceptionRetryPolicy = Policy
-                .Handle<ApiHttpException>(e =>
-                    e.HttpCode != (int)HttpStatusCode.BadRequest &&
-                    e.HttpCode != (int)HttpStatusCode.Forbidden &&
-                    e.HttpCode != (int)HttpStatusCode.NotFound &&
-                    e.HttpCode != (int)HttpStatusCode.TooManyRequests
+                .Handle<HttpException>(e =>
+                    e.StatusCode != (int)HttpStatusCode.BadRequest &&
+                    e.StatusCode != (int)HttpStatusCode.Forbidden &&
+                    e.StatusCode != (int)HttpStatusCode.NotFound &&
+                    e.StatusCode != (int)HttpStatusCode.TooManyRequests
                 )
                 .WaitAndRetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,

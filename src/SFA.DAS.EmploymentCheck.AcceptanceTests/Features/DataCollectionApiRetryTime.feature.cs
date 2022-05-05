@@ -20,22 +20,22 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("DataCollectionApiResponse")]
-    public partial class DataCollectionApiResponseFeature
+    [NUnit.Framework.DescriptionAttribute("DataCollectionApiRetryTime")]
+    public partial class DataCollectionApiRetryTimeFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-#line 1 "DataCollectionApiResponse.feature"
+#line 1 "DataCollectionApiRetryTime.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "DataCollectionApiResponse", "\t\tWhat application should do when a certain response is returned", ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "DataCollectionApiRetryTime", "\tWhen application needs to retry it should be done within a certain time span", ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -74,19 +74,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("DataCollection Api returns unsuccessful status code")]
-        [NUnit.Framework.TestCaseAttribute("401", "3", null)]
-        [NUnit.Framework.TestCaseAttribute("500", "3", null)]
-        [NUnit.Framework.TestCaseAttribute("400", "0", null)]
-        [NUnit.Framework.TestCaseAttribute("404", "0", null)]
-        public void DataCollectionApiReturnsUnsuccessfulStatusCode(string statusCode, string retryCount, string[] exampleTags)
+        [NUnit.Framework.DescriptionAttribute("DataCollection Api returns status code where retry is required")]
+        public void DataCollectionApiReturnsStatusCodeWhereRetryIsRequired()
         {
-            string[] tagsOfScenario = exampleTags;
+            string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("StatusCode", statusCode);
-            argumentsOfScenario.Add("RetryCount", retryCount);
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("DataCollection Api returns unsuccessful status code", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 4
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("DataCollection Api returns status code where retry is required", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 5
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -96,14 +90,14 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 5
+#line 6
  testRunner.Given("an employment check cache request", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 6
- testRunner.When(string.Format("DataCollection Api call returns {0} status code", statusCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line hidden
 #line 7
- testRunner.Then(string.Format("the Api call with {0} is retried {1} times", statusCode, retryCount), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.When("DataCollection Api call returns 500 status code", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 8
+ testRunner.Then("then the Api has done 3 retries within 30 seconds", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

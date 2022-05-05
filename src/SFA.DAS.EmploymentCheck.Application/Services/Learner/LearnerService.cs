@@ -56,6 +56,16 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
                     _logger.LogInformation($"{nameof(LearnerService)}: Refreshing access token...");
                     response = await _apiClient.Get(request);
 
+                    //Added so that the Policy Acceptance Tests are correct
+                    switch(response.StatusCode)
+                    {
+                        case HttpStatusCode.Unauthorized:
+                            throw new Exception("StatusCode: 401 Unorthorised");
+
+                        case HttpStatusCode.InternalServerError:
+                            throw new Exception("StatusCode: 500 Internal Server Error");
+                    }
+
                 });
 
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
