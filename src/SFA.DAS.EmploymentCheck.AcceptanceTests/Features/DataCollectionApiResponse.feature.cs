@@ -105,6 +105,9 @@ this.ScenarioInitialize(scenarioInfo);
 #line 7
  testRunner.Then(string.Format("the Api call with {0} is retried {1} times", statusCode, retryCount), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
+#line 8
+ testRunner.And(string.Format("the error response and {0} are persisted", statusCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
             }
             this.ScenarioCleanup();
         }

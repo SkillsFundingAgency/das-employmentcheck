@@ -5,6 +5,7 @@ Scenario: DataCollection Api returns unsuccessful status code
 	Given an employment check cache request
 	When DataCollection Api call returns <StatusCode> status code 
 	Then the Api call with <StatusCode> is retried <RetryCount> times
+	And the error response and <StatusCode> are persisted
 
 Examples: 
  | StatusCode | RetryCount |

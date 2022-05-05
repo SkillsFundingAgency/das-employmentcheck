@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Boxed.AspNetCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -46,34 +47,27 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
         public async Task<LearnerNiNumber> GetNiNumber(Data.Models.EmploymentCheck employmentCheck)
         {
+            HttpResponseMessage response = null;
+
             try
             {
-                var policy = await _apiRetryPolicies.GetRetrievalRetryPolicy();
+                var policy = await _apiRetryPolicies.GetAll();
                 var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
-                HttpResponseMessage response = null;
+                
                 await policy.ExecuteAsync(async () =>
                 {
                     _logger.LogInformation($"{nameof(LearnerService)}: Refreshing access token...");
                     response = await _apiClient.Get(request);
-
-                    //Added so that the Policy Acceptance Tests are correct
-                    if (response != null)
-                    {
-                        switch (response.StatusCode)
-                        {
-                            case HttpStatusCode.Unauthorized:
-                                throw new ArgumentException("StatusCode: 401 Unorthorised");
-
-                            case HttpStatusCode.InternalServerError:
-                                throw new ArgumentException("StatusCode: 500 Internal Server Error");
-                        }
-                    }
-                    
+                    if (response != null && !response.IsSuccessStatusCode) throw new HttpException(response.StatusCode);
 
                 });
 
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
 
+            }
+            catch (HttpException)
+            {
+                return await ProcessNiNumberFromApiResponse(employmentCheck, response);
             }
             catch (Exception e)
             {
@@ -100,15 +94,23 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             {
                 await Save(response);
             }
-
+            
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var learnerNiNumber = DeserialiseContent(jsonContent, response);
 
-            response.SetNiNumber(learnerNiNumber?.NiNumber);
+            try
+            {
+                var learnerNiNumber = DeserialiseContent(jsonContent, response);
 
-            await Save(response);
+                response.SetNiNumber(learnerNiNumber?.NiNumber);
 
-            return learnerNiNumber;
+                await Save(response);
+
+                return learnerNiNumber;
+            }
+            catch (Exception)
+            {
+                return new LearnerNiNumber(response.Uln, response.NiNumber, (HttpStatusCode)response.HttpStatusCode);
+            }
         }
 
         private static DataCollectionsResponse CreateResponseModel(Data.Models.EmploymentCheck employmentCheck, string httpResponseMessage = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)

@@ -1,5 +1,4 @@
 ﻿using Boxed.AspNetCore;
-using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Wrap;
@@ -23,21 +22,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             _optionsRepository = optionsRepository; 
         }
 
-        public async Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry)
+        public async Task<AsyncPolicyWrap> GetAll()
         {
             _settings = await _optionsRepository.GetOptions();
-
-            var tooManyRequestsApiHttpExceptionRetryPolicy = Policy
-                .Handle<ApiHttpException>(e =>
-                    e.HttpCode == (int)HttpStatusCode.TooManyRequests
-                ).WaitAndRetry(
-                retryCount: _settings.TooManyRequestsRetryCount,
-                    sleepDurationProvider: _ => TimeSpan.FromMilliseconds(0),
-                    onRetry: (exception, ts, retryNumber, context) =>
-                    {
-                        _logger.LogInformation(
-                            $"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] TooManyRequests error occurred. Retry number {retryNumber}...");
-                    });
 
             var unauthorizedAccessExceptionRetryPolicy = Policy
                 .Handle<UnauthorizedAccessException>()
@@ -46,17 +33,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                     onRetryAsync: async (exception, retryNumber, context) =>
                     {
                         _logger.LogInformation($"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] UnauthorizedAccessException occurred. Retrying...");
-
-                        await onRetry();
                     }
                 );
 
             var apiHttpExceptionRetryPolicy = Policy
                 .Handle<HttpException>(e =>
                     e.StatusCode != (int)HttpStatusCode.BadRequest &&
-                    e.StatusCode != (int)HttpStatusCode.Forbidden &&
-                    e.StatusCode != (int)HttpStatusCode.NotFound &&
-                    e.StatusCode != (int)HttpStatusCode.TooManyRequests
+                    e.StatusCode != (int)HttpStatusCode.NotFound
                 )
                 .WaitAndRetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,
@@ -65,12 +48,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                     {
                         _logger.LogInformation(
                             $"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TransientErrorRetryCount}] ApiHttpException occurred. $[{exception}]. Retrying...");
-
-                        await onRetry();
                     }
                 );
-
-            Policy.Wrap(tooManyRequestsApiHttpExceptionRetryPolicy);
 
             return Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
         }

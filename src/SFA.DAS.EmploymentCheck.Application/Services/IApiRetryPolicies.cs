@@ -7,7 +7,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
 {
     public interface IApiRetryPolicies
     {
-        Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry);
+        Task<AsyncPolicyWrap> GetAll();
         Task<AsyncPolicy> GetRetrievalRetryPolicy();
     }
 }

@@ -181,9 +181,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync(httpResponse);
-
-            // Act
-            await _sut.GetNiNumber(_employmentCheck);
+            
+                // Act
+                await _sut.GetNiNumber(_employmentCheck);
+            
+            
 
             // Assert
             _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(

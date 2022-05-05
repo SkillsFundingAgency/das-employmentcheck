@@ -83,27 +83,23 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         }
 
         [Then(@"the Api call with (.*) is retried (.*) times")]
-        public void ThenTheApiCallWithIsRetriedTimes(int statusCode, int noOfRetries)
+        public void ThenTheApiCallWithIsRetriedTimes(short statusCode, int noOfRetries)
         {
-            
             var logs = _context.DataCollectionsApi.MockServer.LogEntries
                .Where(l => (int)l.ResponseMessage.StatusCode == statusCode)
                .ToList();
-            
-            switch(statusCode)
-            {
-                case 400:
-                case 404:
-                    logs.Should().HaveCount(noOfRetries + 1);
-                    break;
 
-                default:
-                    logs.Should().HaveCount(noOfRetries);
-                    break;
-            }
+            logs.Should().HaveCount(noOfRetries + 1);
+
         }
 
-
-        
+        [Then(@"the error response and (.*) are persisted")]
+        public async Task ThenTheErrorResponseAndArePersistedAsync(short statusCode)
+        {
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var result = (await dbConnection.GetAllAsync<Data.Models.DataCollectionsResponse>()).SingleOrDefault(x => x.CorrelationId == _check.CorrelationId);
+            result.HttpStatusCode.Should().Be(statusCode);
+            result.HttpResponse.Should().NotBeNull();
+        }
     }
 }
