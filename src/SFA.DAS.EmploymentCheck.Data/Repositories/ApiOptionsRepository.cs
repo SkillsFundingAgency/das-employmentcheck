@@ -47,12 +47,13 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             return record ?? GetDefaultOptions();
         }
 
+        /*
         public async Task IncreaseDelaySetting(ApiRetryOptions options)
         {
             options.DelayInMs += options.DelayAdjustmentIntervalInMs;
             options.UpdateDateTime = DateTime.UtcNow;
 
-            _logger.LogInformation("[HmrcApiOptionsRepository] Increasing DelayInMs setting to {0}ms", new { options.DelayInMs });
+            _logger.LogInformation("[ApiOptionsRepository] Increasing DelayInMs setting to {0}ms", new { options.DelayInMs });
 
             var operation = TableOperation.InsertOrReplace(options);
             await GetTable().ExecuteAsync(operation);
@@ -66,12 +67,12 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             options.DelayInMs = Math.Max(0, options.DelayInMs - options.DelayAdjustmentIntervalInMs);
             options.UpdateDateTime = DateTime.UtcNow;
 
-            _logger.LogInformation("[HmrcApiOptionsRepository] Reducing DelayInMs setting to {0}ms", new { options.DelayInMs });
+            _logger.LogInformation("[ApiOptionsRepository] Reducing DelayInMs setting to {0}ms", new { options.DelayInMs });
 
             var operation = TableOperation.InsertOrReplace(options);
             await GetTable().ExecuteAsync(operation);
         }
-
+        */
         private ApiRetryOptions GetDefaultOptions()
         {
             return new ApiRetryOptions

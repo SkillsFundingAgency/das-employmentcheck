@@ -1,14 +1,13 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using Boxed.AspNetCore;
+﻿using Boxed.AspNetCore;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Wrap;
-using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services
 {
@@ -34,13 +33,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                 )
                 .WaitAndRetryAsync(
                     retryCount: _settings.TooManyRequestsRetryCount,
-                    sleepDurationProvider: GetDelayAdjustmentInterval,
+                    sleepDurationProvider: _ => TimeSpan.FromMilliseconds(0),
                     onRetryAsync: async (exception, ts, retryNumber, context) =>
                     {
                         _logger.LogInformation(
-                            $"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] TooManyRequests error occurred. Retrying after a delay of {_settings.DelayInMs}ms ...");
-
-                        await _optionsRepository.IncreaseDelaySetting(_settings);
+                            $"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] TooManyRequests error occurred. Retry number {retryNumber}...");
                     }
                 );
 
@@ -78,13 +75,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             return Policy.WrapAsync(tooManyRequestsApiHttpExceptionRetryPolicy, unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
         }
 
-        private TimeSpan GetDelayAdjustmentInterval(int arg)
-        {
-            _settings = _optionsRepository.GetOptions().Result;
-
-            return TimeSpan.FromMilliseconds(_settings.DelayInMs);
-        }
-
         public async Task<AsyncPolicy> GetRetrievalRetryPolicy()
         {
             _settings = await _optionsRepository.GetOptions();
@@ -93,7 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                 .Handle<Exception>()
                 .WaitAndRetryAsync(
                     retryCount: _settings.TokenRetrievalRetryCount,
-                    sleepDurationProvider: _ => TimeSpan.FromMilliseconds(_settings.TokenFailureRetryDelayInMs),
+                    sleepDurationProvider: _ => TimeSpan.FromMilliseconds(0),
                     onRetryAsync: (exception, ts, retryNumber, context) =>
                     {
                         _logger.LogInformation($"{nameof(ApiRetryPolicies)}: Exception occurred while retrieving token. Retrying ({retryNumber}/{_settings.TokenRetrievalRetryCount})... {exception}");
@@ -101,7 +91,5 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                     }
                 ));
         }
-
-        public async Task ReduceRetryDelay() => await _optionsRepository.ReduceDelaySetting(_settings);
     }
 }

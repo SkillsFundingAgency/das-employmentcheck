@@ -36,12 +36,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             _settings = new ApiRetryOptions
             {
-                DelayInMs = 0,
-                MinimumUpdatePeriodInDays = 0,
                 TooManyRequestsRetryCount = 10,
                 TransientErrorRetryCount = 2,
-                TransientErrorDelayInMs = 1,
-                TokenFailureRetryDelayInMs = 0
+                TransientErrorDelayInMs = 1
             };
 
             _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).ReturnsAsync(_settings);
