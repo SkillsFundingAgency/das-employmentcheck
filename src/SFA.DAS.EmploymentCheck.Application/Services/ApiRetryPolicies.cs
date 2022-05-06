@@ -30,7 +30,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                 .Handle<UnauthorizedAccessException>()
                 .RetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,
-                    onRetryAsync: async (exception, retryNumber, context) =>
+                    onRetry: (exception, retryNumber, context) =>
                     {
                         _logger.LogInformation($"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TooManyRequestsRetryCount}] UnauthorizedAccessException occurred. Retrying...");
                     }
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
                 .WaitAndRetryAsync(
                     retryCount: _settings.TransientErrorRetryCount,
                     sleepDurationProvider: _ => TimeSpan.FromMilliseconds(_settings.TransientErrorDelayInMs),
-                    onRetryAsync: async (exception, ts, retryNumber, context) =>
+                    onRetry: (exception, ts, retryNumber, context) =>
                     {
                         _logger.LogInformation(
                             $"{nameof(ApiRetryPolicies)}: [{retryNumber}/{_settings.TransientErrorRetryCount}] ApiHttpException occurred. $[{exception}]. Retrying...");
