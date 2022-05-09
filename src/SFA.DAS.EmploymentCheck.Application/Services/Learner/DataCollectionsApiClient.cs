@@ -38,16 +38,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
         private async Task RetrieveAuthenticationToken(HttpRequestMessage httpRequestMessage)
         {
-            var policy = await _apiRetryPolicies.GetTokenRetrievalRetryPolicy();
-            await policy.ExecuteAsync(async () =>
+            _logger.LogInformation($"{nameof(DataCollectionsApiClient)}: Getting access token...");
+            var accessToken = await GetDataCollectionsApiAccessToken();
+            if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
             {
-                _logger.LogInformation($"{nameof(DataCollectionsApiClient)}: Getting access token...");
-                var accessToken = await GetDataCollectionsApiAccessToken();
-                if (!HostingEnvironment.IsDevelopment() && !HttpClient.BaseAddress.IsLoopback)
-                {
-                    httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
-                }
-            });
+                httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.AccessToken);
+            }
         }
 
         private async Task<AuthResult> GetDataCollectionsApiAccessToken()

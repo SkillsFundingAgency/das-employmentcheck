@@ -54,21 +54,5 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             return Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
         }
 
-        public async Task<AsyncPolicy> GetTokenRetrievalRetryPolicy()
-        {
-            _settings = await _optionsRepository.GetOptions();
-
-            return await Task.FromResult<AsyncPolicy>(Policy
-                .Handle<Exception>()
-                .WaitAndRetryAsync(
-                    retryCount: _settings.TokenRetrievalRetryCount,
-                    sleepDurationProvider: _ => TimeSpan.FromMilliseconds(0),
-                    onRetryAsync: (exception, ts, retryNumber, context) =>
-                    {
-                        _logger.LogInformation($"{nameof(ApiRetryPolicies)}: Exception occurred while retrieving token. Retrying ({retryNumber}/{_settings.TokenRetrievalRetryCount})... {exception}");
-                        return Task.CompletedTask;
-                    }
-                ));
-        }
     }
 }
