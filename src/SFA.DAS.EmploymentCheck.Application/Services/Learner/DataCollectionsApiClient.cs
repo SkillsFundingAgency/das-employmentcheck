@@ -14,7 +14,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
     {
         private readonly DataCollectionsApiConfiguration _configuration;
         private readonly IDcTokenService _tokenService;
-        private readonly IApiRetryPolicies _apiRetryPolicies;
         private readonly ILogger<DataCollectionsApiClient> _logger;
 
         public DataCollectionsApiClient(
@@ -27,7 +26,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
         {
             _configuration = configuration;
             _tokenService = tokenService;
-            _apiRetryPolicies = apiRetryPolicies;
             _logger = logger;
         }
 
