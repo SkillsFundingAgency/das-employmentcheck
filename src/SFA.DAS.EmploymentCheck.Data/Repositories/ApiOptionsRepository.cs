@@ -11,10 +11,10 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
     {
         private const string RowKey = "ApiRetryOptions";
         private const string StorageTableName = "EmploymentCheckApiOptions";
-        private readonly ApiConnectionConfiguration _apiConnectionConfiguration;
+        private readonly AzureStorageConnectionConfiguration _apiConnectionConfiguration;
         private CloudTable _table;
 
-        public ApiOptionsRepository(ApiConnectionConfiguration options)
+        public ApiOptionsRepository(AzureStorageConnectionConfiguration options)
         {
             _apiConnectionConfiguration = options;
         }

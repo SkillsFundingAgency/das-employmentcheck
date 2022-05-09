@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
-                var hmrcApiRateLimiterConfiguration = new ApiConnectionConfiguration
+                var hmrcApiRateLimiterConfiguration = new AzureStorageConnectionConfiguration
                 {
                     EnvironmentName = environmentName,
                     StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddSingleton<IApiOptionsRepository>(s =>
             {
-                var apiConfiguration = new ApiConnectionConfiguration
+                var apiConfiguration = new AzureStorageConnectionConfiguration
                 {
                     EnvironmentName = environmentName,
                     StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?

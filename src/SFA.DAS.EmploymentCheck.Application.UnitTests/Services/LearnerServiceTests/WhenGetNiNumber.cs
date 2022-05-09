@@ -24,12 +24,14 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Data.Models.EmploymentCheck _employmentCheck;
         private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
         private ApiRetryOptions _settings;
+        private Mock<ILogger<LearnerService>> _logger;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
 
+            _logger = new Mock<ILogger<LearnerService>>();
             _apiClientMock = new Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>>();
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>();
             _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
@@ -53,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 _apiClientMock.Object,
                 _repositoryMock.Object,
                 retryPolicies,
-                Mock.Of<ILogger<LearnerService>>()
+                _logger.Object
             );
         }
 
@@ -233,6 +235,15 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                     )
                 )
                 , Times.Once());
+
+            _logger.Verify(m => m.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((object v, Type _) => v.ToString().Contains($"{nameof(LearnerService)}: Throwing exception for retry")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.AtMost(3));
+            
         }
 
         [Test]

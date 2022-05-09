@@ -15,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
         public void When_GetTable_CloudTableIsReturned()
         {
             //Arrange
-            ApiConnectionConfiguration options = new ApiConnectionConfiguration();
+            AzureStorageConnectionConfiguration options = new AzureStorageConnectionConfiguration();
             IApiOptionsRepository sut = new ApiOptionsRepository(options);
 
             //Act

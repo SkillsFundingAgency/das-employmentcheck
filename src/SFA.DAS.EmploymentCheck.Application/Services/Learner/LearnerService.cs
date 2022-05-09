@@ -60,6 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
                     response = await _apiClient.Get(request);
                     if (response != null && !response.IsSuccessStatusCode)
                     {
+                        _logger.LogInformation($"{nameof(LearnerService)}: Throwing exception for retry");
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                             throw new UnauthorizedAccessException();
 
