@@ -175,6 +175,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         [Test]
         [TestCase(HttpStatusCode.BadRequest)]
         [TestCase(HttpStatusCode.NotFound)]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
         public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response(HttpStatusCode httpStatusCode)
         {
             // Arrange
@@ -205,43 +207,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 , Times.Once());
         }
 
-        [Test]
-        [TestCase(HttpStatusCode.Unauthorized)]
-        [TestCase(HttpStatusCode.InternalServerError)]
-        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unauthorized_Or_InternalSerever_Response(HttpStatusCode httpStatusCode)
-        {
-            // Arrange
-            var httpResponse = new HttpResponseMessage
-            {
-                Content = new StringContent(_fixture.Create<string>()),
-                StatusCode = httpStatusCode
-            };
-
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
-                .ReturnsAsync(httpResponse);
-
-            // Act
-            await _sut.GetNiNumber(_employmentCheck);
-
-
-
-            // Assert
-            _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
-                        response => response.NiNumber == null
-                                    && response.Uln == _employmentCheck.Uln
-                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
-                                    && response.CorrelationId == _employmentCheck.CorrelationId
-                                    && response.HttpResponse == httpResponse.ToString()
-                                    && response.HttpStatusCode == (short)httpResponse.StatusCode
-                    )
-                )
-                , Times.Once());
-        }
-
+        
         [Test]
         [TestCase(HttpStatusCode.BadRequest)]
         [TestCase(HttpStatusCode.NotFound)]
-        public async Task Then_Error_Response_For_None_Transient_Errors_Is_Retried(HttpStatusCode httpStatusCode)
+        public async Task Then_Error_Response_For_None_Transient_Errors_Is_Not_Retried(HttpStatusCode httpStatusCode)
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
