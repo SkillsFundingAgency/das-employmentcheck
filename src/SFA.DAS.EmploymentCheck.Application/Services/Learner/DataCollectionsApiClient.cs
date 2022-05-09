@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
         private async Task RetrieveAuthenticationToken(HttpRequestMessage httpRequestMessage)
         {
-            var policy = await _apiRetryPolicies.GetRetrievalRetryPolicy();
+            var policy = await _apiRetryPolicies.GetTokenRetrievalRetryPolicy();
             await policy.ExecuteAsync(async () =>
             {
                 _logger.LogInformation($"{nameof(DataCollectionsApiClient)}: Getting access token...");

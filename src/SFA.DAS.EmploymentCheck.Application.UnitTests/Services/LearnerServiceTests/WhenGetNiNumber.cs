@@ -201,6 +201,41 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unauthorized_Or_InternalSerever_Response(HttpStatusCode httpStatusCode)
+        {
+            //This response will retry using the Settings.TokenRetrievalRetryCount
+
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(_fixture.Create<string>()),
+                StatusCode = httpStatusCode
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            await _sut.GetNiNumber(_employmentCheck);
+
+
+
+            // Assert
+            _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
+                        response => response.NiNumber == null
+                                    && response.Uln == _employmentCheck.Uln
+                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
+                                    && response.CorrelationId == _employmentCheck.CorrelationId
+                                    && response.HttpResponse == httpResponse.ToString()
+                                    && response.HttpStatusCode == (short)httpResponse.StatusCode
+                    )
+                )
+                , Times.Once());
+        }
+
+        [Test]
         public async Task Then_LearnerNiNumber_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
         {
             // Arrange

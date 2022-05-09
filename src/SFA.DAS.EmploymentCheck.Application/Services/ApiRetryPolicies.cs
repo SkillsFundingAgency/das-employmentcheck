@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             return Policy.WrapAsync(unauthorizedAccessExceptionRetryPolicy, apiHttpExceptionRetryPolicy);
         }
 
-        public async Task<AsyncPolicy> GetRetrievalRetryPolicy()
+        public async Task<AsyncPolicy> GetTokenRetrievalRetryPolicy()
         {
             _settings = await _optionsRepository.GetOptions();
 
