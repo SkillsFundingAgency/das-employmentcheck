@@ -242,7 +242,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                     It.Is<It.IsAnyType>((object v, Type _) => v.ToString().Contains($"{nameof(LearnerService)}: Throwing exception for retry")),
                     It.IsAny<Exception>(),
                     (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.AtMost(3));
+                Times.Exactly(3));
             
         }
 
