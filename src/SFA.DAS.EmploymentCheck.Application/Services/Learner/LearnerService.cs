@@ -56,11 +56,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
                 
                 await policy.ExecuteAsync(async () =>
                 {
-                    _logger.LogInformation($"{nameof(LearnerService)}: Refreshing access token...");
                     response = await _apiClient.Get(request);
                     if (response != null && !response.IsSuccessStatusCode)
                     {
-                        _logger.LogInformation($"{nameof(LearnerService)}: Throwing exception for retry");
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                             throw new UnauthorizedAccessException();
 

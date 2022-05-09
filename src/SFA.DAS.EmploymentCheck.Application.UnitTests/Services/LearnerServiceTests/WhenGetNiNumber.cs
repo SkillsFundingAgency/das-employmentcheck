@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -172,13 +173,15 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response()
+        [TestCase(HttpStatusCode.BadRequest)]
+        [TestCase(HttpStatusCode.NotFound)]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response(HttpStatusCode httpStatusCode)
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
                 Content = new StringContent(_fixture.Create<string>()),
-                StatusCode = HttpStatusCode.BadRequest
+                StatusCode = httpStatusCode
             };
 
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
@@ -207,8 +210,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         [TestCase(HttpStatusCode.InternalServerError)]
         public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unauthorized_Or_InternalSerever_Response(HttpStatusCode httpStatusCode)
         {
-            //This response will retry using the Settings.TokenRetrievalRetryCount
-
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
@@ -235,15 +236,52 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                     )
                 )
                 , Times.Once());
+        }
 
-            _logger.Verify(m => m.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((object v, Type _) => v.ToString().Contains($"{nameof(LearnerService)}: Throwing exception for retry")),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-                Times.Exactly(3));
-            
+        [Test]
+        [TestCase(HttpStatusCode.BadRequest)]
+        [TestCase(HttpStatusCode.NotFound)]
+        public async Task Then_Error_Response_For_None_Transient_Errors_Is_Retried(HttpStatusCode httpStatusCode)
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(_fixture.Create<string>()),
+                StatusCode = httpStatusCode
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            _apiClientMock.Verify(x => x.Get(It.IsAny<IGetApiRequest>()), Times.Exactly(1));
+
+        }
+
+        [Test]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
+        public async Task Then_Error_Response_For_Transient_Errors_Is_Retried(HttpStatusCode httpStatusCode)
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(_fixture.Create<string>()),
+                StatusCode = httpStatusCode
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            await _sut.GetNiNumber(_employmentCheck);
+
+            // Assert
+            _apiClientMock.Verify(x =>  x.Get(It.IsAny<IGetApiRequest>()), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+
         }
 
         [Test]
