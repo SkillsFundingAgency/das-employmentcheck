@@ -22,9 +22,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             _optionsRepository = optionsRepository; 
         }
 
-        public async Task<AsyncPolicyWrap> GetAll()
+        public async Task<AsyncPolicyWrap> GetAll(string rowKey)
         {
-            _settings = await _optionsRepository.GetOptions();
+            _settings = await _optionsRepository.GetOptions(rowKey);
 
             var unauthorizedAccessExceptionRetryPolicy = Policy
                 .Handle<UnauthorizedAccessException>()

@@ -5,6 +5,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces
 {
     public interface IApiOptionsRepository
     {
-        Task<ApiRetryOptions> GetOptions();
+        Task<ApiRetryOptions> GetOptions(string rowKey = "ApiRetryOptions");
     }
 }

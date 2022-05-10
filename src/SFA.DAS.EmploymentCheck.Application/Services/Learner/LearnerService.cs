@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
             try
             {
-                var policy = await _apiRetryPolicies.GetAll();
+                var policy = await _apiRetryPolicies.GetAll("LearnerApiKey");
                 var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
                 
                 await policy.ExecuteAsync(async () =>

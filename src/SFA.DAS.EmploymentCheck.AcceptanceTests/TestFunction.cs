@@ -138,7 +138,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
         {
             var mock = new Mock<IApiOptionsRepository>();
-            mock.Setup(_ => _.GetOptions())
+            mock.Setup(_ => _.GetOptions(It.IsAny<string>()))
                 .ReturnsAsync(new ApiRetryOptions
                 {
                     TransientErrorDelayInMs = 0

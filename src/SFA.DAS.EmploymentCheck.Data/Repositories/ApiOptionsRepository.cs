@@ -9,7 +9,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
     public class ApiOptionsRepository : IApiOptionsRepository
     {
-        private const string RowKey = "ApiRetryOptions";
+        //private const string RowKey = "ApiRetryOptions";
         private const string StorageTableName = "EmploymentCheckApiOptions";
         private readonly AzureStorageConnectionConfiguration _apiConnectionConfiguration;
         private CloudTable _table;
@@ -33,21 +33,21 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             return _table;
         }
 
-        public async Task<ApiRetryOptions> GetOptions()
+        public async Task<ApiRetryOptions> GetOptions(string rowKey = "ApiRetryOptions")
         {
             var query = new TableQuery<ApiRetryOptions>();
             var queryResult = await GetTable().ExecuteQuerySegmentedAsync(query, null);
             var record = queryResult.Results.SingleOrDefault(
-                r => r.RowKey == RowKey && r.PartitionKey == _apiConnectionConfiguration.EnvironmentName);
+                r => r.RowKey == rowKey && r.PartitionKey == _apiConnectionConfiguration.EnvironmentName);
 
-            return record ?? GetDefaultOptions();
+            return record ?? GetDefaultOptions(rowKey);
         }
 
-        private ApiRetryOptions GetDefaultOptions()
+        private ApiRetryOptions GetDefaultOptions(string rowKey)
         {
             return new ApiRetryOptions
             {
-                RowKey = RowKey,
+                RowKey = rowKey,
                 PartitionKey = _apiConnectionConfiguration.EnvironmentName,
             };
         }

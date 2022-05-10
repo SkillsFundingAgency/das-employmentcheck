@@ -1,9 +1,11 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -26,6 +28,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         private Mock<IHashingService> _hashingServiceMock;
         private Data.Models.EmploymentCheck _employmentCheck;
         private string _hashedAccountId;
+        private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
+        private ApiRetryOptions _settings;
 
         [SetUp]
         public void SetUp()
@@ -39,10 +43,26 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             _hashedAccountId = _fixture.Create<string>();
             _hashingServiceMock.Setup(_ => _.HashValue(_employmentCheck.AccountId)).Returns(_hashedAccountId);
 
+            _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
+
+            _settings = new ApiRetryOptions
+            {
+                TooManyRequestsRetryCount = 10,
+                TransientErrorRetryCount = 2,
+                TransientErrorDelayInMs = 1
+            };
+
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions(It.IsAny<string>())).ReturnsAsync(_settings);
+
+            var retryPolicies = new ApiRetryPolicies(
+                Mock.Of<ILogger<ApiRetryPolicies>>(),
+                _apiOptionsRepositoryMock.Object);
+
             _sut = new EmployerAccountService(
                 _hashingServiceMock.Object,
                 _repositoryMock.Object,
-                _apiClientMock.Object
+                _apiClientMock.Object,
+                retryPolicies
             );
         }
 
