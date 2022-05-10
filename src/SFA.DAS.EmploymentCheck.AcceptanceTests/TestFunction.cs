@@ -97,6 +97,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
                         s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);
                         s.AddSingleton(typeof(IHmrcApiOptionsRepository), CreateHmrcApiOptionsRepository().Object);
+                        s.AddSingleton(typeof(IApiOptionsRepository), CreateApiOptionsRepository().Object);
                     })
                 )
                 .Build();
@@ -129,6 +130,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 {
                     DelayInMs = 0,
                     TokenFailureRetryDelayInMs = 0,
+                    TransientErrorDelayInMs = 0
+                });
+            return mock;
+        }
+
+        private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
+        {
+            var mock = new Mock<IApiOptionsRepository>();
+            mock.Setup(_ => _.GetOptions())
+                .ReturnsAsync(new ApiRetryOptions
+                {
                     TransientErrorDelayInMs = 0
                 });
             return mock;

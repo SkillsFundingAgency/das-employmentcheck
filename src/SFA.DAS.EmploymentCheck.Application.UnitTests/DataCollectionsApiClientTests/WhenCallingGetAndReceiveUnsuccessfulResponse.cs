@@ -1,23 +1,23 @@
 ﻿using AutoFixture;
+using Boxed.AspNetCore;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClientTests
 {
-    public class WhenCallingGet
+    public class WhenCallingGetAndReceiveUnsuccessfulResponse
     {
         private DataCollectionsApiClient _sut;
         private Fixture _fixture;
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
             _response = new HttpResponseMessage
             {
                 Content = new StringContent(""),
-                StatusCode = HttpStatusCode.OK
+                StatusCode = HttpStatusCode.BadRequest
             };
 
             _token = _fixture.Create<AuthResult>();
@@ -95,50 +95,13 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
         }
 
         [Test]
-        public async Task Then_The_Endpoint_Is_Called()
+        public void Then_the_response_is_returned()
         {
             // Act
-            await _sut.Get(_request);
+            Func<Task> action = async () => { await _sut.Get(_request); };
 
-            // Assert
-            _httpMessageHandler.Protected()
-                .Verify<Task<HttpResponseMessage>>(
-                    "SendAsync", Times.Once(),
-                    ItExpr.Is<HttpRequestMessage>(
-                        c =>
-                            c.Method.Equals(HttpMethod.Get)
-                            && c.RequestUri.AbsoluteUri.Equals(_absoluteUrl)
-                            && c.Headers.Authorization.Scheme.Equals("Bearer")
-                            && c.Headers.Authorization.Parameter.Equals(_token.AccessToken)
-                    ),
-                    ItExpr.IsAny<CancellationToken>()
-                );
-        }
-
-        [Test]
-        public async Task Then_The_TokenService_Is_Called()
-        {
-            // Act
-            await _sut.Get(_request);
-
-            // Assert
-            _tokenServiceMock.Verify(_ => _.GetTokenAsync(
-                $"https://login.microsoftonline.com/{_configuration.Tenant}",
-                "client_credentials",
-                _configuration.ClientSecret,
-                _configuration.ClientId,
-                _configuration.IdentifierUri
-            ), Times.Once);
-        }
-
-        [Test]
-        public async Task Then_the_response_is_returned()
-        {
-            // Act
-            var actual = await _sut.Get(_request);
-
-            // Assert
-            actual.Should().BeEquivalentTo(_response);
+            // Asserts
+            action.Should().ThrowAsync<HttpException>();
         }
     }
 }
