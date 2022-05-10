@@ -20,22 +20,23 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("AccountsApiRetryTime")]
-    public partial class AccountsApiRetryTimeFeature
+    [NUnit.Framework.DescriptionAttribute("EmployerAccountApiResponse")]
+    public partial class EmployerAccountApiResponseFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-#line 1 "AccountsApiRetryTime.feature"
+#line 1 "EmployerAccountApiResponse.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "AccountsApiRetryTime", "\tWhen application needs to retry it should be done within a certain time span", ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "EmployerAccountApiResponse", "\t\tWhat application should do when an unsuccessful response is returned from accou" +
+                    "nts api", ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -74,13 +75,19 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Accounts Api returns status code where retry is required")]
-        public void AccountsApiReturnsStatusCodeWhereRetryIsRequired()
+        [NUnit.Framework.DescriptionAttribute("AccountsApiResponse Api returns unsuccessful status code")]
+        [NUnit.Framework.TestCaseAttribute("401", "3", null)]
+        [NUnit.Framework.TestCaseAttribute("500", "3", null)]
+        [NUnit.Framework.TestCaseAttribute("400", "0", null)]
+        [NUnit.Framework.TestCaseAttribute("404", "0", null)]
+        public void AccountsApiResponseApiReturnsUnsuccessfulStatusCode(string statusCode, string retryCount, string[] exampleTags)
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = exampleTags;
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Accounts Api returns status code where retry is required", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 5
+            argumentsOfScenario.Add("StatusCode", statusCode);
+            argumentsOfScenario.Add("RetryCount", retryCount);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("AccountsApiResponse Api returns unsuccessful status code", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 4
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -90,14 +97,17 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
+#line 5
+ testRunner.Given("an account pay schemes request", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
 #line 6
- testRunner.Given("an employment check cache request", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.When(string.Format("DataCollection Api call returns {0} status code", statusCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 7
- testRunner.When("Accoints Api call returns 500 status code", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.Then(string.Format("the Api call with {0} is retried {1} times", statusCode, retryCount), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 8
- testRunner.Then("then the Api has done 3 retries within 30 seconds", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.And(string.Format("the error response and {0} are persisted", statusCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();

@@ -1,4 +1,4 @@
-﻿Feature: AccountsApiResponse
+﻿Feature: EmployerAccountApiResponse
 		What application should do when an unsuccessful response is returned from accounts api
 
 Scenario: AccountsApiResponse Api returns unsuccessful status code

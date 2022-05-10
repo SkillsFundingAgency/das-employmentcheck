@@ -20,14 +20,15 @@ using SFA.DAS.EAS.Account.Api.Types;
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
-    public class AccountsApiResponseStepDefinitions
+    [Scope(Feature = "EmployerAccountApiResponse")]
+    public class EmployerAccountApiResponseStepDefinitions
     {
         private List<LearnerNiNumber> _dcApiResponse;
         private Data.Models.EmploymentCheck _check;
         private ResourceList _accountsApiResponse;
         private readonly TestContext _context;
 
-        public AccountsApiResponseStepDefinitions(TestContext context)
+        public EmployerAccountApiResponseStepDefinitions(TestContext context)
         {
             _context = context;
         }

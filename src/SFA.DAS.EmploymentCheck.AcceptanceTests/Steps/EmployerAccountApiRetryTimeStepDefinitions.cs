@@ -20,8 +20,8 @@ using SFA.DAS.EAS.Account.Api.Types;
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
-    [Scope(Feature = "AccountsApiRetryTime")]
-    public class AccountsApiRetryTimeStepDefinitions
+    [Scope(Feature = "EmployerAccountApiRetryTime")]
+    public class EmployerAccountApiRetryTimeStepDefinitions
     {
         private List<LearnerNiNumber> _dcApiResponse;
         private Data.Models.EmploymentCheck _check;
@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         private DateTime _dtStart = DateTime.MinValue;
         private DateTime _dtEnd = DateTime.MaxValue;
 
-        public AccountsApiRetryTimeStepDefinitions(TestContext context)
+        public EmployerAccountApiRetryTimeStepDefinitions(TestContext context)
         {
             _context = context;
         }
