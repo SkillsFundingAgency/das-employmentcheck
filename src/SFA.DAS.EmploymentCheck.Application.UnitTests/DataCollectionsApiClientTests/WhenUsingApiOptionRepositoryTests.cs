@@ -3,16 +3,13 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClientTests
 {
-    public class ApiOptionRepositoryTests
+    public class WhenUsingApiOptionRepositoryTests
     {
         [Test]
-        public void When_GetTable_CloudTableIsReturned()
+        public void Then_GetTable_CloudTableIsReturned()
         {
             //Arrange
             AzureStorageConnectionConfiguration options = new AzureStorageConnectionConfiguration();
