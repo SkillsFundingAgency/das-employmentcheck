@@ -5,6 +5,7 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -178,13 +179,17 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response()
+        [TestCase(HttpStatusCode.BadRequest)]
+        [TestCase(HttpStatusCode.NotFound)]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response(HttpStatusCode httpStatusCode)
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
                 Content = new StringContent(_fixture.Create<string>()),
-                StatusCode = HttpStatusCode.BadRequest
+                StatusCode = httpStatusCode
             };
 
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
@@ -207,13 +212,17 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
+        [TestCase(HttpStatusCode.BadRequest)]
+        [TestCase(HttpStatusCode.NotFound)]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
+        public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response(HttpStatusCode httpStatusCode)
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
                 Content = new StringContent(""),
-                StatusCode = HttpStatusCode.BadRequest
+                StatusCode = httpStatusCode
             };
 
             _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
@@ -226,6 +235,50 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             result.Should().NotBeNull();
             result.HttpStatusCode.Should().Be(httpResponse.StatusCode);
             result.PayeSchemes.Count().Should().Be(0);
+        }
+
+        [Test]
+        [TestCase(HttpStatusCode.BadRequest)]
+        [TestCase(HttpStatusCode.NotFound)]
+        public async Task Then_Error_Response_For_None_Transient_Errors_Is_Not_Retried(HttpStatusCode httpStatusCode)
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(""),
+                StatusCode = httpStatusCode
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
+
+            // Assert
+            _apiClientMock.Verify(x => x.Get(It.IsAny<IGetApiRequest>()), Times.Exactly(1));
+        }
+
+        [Test]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
+        public async Task Then_Error_Response_For_Transient_Errors_Is_Retried(HttpStatusCode httpStatusCode)
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                Content = new StringContent(""),
+                StatusCode = httpStatusCode
+            };
+
+            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
+
+            // Assert
+            _apiClientMock.Verify(x => x.Get(It.IsAny<IGetApiRequest>()), Times.Exactly(3));
         }
 
         [Test]
