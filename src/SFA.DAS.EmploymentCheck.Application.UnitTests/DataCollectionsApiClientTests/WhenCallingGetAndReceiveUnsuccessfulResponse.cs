@@ -29,8 +29,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
         private HttpClient _httpClient;
         private string _absoluteUrl;
         private HttpResponseMessage _response;
-        private ApiRetryOptions _settings;
-        private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
 
         [SetUp]
         public void SetUp()
@@ -69,27 +67,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             hostingEnvironment.Setup(x => x.EnvironmentName).Returns("Staging");
 
-            _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
-
-            _settings = new ApiRetryOptions
-            {
-                TooManyRequestsRetryCount = 10,
-                TransientErrorRetryCount = 2,
-                TransientErrorDelayInMs = 1
-            };
-
-            _apiOptionsRepositoryMock.Setup(r => r.GetOptions(It.IsAny<string>())).ReturnsAsync(_settings);
-
-            var retryPolicies = new ApiRetryPolicies(
-                Mock.Of<ILogger<ApiRetryPolicies>>(),
-                _apiOptionsRepositoryMock.Object);
-
             _sut = new DataCollectionsApiClient(
                 clientFactory.Object,
                 _configuration,
                 hostingEnvironment.Object,
                 _tokenServiceMock.Object,
-                retryPolicies,
                 Mock.Of<ILogger<DataCollectionsApiClient>>()
                 );
         }

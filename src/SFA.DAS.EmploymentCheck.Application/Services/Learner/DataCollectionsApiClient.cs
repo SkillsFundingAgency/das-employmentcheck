@@ -21,7 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             DataCollectionsApiConfiguration configuration, 
             IWebHostEnvironment hostingEnvironment,
             IDcTokenService tokenService,
-            IApiRetryPolicies apiRetryPolicies,
             ILogger<DataCollectionsApiClient> logger) : base(httpClientFactory, configuration, hostingEnvironment)
         {
             _configuration = configuration;
