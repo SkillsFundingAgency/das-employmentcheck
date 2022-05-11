@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Newtonsoft.Json;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Net.Http;

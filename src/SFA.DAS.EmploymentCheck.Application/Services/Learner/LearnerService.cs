@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
             try
             {
-                var policy = await _apiRetryPolicies.GetAll();
+                var policy = await _apiRetryPolicies.GetAll("LearnerApiKey");
                 var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
                 
                 await policy.ExecuteAsync(async () =>
@@ -59,9 +59,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
                     response = await _apiClient.Get(request);
                     if (response != null && !response.IsSuccessStatusCode)
                     {
-                        if (response.StatusCode == HttpStatusCode.Unauthorized)
-                            throw new UnauthorizedAccessException();
-
                         throw new HttpException(response.StatusCode);
                     }
 
@@ -71,10 +68,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
 
             }
             catch (HttpException)
-            {
-                return await ProcessNiNumberFromApiResponse(employmentCheck, response);
-            }
-            catch (UnauthorizedAccessException)
             {
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
             }
