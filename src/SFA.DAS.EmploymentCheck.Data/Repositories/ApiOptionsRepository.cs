@@ -2,11 +2,13 @@
 using Microsoft.WindowsAzure.Storage.Table;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class ApiOptionsRepository : IApiOptionsRepository
     {
         private const string StorageTableName = "EmploymentCheckApiOptions";
