@@ -71,6 +71,15 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
             return await dbConnection.InsertAsync(entity);
         }
 
+        public async Task Insert<T>(IEnumerable<T> entities) where T : class
+        {
+            await using var dbConnection = GetSqlConnection();
+            foreach (var entity in entities)
+            {
+                await dbConnection.InsertAsync(entity);
+            }
+        }
+
         public async Task Update<T>(T entity) where T : class
         {
             await using var dbConnection = GetSqlConnection();
