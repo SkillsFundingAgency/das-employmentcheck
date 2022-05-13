@@ -45,19 +45,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 var request = new GetAccountPayeSchemesRequest(hashedAccountId);
 
                 var policy = await _apiRetryPolicies.GetAll("AccountApiKey");
-                await policy.ExecuteAsync(async () =>
-                {
-                    response = await _apiClient.Get(request);
-                    if (response != null && !response.IsSuccessStatusCode)
-                    {
-                        throw new HttpException(response.StatusCode);
-                    }
-                });
+                response = await _apiClient.GetWithPolicy(policy, request);
 
-                return await ProcessPayeSchemesFromApiResponse(employmentCheck, response);
-            }
-            catch (HttpException)
-            {
                 return await ProcessPayeSchemesFromApiResponse(employmentCheck, response);
             }
             catch (Exception ex)

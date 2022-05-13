@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using Polly.Wrap;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Application.Services;
@@ -74,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             await _sut.GetEmployerPayeSchemes(_employmentCheck);
 
             // Assert
-            _apiClientMock.Verify(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(r =>
+            _apiClientMock.Verify(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.Is<GetAccountPayeSchemesRequest>(r =>
                 r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")));
         }
 
@@ -93,7 +94,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 StatusCode = HttpStatusCode.OK
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.Is<GetAccountPayeSchemesRequest>(
                     r => r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")))
                 .ReturnsAsync(httpResponse);
 
@@ -129,7 +130,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 StatusCode = HttpStatusCode.OK
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.Is<GetAccountPayeSchemesRequest>(
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.Is<GetAccountPayeSchemesRequest>(
                     r => r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")))
                 .ReturnsAsync(httpResponse);
 
@@ -145,7 +146,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         public async Task Then_Error_Response_Is_Saved_In_Case_Of_Null_Response()
         {
             // Arrange
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ReturnsAsync((HttpResponseMessage)null);
 
             // Act
@@ -168,7 +169,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Null_Response()
         {
             // Arrange
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ReturnsAsync((HttpResponseMessage)null);
 
             // Act
@@ -192,7 +193,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 StatusCode = httpStatusCode
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -225,7 +226,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 StatusCode = httpStatusCode
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -238,55 +239,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         }
 
         [Test]
-        [TestCase(HttpStatusCode.BadRequest)]
-        [TestCase(HttpStatusCode.NotFound)]
-        public async Task Then_Error_Response_For_None_Transient_Errors_Is_Not_Retried(HttpStatusCode httpStatusCode)
-        {
-            // Arrange
-            var httpResponse = new HttpResponseMessage
-            {
-                Content = new StringContent(""),
-                StatusCode = httpStatusCode
-            };
-
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
-                .ReturnsAsync(httpResponse);
-
-            // Act
-            var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
-
-            // Assert
-            _apiClientMock.Verify(x => x.Get(It.IsAny<IGetApiRequest>()), Times.Exactly(1));
-        }
-
-        [Test]
-        [TestCase(HttpStatusCode.Unauthorized)]
-        [TestCase(HttpStatusCode.InternalServerError)]
-        public async Task Then_Error_Response_For_Transient_Errors_Is_Retried(HttpStatusCode httpStatusCode)
-        {
-            // Arrange
-            var httpResponse = new HttpResponseMessage
-            {
-                Content = new StringContent(""),
-                StatusCode = httpStatusCode
-            };
-
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
-                .ReturnsAsync(httpResponse);
-
-            // Act
-            var result = await _sut.GetEmployerPayeSchemes(_employmentCheck);
-
-            // Assert
-            _apiClientMock.Verify(x => x.Get(It.IsAny<IGetApiRequest>()), Times.Exactly(3));
-        }
-
-        [Test]
         public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unexpected_Exception()
         {
             // Arrange
             var exception = _fixture.Create<Exception>();
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ThrowsAsync(exception);
 
             // Act
@@ -309,7 +266,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
         {
             // Arrange
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ThrowsAsync(_fixture.Create<Exception>());
 
             // Act
@@ -333,7 +290,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 .With(x => x.HttpStatusCode, httpResponse.StatusCode)
                 .Create();
 
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetAccountPayeSchemesRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.IsAny<GetAccountPayeSchemesRequest>()))
                 .ReturnsAsync(httpResponse);
 
             // Act
