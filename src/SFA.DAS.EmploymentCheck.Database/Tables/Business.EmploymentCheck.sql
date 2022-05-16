@@ -18,3 +18,7 @@
 	)
 )
 GO
+
+CREATE NONCLUSTERED INDEX [IX_Business_EmploymentCheck__Id_RequestCompletionStatus_AccountId]
+    ON [Business].[EmploymentCheck]([Id] ASC, [RequestCompletionStatus] ASC, [AccountId] ASC);
+GO

@@ -25,7 +25,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         private List<Data.Models.EmploymentCheck> _checks;
         private List<LearnerNiNumber> _dcApiResponse;
         private ResourceList _accountsApiResponse;
-        private Guid[] _expectedProcessingOrder;
+        private long[] _expectedProcessingOrder;
 
         public PrioritiseChecksStepDefinitions(TestContext context)
         {
@@ -56,7 +56,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             SetupAccountsApiMock(_checks[1], 2);
             SetupAccountsApiMock(_checks[2], 1);
 
-            _expectedProcessingOrder = new [] { _checks[2].CorrelationId, _checks[1].CorrelationId, _checks[0].CorrelationId };
+            _expectedProcessingOrder = new [] { _checks[2].Id, _checks[1].Id, _checks[0].Id };
         }
 
         private void SetupAccountsApiMock(Data.Models.EmploymentCheck employmentCheck, int noOfPayeSchemes)
@@ -129,7 +129,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
             var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheck>())
                 .OrderBy(r => r.LastUpdatedOn)
-                .Select(r => r.CorrelationId)
+                .Select(r => r.Id)
                 .Distinct();
 
             result.Should().BeEquivalentTo(_expectedProcessingOrder, options => options.WithStrictOrdering());

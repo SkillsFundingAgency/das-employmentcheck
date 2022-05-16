@@ -128,30 +128,37 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             var transaction = sqlConnection.BeginTransaction();
             try
             {
-                const string query = @"WITH CorrelationIdOfSmallestEmployer AS
-                    (
-                        SELECT TOP(1) [CorrelationId],
-                        COUNT([Id]) [Count]
-                        FROM [Cache].[EmploymentCheckCacheRequest]
-                        WHERE [RequestCompletionStatus] IS NULL
-                        GROUP BY  [CorrelationId]
-                        ORDER BY COUNT([Id]) ASC
-                    )
+                const string query = @"
+                    WITH AccountIdOfSmallestEmployer AS
+                        (
+                        SELECT TOP(1) c.[AccountId],
+                        COUNT(r.[Id]) [Count]
+                        FROM [Business].[EmploymentCheck] c
+                        INNER JOIN [Cache].[EmploymentCheckCacheRequest] r
+                        ON c.[Id]=r.[ApprenticeEmploymentCheckId]
+                        WHERE c.[RequestCompletionStatus] = 1   /* Started */
+                        GROUP BY [AccountId]
+                        ORDER BY COUNT(r.[Id]) ASC
+                        )
                     SELECT TOP(1) r.[Id]
-                        ,r.[ApprenticeEmploymentCheckId]
-                        ,r.[CorrelationId]
-                        ,r.[Nino]
-                        ,r.[PayeScheme]
-                        ,r.[MinDate]
-                        ,r.[MaxDate]
-                        ,r.[Employed]
-                        ,r.[RequestCompletionStatus]
-                        ,r.[CreatedOn]
-                        ,r.[LastUpdatedOn]
-                    FROM [Cache].[EmploymentCheckCacheRequest] r
-                        INNER JOIN CorrelationIdOfSmallestEmployer c
-                        ON c.[CorrelationId] = r.[CorrelationId]
-                        ; ";
+                          ,r.[ApprenticeEmploymentCheckId]
+                          ,r.[CorrelationId] 
+                          ,r.[Nino]
+                          ,r.[PayeScheme]
+                          ,r.[MinDate]
+                          ,r.[MaxDate]
+                          ,r.[Employed]
+                          ,r.[RequestCompletionStatus]
+                          ,r.[CreatedOn]
+                          ,r.[LastUpdatedOn]
+                      FROM [Cache].[EmploymentCheckCacheRequest] r
+                      INNER JOIN [Business].[EmploymentCheck] c
+                        ON c.[Id]=r.[ApprenticeEmploymentCheckId]
+                      INNER JOIN AccountIdOfSmallestEmployer a
+                        ON a.[AccountId]=c.[AccountId]
+                      WHERE r.[RequestCompletionStatus] IS NULL
+                        ;
+                    ";
 
                 employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
                     sql: query,

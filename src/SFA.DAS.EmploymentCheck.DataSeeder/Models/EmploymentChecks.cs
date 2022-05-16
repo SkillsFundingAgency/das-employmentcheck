@@ -6,6 +6,8 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder.Models
     [Table("Business.EmploymentCheck")]
     public class EmploymentChecks
     {
+        [Key]
+        public long Id { get; set; }
         public Guid CorrelationId { get; set; }
         public string CheckType { get; set; }
         public long ULN { get; set; }

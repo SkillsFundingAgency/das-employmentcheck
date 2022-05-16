@@ -5,7 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using System;
+using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentCheckCacheRequest
@@ -20,31 +20,41 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Arrange
             _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
-            var lowestPayeSchemeCorrelationId = Guid.NewGuid();
-            var requests1 = Fixture.Build<Models.EmploymentCheckCacheRequest>()
-                .With(r => r.CorrelationId, lowestPayeSchemeCorrelationId)
-                .Without(r => r.RequestCompletionStatus)
-                .CreateMany(10);
+            var check1 = await CreateStartedEmploymentCheck();
+            await CreatePendingHmrcApiRequest(check1, 10);
 
-            var requests2 = Fixture.Build<Models.EmploymentCheckCacheRequest>()
-                .With(r => r.CorrelationId, Guid.NewGuid())
-                .Without(r => r.RequestCompletionStatus)
-                .CreateMany(20);
-            
-            var requests3 = Fixture.Build<Models.EmploymentCheckCacheRequest>()
-                .With(r => r.CorrelationId, Guid.NewGuid())
-                .Without(r => r.RequestCompletionStatus)
-                .CreateMany(30);
-
-            await Insert(requests3);
-            await Insert(requests2);
-            await Insert(requests1);
+            var check2 = await CreateStartedEmploymentCheck();
+            await CreatePendingHmrcApiRequest(check2, 20);
+           
+            var check3 = await CreateStartedEmploymentCheck();
+            await CreatePendingHmrcApiRequest(check3, 30);
 
             // Act
             var actual = await _sut.GetEmploymentCheckCacheRequest();
 
             // Assert
-            actual.CorrelationId.Should().Be(lowestPayeSchemeCorrelationId);
+            actual.ApprenticeEmploymentCheckId.Should().Be(check1.Id);
+        }
+
+        private async Task<Models.EmploymentCheck> CreateStartedEmploymentCheck()
+        {
+            var check = Fixture.Build<Models.EmploymentCheck>()
+                .With(c => c.RequestCompletionStatus, (short)ProcessingCompletionStatus.Started)
+                .Create();
+
+            await Insert(check);
+            return check;
+        }
+
+        private async Task CreatePendingHmrcApiRequest(Models.EmploymentCheck check, int noOfRequests)
+        {
+            var request = Fixture.Build<Models.EmploymentCheckCacheRequest>()
+                .With(r => r.ApprenticeEmploymentCheckId, check.Id)
+                .With(r => r.CorrelationId, check.CorrelationId)
+                .Without(r => r.RequestCompletionStatus)
+                .CreateMany(noOfRequests);
+
+            await Insert(request);
         }
     }
 }

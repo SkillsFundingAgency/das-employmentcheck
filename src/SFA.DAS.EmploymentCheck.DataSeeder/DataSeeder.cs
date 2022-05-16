@@ -61,6 +61,25 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
 
                         await _dataAccess.Insert(check);
                         Console.WriteLine($"[{i}] Added EmploymentChecks record");
+
+                        if (!_options.SeedEmploymentCheckCacheRequests)
+                        {
+                            var request = new EmploymentCheckCacheRequest
+                            {
+                                CorrelationId = check.CorrelationId,
+                                Employed = null,
+                                ApprenticeEmploymentCheckId = check.Id,
+                                MinDate = check.MinDate,
+                                MaxDate = check.MaxDate,
+                                Nino = columns[4],
+                                PayeScheme = Guid.NewGuid().ToString(),
+                                RequestCompletionStatus = null,
+                                CreatedOn = now,
+                            };
+
+                            await _dataAccess.Insert(request);
+                            Console.WriteLine($"[{i}] Added EmploymentCheckCacheRequest record");
+                        }
                     }
                 }
             }
@@ -85,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
 
             Console.WriteLine($"Number of dataset copies: {_options.DataSets}");
             Console.WriteLine($"Clear existing data: {_options.ClearExistingData}");
-            Console.WriteLine($"Seeding [dbo].[EmploymentChecks] table only: {_options.SeedEmploymentChecksOnly}");
+            Console.WriteLine($"Seeding [dbo].[EmploymentChecks] table only: {_options.SeedEmploymentCheckCacheRequests}");
 
             Console.WriteLine($"Using database connection string: {_options.EmploymentChecksConnectionString}");
             _dataAccess = new DataAccess(_options.EmploymentChecksConnectionString);
