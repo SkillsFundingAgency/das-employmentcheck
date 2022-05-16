@@ -138,7 +138,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                         ON c.[Id]=r.[ApprenticeEmploymentCheckId]
                         WHERE c.[RequestCompletionStatus] = 1   /* Started */
                         GROUP BY [AccountId]
-                        ORDER BY COUNT(r.[Id]) ASC
+                        ORDER BY COUNT(r.[Id]) ASC, MIN(c.[CreatedOn]) ASC
                         )
                     SELECT TOP(1) r.[Id]
                           ,r.[ApprenticeEmploymentCheckId]

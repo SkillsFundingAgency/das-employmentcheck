@@ -20,5 +20,6 @@
 GO
 
 CREATE NONCLUSTERED INDEX [IX_Business_EmploymentCheck__Id_RequestCompletionStatus_AccountId]
-    ON [Business].[EmploymentCheck]([Id] ASC, [RequestCompletionStatus] ASC, [AccountId] ASC);
+    ON [Business].[EmploymentCheck]([Id] ASC, [RequestCompletionStatus] ASC, [AccountId] ASC)
+	INCLUDE([CreatedOn]) WITH (SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY];
 GO
