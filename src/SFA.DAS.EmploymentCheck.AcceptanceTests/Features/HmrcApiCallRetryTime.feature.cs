@@ -20,22 +20,23 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("HmrcApiCallRetry")]
-    public partial class HmrcApiCallRetryFeature
+    [NUnit.Framework.DescriptionAttribute("HmrcApiCallRetryTime")]
+    public partial class HmrcApiCallRetryTimeFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-#line 1 "HmrcApiCallRetry.feature"
+#line 1 "HmrcApiCallRetryTime.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "HmrcApiCallRetry", "\tHMRC Api call is retried on failure", ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "HmrcApiCallRetryTime", "\tWhen application needs to retry an Hmrc Api call it should be done within a cert" +
+                    "ain time span", ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -74,22 +75,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("HMRC API returns unsuccessful status code")]
-        [NUnit.Framework.TestCaseAttribute("401", "3", null)]
-        [NUnit.Framework.TestCaseAttribute("408", "3", null)]
-        [NUnit.Framework.TestCaseAttribute("500", "3", null)]
-        [NUnit.Framework.TestCaseAttribute("503", "3", null)]
-        [NUnit.Framework.TestCaseAttribute("400", "0", null)]
-        [NUnit.Framework.TestCaseAttribute("404", "0", null)]
-        [NUnit.Framework.TestCaseAttribute("403", "0", null)]
-        [NUnit.Framework.TestCaseAttribute("429", "10", null)]
-        public void HMRCAPIReturnsUnsuccessfulStatusCode(string statusCode, string retryCount, string[] exampleTags)
+        [NUnit.Framework.DescriptionAttribute("Hmrc Api returns status code where retry is required")]
+        public void HmrcApiReturnsStatusCodeWhereRetryIsRequired()
         {
-            string[] tagsOfScenario = exampleTags;
+            string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            argumentsOfScenario.Add("StatusCode", statusCode);
-            argumentsOfScenario.Add("RetryCount", retryCount);
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("HMRC API returns unsuccessful status code", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Hmrc Api returns status code where retry is required", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 4
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -104,13 +95,10 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Given("an existing employment check cache request", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 6
- testRunner.When(string.Format("Hmrc Api call returns {0} status code", statusCode), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("Hmrc Api call returns 500 status code", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 7
- testRunner.Then(string.Format("the Api call with {0} is retried {1} times", statusCode, retryCount), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-#line 8
- testRunner.And("the error response is persisted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.Then("then the Api has done 3 retries within 30 seconds", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
