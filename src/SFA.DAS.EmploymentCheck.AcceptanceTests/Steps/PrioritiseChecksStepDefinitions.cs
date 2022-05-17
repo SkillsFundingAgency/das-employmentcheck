@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using Dapper.Contrib.Extensions;
 using FluentAssertions;
@@ -5,7 +6,6 @@ using HMRC.ESFA.Levy.Api.Types;
 using Microsoft.Data.SqlClient;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -22,42 +22,52 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     public class PrioritiseChecksStepDefinitions
     {
         private readonly TestContext _context;
-        private List<Data.Models.EmploymentCheck> _checks;
+        private readonly List<Data.Models.EmploymentCheck> _checks;
         private List<LearnerNiNumber> _dcApiResponse;
         private ResourceList _accountsApiResponse;
-        private long[] _expectedProcessingOrder;
+        private bool _samePayeVolume;
 
         public PrioritiseChecksStepDefinitions(TestContext context)
         {
             _context = context;
+            _checks = new List<Data.Models.EmploymentCheck>();
         }
 
         [Given(@"a number of unprocessed employment checks")]
         public async Task GivenANumberOfUnprocessedEmploymentChecks()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            _checks = _context.Fixture.Build<Data.Models.EmploymentCheck>()
-                .Without(c => c.RequestCompletionStatus)
-                .Without(c => c.Employed)
-                .Without(c => c.LastUpdatedOn)
-                .Without(c => c.ErrorType)
-                .CreateMany(3).ToList();
-
-            foreach (var check in _checks)
+            for (var i = 0; i < 3; i++)
             {
+                var check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
+                    .Without(c => c.RequestCompletionStatus)
+                    .Without(c => c.Employed)
+                    .Without(c => c.LastUpdatedOn)
+                    .Without(c => c.ErrorType)
+                    .With(c => c.CreatedOn, DateTime.UtcNow.AddMinutes(i-5))
+                    .Create();
+
                 await dbConnection.InsertAsync(check);
+                _checks.Add(check);
             }
+        }
+
+        [Given(@"all employers have the same number of PAYE schemes")]
+        public void GivenAllEmployersHaveTheSameNumberOfPayeSchemes()
+        {
+            _samePayeVolume = true;
         }
 
         [Given(@"valid PAYE schemes are returned for the Accounts")]
         public void GivenPayeSchemesAreReturnedForTheAccounts()
         {
-            SetupAccountsApiMock(_checks[0], 3);
+            SetupAccountsApiMock(_checks[0], _samePayeVolume ? 2 : 3);
             SetupAccountsApiMock(_checks[1], 2);
-            SetupAccountsApiMock(_checks[2], 1);
-
-            _expectedProcessingOrder = new [] { _checks[2].Id, _checks[1].Id, _checks[0].Id };
+            SetupAccountsApiMock(_checks[2], _samePayeVolume ? 2 : 1);
         }
+
+        private long[] LowestToHighestNumberOfPayeSchemes => new [] { _checks[2].Id, _checks[1].Id, _checks[0].Id };
+        private long[] FirstToLastReceived => new [] { _checks[0].Id, _checks[1].Id, _checks[2].Id };
 
         private void SetupAccountsApiMock(Data.Models.EmploymentCheck employmentCheck, int noOfPayeSchemes)
         {
@@ -132,7 +142,19 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Select(r => r.Id)
                 .Distinct();
 
-            result.Should().BeEquivalentTo(_expectedProcessingOrder, options => options.WithStrictOrdering());
+            result.Should().BeEquivalentTo(LowestToHighestNumberOfPayeSchemes, options => options.WithStrictOrdering());
+        }
+
+        [Then(@"the Employment Checks are performed in order of first to last received")]
+        public async Task ThenTheEmploymentChecksArePerformedInOrderOfFirstToLastReceived()
+        {
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheck>())
+                .OrderBy(r => r.LastUpdatedOn)
+                .Select(r => r.Id)
+                .Distinct();
+
+            result.Should().BeEquivalentTo(FirstToLastReceived, options => options.WithStrictOrdering());
         }
     }
 }

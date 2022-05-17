@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using SFA.DAS.EmploymentCheck.DataSeeder.Models;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.DataSeeder
 {
@@ -46,11 +46,11 @@ namespace SFA.DAS.EmploymentCheck.DataSeeder
                     {
                         i++;
                         var columns = line.Split(',');
-                        var check = new EmploymentChecks
+                        var check = new Data.Models.EmploymentCheck
                         {
                             CorrelationId = Guid.NewGuid(),
                             CheckType = Guid.NewGuid().ToString().Replace("-", "")[..20],
-                            ULN = Convert.ToInt64(columns[0]),
+                            Uln = Convert.ToInt64(columns[0]),
                             AccountId = Convert.ToInt64(columns[1]),
                             ApprenticeshipId = 12300000 + i,
                             MinDate = Convert.ToDateTime(columns[2]),
