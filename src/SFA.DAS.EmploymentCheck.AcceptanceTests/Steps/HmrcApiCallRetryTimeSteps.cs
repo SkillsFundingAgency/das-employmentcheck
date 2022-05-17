@@ -19,6 +19,7 @@ using System;
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
+    [Scope(Feature = "HmrcApiCallRetryTime")]
     public class HmrcApiCallRetryTimeSteps
     {
         private EmploymentCheckCacheRequest _checkCacheRequest;
