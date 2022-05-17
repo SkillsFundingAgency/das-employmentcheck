@@ -28,6 +28,29 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.AccountsRes
 
             _actual.Should().BeEquivalentTo(expected);
         }
+
+        [Test]
+        public void CanCreate()
+        {
+            // Arrange
+            var expected = Fixture.Create<Models.AccountsResponse>();
+
+            // Act
+            var actual = new Models.AccountsResponse(
+                expected.Id,
+                expected.ApprenticeEmploymentCheckId,
+                expected.CorrelationId,
+                expected.AccountId,
+                expected.PayeSchemes,
+                expected.HttpResponse,
+                expected.HttpStatusCode,
+                expected.LastUpdatedOn);
+            actual.CreatedOn = expected.CreatedOn;
+
+            // Assert
+            actual.Should().BeEquivalentTo(expected);
+
+        }
     }
 }
 
