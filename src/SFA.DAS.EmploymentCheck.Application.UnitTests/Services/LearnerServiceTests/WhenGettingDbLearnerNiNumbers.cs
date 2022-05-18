@@ -50,5 +50,46 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             actual.NiNumber.Should().Be(dataCollectionsResponse.NiNumber);
             actual.HttpStatusCode.Should().Be(HttpStatusCode.OK);
         }
+
+        [Test]
+        public async Task Then_GetDbNiNumbers_Is_Called_And_Returns_Null_NINumber()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
+            string niNumber = null;
+            var dataCollectionsResponse = _fixture.Build<DataCollectionsResponse>()
+                .With(_ => _.NiNumber, niNumber)
+                .With(_ => _.Uln, employmentCheck.Uln)
+                .With(_ => _.HttpStatusCode, (short)HttpStatusCode.OK).Create();
+
+            _repositoryMock
+                .Setup(r => r.GetByEmploymentCheckId(It.Is<long>(x => x == employmentCheck.Id)))
+                .ReturnsAsync(dataCollectionsResponse);
+
+            // Act
+            var actual = await _sut.GetDbNiNumber(employmentCheck);
+
+            // Assert
+            actual.Should().Be(null);
+        }
+
+        [Test]
+        public async Task Then_GetDbNiNumbers_Is_Called_And_Returns_Null_Response()
+        {
+            // Arrange
+            var employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
+            DataCollectionsResponse dataCollectionsResponse = null;
+            
+
+            _repositoryMock
+                .Setup(r => r.GetByEmploymentCheckId(It.Is<long>(x => x == employmentCheck.Id)))
+                .ReturnsAsync(dataCollectionsResponse);
+
+            // Act
+            var actual = await _sut.GetDbNiNumber(employmentCheck);
+
+            // Assert
+            actual.Should().Be(null);
+        }
     }
 }
