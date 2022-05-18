@@ -71,6 +71,27 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetApprenticesNiNumbers
         }
 
         [Test]
+        public async Task Then_NiNo_Is_Returned_From_The_Api_When_NiNumber_IsNull()
+        {
+            // Arrange
+            LearnerNiNumber niNumber = null;
+
+            _serviceMock.Setup(x => x.GetDbNiNumber(_request.Check))
+                .ReturnsAsync((LearnerNiNumber)null);
+
+            _serviceMock.Setup(x => x.GetNiNumber(_request.Check))
+                .ReturnsAsync(niNumber);
+
+            // Act
+            var result = await _sut.Handle(_request, CancellationToken.None);
+
+            // Assert
+            _serviceMock.Verify(x => x.GetDbNiNumber(_request.Check), Times.Exactly(1));
+            _serviceMock.Verify(x => x.GetNiNumber(_request.Check), Times.Exactly(1));
+            result.LearnerNiNumber.Should().BeEquivalentTo(niNumber);
+        }
+
+        [Test]
         public async Task Then_ArgumentException_Is_Thrown_When_Request_Is_Null()
         {
             // Act
