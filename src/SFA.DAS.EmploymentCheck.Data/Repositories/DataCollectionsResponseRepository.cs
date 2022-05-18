@@ -88,17 +88,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             await sqlConnection.InsertAsync(response);
         }
 
-        public async Task<DataCollectionsResponse> Get(DataCollectionsResponse response)
-        {
-            var dbConnection = new DbConnection();
-            await using var sqlConnection = await dbConnection.CreateSqlConnection(
-                _connectionString,
-                _azureServiceTokenProvider);
-            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
-
-            return await sqlConnection.GetAsync<DataCollectionsResponse>(response.ApprenticeEmploymentCheckId);
-        }
-
         public async Task<DataCollectionsResponse> GetByEmploymentCheckId(long apprenticeEmploymentCheckId)
         {
             DataCollectionsResponse response = null;
