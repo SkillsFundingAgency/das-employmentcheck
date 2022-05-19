@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AutoFixture;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NLog;
 using NUnit.Framework;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Configuration
 {
