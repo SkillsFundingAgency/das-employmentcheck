@@ -41,16 +41,18 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         {
             // Act
             await _sut.GetNiNumber(_employmentCheck);
+            int year = Application.Services.Learner.GetNationalInsuranceNumberRequest.GetAccademicYear(DateTime.Now);
 
             // Assert
             _apiClientMock.Verify(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(r =>
-                r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")));
+                r.GetUrl == $"/api/v1/ilr-data/learnersNi/{year}?ulns={_employmentCheck.Uln}")));
         }
 
         [Test]
         public async Task Then_Response_Is_Saved()
         {
             // Arrange
+            int year = Application.Services.Learner.GetNationalInsuranceNumberRequest.GetAccademicYear(DateTime.Now);
             var nino = _fixture.Build<LearnerNiNumber>()
                 .With(n => n.Uln, _employmentCheck.Uln)
                 .Without(n => n.NiNumber)
@@ -64,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             };
 
             _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/{year}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -87,6 +89,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         public async Task Then_ReturnedNiNo_Is_Returned_To_Caller()
         {
             // Arrange
+            int year = Application.Services.Learner.GetNationalInsuranceNumberRequest.GetAccademicYear(DateTime.Now);
             var nino = _fixture.Build<LearnerNiNumber>()
                 .With(n => n.Uln, _employmentCheck.Uln)
                 .Without(n => n.NiNumber)
@@ -101,7 +104,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             };
 
             _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/{year}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
