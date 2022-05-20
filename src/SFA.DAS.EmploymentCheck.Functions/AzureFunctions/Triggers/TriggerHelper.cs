@@ -115,7 +115,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             var instanceId = await starter.StartNewAsync(orchestratorName, $"{orchestratorName}-{Guid.NewGuid()}");
             if(string.IsNullOrEmpty(instanceId))
             {
-                var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occured starting [{orchestratorName}], no instance id was returned.") };
+                var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occurred starting [{orchestratorName}], no instance id was returned.") };
                 log.LogInformation(await responseMessage.Content.ReadAsStringAsync());
                 return responseMessage;
             }
@@ -124,7 +124,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers
             var responseHttpMessage = starter.CreateCheckStatusResponse(req, instanceId);
             if(responseHttpMessage == null)
             {
-                var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occured getting the status of [{orchestratorName}] for instance Id[{instanceId}].") };
+                var responseMessage = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occurred getting the status of [{orchestratorName}] for instance Id [{instanceId}].") };
                 log.LogInformation(await responseMessage.Content.ReadAsStringAsync());
                 return responseMessage;
             }
