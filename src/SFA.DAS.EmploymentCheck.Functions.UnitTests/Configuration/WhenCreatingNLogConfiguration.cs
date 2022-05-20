@@ -1,18 +1,18 @@
-﻿using FluentAssertions;
-using NLog;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+using FluentAssertions;
 using Microsoft.ApplicationInsights.NLogTarget;
+using NLog;
 using NLog.Targets;
+using NUnit.Framework;
 using SFA.DAS.NLog.Targets.Redis.DotNetCore;
 
-namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Configuration
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
     public class WhenCreatingNLogConfiguration
     {
-        private const string AppName = "das-employment-check-api";
+        private const string AppName = "das-employment-check-functions";
 
         [Test]
         public void Then_LocalFileTarget_Is_Created_For_Local_Environment()
