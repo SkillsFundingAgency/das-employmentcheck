@@ -1,14 +1,13 @@
 ﻿using NServiceBus;
-using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
-using SFA.DAS.EmploymentCheck.Infrastructure;
+using SFA.DAS.EmploymentCheck.Types;
 
 namespace SFA.DAS.EmploymentCheck.Commands
 {
     public static class RoutingSettingsExtensions
     {
-        public static void AddRouting(this RoutingSettings routingSettings)
+        public static void AddRouting(this RoutingSettings settings)
         {
-            routingSettings.RouteToEndpoint(typeof(PublishEmploymentCheckResultCommand), QueueNames.PublishEmploymentCheckResult);
+            settings.RouteToEndpoint(typeof(EmploymentCheckCompletedEvent), QueueNames.PublishEmploymentCheckResult);
         }
     }
 }

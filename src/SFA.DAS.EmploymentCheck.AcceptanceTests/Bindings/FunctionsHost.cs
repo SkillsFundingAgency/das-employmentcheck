@@ -27,7 +27,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
             _testContext.Hooks.Add(commandsHook);
 
             _testContext.TestFunction = new TestFunction(_testContext, $"TEST{_featureContext.FeatureInfo.Title}", eventsHook, commandsHook);
-            _testContext.TestFunction.ClearQueues();
             await _testContext.TestFunction.StartHost();
         }
 

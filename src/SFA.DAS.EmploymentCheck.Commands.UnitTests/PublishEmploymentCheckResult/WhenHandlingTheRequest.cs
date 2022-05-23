@@ -1,41 +1,53 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Moq;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Commands.PublishEmploymentCheckResult;
+using SFA.DAS.EmploymentCheck.Types;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.PublishEmploymentCheckResult
 {
     public class WhenHandlingTheRequest
     {
-        private EmploymentCheckCompletedEventHandler _sut;
-        private Mock<ICommandPublisher> _serviceMock;
+        private PublishEmploymentCheckResultCommandHandler _sut;
+        private Mock<IMessageSession> _messageSessionMock;
         private Fixture _fixture;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _serviceMock = new Mock<ICommandPublisher>();
-            _sut = new EmploymentCheckCompletedEventHandler(_serviceMock.Object);
+            _messageSessionMock = new Mock<IMessageSession>();
+            var lazyMessageSession = new Lazy<IMessageSession>(() => _messageSessionMock.Object);
+
+            _sut = new PublishEmploymentCheckResultCommandHandler(
+                lazyMessageSession,
+                Mock.Of<ILogger<PublishEmploymentCheckResultCommandHandler>>());
         }
 
         [Test]
         public async Task Then_a_message_is_published()
         {
             // Arrange
-            var request = _fixture.Create<EmploymentCheckCompletedEvent>();
+            var request = _fixture.Create<PublishEmploymentCheckResultCommand>();
 
             // Act
             await _sut.Handle(request, CancellationToken.None);
 
             // Assert
-            _serviceMock.Verify(
+            _messageSessionMock.Verify(
                 _ => _.Publish(
-                    It.Is<PublishEmploymentCheckResultCommand>(c => c.EmploymentCheck == request.EmploymentCheck),
-                    CancellationToken.None), Times.Once);
+                    It.Is<EmploymentCheckCompletedEvent>(c => 
+                        c.CorrelationId == request.EmploymentCheck.CorrelationId
+                        && c.CheckDate == request.EmploymentCheck.LastUpdatedOn
+                        && c.EmploymentResult == request.EmploymentCheck.Employed
+                        && c.ErrorType == request.EmploymentCheck.ErrorType),
+                    It.IsAny<PublishOptions>()
+                    ), Times.Once);
         }
     }
 }

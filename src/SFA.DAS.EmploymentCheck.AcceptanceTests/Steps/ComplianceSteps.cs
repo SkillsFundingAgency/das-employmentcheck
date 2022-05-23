@@ -5,14 +5,9 @@ using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
-using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
-using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -28,7 +23,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         private Data.Models.EmploymentCheck _check;
         private List<LearnerNiNumber> _dcApiResponse;
         private ResourceList _accountsApiResponse;
-        private const int MaxWaitTimeInSeconds = 60;
 
         public ComplianceSteps(TestContext context)
         {
@@ -112,42 +106,16 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(hmrcApiResponse));
 
-            var response = await _context.TestFunction.CallEndpoint(
-                new EndpointInfo(
-                    starterName: nameof(EmploymentChecksHttpTrigger),
-                    args: new Dictionary<string, object>
-                    {
-                        ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/EmploymentChecksOrchestrator" }
-                    }
-                ));
-
-            response.StatusCode.Should().NotBe(HttpStatusCode.Conflict,
-                "A running instance of the orchestrator detected. Manually delete it and retry.");
+            await _context.TestFunction.ExecuteCreateEmploymentCheckCacheRequestsOrchestrator();
+            await _context.TestFunction.ExecuteProcessEmploymentCheckRequestsOrchestrator();
         }
 
         [Then(@"the Employment Check result is stored")]
         public async Task ThenTheEmploymentCheckResultIsStored()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-
-            var attempt = 0;
-            while (attempt < MaxWaitTimeInSeconds)
-            {
-                attempt++;
-                var result = await dbConnection.GetAsync<Data.Models.EmploymentCheck>(_check.Id);
-                if (result.Employed.HasValue)
-                {
-                    Assert.IsTrue(result.Employed);
-                    break;
-                }
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-
-            if (attempt == MaxWaitTimeInSeconds)
-            {
-                Assert.Inconclusive("Timed out, try increasing MaxWaitTimeInSeconds");
-            }
+            var result = await dbConnection.GetAsync<Data.Models.EmploymentCheck>(_check.Id);
+            Assert.IsTrue(result.Employed);
         }
     }
-
 }

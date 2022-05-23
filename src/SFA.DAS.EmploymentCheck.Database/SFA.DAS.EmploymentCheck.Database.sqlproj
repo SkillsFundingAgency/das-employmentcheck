@@ -70,6 +70,8 @@
     <Build Include="Tables\Cache.AccountsResponse.sql" />
     <Build Include="Tables\Cache.EmploymentCheckCacheResponse.sql" />
     <Build Include="Schemas\employer_check.sql" />
+    <Build Include="Tables\ClientOutboxData.sql" />
+    <Build Include="Tables\OutboxData.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmploymentCheck.Database.refactorlog" />

@@ -1,4 +1,5 @@
 ﻿@messageBus
+@ignore
 Feature: OutputApi
 	Completed Employment Check is published onto the message bus
 

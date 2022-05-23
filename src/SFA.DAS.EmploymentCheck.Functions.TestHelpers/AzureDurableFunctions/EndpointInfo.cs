@@ -5,8 +5,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
 {
     public class EndpointInfo
     {
-        public string StarterName { get; private set; }
-        public Dictionary<string, object> StarterArgs { get; private set; }
+        public string StarterName { get; }
+        public Dictionary<string, object> StarterArgs { get; }
 
         public EndpointInfo(
             string starterName,
@@ -15,10 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions
             if (string.IsNullOrEmpty(starterName)) throw new ArgumentException("Missing starter name");
 
             StarterName = starterName;
-            if (args == null)
-            {
-                args = new Dictionary<string, object>();
-            }
+            args ??= new Dictionary<string, object>();
             StarterArgs = args;
         }
     }

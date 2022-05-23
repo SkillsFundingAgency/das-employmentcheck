@@ -18,8 +18,6 @@ namespace SFA.DAS.EmploymentCheck.Commands
                     .WithTransientLifetime();
             });
 
-            serviceCollection.AddScoped<ICommandPublisher, CommandPublisher>();
-
             if (addDecorators != null)
             {
                 serviceCollection = addDecorators(serviceCollection);

@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
 
             // Assert
             _dispatcher.Verify(d =>
-                d.Send(It.Is<EmploymentCheckCompletedEvent>(e => e.EmploymentCheck == _employmentCheck),
+                d.Send(It.Is<PublishEmploymentCheckResultCommand>(e => e.EmploymentCheck == _employmentCheck),
                     CancellationToken.None), Times.Once());
         }
     }

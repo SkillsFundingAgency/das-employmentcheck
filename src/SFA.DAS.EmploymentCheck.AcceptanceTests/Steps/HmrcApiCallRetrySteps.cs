@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -61,13 +62,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
             var response = await _context.TestFunction.Start(
                 new OrchestrationStarterInfo(
-                    "ProcessApprenticeEmploymentChecksHttpTrigger",
+                    nameof(ProcessEmploymentChecksOrchestratorHttpTrigger),
                     args: new Dictionary<string, object>
                     {
                         ["req"] = new DummyHttpRequest { Path = "/api/orchestrators/ProcessApprenticeEmploymentChecksOrchestrator" }
                     },
-                    orchestrationName: nameof(ProcessEmploymentCheckRequestsOrchestrator),
-                    expectedCustomStatus: "Idle"
+                    orchestrationName: nameof(ProcessEmploymentCheckRequestsOrchestrator)
                 ));
 
             response.StatusCode.Should().NotBe(HttpStatusCode.Conflict,

@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Infrastructure;
+using SFA.DAS.EmploymentCheck.Types;
 using System.Linq;
 using System.Reflection;
 
@@ -13,7 +13,6 @@ namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.ServiceBus
         [Test]
         public void Then_its_name_does_not_exceed_50_characters()
         {
-
             var queues = (typeof(QueueNames)).GetFields(BindingFlags.Public | BindingFlags.Static |
                                                         BindingFlags.FlattenHierarchy)
                 .Where(fi => fi.IsLiteral && !fi.IsInitOnly).Select(x => x.GetRawConstantValue()).ToList();

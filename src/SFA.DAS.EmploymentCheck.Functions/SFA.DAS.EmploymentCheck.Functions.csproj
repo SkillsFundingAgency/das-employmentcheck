@@ -30,7 +30,6 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
     <PackageReference Include="NLog" Version="4.7.11" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
-    <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="SFA.DAS.Account.Api.Types" Version="1.6.2978" />
     <PackageReference Include="SFA.DAS.Api.Common" Version="1.0.13" />
@@ -41,7 +40,9 @@
     <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
     <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
+    <PackageReference Include="SFA.DAS.NServiceBus.AzureFunction" Version="16.0.21" />
+    <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj" />
