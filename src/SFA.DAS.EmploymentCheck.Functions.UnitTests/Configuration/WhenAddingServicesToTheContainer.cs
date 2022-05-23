@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -20,6 +21,7 @@ using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.Reflection;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
@@ -27,11 +29,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
     {
         private Fixture _fixture = new Fixture();
         private ServiceProvider _provider;
+        private Infrastructure.Configuration.TokenServiceApiClientConfiguration _tokenConfig;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _fixture = new Fixture();
+            _tokenConfig = _fixture.Build<Infrastructure.Configuration.TokenServiceApiClientConfiguration>().Create();
         }
 
         [OneTimeTearDown]
@@ -89,8 +93,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             _provider = serviceCollection.BuildServiceProvider();
 
             // Act
-            var type = _provider.GetService(typeof(ITokenServiceApiClient)) as TokenServiceApiClientStub; 
-            
+            var type = _provider.GetService(typeof(ITokenServiceApiClient)) as TokenServiceApiClientStub;
+
             // Assert
             Assert.IsNotNull(type);
         }
@@ -104,10 +108,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             _provider = serviceCollection.BuildServiceProvider();
 
             // Act
-            var type = _provider.GetService(typeof(ITokenServiceApiClient)) as TokenServiceApiClient;
+            TokenServiceApiClient tokenServiceApiClient = _provider.GetService(typeof(ITokenServiceApiClient)) as TokenServiceApiClient;
 
             // Assert
-            Assert.IsNotNull(type);
+            tokenServiceApiClient.Should().NotBeNull();
+            FieldInfo field = typeof(TokenServiceApiClient).GetField("_configuration", BindingFlags.NonPublic |
+                                             BindingFlags.Instance);
+
+            var config = field.GetValue(tokenServiceApiClient);
+            config.Should().Be(_tokenConfig);
+
         }
 
         private void SetupServiceCollection(IServiceCollection serviceCollection, string environment)
@@ -123,6 +133,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .With(x => x.BaseUrl, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton<IOptions<HmrcApiConfiguration>>(new OptionsWrapper<HmrcApiConfiguration>(hmrcApiSettings));
+
+            serviceCollection.AddSingleton<IOptions<Infrastructure.Configuration.TokenServiceApiClientConfiguration>>(new OptionsWrapper<Infrastructure.Configuration.TokenServiceApiClientConfiguration>(_tokenConfig));
 
             var apiConfiguration = _fixture.Build<EmployerAccountApiConfiguration>()
                 .With(x => x.Url, "https://hostname.co")
