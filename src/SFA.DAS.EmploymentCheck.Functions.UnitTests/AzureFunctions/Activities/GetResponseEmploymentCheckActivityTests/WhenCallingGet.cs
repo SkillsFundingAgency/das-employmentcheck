@@ -5,6 +5,7 @@ using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.ResetEmploymentChecksMessageSentDate;
 using System.Threading;
 using System.Threading.Tasks;
 
