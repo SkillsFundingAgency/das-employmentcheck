@@ -1,6 +1,6 @@
 [![Build Status](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_apis/build/status/das-employmentcheck?repoName=SkillsFundingAgency%2Fdas-employmentcheck&branchName=refs%2Fpull%2F159%2Fmerge)](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_build/latest?definitionId=2539&repoName=SkillsFundingAgency%2Fdas-employmentcheck&branchName=refs%2Fpull%2F159%2Fmerge)
-# Employment Check
 
+# Employment Check
 This repository represents the Employment Check code base. The idea around this check is to allow the business to understand which learners have been validated to show that they are employed by the employer who is associated with them on the service. 
 
 Any learners who are not employed by the correct employer should not be on an apprenticeship with that employer and it is a vector which is obviously fraudulent. 
@@ -70,7 +70,6 @@ In order to run this solution locally you will need the following:
 * Open command prompt and change directory to `src\SFA.DAS.EmploymentCheck.Functions\`
 * Launch the Azure functions runtime host using command `func start`
 
-
 ### Application logs
 Application logs for are for local environment are written to text files stored in the `src\SFA.DAS.EmploymentCheck.Functions\bin\output\logs\` folder.
 
@@ -97,15 +96,63 @@ In order to run this solution locally you will need the following:
 
 
 ### Running
-
 * Open command prompt and change directory to `src\SFA.DAS.EmploymentCheck.Api\`
 * Launch the Azure functions runtime host using command `dotnet run`
 * Open any browser and navigate to `https://localhost:5001/swagger/index.html` to access Swagger API User Interface page
 
-
 ### Application logs
 Application logs for are for local environment are written to text files stored in the `src\SFA.DAS.EmploymentCheck.Api\logs\` folder.
 
-## License
+## Tools and Utilities
+### HMRC API Authentication Service stub
+As there currently is no hosted test system for authenticating calls to HMRC API, we have developed a stub, which is being used in all non-production environments. The code is contained in the `SFA.DAS.EmploymentCheck.TokenServiceStub` project and its configuration is the `HmrcAuthTokenService` section of the main Function App settings.
 
+### Test Harness
+Contained in `SFA.DAS.EmploymentCheck.TestHarness` project, test harness is an API with Swagger UI for making single employment check calls to non-production HMRC API environments. It uses HMRC API Authentication Service stub for authentication and has two endpoints:
+* `GET /EmploymentCheckHttpTestHarness/token-test/` - retrieves authentication token from the stub and makes a call to HMRC API with hard-coded employment check inputs
+* `GET /EmploymentCheckHttpTestHarness/` - retrieves authentication token from the stub and makes a call to HMRC API with passed-in employment check inputs:
+    * **nino** (string) - Employee's National Insurance Number
+    * **empRef** (string) - Employer's PAYE scheme
+    * **fromDate** (datetime) - Employment start date
+    * **toDate** (datetime) - Employment end date
+
+#### Sample request
+`https://localhost:5001/EmploymentCheckHttpTestHarness?nino=PR555555A&empRef=923%2FEZ00059&fromDate=2010-01-01&toDate=2018-01-01`
+#### Sample response
+```csharp
+{
+  "empref": "923/EZ00059",
+  "nino": "PR555555A",
+  "fromDate": "2010-01-01T00:00:00.000Z",
+  "toDate": "2018-01-01T00:00:00.000Z",
+  "employed": true
+}
+```
+
+#### Configuration
+
+### Data Seeder
+This console application allows seeding data from a CSV file into Employment Checks database. It supports  connections to local SQL server instance as well Azure SQL databases, including all Employment Check test environments.
+The sample data file from the `Files` folder in `SFA.DAS.EmploymentCheck.DataSeeder` project contains 25 rows of data, some of which will return positive results from Accounts, Data Collections and HMRC API's test environments. Data from this file is seeded into the main checks input database table `Business.EmploymentCheck` and has an option to also seed the "cache request" table to limit the processing to just the HMRC API calls, bypassing the requests to Accounts and DC API.
+
+#### CSV File inputs
+* ULN
+* AccountId
+* fromDate
+* toDate
+* Nino
+
+#### Settings
+* **EmploymentChecksConnectionString** (string) - target database connection string
+* **DataSets** (int) - number of data sets to seed, i.e. if it's set to 3, each row from the input data file will be inserted 3 times 
+* **ClearExistingData** (boolean) - if set to *true*, all data in the following tables will be cleared:
+    * [Business].[EmploymentCheck]
+    * [Cache].[AccountsResponse]
+    * [Cache].[EmploymentCheckCacheRequest]
+    * [Cache].[EmploymentCheckCacheResponse]
+    * [Cache].[DataCollectionsResponse]
+
+* **SeedEmploymentCheckCacheRequests** (boolean) - if set to *true*, then in addition to seeding the `EmploymentCheck` table, the `Cache.EmploymentCheckCacheRequest` will also be seeded with data thus bypassing the calls to Accounts and DC API when processing. This option is good for HMRC API performance tests.
+
+## License
 Licensed under the [MIT license](LICENSE)
