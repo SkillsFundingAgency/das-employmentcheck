@@ -94,7 +94,6 @@ In order to run this solution locally you will need the following:
 }
 ```
 
-
 ### Running
 * Open command prompt and change directory to `src\SFA.DAS.EmploymentCheck.Api\`
 * Launch the Azure functions runtime host using command `dotnet run`
@@ -102,6 +101,27 @@ In order to run this solution locally you will need the following:
 
 ### Application logs
 Application logs for are for local environment are written to text files stored in the `src\SFA.DAS.EmploymentCheck.Api\logs\` folder.
+
+### Tests
+All tests in the solution can be executed using `dotnet test` command.
+#### Unit Tests
+There are several unit test projects in the solution built using C#, NUnit, Moq, Dapper .NET and AutoFixture.
+#### Database Integration Tests
+There are two projects for testing data access repositories:
+* **SFA.DAS.EmploymentCheck.Data.IntegrationTests** - for testing database integration in the Functions App. These tests have a default configuration which uses `(localdb)\MSSQLLocalDB` to create and deploy a new Employment Check database during test set-up and drop this database at test clean-up.  
+* **SFA.DAS.EmploymentCheck.Api.IntegrationTests** - for testing database integration in the API. These tests will insert the required data into an existing database at test set-up and delete these data at test clean-up. The following configuration is required in the `config.json` file to run these tests against a locally deployed database:
+    ```  
+    {
+      "DbConnectionString": "Server=(localdb)\\MSSQLLocalDB;Database=SFA.DAS.EmploymentCheck.Database;Integrated Security=True;"
+    }
+    ```
+#### System Acceptance Tests
+These tests are written using [SpecFlow .NET](https://specflow.org/) BDD Framework with Gherkin specifications. These tests have the following dependencies:
+* MSSQLLocalDB
+* Azurite (Azure Storage Emulator)
+* Azure Functions Core Tools
+* WireMock .NET
+These tests use `BeforeTestRun` and `BeforeScenario` SpecFlow test bindings to create a new Employment Check database, create mocks for each external API and spin-off an azure function host to enable execution of HTTP Triggered Azure Durable Orchestrators from the test step definition files written in C#.
 
 ## Tools and Utilities
 ### HMRC API Authentication Service stub
@@ -130,6 +150,25 @@ Contained in `SFA.DAS.EmploymentCheck.TestHarness` project, test harness is an A
 ```
 
 #### Configuration
+```
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "HmrcAuthTokenService": {
+    "TokenUrl": "https://<INSERT_HERE>",
+    "ClientId": "<INSERT_HERE>",
+    "ClientSecret": "<INSERT_HERE>",
+    "TotpSecret": "<INSERT_HERE>",
+    "BaseUrl": "https://<INSERT_HERE>/"
+  }
+}
+```
 
 ### Data Seeder
 This console application allows seeding data from a CSV file into Employment Checks database. It supports  connections to local SQL server instance as well Azure SQL databases, including all Employment Check test environments.
