@@ -121,7 +121,8 @@ These tests are written using [SpecFlow .NET](https://specflow.org/) BDD Framewo
 * Azurite (Azure Storage Emulator)
 * Azure Functions Core Tools
 * WireMock .NET
-These tests use `BeforeTestRun` and `BeforeScenario` SpecFlow test bindings to create a new Employment Check database, create mocks for each external API and spin-off an azure function host to enable execution of HTTP Triggered Azure Durable Orchestrators from the test step definition files written in C#.
+
+These tests use `BeforeTestRun` and `BeforeScenario` SpecFlow test bindings to create a new Employment Check database, create mocks for each external API and spin-off an azure function host to enable execution of HTTP Triggered Azure Durable Orchestration functions from the test step definition files written in C#. These tests are different in their nature from the Acceptance Tests in the Enterprise Automation suite in that all external dependencies are mocked out to return expected responses in certain predefined scenarios in order to assert on state changes and error handling within and isolated to the Employment Check system. System Acceptance Tests reside in the `SFA.DAS.EmploymentCheck.AcceptanceTests` project and all configuration is done in C# code and requiring no additional settings files. To execute these tests, you will need to start Azurite first and use `dotnet run` command.
 
 ## Tools and Utilities
 ### HMRC API Authentication Service stub
@@ -190,7 +191,6 @@ The sample data file from the `Files` folder in `SFA.DAS.EmploymentCheck.DataSee
     * [Cache].[EmploymentCheckCacheRequest]
     * [Cache].[EmploymentCheckCacheResponse]
     * [Cache].[DataCollectionsResponse]
-
 * **SeedEmploymentCheckCacheRequests** (boolean) - if set to *true*, then in addition to seeding the `EmploymentCheck` table, the `Cache.EmploymentCheckCacheRequest` will also be seeded with data thus bypassing the calls to Accounts and DC API when processing. This option is good for HMRC API performance tests.
 
 ## License
