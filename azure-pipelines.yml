@@ -35,7 +35,7 @@ resources:
   - repository: das-platform-automation
     type: github
     name: SkillsFundingAgency/das-platform-automation
-    ref: refs/tags/4.5.14
+    ref: refs/tags/5.0.0
     endpoint: SkillsFundingAgency
   pipelines:
   - pipeline: das-employer-config
@@ -53,6 +53,8 @@ stages:
     parameters:
       SolutionBaseName: $(DACPACSolutionBaseName)
       SqlProjectPath: src/SFA.DAS.EmploymentCheck.Database/SFA.DAS.EmploymentCheck.Database.sqlproj
+
+- template: azure-pipelines-templates/deploy/stage/nuget-publish.yml@das-platform-building-blocks
 
 - stage: Deploy_AT
   dependsOn: Build

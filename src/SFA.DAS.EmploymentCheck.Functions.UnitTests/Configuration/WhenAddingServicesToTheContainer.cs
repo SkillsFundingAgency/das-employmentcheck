@@ -21,6 +21,7 @@ using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using System.Reflection;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration

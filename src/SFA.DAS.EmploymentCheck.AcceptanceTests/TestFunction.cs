@@ -6,16 +6,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Newtonsoft.Json;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.EmploymentCheck.Functions;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -26,13 +30,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         private readonly IHost _host;
         private readonly OrchestrationData _orchestrationData;
         private bool _isDisposed;
-
         private IJobHost Jobs => _host.Services.GetService<IJobHost>();
         public string HubName { get; }
         public HttpResponseMessage LastResponse => ResponseObject as HttpResponseMessage;
         public object ResponseObject { get; private set; }
 
-        public TestFunction(TestContext testContext, string hubName)
+        public TestFunction(TestContext testContext, string hubName, IHook<object> eventMessageHook, IHook<ICommand> commandMessageHook)
         {
             HubName = hubName;
             _orchestrationData = new OrchestrationData();
@@ -42,8 +45,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
                 { "AzureWebJobsStorage", "UseDevelopmentStorage=true" },
                 { "ConfigurationStorageConnectionString", "UseDevelopmentStorage=true" },
-                { "ConfigNames", "SFA.DAS.EmployerIncentives" },
-                { "ApplicationSettings:LogLevel", "DEBUG" }
+                { "ConfigNames", "SFA.DAS.EmploymentCheck.Functions" },
+                { "ApplicationSettings:LogLevel", "DEBUG" },
+                { "ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true" },
+                { "ApplicationSettings:UseLearningEndpointStorageDirectory", Path.Combine(testContext.TestDirectory.FullName, ".learningtransport") },
+                { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase.DatabaseInfo.ConnectionString },
+                { "ApplicationSettings:NServiceBusEndpointName", testContext.InstanceId },
             };
 
             _host = new HostBuilder()
@@ -95,10 +102,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
-                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);
+                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);                        
                         s.AddSingleton(typeof(IHmrcApiOptionsRepository), CreateHmrcApiOptionsRepository().Object);
+                        s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
+                        s.AddSingleton(commandMessageHook);
                     })
                 )
+                .UseEnvironment("LOCAL")
                 .Build();
         }
 
