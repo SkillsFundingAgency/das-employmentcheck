@@ -2,16 +2,17 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
+using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using System.IO;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
-
 namespace SFA.DAS.EmploymentCheck.Functions
 {
     public class Startup : FunctionsStartup
@@ -20,7 +21,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             builder.Services
                 .AddNLog()
-                .AddOptions();
+                .AddOptions()
+                ;
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
@@ -73,6 +75,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
 
+            var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
+            var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
@@ -80,7 +85,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .AddHashingService()
                 .AddEmploymentCheckService(config["EnvironmentName"])
                 .AddPersistenceServices()
-                ;
+                .AddNServiceBusClientUnitOfWork()
+                .AddNServiceBus(applicationSettings)
+                .AddNServiceBusMessageHandlers(logger, applicationSettings);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
@@ -8,6 +10,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
     {
         private readonly TestContext _testContext;
         private readonly FeatureContext _featureContext;
+        
         public FunctionsHost(TestContext testContext, FeatureContext featureContext)
         {
             _testContext = testContext;
@@ -17,7 +20,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
         [BeforeScenario]
         public async Task InitialiseHost()
         {
-            _testContext.TestFunction = new TestFunction(_testContext, $"TEST{_featureContext.FeatureInfo.Title}");
+            var eventsHook = new Hook<object>();
+            _testContext.Hooks.Add(eventsHook);
+
+            var commandsHook = new Hook<ICommand>();
+            _testContext.Hooks.Add(commandsHook);
+
+            _testContext.TestFunction = new TestFunction(_testContext, $"TEST{_featureContext.FeatureInfo.Title}", eventsHook, commandsHook);
             await _testContext.TestFunction.StartHost();
         }
 

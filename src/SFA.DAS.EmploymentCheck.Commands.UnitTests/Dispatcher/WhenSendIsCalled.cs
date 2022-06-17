@@ -5,6 +5,7 @@ using NUnit.Framework;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Abstractions;
 
 namespace SFA.DAS.EmploymentCheck.Commands.UnitTests.Dispatcher
 {
