@@ -17,8 +17,6 @@ jobs:
     parameters:
       SonarCloudProjectKey: SkillsFundingAgency_das-employmentcheck
 
-  - template: azure-pipelines-templates/build/step/dependency-check.yml@das-platform-building-blocks
-
   - task: DotNetCoreCLI@2
     displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}
     inputs:
