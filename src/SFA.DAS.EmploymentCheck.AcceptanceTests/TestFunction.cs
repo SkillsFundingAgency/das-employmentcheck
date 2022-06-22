@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -100,6 +102,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                             a.Hashstring = "test hash string";
                         });
 
+                        s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
                         s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);                        
@@ -127,6 +130,21 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 {
                     AccessCode = "test_access_code",
                     ExpiryTime = DateTime.MaxValue
+                });
+            return mock;
+        }
+
+        private static Mock<IDcTokenService> CreateDcTokenServiceMock()
+        {
+            var mock = new Mock<IDcTokenService>();
+            mock.Setup(_ => _.GetTokenAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new AuthResult
+                {
+                    AccessToken = "test_access_token",
+                    ExpiresIn = 999999,
+                    ExtExpiresIn = 999999,
+                    TokenType = "TokenType"
+
                 });
             return mock;
         }
