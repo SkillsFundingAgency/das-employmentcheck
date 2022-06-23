@@ -143,7 +143,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             serviceCollection.AddSingleton(apiConfiguration);
 
             var dataCollectionsApiConfiguration = _fixture.Build<DataCollectionsApiConfiguration>()
-                .With(x => x.Url, "https://hostname.co")
+                .With(x => x.BaseUrl, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
 

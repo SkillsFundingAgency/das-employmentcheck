@@ -92,7 +92,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
                         s.Configure<DataCollectionsApiConfiguration>(c =>
                         {
-                            c.BaseUrl = testContext.DataCollectionsApi.BaseAddress;
+                            c.BaseUrl = testContext.DataCollectionsApiConfiguration.BaseUrl;
+                            c.Path = testContext.DataCollectionsApiConfiguration.Path;
                         });
 
                         s.Configure<ApplicationSettings>(a =>

@@ -17,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Fixture _fixture;
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
+        private DataCollectionsApiConfiguration _apiConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -25,10 +26,13 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             _apiClientMock = new Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>>();
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>(MockBehavior.Strict);
+            _apiConfiguration = new DataCollectionsApiConfiguration();
 
             _sut = new LearnerService(
                 _apiClientMock.Object,
-                _repositoryMock.Object);
+                _repositoryMock.Object,
+                _apiConfiguration
+                );
         }
 
         [Test]

@@ -15,15 +15,18 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
     public class LearnerService : ILearnerService
     {
         private readonly IDataCollectionsApiClient<DataCollectionsApiConfiguration> _apiClient;
+        private readonly DataCollectionsApiConfiguration _apiConfiguration;
         private readonly IDataCollectionsResponseRepository _repository;
 
         public LearnerService(
             IDataCollectionsApiClient<DataCollectionsApiConfiguration> apiClient,
-            IDataCollectionsResponseRepository repository
+            IDataCollectionsResponseRepository repository,
+            DataCollectionsApiConfiguration apiConfiguration
         )
         {
             _apiClient = apiClient;
             _repository = repository;
+            _apiConfiguration = apiConfiguration;
         }
 
         public async Task<LearnerNiNumber> GetDbNiNumber(Data.Models.EmploymentCheck employmentCheck)
@@ -41,7 +44,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
         {
             try
             {
-                var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
+                var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln, _apiConfiguration);
                 var response = await _apiClient.Get(request);
 
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);

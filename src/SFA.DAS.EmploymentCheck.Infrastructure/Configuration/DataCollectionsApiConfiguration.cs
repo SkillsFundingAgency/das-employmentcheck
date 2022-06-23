@@ -7,10 +7,6 @@
         public string IdentifierUri { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
-        public string Url
-        {
-            get => BaseUrl;
-            set => BaseUrl = value;
-        }
+        public string Path { get; set; }
     }
 }

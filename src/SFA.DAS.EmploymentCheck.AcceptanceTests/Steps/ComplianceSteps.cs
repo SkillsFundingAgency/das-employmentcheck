@@ -70,13 +70,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             _dcApiResponse = new List<LearnerNiNumber>
                 { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
 
-            string url = $"/api/v1/ilr-data/learnersNi/{Application.Services.Learner.GetNationalInsuranceNumberRequest.GetAccademicYear(DateTime.Now)}";
+            string path =  $"{_context.DataCollectionsApiConfiguration.Path}";
 
             _context.DataCollectionsApi.MockServer
                 .Given(
                     Request
                         .Create()
-                        .WithPath(url)
+                        .WithPath(path)
                         .WithParam("ulns", new ExactMatcher($"{_check.Uln}"))
                         .UsingGet()
                 )
