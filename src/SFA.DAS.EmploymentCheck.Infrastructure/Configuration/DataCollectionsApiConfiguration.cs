@@ -8,5 +8,10 @@
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string Path { get; set; }
+
+        public DataCollectionsApiConfiguration()
+        {
+            Path = @"/api/v1/ilr-data/learnersNi/2122";
+        }
     }
 }

@@ -42,5 +42,16 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             // Assert
             _sut.GetUrl.Should().Be($"{_apiApiConfiguration.Path}?ulns={uln}");
         }
+
+        [Test]
+        public void WhenGetNationalInsuranceNumberRequest_Should_Return_Default_Url()
+        {
+            // Arrange and Act
+            var uln = _fixture.Create<long>();
+            _sut = new GetNationalInsuranceNumberRequest(uln, _apiApiConfiguration);
+
+            // Assert
+            _sut.GetUrl.Should().Be($"/api/v1/ilr-data/learnersNi/2122?ulns={uln}");
+        }
     }
 }
