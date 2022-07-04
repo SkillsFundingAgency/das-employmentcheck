@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Application.ApiClients
             IWebHostEnvironment hostingEnvironment)
         {
             HttpClient = httpClientFactory.CreateClient();
-            HttpClient.BaseAddress = new Uri(apiConfiguration.Url);
+            HttpClient.BaseAddress = new Uri(apiConfiguration.BaseUrl);
             HostingEnvironment = hostingEnvironment;
             Configuration = apiConfiguration;
         }

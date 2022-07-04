@@ -19,6 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Fixture _fixture;
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
+        private DataCollectionsApiConfiguration _apiApiConfiguration;
         private Data.Models.EmploymentCheck _employmentCheck;
 
         [SetUp]
@@ -30,9 +31,15 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>();
             _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
 
+            _apiApiConfiguration = new DataCollectionsApiConfiguration
+            {
+                Path = "/api/v1/ilr-data/learnersNi/2122"
+            };
+
             _sut = new LearnerService(
                 _apiClientMock.Object,
-                _repositoryMock.Object
+                _repositoryMock.Object,
+                _apiApiConfiguration
             );
         }
 
@@ -44,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             // Assert
             _apiClientMock.Verify(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(r =>
-                r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")));
+                r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")));
         }
 
         [Test]
@@ -64,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             };
 
             _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                    r => r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -101,7 +108,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             };
 
             _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                    r => r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
