@@ -73,7 +73,7 @@ namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Application.Services
             _services.AddNLogForApi();
 
             // Assert
-            _services.Count.Should().Be(16);
+            _services.Count.Should().Be(25);
             
         }
     }
