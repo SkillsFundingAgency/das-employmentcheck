@@ -27,6 +27,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
 
+            configuration.NServiceBusConnectionString = configuration.NServiceBusConnectionString[..configuration.NServiceBusConnectionString.LastIndexOf('/')];
+
             var endpointConfiguration = new EndpointConfiguration("SFA.DAS.EmploymentCheck.Results")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
