@@ -3,7 +3,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
-using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.NServiceBus.AzureFunction.Configuration;
@@ -27,8 +26,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var webBuilder = serviceCollection.AddWebJobs(x => { });
             webBuilder.AddExecutionContextBinding();
 
-            configuration.NServiceBusConnectionString = configuration.NServiceBusConnectionString[..configuration.NServiceBusConnectionString.LastIndexOf('/')];
-
             var endpointConfiguration = new EndpointConfiguration("SFA.DAS.EmploymentCheck.Results")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
@@ -48,17 +45,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
             else
             {
                 endpointConfiguration
-                    .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
+                    .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting())
+                    .UseEndpointWithExternallyManagedService(serviceCollection);
             }
 
             if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
             {
                 endpointConfiguration.License(configuration.NServiceBusLicense);
             }
-
-            var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
-            endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
-            serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
 
             return serviceCollection;
         }
