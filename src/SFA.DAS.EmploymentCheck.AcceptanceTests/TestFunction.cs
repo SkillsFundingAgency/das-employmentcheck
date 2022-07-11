@@ -71,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         options.ExtendedSessionsEnabled = false;
                         options.StorageProvider["maxQueuePollingInterval"] = new TimeSpan(0, 0, 0, 0, 500);
                         options.StorageProvider["partitionCount"] = 1;
-                       // options.NotificationUrl = new Uri("localhost:7071");
+                        options.NotificationUrl = new Uri("localhost:7071");
 
                     })
                     .AddAzureStorageCoreServices()
