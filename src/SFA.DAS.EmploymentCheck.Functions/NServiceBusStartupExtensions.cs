@@ -33,6 +33,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .UseSqlServerPersistence(() => new SqlConnection(configuration.DbConnectionString))
                 .UseUnitOfWork();
 
+            if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
+            {
+                endpointConfiguration.License(configuration.NServiceBusLicense);
+            }
+
             if (configuration.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {
                 var dir = Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory()
@@ -47,11 +52,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 endpointConfiguration
                     .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting())
                     .UseEndpointWithExternallyManagedService(serviceCollection);
-            }
-
-            if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
-            {
-                endpointConfiguration.License(configuration.NServiceBusLicense);
             }
 
             return serviceCollection;
