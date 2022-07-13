@@ -101,7 +101,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
-            serviceCollection.AddSingleton<IUnitOfWork, UnitOfWork>();
+            serviceCollection.AddSingleton<IUnitOfWork, Data.Repositories.UnitOfWork>();
 
             return serviceCollection;
         }
@@ -166,6 +166,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return !environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase)
                    && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase)
                    && !environmentName.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public static bool ConfigurationIsLocalOrDev(string environmentName)
+        {
+            return environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase) ||
+                   environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

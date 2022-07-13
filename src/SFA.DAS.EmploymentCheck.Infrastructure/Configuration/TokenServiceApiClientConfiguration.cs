@@ -1,7 +1,9 @@
 ﻿using SFA.DAS.TokenService.Api.Client;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
 {
+    [ExcludeFromCodeCoverage]
     public class TokenServiceApiClientConfiguration : ITokenServiceApiClientConfiguration
     {
         public string ApiBaseUrl { get; set; }

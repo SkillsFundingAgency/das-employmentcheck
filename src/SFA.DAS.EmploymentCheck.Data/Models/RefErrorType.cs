@@ -1,7 +1,9 @@
 ﻿using Dapper.Contrib.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmploymentCheck.Data.Models
 {
+    [ExcludeFromCodeCoverage]
     [Table("Cache.RefErrorType")]
     public class RefErrorType
     {

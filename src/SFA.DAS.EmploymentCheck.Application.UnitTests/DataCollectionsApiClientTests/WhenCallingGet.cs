@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
             _fixture = new Fixture();
 
             _configuration = _fixture.Build<DataCollectionsApiConfiguration>()
-                .With(c => c.Url, "https://test.local")
+                .With(c => c.BaseUrl, "https://test.local")
                 .Create();
 
             _token = _fixture.Create<AuthResult>();
@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 )).ReturnsAsync(_token);
 
             _request = _fixture.Create<GetNationalInsuranceNumberRequest>();
-            _absoluteUrl = _configuration.Url + _request.GetUrl;
+            _absoluteUrl = _configuration.BaseUrl + _request.GetUrl;
 
             _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 

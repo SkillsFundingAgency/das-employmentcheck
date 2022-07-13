@@ -1,10 +1,12 @@
 ﻿using Microsoft.Azure.Services.AppAuthentication;
 using System;
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Api.Application.Helpers
 {
+    [ExcludeFromCodeCoverage]
     public class DbConnection
     {
         private const string AzureResource = "https://database.windows.net/";

@@ -32,6 +32,8 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
 
         public string ErrorType { get; set; }
 
+        public DateTime? MessageSentDate { get; set; }
+
         public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }

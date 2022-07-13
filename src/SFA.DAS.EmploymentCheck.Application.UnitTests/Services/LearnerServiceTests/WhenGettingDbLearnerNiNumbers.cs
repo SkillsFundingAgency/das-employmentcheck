@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
         private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
         private ApiRetryOptions _settings;
-
+        private DataCollectionsApiConfiguration _apiConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -31,6 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             _apiClientMock = new Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>>();
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>(MockBehavior.Strict);
+            _apiConfiguration = new DataCollectionsApiConfiguration();
 
             _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
@@ -51,7 +52,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 _apiClientMock.Object,
                 _repositoryMock.Object,
                 retryPolicies,
-                Mock.Of<ILogger<LearnerService>>());
+                Mock.Of<ILogger<LearnerService>>(),
+                _apiConfiguration);
         }
 
         [Test]

@@ -23,6 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Fixture _fixture;
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
+        private DataCollectionsApiConfiguration _apiApiConfiguration;
         private Data.Models.EmploymentCheck _employmentCheck;
         private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
         private ApiRetryOptions _settings;
@@ -49,6 +50,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             _apiOptionsRepositoryMock.Setup(r => r.GetOptions(It.IsAny<string>())).ReturnsAsync(_settings);
 
+            _apiApiConfiguration = new DataCollectionsApiConfiguration
+            {
+                Path = "/api/v1/ilr-data/learnersNi/2122"
+            };
+
             var retryPolicies = new ApiRetryPolicies(
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
                 _apiOptionsRepositoryMock.Object);
@@ -57,7 +63,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 _apiClientMock.Object,
                 _repositoryMock.Object,
                 retryPolicies,
-                _logger.Object
+                _logger.Object,
+                _apiApiConfiguration
             );
         }
 
@@ -69,7 +76,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
 
             // Assert
             _apiClientMock.Verify(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.Is<GetNationalInsuranceNumberRequest>(r =>
-                r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")));
+                r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")));
         }
 
         [Test]
@@ -89,7 +96,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             };
 
             _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                    r => r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -126,7 +133,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             };
 
             _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+                    r => r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act

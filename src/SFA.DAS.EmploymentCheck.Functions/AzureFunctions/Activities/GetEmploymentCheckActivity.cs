@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
 {

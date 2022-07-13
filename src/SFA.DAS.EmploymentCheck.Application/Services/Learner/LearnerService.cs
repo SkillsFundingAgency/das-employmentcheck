@@ -17,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
     public class LearnerService : ILearnerService
     {
         private readonly IDataCollectionsApiClient<DataCollectionsApiConfiguration> _apiClient;
+        private readonly DataCollectionsApiConfiguration _apiConfiguration;
         private readonly IDataCollectionsResponseRepository _repository;
         private readonly IApiRetryPolicies _apiRetryPolicies;
         private readonly ILogger<LearnerService> _logger;
@@ -25,13 +26,15 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             IDataCollectionsApiClient<DataCollectionsApiConfiguration> apiClient,
             IDataCollectionsResponseRepository repository,
             IApiRetryPolicies apiRetryPolicies,
-            ILogger<LearnerService> logger
+            ILogger<LearnerService> logger,
+            DataCollectionsApiConfiguration apiConfiguration
         )
         {
             _apiClient = apiClient;
             _repository = repository;
             _apiRetryPolicies = apiRetryPolicies;
             _logger = logger;
+            _apiConfiguration = apiConfiguration;
         }
 
         public async Task<LearnerNiNumber> GetDbNiNumber(Data.Models.EmploymentCheck employmentCheck)
@@ -52,8 +55,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Learner
             try
             {
                 var policy = await _apiRetryPolicies.GetAll("LearnerApiKey");
-                var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln);
-                response = await _apiClient.GetWithPolicy(policy, request);
+                var request = new GetNationalInsuranceNumberRequest(employmentCheck.Uln, _apiConfiguration);
+                response = await _apiClient.GetWithPolicy(policy, request)
                 return await ProcessNiNumberFromApiResponse(employmentCheck, response);
             }
             catch (Exception e)

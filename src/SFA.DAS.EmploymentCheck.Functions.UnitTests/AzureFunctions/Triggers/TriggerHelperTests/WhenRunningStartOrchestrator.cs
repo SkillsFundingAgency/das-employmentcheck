@@ -84,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
         public async Task Then_If_An_Orchestrator_Instance_Is_Not_Returned_A_Conflict_HttpResponseMessage_Is_Returned()
         {
             // Arrange
-            var response = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occured starting [{_orchestratorName}], no instance id was returned.") };
+            var response = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occurred starting [{_orchestratorName}], no instance id was returned.") };
 
             _triggerHelperMock
                 .Setup(t => t.StartOrchestrator(
@@ -103,6 +103,49 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.Tr
             _starterMock
                 .SetupSequence(s => s.CreateCheckStatusResponse(_requestMock.Object, _instanceId, false))
                 .Returns(response);
+
+            var sut = new TriggerHelper();
+
+            // Act
+            var result = await sut.StartOrchestrator(
+                _requestMock.Object,
+                _starterMock.Object,
+                _loggerMock.Object,
+                _triggerHelperMock.Object,
+                _orchestratorName,
+                _triggerName);
+
+            // Assert
+            var resultContent = await result.Content.ReadAsStringAsync();
+            var expectedContent = await response.Content.ReadAsStringAsync();
+            Assert.AreEqual(expectedContent, resultContent);
+            Assert.AreEqual(response.StatusCode, result.StatusCode);
+        }
+
+
+        [Test]
+        public async Task Then_If_CreateCheckStatusResponse_IsNull_A_Conflict_HttpResponseMessage_Is_Returned()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.Conflict) { Content = new StringContent($"An error occurred getting the status of [{_orchestratorName}] for instance Id [{_instanceId}].") };
+
+            _triggerHelperMock
+                .Setup(t => t.StartOrchestrator(
+                    _requestMock.Object,
+                    _starterMock.Object,
+                    _loggerMock.Object,
+                    _triggerHelperMock.Object,
+                    _orchestratorName,
+                    _triggerName))
+                .ReturnsAsync(response);
+
+            _starterMock
+                .Setup(s => s.StartNewAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(_instanceId);
+
+            _starterMock
+                .SetupSequence(s => s.CreateCheckStatusResponse(_requestMock.Object, _instanceId, false))
+                .Returns((HttpResponseMessage)null);
 
             var sut = new TriggerHelper();
 

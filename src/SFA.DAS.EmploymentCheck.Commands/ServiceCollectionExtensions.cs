@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SFA.DAS.EmploymentCheck.Abstractions;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.Commands
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddCommandServices(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddCommandServices(this IServiceCollection serviceCollection, Func<IServiceCollection, IServiceCollection> addDecorators = null)
         {
             serviceCollection.AddScoped<ICommandDispatcher, CommandDispatcher>();
 
@@ -15,6 +17,11 @@ namespace SFA.DAS.EmploymentCheck.Commands
                     .AsImplementedInterfaces()
                     .WithTransientLifetime();
             });
+
+            if (addDecorators != null)
+            {
+                serviceCollection = addDecorators(serviceCollection);
+            }
 
             return serviceCollection;
         }

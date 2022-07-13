@@ -74,14 +74,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 "A running instance of the orchestrator detected. Manually delete it and retry.");
         }
 
-        [Then(@"the Api call is retried (.*) times")]
-        public void ThenTheApiCallIsRetriedTimes(int noOfRetries)
+        [Then(@"the Api call with (.*) is retried (.*) times")]
+        public void ThenTheApiCallWithIsRetriedTimes(int statusCode, int noOfRetries)
         {
-           var logs = _context.HmrcApi.MockServer.LogEntries
-               .Where(l => (int)l.ResponseMessage.StatusCode == 401)
+            var logs = _context.HmrcApi.MockServer.LogEntries
+               .Where(l => (int)l.ResponseMessage.StatusCode == statusCode)
                .ToList();
 
-           logs.Should().HaveCount(noOfRetries + 1);
+            logs.Should().HaveCount(noOfRetries + 1);
+
+            
         }
+
     }
 }
