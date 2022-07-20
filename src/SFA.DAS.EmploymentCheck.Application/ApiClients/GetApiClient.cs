@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Newtonsoft.Json;
+﻿using Boxed.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Polly.Wrap;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Net.Http;
@@ -33,6 +34,30 @@ namespace SFA.DAS.EmploymentCheck.Application.ApiClients
             var response = await HttpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
 
             return response;
+        }
+
+        public async Task<HttpResponseMessage> GetWithPolicy(AsyncPolicyWrap policy, IGetApiRequest request)
+        {
+            HttpResponseMessage response = null;
+
+            try
+            {
+                await policy.ExecuteAsync(async () =>
+                {
+                    response = await Get(request);
+                    if (response != null && !response.IsSuccessStatusCode)
+                    {
+                        throw new HttpException(response.StatusCode);
+                    }
+
+                });
+
+                return response;
+            }
+            catch (HttpException)
+            {
+                return response;
+            }
         }
 
         protected abstract Task AddAuthenticationHeader(HttpRequestMessage httpRequestMessage);

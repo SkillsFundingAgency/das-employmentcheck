@@ -16,7 +16,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
         {
             //Arrange
             HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions();
-            HmrcApiRateLimiterConfiguration config = new HmrcApiRateLimiterConfiguration();
+            var config = new AzureStorageConnectionConfiguration();
             IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(config, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
 
             //Act
@@ -38,7 +38,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
         public async Task Then_GetTable_CloudTable_And_Then_IncreaseDelaySetting()
         {
             //Arrange
-            HmrcApiRateLimiterConfiguration options = new HmrcApiRateLimiterConfiguration();
+            var options = new AzureStorageConnectionConfiguration();
             IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
             HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
             int delayInMs = result.DelayInMs;
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
         public async Task Then_GetTable_CloudTable_And_Then_ReduceDelaySetting()
         {
             //Arrange
-            HmrcApiRateLimiterConfiguration options = new HmrcApiRateLimiterConfiguration();
+            var options = new AzureStorageConnectionConfiguration();
             IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
             HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
             int delayInMs = result.DelayInMs;

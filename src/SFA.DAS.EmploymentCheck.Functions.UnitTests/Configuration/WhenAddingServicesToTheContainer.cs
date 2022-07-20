@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
@@ -47,6 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 
         [TestCase(typeof(IHmrcApiOptionsRepository))]
         [TestCase(typeof(IHmrcApiRetryPolicies))]
+        [TestCase(typeof(IApiRetryPolicies))]
         [TestCase(typeof(IDcTokenService))]
         [TestCase(typeof(IEmploymentCheckService))]
         [TestCase(typeof(ILearnerService))]
