@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
@@ -31,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
             {
-                var hmrcApiRateLimiterConfiguration = new HmrcApiRateLimiterConfiguration
+                var hmrcApiRateLimiterConfiguration = new AzureStorageConnectionConfiguration
                 {
                     EnvironmentName = environmentName,
                     StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
@@ -41,7 +42,20 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
             });
 
+            serviceCollection.AddSingleton<IApiOptionsRepository>(s =>
+            {
+                var apiConfiguration = new AzureStorageConnectionConfiguration
+                {
+                    EnvironmentName = environmentName,
+                    StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
+                        Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
+                        "UseDevelopmentStorage=true",
+                };
+                return new ApiOptionsRepository(apiConfiguration);
+            });
+
             serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();
+            serviceCollection.AddSingleton<IApiRetryPolicies, ApiRetryPolicies>();
 
             serviceCollection.AddTransient<IDcTokenService, DcTokenService>();
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
@@ -87,7 +101,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
             serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
-            serviceCollection.AddSingleton<IUnitOfWork, UnitOfWork>();
+            serviceCollection.AddSingleton<IUnitOfWork, Data.Repositories.UnitOfWork>();
 
             return serviceCollection;
         }
@@ -152,6 +166,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return !environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase)
                    && !environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase)
                    && !environmentName.Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public static bool ConfigurationIsLocalOrDev(string environmentName)
+        {
+            return environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase) ||
+                   environmentName.Equals("DEV", StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

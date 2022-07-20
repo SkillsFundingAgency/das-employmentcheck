@@ -7,10 +7,11 @@
         public string IdentifierUri { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
-        public string Url
+        public string Path { get; set; }
+
+        public DataCollectionsApiConfiguration()
         {
-            get => BaseUrl;
-            set => BaseUrl = value;
+            Path = @"/api/v1/ilr-data/learnersNi/2122";
         }
     }
 }

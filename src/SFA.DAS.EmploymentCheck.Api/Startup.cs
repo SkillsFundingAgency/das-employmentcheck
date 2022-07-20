@@ -16,11 +16,13 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using PolicyNames = SFA.DAS.Api.Common.Infrastructure.PolicyNames;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public IConfiguration Configuration { get; }

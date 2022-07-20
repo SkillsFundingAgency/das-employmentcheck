@@ -6,18 +6,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Newtonsoft.Json;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
+using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.EmploymentCheck.Functions;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using SFA.DAS.NServiceBus.Services;
 using SFA.DAS.TokenService.Api.Client;
 using SFA.DAS.TokenService.Api.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -26,13 +32,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         private readonly IHost _host;
         private readonly OrchestrationData _orchestrationData;
         private bool _isDisposed;
-
         private IJobHost Jobs => _host.Services.GetService<IJobHost>();
         public string HubName { get; }
         public HttpResponseMessage LastResponse => ResponseObject as HttpResponseMessage;
         public object ResponseObject { get; private set; }
 
-        public TestFunction(TestContext testContext, string hubName)
+        public TestFunction(TestContext testContext, string hubName, IHook<object> eventMessageHook, IHook<ICommand> commandMessageHook)
         {
             HubName = hubName;
             _orchestrationData = new OrchestrationData();
@@ -42,8 +47,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "EnvironmentName", "LOCAL_ACCEPTANCE_TESTS" },
                 { "AzureWebJobsStorage", "UseDevelopmentStorage=true" },
                 { "ConfigurationStorageConnectionString", "UseDevelopmentStorage=true" },
-                { "ConfigNames", "SFA.DAS.EmployerIncentives" },
-                { "ApplicationSettings:LogLevel", "DEBUG" }
+                { "ConfigNames", "SFA.DAS.EmploymentCheck.Functions" },
+                { "ApplicationSettings:LogLevel", "DEBUG" },
+                { "ApplicationSettings:NServiceBusConnectionString", "UseLearningEndpoint=true" },
+                { "ApplicationSettings:UseLearningEndpointStorageDirectory", Path.Combine(testContext.TestDirectory.FullName, ".learningtransport") },
+                { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase.DatabaseInfo.ConnectionString },
+                { "ApplicationSettings:NServiceBusEndpointName", testContext.InstanceId },
             };
 
             _host = new HostBuilder()
@@ -83,7 +92,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
                         s.Configure<DataCollectionsApiConfiguration>(c =>
                         {
-                            c.BaseUrl = testContext.DataCollectionsApi.BaseAddress;
+                            c.BaseUrl = testContext.DataCollectionsApiConfiguration.BaseUrl;
+                            c.Path = testContext.DataCollectionsApiConfiguration.Path;
                         });
 
                         s.Configure<ApplicationSettings>(a =>
@@ -93,12 +103,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                             a.Hashstring = "test hash string";
                         });
 
+                        s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
-                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);
+                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);                        
                         s.AddSingleton(typeof(IHmrcApiOptionsRepository), CreateHmrcApiOptionsRepository().Object);
+                        s.AddSingleton(typeof(IApiOptionsRepository), CreateApiOptionsRepository().Object);
+                        s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
+                        s.AddSingleton(commandMessageHook);
                     })
                 )
+                .UseEnvironment("LOCAL")
                 .Build();
         }
 
@@ -121,6 +136,21 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             return mock;
         }
 
+        private static Mock<IDcTokenService> CreateDcTokenServiceMock()
+        {
+            var mock = new Mock<IDcTokenService>();
+            mock.Setup(_ => _.GetTokenAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new AuthResult
+                {
+                    AccessToken = "test_access_token",
+                    ExpiresIn = 999999,
+                    ExtExpiresIn = 999999,
+                    TokenType = "TokenType"
+
+                });
+            return mock;
+        }
+
         private static Mock<IHmrcApiOptionsRepository> CreateHmrcApiOptionsRepository()
         {
             var mock = new Mock<IHmrcApiOptionsRepository>();
@@ -129,6 +159,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 {
                     DelayInMs = 0,
                     TokenFailureRetryDelayInMs = 0,
+                    TransientErrorDelayInMs = 0
+                });
+            return mock;
+        }
+
+        private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
+        {
+            var mock = new Mock<IApiOptionsRepository>();
+            mock.Setup(_ => _.GetOptions(It.IsAny<string>()))
+                .ReturnsAsync(new ApiRetryOptions
+                {
                     TransientErrorDelayInMs = 0
                 });
             return mock;

@@ -21,10 +21,15 @@
     <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.62" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Responses\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Commands\SFA.DAS.EmploymentCheck.Commands.csproj" />
   </ItemGroup>
 
   <ItemGroup>
