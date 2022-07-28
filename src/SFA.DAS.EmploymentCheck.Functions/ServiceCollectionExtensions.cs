@@ -16,7 +16,6 @@ using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
-using SFA.DAS.HashingService;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
@@ -145,17 +144,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 httpClient.BaseAddress = new Uri(settings.BaseUrl);
 
                 return new ApprenticeshipLevyApiClient(httpClient);
-            });
-
-            return serviceCollection;
-        }
-
-        public static IServiceCollection AddHashingService(this IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddSingleton<IHashingService>(c =>
-            {
-                var settings = c.GetService<IOptions<ApplicationSettings>>().Value;
-                return new HashingService.HashingService(settings.AllowedHashstringCharacters, settings.Hashstring);
             });
 
             return serviceCollection;

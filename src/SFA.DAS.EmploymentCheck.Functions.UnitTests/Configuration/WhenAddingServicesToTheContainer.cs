@@ -11,7 +11,6 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
-using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -19,11 +18,13 @@ using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
-using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.Collections.Generic;
 using SFA.DAS.EmploymentCheck.Abstractions;
 using System.Reflection;
+using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
@@ -61,7 +62,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IDataCollectionsResponseRepository))]
         [TestCase(typeof(IAccountsResponseRepository))]
         [TestCase(typeof(IEmploymentCheckCacheRequestRepository))]
-        [TestCase(typeof(IHashingService))]
         [TestCase(typeof(ITokenServiceApiClient))]
         [TestCase(typeof(ICommandDispatcher))]
         [TestCase(typeof(ICommandHandler<CreateEmploymentCheckCacheRequestCommand>))]
@@ -149,11 +149,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .Create();
             serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
 
+            var encodingConfig = new EncodingConfig 
+            {
+                Encodings = new List<Encoding.Encoding>
+                {
+                    new Encoding.Encoding { Alphabet = "ABC", EncodingType = "Test", MinHashLength = 6, Salt = "Salt" }
+                }
+            };
+            serviceCollection.AddSingleton(encodingConfig);
+            serviceCollection.AddSingleton<IEncodingService, EncodingService>();
+
             serviceCollection.AddEmploymentCheckService(environment)
                 .AddPersistenceServices()
                 .AddNLog()
                 .AddApprenticeshipLevyApiClient()
-                .AddHashingService()
                 .AddCommandServices()
                 .AddQueryServices()
                 ;

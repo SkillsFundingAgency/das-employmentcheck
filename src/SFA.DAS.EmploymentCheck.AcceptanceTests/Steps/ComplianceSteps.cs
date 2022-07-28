@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using SFA.DAS.Encoding;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -49,7 +50,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             _accountsApiResponse = new ResourceList(_context.Fixture.CreateMany<ResourceViewModel>(1));
 
-            var url = $"/api/accounts/{_context.HashingService.HashValue(_check.AccountId)}/payeschemes";
+            var url = $"/api/accounts/{_context.EncodingService.Encode(_check.AccountId, EncodingType.AccountId)}/payeschemes";
 
             _context.EmployerAccountsApi.MockServer
                 .Given(
