@@ -6,10 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="local.encoding.json" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Content Include="local.encoding.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
