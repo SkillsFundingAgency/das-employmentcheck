@@ -21,5 +21,9 @@ GO
 CREATE INDEX [IX_EmploymentCheckCacheRequest_Column] ON [Cache].[EmploymentCheckCacheRequest] ([ApprenticeEmploymentCheckId], [CorrelationId], [Nino], [PayeScheme], [MinDate], [MaxDate])
 GO
 
+CREATE NONCLUSTERED INDEX [IX_Cache_EmploymentCheckCacheRequest__ApprenticeEmploymentCheckId]
+    ON [Cache].[EmploymentCheckCacheRequest]([ApprenticeEmploymentCheckId] ASC);
+GO
+
 CREATE INDEX IX_EmploymentCheckCacheRequest__RequestCompletionStatus_Id ON [Cache].[EmploymentCheckCacheRequest] ([RequestCompletionStatus], [Id])
 GO
