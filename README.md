@@ -1,4 +1,4 @@
-[![Build Status](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_apis/build/status/das-employmentcheck?repoName=SkillsFundingAgency%2Fdas-employmentcheck&branchName=refs%2Fpull%2F159%2Fmerge)](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_build/latest?definitionId=2539&repoName=SkillsFundingAgency%2Fdas-employmentcheck&branchName=refs%2Fpull%2F159%2Fmerge)
+[![Build Status](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_apis/build/status/das-employmentcheck?repoName=SkillsFundingAgency%2Fdas-employmentcheck&branchName=master)](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_build/latest?definitionId=2539&repoName=SkillsFundingAgency%2Fdas-employmentcheck&branchName=master)
 
 # Employment Check
 This repository represents the Employment Check code base. The idea around this check is to allow the business to understand which learners have been validated to show that they are employed by the employer who is associated with them on the service. 
