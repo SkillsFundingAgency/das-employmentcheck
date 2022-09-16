@@ -35,21 +35,21 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
         public async Task Then_The_Repository_Is_Called()
         {
             // Act
-            await _sut.GetEmploymentCheckCacheRequest();
+            await _sut.GetEmploymentCheckCacheRequests();
 
             // Assert
-            _employmentCheckCashRequestRepositoryMock.Verify(x => x.GetEmploymentCheckCacheRequest(), Times.AtLeastOnce);
+            _employmentCheckCashRequestRepositoryMock.Verify(x => x.GetEmploymentCheckCacheRequests(), Times.AtLeastOnce);
         }
 
         [Test]
         public async Task And_The_Repository_Returns_Null_EmploymentCheckCacheRequest_Then_Null_Is_Returned()
         {
             // Arrange
-            _employmentCheckCashRequestRepositoryMock.Setup(x => x.GetEmploymentCheckCacheRequest())
-                .ReturnsAsync((EmploymentCheckCacheRequest)null);
+            _employmentCheckCashRequestRepositoryMock.Setup(x => x.GetEmploymentCheckCacheRequests())
+                .ReturnsAsync((EmploymentCheckCacheRequest[])null);
 
             // Act
-            var result = await _sut.GetEmploymentCheckCacheRequest();
+            var result = await _sut.GetEmploymentCheckCacheRequests();
 
             // Assert
             result.Should().BeNull();
@@ -59,13 +59,13 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
         public async Task And_The_Repository_Returns_EmploymentCheckCacheRequest_Then_It_Is_Returned()
         {
             // Arrange
-            var employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
+            var employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest[]>();
 
-            _employmentCheckCashRequestRepositoryMock.Setup(x => x.GetEmploymentCheckCacheRequest())
+            _employmentCheckCashRequestRepositoryMock.Setup(x => x.GetEmploymentCheckCacheRequests())
                 .ReturnsAsync(employmentCheckCacheRequest);
 
             // Act
-            var result = await _sut.GetEmploymentCheckCacheRequest();
+            var result = await _sut.GetEmploymentCheckCacheRequests();
 
             // Assert
             Assert.AreEqual(employmentCheckCacheRequest, result);

@@ -18,7 +18,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<IDurableOrchestrationContext> _context;
         private Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>> _logger;
 
-        private EmploymentCheckCacheRequest _employmentCheckCacheRequest;
+        private EmploymentCheckCacheRequest[] _employmentCheckCacheRequest;
         private IList<Data.Models.EmploymentCheck> _employmentChecks;
 
         [SetUp]
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _fixture = new Fixture();
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>>();
-            _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest>();
+            _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest[]>();
             _employmentChecks = _fixture.CreateMany<Data.Models.EmploymentCheck>(1).ToList();
         }
 
@@ -38,19 +38,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             var sut = new ProcessEmploymentCheckRequestsOrchestrator(_logger.Object);
 
             _context
-                .SetupSequence(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null))
+                .SetupSequence(a => a.CallActivityAsync<EmploymentCheckCacheRequest[]>(nameof(GetEmploymentCheckCacheRequestActivity), null))
                 .ReturnsAsync(_employmentCheckCacheRequest)
                 .ReturnsAsync(() => null);
-
-            _context
-                .Setup(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), _employmentChecks))
-                .ReturnsAsync(_employmentCheckCacheRequest);
 
             // Act
             await sut.ProcessEmploymentCheckRequestsOrchestratorTask(_context.Object);
 
             // Assert
-            _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Exactly(2));
+            _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest[]>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Exactly(2));
+            _context.Verify(a => a.CallActivityAsync(nameof(GetHmrcLearnerEmploymentStatusActivity), It.IsAny<EmploymentCheckCacheRequest>()), Times.Exactly(_employmentCheckCacheRequest.Length));
         }
     }
 }

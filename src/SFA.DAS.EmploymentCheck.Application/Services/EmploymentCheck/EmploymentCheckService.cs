@@ -35,9 +35,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return await _employmentCheckRepository.GetResponseEmploymentCheck();
         }
 
-        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
+        public async Task<EmploymentCheckCacheRequest[]> GetEmploymentCheckCacheRequests()
         {
-            return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();
+            return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequests();
         }
 
         public async Task StoreCompletedEmploymentCheck(Models.EmploymentCheck employmentCheck)
@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             try
             {
                 request.LastUpdatedOn = DateTime.Now;
-                request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
+                request.RequestCompletionStatus = (short) ProcessingCompletionStatus.Completed;
 
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
@@ -84,7 +84,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
         public async Task SaveEmploymentCheck(Data.Models.EmploymentCheck check)
         {
-           await _employmentCheckRepository.InsertOrUpdate(check);
+            await _employmentCheckRepository.InsertOrUpdate(check);
         }
 
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData)

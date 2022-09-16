@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
         Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData);
 
-        Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest();
+        Task<EmploymentCheckCacheRequest[]> GetEmploymentCheckCacheRequests();
 
         Task StoreCompletedEmploymentCheck(Models.EmploymentCheck employmentCheck);
 

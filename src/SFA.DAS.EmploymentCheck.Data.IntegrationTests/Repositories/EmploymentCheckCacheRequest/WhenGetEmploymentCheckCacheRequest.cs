@@ -31,10 +31,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             await CreatePendingHmrcApiRequest(check3, 30);
 
             // Act
-            var actual = await _sut.GetEmploymentCheckCacheRequest();
+            var actual = await _sut.GetEmploymentCheckCacheRequests();
 
             // Assert
-            actual.ApprenticeEmploymentCheckId.Should().Be(check1.Id);
+            actual.First().ApprenticeEmploymentCheckId.Should().Be(check1.Id);
         }
 
         [Test]
@@ -55,10 +55,10 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             var firstCreatedCheck = new[] { check1, check2, check3 }.OrderBy(c => c.CreatedOn).First();
 
             // Act
-            var actual = await _sut.GetEmploymentCheckCacheRequest();
+            var actual = await _sut.GetEmploymentCheckCacheRequests();
 
             // Assert
-            actual.ApprenticeEmploymentCheckId.Should().Be(firstCreatedCheck.Id);
+            actual.First().ApprenticeEmploymentCheckId.Should().Be(firstCreatedCheck.Id);
         }
 
         private async Task<Models.EmploymentCheck> CreateStartedEmploymentCheck()

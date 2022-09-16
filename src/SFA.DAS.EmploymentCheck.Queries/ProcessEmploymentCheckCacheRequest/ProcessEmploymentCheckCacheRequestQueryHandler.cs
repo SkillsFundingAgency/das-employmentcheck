@@ -4,25 +4,20 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Queries.ProcessEmploymentCheckCacheRequest
 {
-    public class ProcessEmploymentCheckCacheRequestQueryHandler
-        : IQueryHandler<ProcessEmploymentCheckCacheRequestQueryRequest,
-            ProcessEmploymentCheckCacheRequestQueryResult>
+    public class ProcessEmploymentCheckCacheRequestQueryHandler : IQueryHandler<ProcessEmploymentCheckCacheRequestQueryRequest, ProcessEmploymentCheckCacheRequestQueryResult>
     {
         private readonly IEmploymentCheckService _service;
 
-        public ProcessEmploymentCheckCacheRequestQueryHandler(
-            IEmploymentCheckService service)
+        public ProcessEmploymentCheckCacheRequestQueryHandler(IEmploymentCheckService service)
         {
             _service = service;
         }
 
-        public async Task<ProcessEmploymentCheckCacheRequestQueryResult> Handle(
-            ProcessEmploymentCheckCacheRequestQueryRequest request,
-            CancellationToken cancellationToken = default)
+        public async Task<ProcessEmploymentCheckCacheRequestQueryResult> Handle(ProcessEmploymentCheckCacheRequestQueryRequest request, CancellationToken cancellationToken = default)
         {
-            var employmentCheckCacheRequest = await _service.GetEmploymentCheckCacheRequest();
+            var employmentCheckCacheRequests = await _service.GetEmploymentCheckCacheRequests();
 
-            return new ProcessEmploymentCheckCacheRequestQueryResult(employmentCheckCacheRequest);
+            return new ProcessEmploymentCheckCacheRequestQueryResult(employmentCheckCacheRequests);
         }
     }
 }
