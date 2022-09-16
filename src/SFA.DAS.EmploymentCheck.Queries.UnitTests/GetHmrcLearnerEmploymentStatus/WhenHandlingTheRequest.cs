@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
@@ -18,8 +20,22 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetHmrcLearnerEmploymentStat
         public void SetUp()
         {
             _fixture = new Fixture();
-            _serviceMock = new Mock<IHmrcService>(); 
-            _sut = new GetHmrcLearnerEmploymentStatusQueryHandler(_serviceMock.Object);
+            _serviceMock = new Mock<IHmrcService>();
+            var serviceProviderMock = new Mock<IServiceProvider>();
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProviderMock.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory
+                .Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
+                .Returns(serviceScopeFactory.Object);
+
+            _sut = new GetHmrcLearnerEmploymentStatusQueryHandler(_serviceMock.Object, serviceProviderMock.Object);
         }
 
         [Test]
