@@ -149,20 +149,20 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             act.Should().ThrowAsync<InvalidOperationException>().WithMessage(exception.Message);
         }
 
-        [Test]
-        public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_called_When_result_is_Employed()
-        {
-            // Arrange
-            var request = _fixture.Create<EmploymentCheckCacheRequest>();
-            var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, true).Create();
+        //[Test]
+        //public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_called_When_result_is_Employed()
+        //{
+        //    // Arrange
+        //    var request = _fixture.Create<EmploymentCheckCacheRequest>();
+        //    var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, true).Create();
 
-            // Act
-            await _sut.StoreCompletedCheck(request, response);
+        //    // Act
+        //    await _sut.StoreCompletedCheck(request, response);
 
-            // Assert
-            _employmentCheckCacheRequestRepositoryMock.Verify(x => x.AbandonRelatedRequests(
-                request, _unitOfWorkMock.Object), Times.Once());
-        }
+        //    // Assert
+        //    _employmentCheckCacheRequestRepositoryMock.Verify(x => x.AbandonRelatedRequests(
+        //        request, _unitOfWorkMock.Object), Times.Once());
+        //}
 
         [Test]
         public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_not_called_When_result_is_not_Employed()

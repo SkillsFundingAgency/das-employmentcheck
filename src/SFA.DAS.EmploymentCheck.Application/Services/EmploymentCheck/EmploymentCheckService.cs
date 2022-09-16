@@ -57,15 +57,25 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
                 await _unitOfWork.InsertAsync(response);
+                
+                //var isEmploymentCheckCompleted = await _employmentCheckRepository.IsEmploymentCheckCompleted(request.ApprenticeEmploymentCheckId);
+                //if (isEmploymentCheckCompleted)
+                //{
+                //    await _unitOfWork.CommitAsync();
+                //    return;
+                //}
 
                 var employmentCheck = Models.EmploymentCheck.CreateEmploymentCheck(request);
+
                 await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
-                if (response.Employed == true)
-                {
-                    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
-                }
+                //todo check if this can be removed or improved
+                //if (response.Employed == true)
+                //{
+                //    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
+                //}
 
+                //deadlock investigation, reduce number of threads
                 await _unitOfWork.CommitAsync();
             }
             catch
@@ -107,6 +117,11 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             }
 
             return employmentCheckRequests;
+        }
+
+        public async Task<bool> IsEmploymentCheckCompleted(long employmentCheckId)
+        {
+            return await _employmentCheckRepository.IsEmploymentCheckCompleted(employmentCheckId);
         }
     }
 }

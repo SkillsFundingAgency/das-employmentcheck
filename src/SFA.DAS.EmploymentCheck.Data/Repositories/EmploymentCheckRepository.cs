@@ -222,5 +222,44 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
             await unitOfWork.ExecuteSqlAsync(sql, parameter);
         }
+
+        public async Task<bool> IsEmploymentCheckCompleted(long id)
+        {
+            bool employmentCheckStatus;
+
+            var dbConnection = new DbConnection();
+
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(_settings.DbConnectionString, _azureServiceTokenProvider))
+            {
+                await sqlConnection.OpenAsync();
+                var transaction = sqlConnection.BeginTransaction();
+
+                try
+                {
+                    var parameter = new DynamicParameters();
+                    parameter.Add("@Id", id, DbType.Int64);
+
+                    const string sql = @"
+                        SELECT TOP (1) CASE WHEN [RequestCompletionStatus] IS NULL OR [RequestCompletionStatus] = 1 THEN 0 ELSE 1 END AS RequestCompletionStatus
+                        FROM [Business].[EmploymentCheck] 
+                        WHERE Id = @Id
+                        ";
+
+                    employmentCheckStatus = (await sqlConnection.QueryAsync<bool>(
+                            sql: sql,
+                            param: parameter,
+                            commandType: CommandType.Text,
+                            transaction: transaction)).FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    _logger.LogError($"EmploymentCheckService.IsEmploymentCheckCompleted(): ERROR: An error occurred reading the employment check Status. Exception [{e}]");
+                    throw;
+                }
+            }
+
+            return employmentCheckStatus;
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces
         Task<Models.EmploymentCheck> GetEmploymentCheck();
         Task<Models.EmploymentCheck> GetResponseEmploymentCheck();
         Task UpdateEmploymentCheckAsComplete(Models.EmploymentCheck check, IUnitOfWork unitOfWork);
+        Task<bool> IsEmploymentCheckCompleted(long id);
     }
 }

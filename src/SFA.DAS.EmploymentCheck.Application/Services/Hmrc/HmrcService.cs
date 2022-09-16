@@ -41,6 +41,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
             try
             {
+                //var isEmploymentCheckCompleted = await _employmentCheckService.IsEmploymentCheckCompleted(request.ApprenticeEmploymentCheckId);
+
+                //previous Parallel executions may have already completed the employment check
+                //NOTE: the returned value is not in use
+                //if (isEmploymentCheckCompleted) return request;
+
                 await RetrieveAuthenticationToken();
 
                 var result = await GetEmploymentStatusWithRetries(request);
@@ -119,7 +125,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         {
             if (force || _cachedToken == null || AccessTokenHasExpired())
             {
-                var policy =  await _retryPolicies.GetTokenRetrievalRetryPolicy();
+                var policy = await _retryPolicies.GetTokenRetrievalRetryPolicy();
                 await policy.ExecuteAsync(async () =>
                 {
                     _logger.LogInformation($"{nameof(HmrcService)}: Refreshing access token...");

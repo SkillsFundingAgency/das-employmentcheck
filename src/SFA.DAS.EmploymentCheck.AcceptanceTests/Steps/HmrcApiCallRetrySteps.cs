@@ -23,6 +23,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     {
         private EmploymentCheckCacheRequest _checkCacheRequest;
         private readonly TestContext _context;
+        private Data.Models.EmploymentCheck _check;
 
         public HmrcApiCallRetrySteps(TestContext context)
         {
@@ -33,7 +34,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         public async Task GivenAnExistingEmploymentCheckCacheRequest()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+           
+            _check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
+                .With(c => c.RequestCompletionStatus, (short?) 1)
+                .Without(c => c.Employed)
+                .Without(c => c.LastUpdatedOn)
+                .Create();
+
+            var checkId = await dbConnection.InsertAsync(_check);
+
             _checkCacheRequest = _context.Fixture.Build<Data.Models.EmploymentCheckCacheRequest>()
+                .With(c => c.ApprenticeEmploymentCheckId, checkId)
                 .Without(c => c.RequestCompletionStatus)
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)

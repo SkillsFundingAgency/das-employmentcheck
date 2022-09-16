@@ -22,5 +22,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         Task InsertEmploymentCheckCacheResponse(EmploymentCheckCacheResponse response);
 
         Task SaveEmploymentCheck(Data.Models.EmploymentCheck check);
+        Task<bool> IsEmploymentCheckCompleted(long employmentCheckId);
     }
 }

@@ -100,17 +100,17 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql =
-                "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                "SET    RequestCompletionStatus     =  @requestCompletionStatus, " +
-                "       Employed                    =  null, " +
-                "       LastUpdatedOn               =  @lastUpdatedOn " +
-                "WHERE  Id                          <> @Id " +
-                "AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId " +
-                "AND    Nino                        =  @nino " +
-                "AND    MinDate                     =  @minDate " +
-                "AND    MaxDate                     =  @maxDate " +
-                "AND    (Employed                   IS NULL OR Employed = 0) " +
-                "AND    RequestCompletionStatus     IS NULL ";
+                @"UPDATE [Cache].[EmploymentCheckCacheRequest]
+                  SET    RequestCompletionStatus     =  @requestCompletionStatus,
+                         Employed                    =  null,
+                         LastUpdatedOn               =  @lastUpdatedOn
+                  WHERE  Id                          <> @Id
+                  AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId
+                  AND    Nino                        =  @nino
+                  AND    MinDate                     =  @minDate
+                  AND    MaxDate                     =  @maxDate
+                  AND    (Employed                   IS NULL OR Employed = 0)
+                  ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameters);
         }
