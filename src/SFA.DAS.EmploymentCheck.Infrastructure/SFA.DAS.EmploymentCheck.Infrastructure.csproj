@@ -7,7 +7,8 @@
   <ItemGroup>
     <PackageReference Include="Ardalis.GuardClauses" Version="4.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.22" />
-    <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.14.2" />
+    <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.3.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 

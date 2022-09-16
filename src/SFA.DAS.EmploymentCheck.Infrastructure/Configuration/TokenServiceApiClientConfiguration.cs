@@ -12,4 +12,5 @@ namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
         public string IdentifierUri { get; set; }
         public string Tenant { get; set; }
     }
+
 }
