@@ -69,6 +69,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
 
             serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<ITokenStore, CachedTokenStore>();
             serviceCollection.AddSingleton<ILearnerNiNumberValidator, LearnerNiNumberValidator>();
             serviceCollection.AddSingleton<IEmployerPayeSchemesValidator, EmployerPayeSchemesValidator>();
             serviceCollection.AddSingleton<IEmploymentCheckDataValidator, EmploymentCheckDataValidator>();
