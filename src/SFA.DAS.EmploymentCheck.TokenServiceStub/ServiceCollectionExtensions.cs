@@ -11,12 +11,12 @@ namespace SFA.DAS.EmploymentCheck.TokenServiceStub
     {
         public static IServiceCollection AddTokenServiceStubServices(this IServiceCollection services)
         {
-            services.AddSingleton<ITokenServiceApiClient, TokenServiceApiClientStub>();
-            services.AddSingleton<IHttpClientWrapper, HttpClientWrapper>();
-            services.AddSingleton<ITotpService, TotpService>();
-            services.AddSingleton<IHmrcAuthTokenBroker, HmrcAuthTokenBroker>();
+            services.AddTransient<ITokenServiceApiClient, TokenServiceApiClientStub>();
+            services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
+            services.AddTransient<ITotpService, TotpService>();
+            services.AddTransient<IHmrcAuthTokenBroker, HmrcAuthTokenBroker>();
 
-            services.AddSingleton<IOAuthTokenService>(s =>
+            services.AddTransient<IOAuthTokenService>(s =>
             {
                 var httpClient = s.GetService<IHttpClientWrapper>();
                 var settings = s.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>();
