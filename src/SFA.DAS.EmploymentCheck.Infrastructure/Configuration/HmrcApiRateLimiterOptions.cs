@@ -7,7 +7,8 @@ namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
     {
         public int DelayInMs { get; set; } = 0;
         public int DelayAdjustmentIntervalInMs { get; set; } = 50;
-        public int MinimumUpdatePeriodInDays { get; set; } = 7;
+        public int MinimumReduceDelayIntervalInMinutes { get; set; } = 7*24*60;
+        public int MinimumIncreaseDelayIntervalInSeconds { get; set; } = 1;
         public int TooManyRequestsRetryCount { get; set; } = 10;
         public int TransientErrorRetryCount { get; set; } = 3;
         public int TransientErrorDelayInMs { get; set; } = 10000;

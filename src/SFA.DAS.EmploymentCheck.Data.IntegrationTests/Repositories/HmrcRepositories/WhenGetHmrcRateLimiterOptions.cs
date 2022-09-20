@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -25,7 +26,8 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
             //Assert
             result.Should().NotBeNull();
             result.DelayAdjustmentIntervalInMs.Should().Be(options.DelayAdjustmentIntervalInMs);
-            result.MinimumUpdatePeriodInDays.Should().Be(options.MinimumUpdatePeriodInDays);
+            result.MinimumReduceDelayIntervalInMinutes.Should().Be(options.MinimumReduceDelayIntervalInMinutes);
+            result.MinimumIncreaseDelayIntervalInSeconds.Should().Be(options.MinimumIncreaseDelayIntervalInSeconds);
             result.TooManyRequestsRetryCount.Should().Be(options.TooManyRequestsRetryCount);
             result.TransientErrorRetryCount.Should().Be(options.TransientErrorRetryCount);
             result.TransientErrorDelayInMs.Should().Be(options.TransientErrorDelayInMs);
@@ -52,6 +54,50 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
             result.DelayInMs.Should().BeGreaterThan(delayInMs);
 
         }
+        
+        [Test]
+        public async Task Then_IncreaseDelaySetting_When_LastUpdated_Is_Greater_then_MinimumIncreaseDelayIntervalInSeconds()
+        {
+            //Arrange
+            var options = new AzureStorageConnectionConfiguration();
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
+            HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
+            
+            result.MinimumIncreaseDelayIntervalInSeconds = 1;
+            result.UpdateDateTime = DateTime.UtcNow.AddSeconds(-3);
+            
+            var delayInMs = result.DelayInMs;
+
+            //Act
+            await sut.IncreaseDelaySetting(result);
+            
+
+            //Assert
+            result.Should().NotBeNull();
+            result.DelayInMs.Should().BeGreaterThan(delayInMs);
+        }
+
+        [Test]
+        public async Task Then_Does_Not_IncreaseDelaySetting_When_LastUpdated_Is_Less_then_MinimumIncreaseDelayIntervalInSeconds()
+        {
+            //Arrange
+            var options = new AzureStorageConnectionConfiguration();
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
+            HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
+            
+            result.MinimumIncreaseDelayIntervalInSeconds = 1;
+            result.UpdateDateTime = DateTime.UtcNow.AddSeconds(2);
+            
+            var delayInMs = result.DelayInMs;
+
+            //Act
+            await sut.IncreaseDelaySetting(result);
+            
+
+            //Assert
+            result.Should().NotBeNull();
+            result.DelayInMs.Should().Be(delayInMs);
+        }
 
         [Test]
         public async Task Then_GetTable_CloudTable_And_Then_ReduceDelaySetting()
@@ -71,6 +117,5 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
             result.DelayInMs.Should().BeLessThanOrEqualTo(delayInMs);
 
         }
-
     }
 }
