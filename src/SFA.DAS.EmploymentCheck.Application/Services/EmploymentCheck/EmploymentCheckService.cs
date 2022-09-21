@@ -57,13 +57,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
                 await _unitOfWork.InsertAsync(response);
-                
-                //var isEmploymentCheckCompleted = await _employmentCheckRepository.IsEmploymentCheckCompleted(request.ApprenticeEmploymentCheckId);
-                //if (isEmploymentCheckCompleted)
-                //{
-                //    await _unitOfWork.CommitAsync();
-                //    return;
-                //}
 
                 var employmentCheck = Models.EmploymentCheck.CreateEmploymentCheck(request);
 
@@ -119,9 +112,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return employmentCheckRequests;
         }
 
-        public async Task<bool> IsEmploymentCheckCompleted(long employmentCheckId)
-        {
-            return await _employmentCheckRepository.IsEmploymentCheckCompleted(employmentCheckId);
         }
     }
 }

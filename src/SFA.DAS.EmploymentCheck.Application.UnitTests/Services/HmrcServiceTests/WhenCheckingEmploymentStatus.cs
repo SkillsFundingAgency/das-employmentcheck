@@ -93,60 +93,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(1));
         }
 
-        //[Test]
-        //public async Task Then_The_IsEmploymentCheckCompleted_Is_Called()
-        //{
-        //    // Arrange
-        //    _apprenticeshipLevyServiceMock.Setup(x => x.GetEmploymentStatus(
-        //        _token.AccessCode,
-        //        _request.PayeScheme,
-        //        _request.Nino,
-        //        _request.MinDate,
-        //        _request.MaxDate))
-        //        .ReturnsAsync(_fixture.Create<EmploymentStatus>());
-
-        //    // Act
-        //    await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
-
-        //    // Assert
-        //    _employmentCheckServiceMock.Verify(x => x.IsEmploymentCheckCompleted(_request.ApprenticeEmploymentCheckId), Times.Exactly(1));
-        //}
-
-        //[Test]
-        //public async Task Then_The_EmploymentCheck_Is_Skipped_When_EmploymentCheck_Is_Already_Complected()
-        //{
-        //    // Arrange
-        //    _employmentCheckServiceMock.Setup(x => x.IsEmploymentCheckCompleted(_request.ApprenticeEmploymentCheckId))
-        //        .ReturnsAsync(true);
-
-        //    // Act
-        //    await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
-
-        //    // Assert
-        //    _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Never);
-        //    _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
-        //        It.IsAny<string>(), 
-        //        It.IsAny<string>(), 
-        //        It.IsAny<string>(), 
-        //        It.IsAny<DateTime>(), 
-        //        It.IsAny<DateTime>()), Times.Never);
-        //    _employmentCheckServiceMock.Verify(x => x.StoreCompletedCheck(It.IsAny<EmploymentCheckCacheRequest>(), It.IsAny<EmploymentCheckCacheResponse>()), Times.Never);
-        //}
-
-        //[Test]
-        //public async Task Then_The_Original_Request_Is_Returned_As_Is_When_EmploymentCheck_Is_Already_Complected()
-        //{
-        //    // Arrange
-        //    _employmentCheckServiceMock.Setup(x => x.IsEmploymentCheckCompleted(_request.ApprenticeEmploymentCheckId))
-        //        .ReturnsAsync(true);
-
-        //    // Act
-        //    var result = await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
-
-        //    // Assert
-        //    result.Should().Be(_request);
-        //}
-
         [Test]
         public async Task Then_The_TokenServiceApiClient_Call_Is_Retried_On_Error()
         {
