@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Models;

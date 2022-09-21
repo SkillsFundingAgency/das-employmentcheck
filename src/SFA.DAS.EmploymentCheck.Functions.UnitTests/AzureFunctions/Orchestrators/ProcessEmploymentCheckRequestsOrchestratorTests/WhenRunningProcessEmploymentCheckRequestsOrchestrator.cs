@@ -5,8 +5,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Data.Models;
 
@@ -19,7 +17,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
         private Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>> _logger;
 
         private EmploymentCheckCacheRequest[] _employmentCheckCacheRequest;
-        private IList<Data.Models.EmploymentCheck> _employmentChecks;
 
         [SetUp]
         public void SetUp()
@@ -28,7 +25,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
             _context = new Mock<IDurableOrchestrationContext>();
             _logger = new Mock<ILogger<ProcessEmploymentCheckRequestsOrchestrator>>();
             _employmentCheckCacheRequest = _fixture.Create<EmploymentCheckCacheRequest[]>();
-            _employmentChecks = _fixture.CreateMany<Data.Models.EmploymentCheck>(1).ToList();
         }
 
         [Test]
@@ -47,7 +43,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Orchestrato
 
             // Assert
             _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest[]>(nameof(GetEmploymentCheckCacheRequestActivity), null), Times.Exactly(2));
-            _context.Verify(a => a.CallActivityAsync(nameof(GetHmrcLearnerEmploymentStatusActivity), It.IsAny<EmploymentCheckCacheRequest>()), Times.Exactly(_employmentCheckCacheRequest.Length));
+            _context.Verify(a => a.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), It.IsAny<EmploymentCheckCacheRequest>()), Times.Exactly(_employmentCheckCacheRequest.Length));
+            _context.Verify(a => a.CallActivityAsync(nameof(AbandonRelatedRequestsActivity), It.IsAny<EmploymentCheckCacheRequest[]>()), Times.Once);
         }
     }
 }

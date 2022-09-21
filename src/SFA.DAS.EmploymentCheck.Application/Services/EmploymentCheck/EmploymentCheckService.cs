@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             try
             {
                 request.LastUpdatedOn = DateTime.Now;
-                request.RequestCompletionStatus = (short) ProcessingCompletionStatus.Completed;
+                request.RequestCompletionStatus = (short)ProcessingCompletionStatus.Completed;
 
                 await _unitOfWork.BeginAsync();
                 await _unitOfWork.UpdateAsync(request);
@@ -110,7 +110,19 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
         {
             foreach (var request in employmentCheckCacheRequests.Where(r => r.Employed == true))
             {
-                await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
+                try
+                {
+                    await _unitOfWork.BeginAsync();
+
+                    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
+
+                    await _unitOfWork.CommitAsync();
+                }
+                catch
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw;
+                }
             }
         }
     }
