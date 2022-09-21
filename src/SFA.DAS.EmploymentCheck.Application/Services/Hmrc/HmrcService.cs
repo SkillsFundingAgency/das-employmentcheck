@@ -50,6 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                     result.Empref);
 
                 await _employmentCheckService.StoreCompletedCheck(request, response);
+
                 await _retryPolicies.ReduceRetryDelay();
 
                 return request;
@@ -95,7 +96,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         {
             var accessCode = await _hmrcTokenStore.GetTokenAsync();
 
-            //await _retryPolicies.DelayApiExecutionByRetryPolicy();
+            await _retryPolicies.DelayApiExecutionByRetryPolicy();
 
             var employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
                 accessCode,

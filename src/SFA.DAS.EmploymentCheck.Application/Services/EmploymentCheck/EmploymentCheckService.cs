@@ -4,6 +4,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
@@ -62,13 +63,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
                 await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
-                //todo check if this can be removed or improved
-                //if (response.Employed == true)
-                //{
-                //    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
-                //}
-
-                //deadlock investigation, reduce number of threads
                 await _unitOfWork.CommitAsync();
             }
             catch
@@ -112,6 +106,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return employmentCheckRequests;
         }
 
+        public async Task AbandonRelatedRequests(EmploymentCheckCacheRequest[] employmentCheckCacheRequests)
+        {
+            foreach (var request in employmentCheckCacheRequests.Where(r => r.Employed == true))
+            {
+                await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
+            }
         }
     }
 }

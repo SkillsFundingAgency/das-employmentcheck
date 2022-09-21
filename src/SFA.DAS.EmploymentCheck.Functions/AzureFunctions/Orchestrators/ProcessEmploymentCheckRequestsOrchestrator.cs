@@ -12,8 +12,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         private readonly ILogger<ProcessEmploymentCheckRequestsOrchestrator> _logger;
 
-        public ProcessEmploymentCheckRequestsOrchestrator(
-            ILogger<ProcessEmploymentCheckRequestsOrchestrator> logger)
+        public ProcessEmploymentCheckRequestsOrchestrator(ILogger<ProcessEmploymentCheckRequestsOrchestrator> logger)
         {
             _logger = logger;
         }
@@ -38,9 +37,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         {
             if (employmentCheckRequests == null || !employmentCheckRequests.Any()) return;
 
-            var getEmploymentStatusTasks = employmentCheckRequests.Select(request => context.CallActivityAsync(nameof(GetHmrcLearnerEmploymentStatusActivity), request));
+            var getEmploymentStatusTasks = employmentCheckRequests.Select(request => context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), request));
 
-            await Task.WhenAll(getEmploymentStatusTasks);
+            var completedRequests = await Task.WhenAll(getEmploymentStatusTasks);
+
+            await context.CallActivityAsync(nameof(AbandonRelatedRequestsActivity), completedRequests);
         }
     }
 }
