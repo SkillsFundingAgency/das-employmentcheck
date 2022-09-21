@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,8 +20,12 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task Then_The_Checks_With_Lowest_Number_Of_PAYE_Schemes_Are_Performed_First()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
+            var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+            hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
+                .ReturnsAsync(new HmrcApiRateLimiterOptions());
 
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
+            
             var check1 = await CreateStartedEmploymentCheck();
             await CreatePendingHmrcApiRequest(check1, 10);
 
@@ -41,7 +46,11 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task Then_The_Checks_With_Single_PAYE_Scheme_Are_Ordered_By_Created_DateTime()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
+            var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+            hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
+                .ReturnsAsync(new HmrcApiRateLimiterOptions());
+
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
             var check1 = await CreateStartedEmploymentCheck();
             await CreatePendingHmrcApiRequest(check1, 1);
@@ -59,6 +68,26 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
 
             // Assert
             actual.First().ApprenticeEmploymentCheckId.Should().Be(firstCreatedCheck.Id);
+        }
+
+        [Test]
+        public async Task Then_The_GetHmrcRateLimiterOptions_Is_called()
+        {
+            // Arrange
+            var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
+            hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
+                .ReturnsAsync(new HmrcApiRateLimiterOptions());
+
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
+
+            var check1 = await CreateStartedEmploymentCheck();
+            await CreatePendingHmrcApiRequest(check1, 1);
+
+            // Act
+            var actual = await _sut.GetEmploymentCheckCacheRequests();
+
+            // Assert
+            hmrcApiOptionsRepositoryMock.Verify(x => x.GetHmrcRateLimiterOptions(), Times.Once);
         }
 
         private async Task<Models.EmploymentCheck> CreateStartedEmploymentCheck()

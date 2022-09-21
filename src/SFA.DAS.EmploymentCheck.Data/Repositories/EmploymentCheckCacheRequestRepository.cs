@@ -16,21 +16,22 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
     public class EmploymentCheckCacheRequestRepository : IEmploymentCheckCacheRequestRepository
     {
+        private readonly IHmrcApiOptionsRepository _hmrcApiOptionsRepository;
         private readonly ILogger<EmploymentCheckCacheRequestRepository> _logger;
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
-        private readonly int _employmentCheckBatchSize;
 
         public EmploymentCheckCacheRequestRepository(
             ApplicationSettings applicationSettings,
+            IHmrcApiOptionsRepository hmrcApiOptionsRepository,
             ILogger<EmploymentCheckCacheRequestRepository> logger,
             AzureServiceTokenProvider azureServiceTokenProvider = null
         )
         {
+            _hmrcApiOptionsRepository = hmrcApiOptionsRepository;
             _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
-            _employmentCheckBatchSize = applicationSettings.BatchSize;
         }
 
         public async Task Save(EmploymentCheckCacheRequest request)
@@ -117,6 +118,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task<EmploymentCheckCacheRequest[]> GetEmploymentCheckCacheRequests()
         {
+            var rateLimiterOptions = await _hmrcApiOptionsRepository.GetHmrcRateLimiterOptions();
             var dbConnection = new DbConnection();
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -163,7 +165,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                         ;
                     ";
                 var selectParameter = new DynamicParameters();
-                selectParameter.Add("@employmentCheckBatchSize", _employmentCheckBatchSize, DbType.Int64);
+                selectParameter.Add("@employmentCheckBatchSize", rateLimiterOptions.EmploymentCheckBatchSize, DbType.Int64);
 
                 employmentCheckCacheRequests = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
                     sql: selectQuery,
