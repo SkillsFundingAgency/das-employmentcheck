@@ -21,21 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetHmrcLearnerEmploymentStat
         {
             _fixture = new Fixture();
             _serviceMock = new Mock<IHmrcService>();
-            var serviceProviderMock = new Mock<IServiceProvider>();
-
-            var serviceScope = new Mock<IServiceScope>();
-            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProviderMock.Object);
-
-            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
-            serviceScopeFactory
-                .Setup(x => x.CreateScope())
-                .Returns(serviceScope.Object);
-
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
-                .Returns(serviceScopeFactory.Object);
-
-            _sut = new GetHmrcLearnerEmploymentStatusQueryHandler(_serviceMock.Object, serviceProviderMock.Object);
+            _sut = new GetHmrcLearnerEmploymentStatusQueryHandler(_serviceMock.Object);
         }
 
         [Test]

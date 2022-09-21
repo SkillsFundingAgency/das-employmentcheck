@@ -30,11 +30,4 @@
         <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Tests.Database\SFA.DAS.EmploymentCheck.Tests.Database.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <SpecFlowFeatureFiles Update="Features\ParallelEmploymentChecks.feature">
-        <Visible>$(UsingMicrosoftNETSdk)</Visible>
-        <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
-      </SpecFlowFeatureFiles>
-    </ItemGroup>
-
 </Project>

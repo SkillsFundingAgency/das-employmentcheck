@@ -111,7 +111,8 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                   AND    MinDate                     =  @minDate
                   AND    MaxDate                     =  @maxDate
                   AND    (Employed                   IS NULL OR Employed = 0)
-                  ";
+                  AND    RequestCompletionStatus     IS NULL
+                ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameters);
         }

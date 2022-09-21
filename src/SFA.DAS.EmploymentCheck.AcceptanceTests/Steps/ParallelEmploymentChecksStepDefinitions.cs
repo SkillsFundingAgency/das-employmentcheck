@@ -18,14 +18,13 @@ using WireMock.ResponseBuilders;
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
-    [Scope(Feature = "EmploymentChecksarePerformedinparallel")]
+    [Scope(Feature = "EmploymentChecksArePerformedInParallel")]
     public class ParallelEmploymentChecksStepDefinitions
     {
         private readonly TestContext _context;
         private readonly List<Data.Models.EmploymentCheck> _checks;
         private List<LearnerNiNumber> _dcApiResponse;
         private ResourceList _accountsApiResponse;
-        private readonly Dictionary<long, int> _payeSchemesByCheck = new Dictionary<long, int>();
 
         public ParallelEmploymentChecksStepDefinitions(TestContext context)
         {
@@ -37,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         public async Task GivenANumberOfUnprocessedEmploymentChecks()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            for (var i = 0; i < 50; i++)
+            for (var i = 0; i < 10; i++)
             {
                 var check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
                     .Without(c => c.RequestCompletionStatus)
@@ -56,27 +55,15 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [Given(@"valid PAYE schemes are returned for the Accounts")]
         public void GivenPayeSchemesAreReturnedForTheAccounts()
         {
-            for (var i = 0; i < 50; i++)
+            for (var i = 0; i < 10; i++)
             {
                 SetupAccountsApiMock(_checks[i], 1);
-                //SetupAccountsApiMock(_checks[i+1], 2);
-                //SetupAccountsApiMock(_checks[i+2], 3);
-                //SetupAccountsApiMock(_checks[i+3], 4);
-                //SetupAccountsApiMock(_checks[i+4], 5);
-                //SetupAccountsApiMock(_checks[i+5], 6);
-                //SetupAccountsApiMock(_checks[i+6], 7);
-                //SetupAccountsApiMock(_checks[i+7], 8);
-                //SetupAccountsApiMock(_checks[i+8], 9);
-                //SetupAccountsApiMock(_checks[i+9], 10);
-                //SetupAccountsApiMock(_checks[i+10],11);
             }
         }
 
 
         private void SetupAccountsApiMock(Data.Models.EmploymentCheck employmentCheck, int noOfPayeSchemes)
         {
-            _payeSchemesByCheck.Add(employmentCheck.Id, noOfPayeSchemes);
-
             _accountsApiResponse = new ResourceList(_context.Fixture.CreateMany<ResourceViewModel>(noOfPayeSchemes));
 
             var url = $"/api/accounts/{_context.HashingService.HashValue(employmentCheck.AccountId)}/payeschemes";
@@ -99,8 +86,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             foreach (var employmentCheck in _checks)
             {
-                _dcApiResponse = new List<LearnerNiNumber>
-                    { new LearnerNiNumber(employmentCheck.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
+                _dcApiResponse = new List<LearnerNiNumber> { new LearnerNiNumber(employmentCheck.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
 
                 const string url = "/api/v1/ilr-data/learnersNi/2122";
 
@@ -133,7 +119,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(_context.Fixture.Create<EmploymentStatus>())
-                    //.WithDelay(TimeSpan.FromMilliseconds(200))
                     );
 
             await _context.TestFunction.ExecuteCreateEmploymentCheckCacheRequestsOrchestrator();
@@ -141,6 +126,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             await _context.TestFunction.ExecuteProcessEmploymentCheckRequestsOrchestrator();
         }
 
+
+        //TODO: Make sure your Azure table storage has HmrcApiRateLimiterOptions.EmploymentCheckBatchSize > 1, default is 2 
         [Then(@"the Employment Checks are performed in Parallel")]
         public async Task ThenTheEmploymentCheckArePerformedInParallel()
         {
@@ -154,9 +141,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Select(g => new { g.Key, ExecutionCount = g.Count() })
                 .Distinct();
 
-            var checkIds = _payeSchemesByCheck.OrderBy(p => p.Value).Select(p => p.Key);
-            
-            parallelRunsPerSecond.Any(pr => pr.ExecutionCount == 1).Should().BeFalse();
+            parallelRunsPerSecond.Any(pr => pr.ExecutionCount > 1).Should().BeTrue();
         }
     }
 }

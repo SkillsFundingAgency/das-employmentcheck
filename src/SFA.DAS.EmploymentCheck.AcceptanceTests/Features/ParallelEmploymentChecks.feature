@@ -1,5 +1,5 @@
-﻿Feature: EmploymentChecksarePerformedinparallel
-Scenario: Employment Checks are Performed in parallel
+﻿Feature: EmploymentChecksArePerformedInParallel
+Scenario: Employment Checks are Performed In Parallel
 	Given a number of unprocessed employment checks
 	And valid PAYE schemes are returned for the Accounts
 	And valid National Insurance Numbers are returned for the learners

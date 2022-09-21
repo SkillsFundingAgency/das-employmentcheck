@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
         }
 
         [Test]
-        public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_called_When_result_is_Employed()
+        public async Task Then_AbandonRelatedRequests_is_called_When_result_is_Employed()
         {
             // Arrange
             var request = _fixture.Build<EmploymentCheckCacheRequest>().With(x => x.Employed, true).Create();
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
         }
 
         [Test]
-        public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_not_called_When_result_is_not_Employed()
+        public async Task Then_AbandonRelatedRequests_is_not_called_When_result_is_not_Employed()
         {
             // Arrange
             var request = _fixture.Build<EmploymentCheckCacheRequest>().With(x => x.Employed, false).Create();
