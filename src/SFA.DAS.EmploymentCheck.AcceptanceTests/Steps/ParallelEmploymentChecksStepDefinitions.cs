@@ -51,7 +51,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             }
         }
 
-        //TODO: convert this to DB inserts as this is taking long time for not a lot of gain
         [Given(@"valid PAYE schemes are returned for the Accounts")]
         public void GivenPayeSchemesAreReturnedForTheAccounts()
         {
@@ -127,7 +126,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         }
 
 
-        //TODO: Make sure your Azure table storage has HmrcApiRateLimiterOptions.EmploymentCheckBatchSize > 1, default is 2 
+        //NOTE: Make sure your Azure table storage has HmrcApiRateLimiterOptions.EmploymentCheckBatchSize > 1, default is 2 
         [Then(@"the Employment Checks are performed in Parallel")]
         public async Task ThenTheEmploymentCheckArePerformedInParallel()
         {

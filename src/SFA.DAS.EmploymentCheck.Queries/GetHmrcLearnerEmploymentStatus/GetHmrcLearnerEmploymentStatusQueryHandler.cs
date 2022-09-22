@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 
 namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
@@ -18,7 +15,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
             _service = service;
         }
 
-        public async Task<GetHmrcLearnerEmploymentStatusQueryResult> Handle(GetHmrcLearnerEmploymentStatusQueryRequest request, CancellationToken cancellationToken)
+        public async Task<GetHmrcLearnerEmploymentStatusQueryResult> Handle(GetHmrcLearnerEmploymentStatusQueryRequest request, CancellationToken cancellationToken = default)
         {
             var employmentCheckCacheRequest = await _service.IsNationalInsuranceNumberRelatedToPayeScheme(request.EmploymentCheckCacheRequest);
             
