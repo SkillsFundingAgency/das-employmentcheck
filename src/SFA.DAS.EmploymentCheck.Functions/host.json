@@ -8,7 +8,8 @@
       "samplingSettings": {
         "isEnabled": true,
         "excludedTypes": "Request"
-      }
+      },
+      "enableDependencyTracking": false
     }
   },
   "functionTimeout": "00:10:00",
