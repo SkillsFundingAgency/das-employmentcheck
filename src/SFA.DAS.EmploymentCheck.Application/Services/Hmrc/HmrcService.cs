@@ -104,6 +104,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
+            _logger.LogInformation($"{nameof(HmrcService)}: Calling Hmrc Api to get employment status for CorrelationId: {request.CorrelationId}");
+
             var employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
                 _cachedToken.AccessCode,
                 request.PayeScheme,
