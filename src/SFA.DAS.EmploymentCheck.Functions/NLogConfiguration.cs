@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 EnvironmentKeyName = "EnvironmentName",
                 ConnectionStringName = "LoggingRedisConnectionString",
                 IncludeAllProperties = true,
-                Layout = "${message}"
+                Layout = "${replace:searchFor=epaye\\/.*:replaceWith=epaye\\/:regex=true}"
             };
 
             config.AddTarget(target);
@@ -63,7 +63,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             var target = new ApplicationInsightsTarget
             {
-                Name = "AppInsightsLog"
+                Name = "AppInsightsLog",
+                //this will suppress sensitive info from hmrc api url
+                Layout = "${replace:searchFor=epaye\\/.*:replaceWith=epaye\\/:regex=true}"
             };
 
             config.AddTarget(target);
