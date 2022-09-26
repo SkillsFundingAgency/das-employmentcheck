@@ -133,8 +133,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var settings = s.GetService<IOptions<HmrcApiConfiguration>>().Value;
 
-                var clientBuilder = new HttpClientBuilder()
-                    .WithLogging(s.GetService<ILoggerFactory>());
+                var clientBuilder = new HttpClientBuilder();
 
                 var httpClient = clientBuilder.Build();
 
