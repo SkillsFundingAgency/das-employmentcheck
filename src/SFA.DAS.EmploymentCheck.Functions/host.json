@@ -1,6 +1,9 @@
 {
   "version": "2.0",
   "logging": {
+    "logLevel": {
+        "Function.GetHmrcLearnerEmploymentStatusActivity": "Warning"
+    },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,

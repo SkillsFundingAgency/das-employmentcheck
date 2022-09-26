@@ -12,7 +12,6 @@ using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using System.IO;
-using Microsoft.ApplicationInsights.Extensibility;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -22,8 +21,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddSingleton<ITelemetryInitializer, HmrcTelemetryInitializer>();
-
             builder.Services
                 .AddNLog()
                 .AddOptions()
