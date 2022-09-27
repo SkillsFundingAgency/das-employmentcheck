@@ -17,9 +17,9 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
-using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.Net.Http;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -134,10 +134,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var settings = s.GetService<IOptions<HmrcApiConfiguration>>().Value;
 
-                var clientBuilder = new HttpClientBuilder()
-                    .WithLogging(s.GetService<ILoggerFactory>());
-
-                var httpClient = clientBuilder.Build();
+                var httpClient = new HttpClient();
 
                 if (!settings.BaseUrl.EndsWith("/"))
                 {
