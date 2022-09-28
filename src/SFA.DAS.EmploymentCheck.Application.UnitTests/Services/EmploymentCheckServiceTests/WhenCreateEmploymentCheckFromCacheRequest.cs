@@ -1,28 +1,18 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Models;
-using SFA.DAS.EmploymentCheck.Data.Repositories;
-using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheckServiceTests
 {
     public class WhenCreateEmploymentCheckFromCacheRequest
     {
         private Fixture _fixture;
-        private Mock<IEmploymentCheckRepository> _employmentCheckRepositoryMock;
-        private Mock<IEmploymentCheckCacheRequestRepository> _employmentCheckCacheRequestRepositoryMock;
-        private Mock<IUnitOfWork> _unitOfWorkMock;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
-            _employmentCheckRepositoryMock = new Mock<IEmploymentCheckRepository>();
-            _employmentCheckCacheRequestRepositoryMock = new Mock<IEmploymentCheckCacheRequestRepository>();
-            _unitOfWorkMock = new Mock<IUnitOfWork>();
         }
 
         [Test]
@@ -56,6 +46,5 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             result.RequestCompletionStatus.Should().Be(request.RequestCompletionStatus);
             result.ErrorType.Should().Be("HmrcFailure");
         }
-
     }
 }

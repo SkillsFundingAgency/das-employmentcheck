@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
@@ -28,8 +29,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _sut = new EmploymentCheckService(
                 _employmentCheckRepositoryMock.Object,
                 _employmentCheckCacheRequestRepositoryMock.Object,
-                _unitOfWorkMock.Object
-            );
+                _unitOfWorkMock.Object, Mock.Of<ILogger<EmploymentCheckService>>());
         }
 
         [Test]

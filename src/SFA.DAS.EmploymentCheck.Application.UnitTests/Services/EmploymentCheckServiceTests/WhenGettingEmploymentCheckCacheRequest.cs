@@ -17,6 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
         private Fixture _fixture;
         private Mock<IEmploymentCheckRepository> _employmentCheckRepositoryMock;
         private Mock<IEmploymentCheckCacheRequestRepository> _employmentCheckCashRequestRepositoryMock;
+
         [SetUp]
         public void SetUp()
         {
@@ -27,8 +28,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _sut = new EmploymentCheckService(
                 _employmentCheckRepositoryMock.Object,
                 _employmentCheckCashRequestRepositoryMock.Object,
-                Mock.Of<IUnitOfWork>()
-            );
+                Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<EmploymentCheckService>>());
         }
 
         [Test]
