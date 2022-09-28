@@ -59,6 +59,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             {
                 // Generating the token failed, so we should remove the key from the cache.
                 _tokenCache.TryRemove(tokenName, out _);
+
+                // we don't want to continue past this point as the token value is null
                 throw;
             }
 
