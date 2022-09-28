@@ -1,4 +1,5 @@
-﻿using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
@@ -13,17 +14,20 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
     public class EmploymentCheckService : IEmploymentCheckService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<EmploymentCheckService> _logger;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
             IEmploymentCheckRepository employmentCheckRepository,
             IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ILogger<EmploymentCheckService> logger)
         {
             _employmentCheckRepository = employmentCheckRepository;
             _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<Data.Models.EmploymentCheck> GetEmploymentCheck()
@@ -65,9 +69,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
                 await _unitOfWork.CommitAsync();
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} Error in Store Completed Check [{e}]");
+
                 await _unitOfWork.RollbackAsync();
+
                 throw;
             }
         }
@@ -118,9 +125,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
                     await _unitOfWork.CommitAsync();
                 }
-                catch
+                catch(Exception e)
                 {
+                    _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} Error in Abandon Related Requests [{e}]");
+
                     await _unitOfWork.RollbackAsync();
+
                     throw;
                 }
             }

@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             }
             catch (ApiHttpException e)
             {
-                _logger.LogError($"{nameof(HmrcService)}: ApiHttpException occurred [{e}]");
+                _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} ApiHttpException occurred [{e}]");
 
                 response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
@@ -68,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             }
             catch (Exception e)
             {
-                _logger.LogError($"{nameof(HmrcService)}: Exception occurred [{e}]");
+                _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} Exception occurred [{e}]");
 
                 response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
