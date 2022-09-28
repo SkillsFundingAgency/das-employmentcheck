@@ -48,20 +48,21 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
         // This method makes sure that we don't keep a failed AsyncLazy in the cache if the 
         // token request fails.
-        private async Task<PrivilegedAccessToken> GetTokenEntryFromAsyncLazy(string tokenName, AsyncLazy<PrivilegedAccessToken> entry)
+        private async Task<PrivilegedAccessToken> GetTokenEntryFromAsyncLazy(string tokenName, AsyncLazy<PrivilegedAccessToken> asyncLazyTokenCacheFactory)
         {
-            PrivilegedAccessToken tokenEntry = null;
+            PrivilegedAccessToken accessToken;
             try
             {
-                tokenEntry = await entry;
+                accessToken = await asyncLazyTokenCacheFactory;
             }
             catch
             {
                 // Generating the token failed, so we should remove the key from the cache.
                 _tokenCache.TryRemove(tokenName, out _);
+                throw;
             }
 
-            return tokenEntry;
+            return accessToken;
         }
 
         private bool AccessTokenHasExpired(PrivilegedAccessToken accessToken)
