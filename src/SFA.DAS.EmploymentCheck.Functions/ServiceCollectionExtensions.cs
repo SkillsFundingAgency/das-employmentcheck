@@ -68,7 +68,8 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmployerAccountApiClient<EmployerAccountApiConfiguration>, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
 
-            serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<IHmrcTokenStore, HmrcTokenStore>();
             serviceCollection.AddSingleton<ILearnerNiNumberValidator, LearnerNiNumberValidator>();
             serviceCollection.AddSingleton<IEmployerPayeSchemesValidator, EmployerPayeSchemesValidator>();
             serviceCollection.AddSingleton<IEmploymentCheckDataValidator, EmploymentCheckDataValidator>();
@@ -96,12 +97,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
         public static IServiceCollection AddPersistenceServices(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<IEmploymentCheckRepository, EmploymentCheckRepository>();
+            serviceCollection.AddTransient<IEmploymentCheckRepository, EmploymentCheckRepository>();
             serviceCollection.AddSingleton<IDataCollectionsResponseRepository, DataCollectionsResponseRepository>();
             serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
-            serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
-            serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
-            serviceCollection.AddSingleton<IUnitOfWork, Data.Repositories.UnitOfWork>();
+            serviceCollection.AddTransient<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
+            serviceCollection.AddTransient<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
+            serviceCollection.AddTransient<IUnitOfWork, Data.Repositories.UnitOfWork>();
 
             return serviceCollection;
         }

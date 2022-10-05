@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task Then_Related_EmploymentCheckCacheRequests_Are_Updated_with_Abandoned_Status()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<IHmrcApiOptionsRepository>(), Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
             var testEmploymentCheckCacheRequestData = await CreateTestEmploymentCheckCacheRequestData();
             var expectedEmploymentCheckCacheRequestData = await CreateExpectedEmploymentCheckCacheRequestData();

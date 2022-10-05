@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
@@ -18,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.GetHmrcLearnerEmploymentStat
         public void SetUp()
         {
             _fixture = new Fixture();
-            _serviceMock = new Mock<IHmrcService>(); 
+            _serviceMock = new Mock<IHmrcService>();
             _sut = new GetHmrcLearnerEmploymentStatusQueryHandler(_serviceMock.Object);
         }
 

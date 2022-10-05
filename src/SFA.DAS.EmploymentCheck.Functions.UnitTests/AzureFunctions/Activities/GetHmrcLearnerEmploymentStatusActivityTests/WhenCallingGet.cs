@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         }
 
         [Test]
-        public async Task Then_The_EmploymentCheckCacheRequest_Is_Returned()
+        public void Then_The_EmploymentCheckCacheRequest_Is_Returned()
         {
             // Arrange
             var expectedEmploymentCheckCacheRequest = _employmentCheckCacheRequest;
@@ -57,7 +57,6 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
 
             // Assert
             employmentCheckCacheRequest.Should().Be(expectedEmploymentCheckCacheRequest);
-
         }
     }
 }

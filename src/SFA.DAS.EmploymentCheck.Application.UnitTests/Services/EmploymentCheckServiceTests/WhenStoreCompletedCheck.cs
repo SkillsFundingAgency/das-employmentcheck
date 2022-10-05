@@ -31,8 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _sut = new EmploymentCheckService(
                 _employmentCheckRepositoryMock.Object,
                 _employmentCheckCacheRequestRepositoryMock.Object,
-                _unitOfWorkMock.Object
-            );
+                _unitOfWorkMock.Object, Mock.Of<ILogger<EmploymentCheckService>>());
         }
 
         [Test]
@@ -86,10 +85,10 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             // Assert
             _employmentCheckRepositoryMock.Verify(x => x.UpdateEmploymentCheckAsComplete(
                 It.Is<Data.Models.EmploymentCheck>(
-                    x => x.Id == request.ApprenticeEmploymentCheckId
-                    && x.Employed == request.Employed
-                    && x.RequestCompletionStatus == request.RequestCompletionStatus
-                    && x.ErrorType == null
+                    check => check.Id == request.ApprenticeEmploymentCheckId
+                    && check.Employed == request.Employed
+                    && check.RequestCompletionStatus == request.RequestCompletionStatus
+                    && check.ErrorType == null
                     )
                 ,_unitOfWorkMock.Object)
                 ,Times.Once());
@@ -148,36 +147,5 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             // Assert
             act.Should().ThrowAsync<InvalidOperationException>().WithMessage(exception.Message);
         }
-
-        [Test]
-        public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_called_When_result_is_Employed()
-        {
-            // Arrange
-            var request = _fixture.Create<EmploymentCheckCacheRequest>();
-            var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, true).Create();
-
-            // Act
-            await _sut.StoreCompletedCheck(request, response);
-
-            // Assert
-            _employmentCheckCacheRequestRepositoryMock.Verify(x => x.AbandonRelatedRequests(
-                request, _unitOfWorkMock.Object), Times.Once());
-        }
-
-        [Test]
-        public async Task Then_SetRelatedRequestsRequestCompletionStatus_is_not_called_When_result_is_not_Employed()
-        {
-            // Arrange
-            var request = _fixture.Create<EmploymentCheckCacheRequest>();
-            var response = _fixture.Build<EmploymentCheckCacheResponse>().With(x => x.Employed, false).Create();
-
-            // Act
-            await _sut.StoreCompletedCheck(request, response);
-
-            // Assert
-            _employmentCheckCacheRequestRepositoryMock.Verify(x => x.AbandonRelatedRequests(
-                request, _unitOfWorkMock.Object), Times.Never());
-        }
-
     }
 }

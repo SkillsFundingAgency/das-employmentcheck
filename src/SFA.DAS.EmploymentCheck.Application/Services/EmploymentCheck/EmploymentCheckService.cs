@@ -1,9 +1,11 @@
-﻿using SFA.DAS.EmploymentCheck.Data.Models;
+﻿using Microsoft.Extensions.Logging;
+using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
@@ -12,17 +14,20 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
     public class EmploymentCheckService : IEmploymentCheckService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<EmploymentCheckService> _logger;
         private readonly IEmploymentCheckRepository _employmentCheckRepository;
         private readonly IEmploymentCheckCacheRequestRepository _employmentCheckCacheRequestRepository;
 
         public EmploymentCheckService(
             IEmploymentCheckRepository employmentCheckRepository,
             IEmploymentCheckCacheRequestRepository employmentCheckCacheRequestRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ILogger<EmploymentCheckService> logger)
         {
             _employmentCheckRepository = employmentCheckRepository;
             _employmentCheckCacheRequestRepository = employmentCheckCacheRequestRepository;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<Data.Models.EmploymentCheck> GetEmploymentCheck()
@@ -35,9 +40,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             return await _employmentCheckRepository.GetResponseEmploymentCheck();
         }
 
-        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
+        public async Task<EmploymentCheckCacheRequest[]> GetEmploymentCheckCacheRequests()
         {
-            return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequest();
+            return await _employmentCheckCacheRequestRepository.GetEmploymentCheckCacheRequests();
         }
 
         public async Task StoreCompletedEmploymentCheck(Models.EmploymentCheck employmentCheck)
@@ -59,18 +64,17 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 await _unitOfWork.InsertAsync(response);
 
                 var employmentCheck = Models.EmploymentCheck.CreateEmploymentCheck(request);
-                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
-                if (response.Employed == true)
-                {
-                    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
-                }
+                await _employmentCheckRepository.UpdateEmploymentCheckAsComplete(employmentCheck, _unitOfWork);
 
                 await _unitOfWork.CommitAsync();
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} Error in Store Completed Check [{e}]");
+
                 await _unitOfWork.RollbackAsync();
+
                 throw;
             }
         }
@@ -84,7 +88,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
 
         public async Task SaveEmploymentCheck(Data.Models.EmploymentCheck check)
         {
-           await _employmentCheckRepository.InsertOrUpdate(check);
+            await _employmentCheckRepository.InsertOrUpdate(check);
         }
 
         public async Task<IList<EmploymentCheckCacheRequest>> CreateEmploymentCheckCacheRequests(EmploymentCheckData employmentCheckData)
@@ -107,6 +111,29 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             }
 
             return employmentCheckRequests;
+        }
+
+        public async Task AbandonRelatedRequests(EmploymentCheckCacheRequest[] employmentCheckCacheRequests)
+        {
+            foreach (var request in employmentCheckCacheRequests.Where(r => r.Employed == true))
+            {
+                try
+                {
+                    await _unitOfWork.BeginAsync();
+
+                    await _employmentCheckCacheRequestRepository.AbandonRelatedRequests(request, _unitOfWork);
+
+                    await _unitOfWork.CommitAsync();
+                }
+                catch(Exception e)
+                {
+                    _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} Error in Abandon Related Requests [{e}]");
+
+                    await _unitOfWork.RollbackAsync();
+
+                    throw;
+                }
+            }
         }
     }
 }

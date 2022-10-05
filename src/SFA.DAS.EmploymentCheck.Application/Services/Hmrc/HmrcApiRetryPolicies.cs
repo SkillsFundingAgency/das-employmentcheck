@@ -103,5 +103,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         }
 
         public async Task ReduceRetryDelay() => await _optionsRepository.ReduceDelaySetting(_settings);
+        
+        public async Task DelayApiExecutionByRetryPolicy()
+        {
+            _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: delaying Hmrc Api call by {_settings.DelayInMs}ms ...");
+
+            await Task.Delay(TimeSpan.FromMilliseconds(_settings.DelayInMs));
+        }
     }
 }

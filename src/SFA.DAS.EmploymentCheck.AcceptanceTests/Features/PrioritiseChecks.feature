@@ -1,4 +1,5 @@
-﻿Feature: PrioritiseChecks
+﻿@ignore
+Feature: PrioritiseChecks
 	Employer Incentives team will send to the Employment Check solution the learners that require checking. 
 	The learners will be placed on a queuing system (database) and checked on a first in first out basis.
 	When an employer has multiple PAYE Schemes in their organisation, the Employment Check solution will check 
