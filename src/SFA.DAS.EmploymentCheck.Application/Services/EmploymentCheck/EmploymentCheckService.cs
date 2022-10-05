@@ -71,7 +71,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
             }
             catch(Exception e)
             {
-                _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} Error in Store Completed Check [{e}]");
+                _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId}, ApprenticeEmploymentCheckId: {request.ApprenticeEmploymentCheckId} Error in Store Completed Check [{e}]");
 
                 await _unitOfWork.RollbackAsync();
 
@@ -127,7 +127,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck
                 }
                 catch(Exception e)
                 {
-                    _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} Error in Abandon Related Requests [{e}]");
+                    _logger.LogError($"{nameof(EmploymentCheckService)}: CorrelationId: {request.CorrelationId} ApprenticeEmploymentCheckId: {request.ApprenticeEmploymentCheckId} Error in Abandon Related Requests [{e}]");
 
                     await _unitOfWork.RollbackAsync();
 
