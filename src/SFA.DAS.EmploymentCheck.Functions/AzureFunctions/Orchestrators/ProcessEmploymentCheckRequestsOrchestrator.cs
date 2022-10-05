@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -24,9 +25,15 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
             do
             {
+                var stopwatch = Stopwatch.StartNew();
+
                 employmentCheckRequests = await context.CallActivityAsync<EmploymentCheckCacheRequest[]>(nameof(GetEmploymentCheckCacheRequestActivity), null);
 
                 await ProcessEmploymentCheckRequest(context, employmentCheckRequests);
+
+                stopwatch.Stop();
+
+                _logger.LogInformation($"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)}: Finished Processing Batch of EmploymentCheckRequests in {stopwatch.Elapsed.TotalMilliseconds}.");
 
             } while (employmentCheckRequests != null && employmentCheckRequests.Any());
 
