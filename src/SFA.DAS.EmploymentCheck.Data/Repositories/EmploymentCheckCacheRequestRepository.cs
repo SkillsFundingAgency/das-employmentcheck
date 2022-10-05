@@ -141,7 +141,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                         FROM [Business].[EmploymentCheck] c
                         INNER JOIN [Cache].[EmploymentCheckCacheRequest] r
                           ON c.[Id]=r.[ApprenticeEmploymentCheckId]
-                        WHERE c.[RequestCompletionStatus] = 1   /* Started */
+                        WHERE c.[RequestCompletionStatus] = 1  AND r.LastUpdatedOn IS NULL  /* Started and not in error */
                         GROUP BY [AccountId]
                         ORDER BY COUNT(r.[Id]) ASC, MIN(c.[CreatedOn]) ASC
                         )
