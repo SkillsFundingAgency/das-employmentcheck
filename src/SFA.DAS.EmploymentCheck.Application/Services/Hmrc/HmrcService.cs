@@ -57,7 +57,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             }
             catch (ApiHttpException e)
             {
-                _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} ApprenticeEmploymentCheckId: {request.ApprenticeEmploymentCheckId} ApiHttpException occurred [{e}]");
+                _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} EmploymentCheckRequestId: {request.Id} ApiHttpException occurred [{e}]");
 
                 response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
@@ -68,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             }
             catch (Exception e)
             {
-                _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} ApprenticeEmploymentCheckId: {request.ApprenticeEmploymentCheckId} Exception occurred [{e}]");
+                _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} EmploymentCheckRequestId: {request.Id} Exception occurred [{e}]");
 
                 response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
@@ -94,7 +94,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
         private async Task<EmploymentStatus> GetEmploymentStatus(EmploymentCheckCacheRequest request)
         {
-		     _logger.LogInformation($"{nameof(HmrcService)}: Calling Hmrc Api to get employment status for CorrelationId: {request.CorrelationId} ApprenticeEmploymentCheckId: {request.ApprenticeEmploymentCheckId}");
+		     _logger.LogInformation($"{nameof(HmrcService)}: Calling Hmrc Api to get employment status for CorrelationId: {request.CorrelationId} EmploymentCheckRequestId: {request.Id}");
 
             var accessCode = await _hmrcTokenStore.GetTokenAsync();
 
