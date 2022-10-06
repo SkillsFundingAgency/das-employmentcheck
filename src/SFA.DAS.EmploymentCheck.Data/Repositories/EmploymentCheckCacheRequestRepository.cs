@@ -133,6 +133,19 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             try
             {
                 const string selectQuery = @"
+                    ;WITH AccountIdOfSmallestEmployer AS
+                        (
+                        SELECT TOP(@employmentCheckBatchSize) 
+                               c.[AccountId],
+                               c.[Uln],
+                               COUNT(r.[Id]) [Count]
+                        FROM [Business].[EmploymentCheck] c
+                        INNER JOIN [Cache].[EmploymentCheckCacheRequest] r
+                          ON c.[Id]=r.[ApprenticeEmploymentCheckId]
+                        WHERE r.[RequestCompletionStatus] IS NULL AND r.[LastUpdatedOn] IS NULL  /* Started and not in error */
+                        GROUP BY [AccountId]
+                        ORDER BY COUNT(r.[Id]) ASC
+                        )
                     SELECT TOP(@employmentCheckBatchSize) 
                            r.[Id]
                           ,r.[ApprenticeEmploymentCheckId]
@@ -146,8 +159,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                           ,r.[CreatedOn]
                           ,r.[LastUpdatedOn]
                       FROM [Cache].[EmploymentCheckCacheRequest] r
+                      INNER JOIN [Business].[EmploymentCheck] c
+                        ON c.[Id]=r.[ApprenticeEmploymentCheckId]
+                      INNER JOIN AccountIdOfSmallestEmployer a
+                        ON a.[AccountId]=c.[AccountId] AND a.[Uln]=c.[Uln]
                       WHERE r.[RequestCompletionStatus] IS NULL
-                      ORDER BY r.[Id]
                         ;
                     ";
                 var selectParameter = new DynamicParameters();
