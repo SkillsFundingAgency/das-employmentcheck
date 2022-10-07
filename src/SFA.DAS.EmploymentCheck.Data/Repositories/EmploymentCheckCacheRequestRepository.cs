@@ -137,13 +137,14 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                         (
                         SELECT TOP(@employmentCheckBatchSize) 
                                c.[AccountId],
+                               c.[Uln],
                                COUNT(r.[Id]) [Count]
                         FROM [Business].[EmploymentCheck] c
                         INNER JOIN [Cache].[EmploymentCheckCacheRequest] r
                           ON c.[Id]=r.[ApprenticeEmploymentCheckId]
-                        WHERE c.[RequestCompletionStatus] = 1   /* Started */
-                        GROUP BY [AccountId]
-                        ORDER BY COUNT(r.[Id]) ASC, MIN(c.[CreatedOn]) ASC
+                        WHERE r.[RequestCompletionStatus] IS NULL AND r.[LastUpdatedOn] IS NULL  /* Started and not in error */
+                        GROUP BY [AccountId],[Uln]
+                        ORDER BY COUNT(r.[Id]) ASC
                         )
                     SELECT TOP(@employmentCheckBatchSize) 
                            r.[Id]
@@ -161,7 +162,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                       INNER JOIN [Business].[EmploymentCheck] c
                         ON c.[Id]=r.[ApprenticeEmploymentCheckId]
                       INNER JOIN AccountIdOfSmallestEmployer a
-                        ON a.[AccountId]=c.[AccountId]
+                        ON a.[AccountId]=c.[AccountId] AND a.[Uln]=c.[Uln]
                       WHERE r.[RequestCompletionStatus] IS NULL
                         ;
                     ";

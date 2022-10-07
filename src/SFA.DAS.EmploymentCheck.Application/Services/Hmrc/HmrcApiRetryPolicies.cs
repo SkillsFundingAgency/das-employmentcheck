@@ -106,6 +106,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         
         public async Task DelayApiExecutionByRetryPolicy()
         {
+            if (_settings.DelayInMs == 0) return;
+
             _logger.LogInformation($"{nameof(HmrcApiRetryPolicies)}: delaying Hmrc Api call by {_settings.DelayInMs}ms ...");
 
             await Task.Delay(TimeSpan.FromMilliseconds(_settings.DelayInMs));

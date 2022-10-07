@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -106,6 +107,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 .With(r => r.ApprenticeEmploymentCheckId, check.Id)
                 .With(r => r.CorrelationId, check.CorrelationId)
                 .Without(r => r.RequestCompletionStatus)
+                .Without(r => r.LastUpdatedOn)
                 .CreateMany(noOfRequests);
 
             await Insert(request);
