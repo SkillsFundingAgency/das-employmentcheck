@@ -133,39 +133,34 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             try
             {
                 const string selectQuery = @"
-                    ;WITH AccountIdOfSmallestEmployer AS
-                        (
-                        SELECT TOP(@employmentCheckBatchSize) 
-                               c.[AccountId],
-                               c.[Uln],
-                               COUNT(r.[Id]) [Count]
-                        FROM [Business].[EmploymentCheck] c
-                        INNER JOIN [Cache].[EmploymentCheckCacheRequest] r
-                          ON c.[Id]=r.[ApprenticeEmploymentCheckId]
-                        WHERE r.[RequestCompletionStatus] IS NULL AND r.[LastUpdatedOn] IS NULL  /* Started and not in error */
-                        GROUP BY [AccountId],[Uln]
-                        ORDER BY COUNT(r.[Id]) ASC
-                        )
-                    SELECT TOP(@employmentCheckBatchSize) 
-                           r.[Id]
-                          ,r.[ApprenticeEmploymentCheckId]
-                          ,r.[CorrelationId] 
-                          ,r.[Nino]
-                          ,r.[PayeScheme]
-                          ,r.[MinDate]
-                          ,r.[MaxDate]
-                          ,r.[Employed]
-                          ,r.[RequestCompletionStatus]
-                          ,r.[CreatedOn]
-                          ,r.[LastUpdatedOn]
-                      FROM [Cache].[EmploymentCheckCacheRequest] r
-                      INNER JOIN [Business].[EmploymentCheck] c
-                        ON c.[Id]=r.[ApprenticeEmploymentCheckId]
-                      INNER JOIN AccountIdOfSmallestEmployer a
-                        ON a.[AccountId]=c.[AccountId] AND a.[Uln]=c.[Uln]
-                      WHERE r.[RequestCompletionStatus] IS NULL
-                        ;
-                    ";
+                    ;WITH SmallestLearner AS
+                    (
+                        SELECT TOP(@employmentCheckBatchSize)
+                            [ApprenticeEmploymentCheckId],
+                            COUNT([Id]) [Count]
+                        FROM [Cache].[EmploymentCheckCacheRequest]
+                        WHERE [RequestCompletionStatus] IS NULL
+                        GROUP BY [ApprenticeEmploymentCheckId]
+                        ORDER BY COUNT([Id]) ASC
+                    )
+                    SELECT TOP(@employmentCheckBatchSize)
+                          r.[Id]
+                        , r.[ApprenticeEmploymentCheckId]
+                        , r.[CorrelationId] 
+                        , r.[Nino]
+                        , r.[PayeScheme]
+                        , r.[MinDate]
+                        , r.[MaxDate]
+                        , r.[Employed]
+                        , r.[RequestCompletionStatus]
+                        , r.[CreatedOn]
+                        , r.[LastUpdatedOn]
+                    FROM [Cache].[EmploymentCheckCacheRequest] r
+                    INNER JOIN SmallestLearner a
+                    ON a.ApprenticeEmploymentCheckId = r.ApprenticeEmploymentCheckId
+                    WHERE r.[RequestCompletionStatus] IS NULL
+                    ;
+                ";
                 var selectParameter = new DynamicParameters();
                 selectParameter.Add("@employmentCheckBatchSize", rateLimiterOptions.EmploymentCheckBatchSize, DbType.Int64);
 
