@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task ExecuteSqlAsync(string sql, DynamicParameters parameter = null)
         {
-            await _sqlConnection.ExecuteAsync(sql, parameter,  _transaction, commandType: CommandType.Text);
+            await _sqlConnection.ExecuteAsync(sql, parameter, _transaction, commandType: CommandType.Text);
         }
 
         public async Task BeginAsync()
@@ -58,13 +58,12 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             try
             {
-                if (_isTransactionActive)
-                {
-                    await _transaction?.RollbackAsync();
-                    await DisposeAsync();
-                }
+                if (_transaction != null && _isTransactionActive) 
+                    await _transaction.RollbackAsync();
+
+                await DisposeAsync();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger?.LogError($"{nameof(UnitOfWork)}: failed during transaction rollback [{e}]");
             }
@@ -90,7 +89,15 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             if (_transaction != null)
                 await _transaction.DisposeAsync();
+
+            if (_sqlConnection != null && _sqlConnection.State != ConnectionState.Closed)
+            {
+                await _sqlConnection.CloseAsync();
+                await _sqlConnection.DisposeAsync();
+            }
+
             _transaction = null;
+            _sqlConnection = null;
         }
     }
 }
