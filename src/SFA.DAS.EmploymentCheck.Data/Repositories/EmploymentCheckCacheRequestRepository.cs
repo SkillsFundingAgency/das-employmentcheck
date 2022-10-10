@@ -136,8 +136,9 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                     ;WITH SmallestLearner AS
                     (
                         SELECT TOP(@employmentCheckBatchSize)
-                            [ApprenticeEmploymentCheckId],
-                            COUNT([Id]) [Count]
+                            [ApprenticeEmploymentCheckId], --Group by ApprenticeEmploymentCheck
+                            MIN([Id]) [RequestId],         --pick the oldes ID from each group of ApprenticeEmploymentCheck
+                            COUNT([Id]) [Count]            --count number of checks in each group for ordering
                         FROM [Cache].[EmploymentCheckCacheRequest]
                         WHERE [RequestCompletionStatus] IS NULL
                         GROUP BY [ApprenticeEmploymentCheckId]
@@ -157,7 +158,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                         , r.[LastUpdatedOn]
                     FROM [Cache].[EmploymentCheckCacheRequest] r
                     INNER JOIN SmallestLearner a
-                    ON a.ApprenticeEmploymentCheckId = r.ApprenticeEmploymentCheckId
+                    ON a.RequestId = r.Id --this does have a downside, if the batch size is 30 but only 15 learner remains then due to this join we will only process 15 learners in parallel
                     WHERE r.[RequestCompletionStatus] IS NULL
                     ;
                 ";
