@@ -27,3 +27,8 @@ GO
 
 CREATE INDEX IX_EmploymentCheckCacheRequest__RequestCompletionStatus_Id ON [Cache].[EmploymentCheckCacheRequest] ([RequestCompletionStatus], [Id])
 GO
+
+CREATE NONCLUSTERED INDEX [Get_Pending_EmploymentCheck_Requests] ON [Cache].[EmploymentCheckCacheRequest] 
+	([RequestCompletionStatus]) 
+INCLUDE 
+	([ApprenticeEmploymentCheckId])
