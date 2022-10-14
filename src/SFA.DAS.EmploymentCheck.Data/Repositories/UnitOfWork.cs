@@ -36,6 +36,16 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             await _sqlConnection.ExecuteAsync(sql, parameter, _transaction, commandType: CommandType.Text);
         }
 
+        public async Task UpdateAsync<T>(T entity) where T : class
+        {
+            await _sqlConnection.UpdateAsync(entity, _transaction);
+        }
+
+        public async Task InsertAsync<T>(T entity) where T : class
+        {
+            await _sqlConnection.InsertAsync(entity, _transaction);
+        }
+
         public async Task BeginAsync()
         {
             var dbConnection = new DbConnection();
@@ -75,24 +85,16 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             _transaction = null;
         }
 
-        public async Task UpdateAsync<T>(T entity) where T : class
-        {
-            await _sqlConnection.UpdateAsync(entity, _transaction);
-        }
-
-        public async Task InsertAsync<T>(T entity) where T : class
-        {
-            await _sqlConnection.InsertAsync(entity, _transaction);
-        }
-
         public async ValueTask DisposeAsync()
         {
             if (_transaction != null)
                 await _transaction.DisposeAsync();
 
-            if (_sqlConnection != null && _sqlConnection.State != ConnectionState.Closed)
+            if (_sqlConnection != null)
             {
-                await _sqlConnection.CloseAsync();
+                if (_sqlConnection.State != ConnectionState.Closed) 
+                    await _sqlConnection.CloseAsync();
+
                 await _sqlConnection.DisposeAsync();
             }
 
