@@ -5,7 +5,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
@@ -91,6 +90,31 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories
 
             // Assert
             Get<Models.EmploymentCheck>(_expected.Id).Result.Should().BeEquivalentTo(_expected); // i.e. unchanged
+        }
+
+        [Test]
+        public async Task Then_updates_EmploymentCheck_record_And_Set_MessageSentDate_To_Null()
+        {
+            // Arrange
+            _sut = new EmploymentCheckRepository(Settings, Mock.Of<ILogger<EmploymentCheckRepository>>());
+
+            var check = Fixture.Build<Models.EmploymentCheck>()
+                .With(x => x.RequestCompletionStatus, (short?)-1)
+                .With(x => x.Employed, false)
+                .With(x => x.MessageSentDate, DateTime.Now)
+                .Without(x => x.ErrorType)
+                .Create();
+
+            await Insert(check);
+
+            // Act
+            await UnitOfWorkInstance.BeginAsync();
+            await _sut.UpdateEmploymentCheckAsComplete(check, UnitOfWorkInstance);
+            await UnitOfWorkInstance.CommitAsync();
+
+            // Assert
+            var employmentCheck = Get<Models.EmploymentCheck>(check.Id).Result;
+            employmentCheck.MessageSentDate.Should().BeNull();
         }
     }
 }
