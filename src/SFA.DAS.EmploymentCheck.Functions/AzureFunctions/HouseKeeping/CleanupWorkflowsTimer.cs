@@ -11,7 +11,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.HouseKeeping
     public class CleanupWorkflowsTimer
     {
         [FunctionName(nameof(CleanupOldWorkflows))]
-        public async Task CleanupOldWorkflows([TimerTrigger("0 0 */4 * * *")]
+        public async Task CleanupOldWorkflows([TimerTrigger("%CleanupOldWorkflowsTriggerTime%")]
             TimerInfo timerInfo,
             [DurableClient] IDurableOrchestrationClient orchestrationClient, ILogger log)
         {
