@@ -87,16 +87,18 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             var checkCacheRequests1 = await CreatePendingHmrcApiRequest(check1, 1);
 
             var check2 = await CreateStartedEmploymentCheck();
-            await CreatePendingHmrcApiRequest(check2, 1);
+            var checkCacheRequests2 = await CreatePendingHmrcApiRequest(check2, 1);
 
             var check3 = await CreateStartedEmploymentCheck();
-            await CreatePendingHmrcApiRequest(check3, 1);
+            var checkCacheRequests3 = await CreatePendingHmrcApiRequest(check3, 1);
 
             // Act
             var actual = await _sut.GetEmploymentCheckCacheRequests();
 
             // Assert
             actual[0].Id.Should().Be(checkCacheRequests1.OrderBy(c => c.Id).First().Id);
+            actual[1].Id.Should().Be(checkCacheRequests2.OrderBy(c => c.Id).First().Id);
+            actual[2].Id.Should().Be(checkCacheRequests3.OrderBy(c => c.Id).First().Id);
         }
 
         [Test]
