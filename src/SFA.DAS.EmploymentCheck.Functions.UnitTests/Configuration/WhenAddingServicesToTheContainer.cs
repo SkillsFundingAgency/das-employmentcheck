@@ -148,10 +148,10 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .With(x => x.BaseUrl, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
-
+            
             serviceCollection.AddEmploymentCheckService(environment)
                 .AddPersistenceServices()
-                .AddNLog()
+                .AddNLog(Environment.CurrentDirectory, "LOCAL")
                 .AddApprenticeshipLevyApiClient()
                 .AddHashingService()
                 .AddCommandServices()
