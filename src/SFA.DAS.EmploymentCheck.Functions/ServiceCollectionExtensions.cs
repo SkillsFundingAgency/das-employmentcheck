@@ -19,7 +19,9 @@ using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.IO;
 using System.Net.Http;
+using NLog;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -107,22 +109,34 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return serviceCollection;
         }
 
-        public static IServiceCollection AddNLog(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddNLog(this IServiceCollection serviceCollection, string currentDirectory, string environmentName)
         {
-            var nLogConfiguration = new NLogConfiguration();
+            if (!String.IsNullOrWhiteSpace(environmentName))
+            {
+                var configFileName = "nlog.config";
+                if (ConfigurationIsLocalOrDev(environmentName))
+                {
+                    configFileName = "nlog.local.config";
+                }
+
+                LogManager.Setup()
+                    .SetupExtensions(e => e.AutoLoadAssemblies(false))
+                    .LoadConfigurationFromFile($"{currentDirectory}{Path.DirectorySeparatorChar}{configFileName}",
+                        optional: false)
+                    .LoadConfiguration(builder => builder.LogFactory.AutoShutdown = false)
+                    .GetCurrentClassLogger();
+            }
 
             serviceCollection.AddLogging((options) =>
             {
-                options.AddFilter("SFA.DAS", LogLevel.Information); // this is because all logging is filtered out by defualt
-                options.SetMinimumLevel(LogLevel.Trace);
+                options.AddFilter("SFA.DAS", Microsoft.Extensions.Logging.LogLevel.Information); // this is because all logging is filtered out by defualt
+                options.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {
                     CaptureMessageTemplates = true,
                     CaptureMessageProperties = true
                 });
                 options.AddConsole();
-
-                nLogConfiguration.ConfigureNLog();
             });
 
             return serviceCollection;

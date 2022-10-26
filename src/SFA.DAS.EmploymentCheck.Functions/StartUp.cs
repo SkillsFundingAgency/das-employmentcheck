@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,10 +22,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            var localRoot = Environment.GetEnvironmentVariable("AzureWebJobsScriptRoot");
+            var azureRoot = $"{Environment.GetEnvironmentVariable("HOME")}/site/wwwroot";
+            var applicationDirectory = localRoot ?? azureRoot;
+        
             builder.Services
-                .AddNLog()
-                .AddOptions()
-                ;
+                .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable("EnvironmentName"))
+                .AddOptions();
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 
