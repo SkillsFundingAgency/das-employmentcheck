@@ -1,10 +1,12 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Dapper;
 using Dapper.Contrib.Extensions;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories
@@ -13,14 +15,18 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
     {
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private readonly ILogger<UnitOfWork> _logger;
         private SqlConnection _sqlConnection;
         private DbTransaction _transaction;
+        private bool _isTransactionActive;
 
         public UnitOfWork(
             ApplicationSettings applicationSettings,
-            AzureServiceTokenProvider azureServiceTokenProvider = null
+            AzureServiceTokenProvider azureServiceTokenProvider = null,
+            ILogger<UnitOfWork> logger = null
         )
         {
+            _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
         }
@@ -39,6 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
             await _sqlConnection.OpenAsync();
             _transaction = await _sqlConnection.BeginTransactionAsync();
+            _isTransactionActive = _transaction.Connection.State == ConnectionState.Open;
         }
 
         public async Task CommitAsync()
@@ -49,19 +56,23 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task RollbackAsync()
         {
-            await _transaction.RollbackAsync();
-            await DisposeAsync();
+            try
+            {
+                if (_isTransactionActive)
+                {
+                    await _transaction?.RollbackAsync();
+                    await DisposeAsync();
+                }
+            }
+            catch(Exception e)
+            {
+                _logger?.LogError($"{nameof(UnitOfWork)}: failed during transaction rollback [{e}]");
+            }
         }
 
-        private async Task DisposeAsync()
-        {
-            if (_transaction != null)
-                await _transaction.DisposeAsync();
-            _transaction = null;
-        }
         public void Dispose()
         {
-            _transaction?.DisposeAsync();
+            _transaction?.Dispose();
             _transaction = null;
         }
 
@@ -75,5 +86,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             await _sqlConnection.InsertAsync(entity, _transaction);
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            if (_transaction != null)
+                await _transaction.DisposeAsync();
+            _transaction = null;
+        }
     }
 }
