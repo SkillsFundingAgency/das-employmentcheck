@@ -12,7 +12,6 @@
       "enableDependencyTracking": false
     }
   },
-  "functionTimeout": "00:10:00",
   "extensions": {
     "durableTask": {
       "extendedSessionsEnabled": true,

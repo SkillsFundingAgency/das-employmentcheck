@@ -217,7 +217,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql = "UPDATE [Business].[EmploymentCheck] " +
-                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, ErrorType = @errorType, LastUpdatedOn = @lastUpdatedOn " +
+                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, ErrorType = @errorType, LastUpdatedOn = @lastUpdatedOn, MessageSentDate = null " +
                                "WHERE Id = @Id AND (Employed IS NULL OR Employed = 0) ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameter);
