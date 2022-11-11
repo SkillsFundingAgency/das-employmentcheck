@@ -7,9 +7,11 @@ using Microsoft.Data.SqlClient;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Dapper;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
@@ -23,9 +25,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     {
         private readonly TestContext _context;
         private readonly List<Data.Models.EmploymentCheck> _checks;
-        private List<LearnerNiNumber> _dcApiResponse;
-        private ResourceList _accountsApiResponse;
-        private bool _samePayeVolume;
 
         public PrioritiseChecksStepDefinitions(TestContext context)
         {
@@ -33,60 +32,81 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             _checks = new List<Data.Models.EmploymentCheck>();
         }
 
-        [Given(@"a number of unprocessed employment checks")]
-        public async Task GivenANumberOfUnprocessedEmploymentChecks()
+        [Given(@"a number of New Pending employment checks are added")]
+        public async Task GivenANumberOfNewPendingEmploymentChecksAreAdded()
         {
-            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            for (var i = 0; i < 3; i++)
-            {
-                var check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
-                    .Without(c => c.RequestCompletionStatus)
-                    .Without(c => c.Employed)
-                    .Without(c => c.LastUpdatedOn)
-                    .Without(c => c.ErrorType)
-                    .With(c => c.CreatedOn, DateTime.UtcNow.AddMinutes(i-5))
-                    .Create();
-
-                await dbConnection.InsertAsync(check);
-                _checks.Add(check);
-            }
+            await CreateEmploymentChecks(101);
+            await CreateEmploymentChecks(102);
         }
 
-        [Given(@"all employers have the same number of PAYE schemes")]
-        public void GivenAllEmployersHaveTheSameNumberOfPayeSchemes()
+        [Given(@"a number of Previously processed employment checks")]
+        public async Task GivenANumberOfUnprocessedEmploymentChecks()
         {
-            _samePayeVolume = true;
+            var createdOn = DateTime.UtcNow.AddDays(-1);
+
+            await CreateEmploymentCheckCacheRequest("AB123456A", "Paye1", true, (short?)2, createdOn);
+            await CreateEmploymentCheckCacheRequest("AB123456A", "Paye2", false, (short?)2, createdOn.AddDays(-1));
+
+            await CreateEmploymentCheckCacheRequest("CD123456A", "Paye11", true, (short?)2, createdOn.AddDays(-1));
+            await CreateEmploymentCheckCacheRequest("CD123456A", "Paye22", false, (short?)2, createdOn);
+        }
+
+        private async Task CreateEmploymentChecks(long? apprenticeshipId)
+        {
+            var check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
+                .With(c => c.ApprenticeshipId, apprenticeshipId)
+                .With(c => c.RequestCompletionStatus, () => null)
+                .With(c => c.Employed, () => null)
+                .With(c => c.LastUpdatedOn, () => null)
+                .With(c => c.ErrorType, () => null)
+                .With(c => c.CreatedOn, DateTime.UtcNow)
+                .Create();
+
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var id = await dbConnection.InsertAsync(check);
+            check.Id = id;
+            _checks.Add(check);
+        }
+
+        private async Task CreateEmploymentCheckCacheRequest(string nino, string payeScheme, bool employed, short? requestCompletionStatus, DateTime createdOn)
+        {
+            var request = _context.Fixture.Build<EmploymentCheckCacheRequest>()
+                .With(r => r.Nino, nino)
+                .With(r => r.Employed, employed)
+                .With(r => r.PayeScheme, payeScheme)
+                .With(r => r.RequestCompletionStatus, requestCompletionStatus)
+                .With(r => r.CreatedOn, createdOn)
+                .Without(r => r.Id)
+                .Create();
+
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+
+            await dbConnection.InsertAsync(request);
         }
 
         [Given(@"valid PAYE schemes are returned for the Accounts")]
         public void GivenPayeSchemesAreReturnedForTheAccounts()
         {
-            SetupAccountsApiMock(_checks[0], _samePayeVolume ? 2 : 3);
-            SetupAccountsApiMock(_checks[1], 2);
-            SetupAccountsApiMock(_checks[2], _samePayeVolume ? 2 : 1);
-        }
+            foreach (var employmentCheck in _checks)
+            {
+                var accountsApiResponse = employmentCheck.ApprenticeshipId == 101
+                    ? new ResourceList(new List<ResourceViewModel> { new ResourceViewModel { Id = "Paye1" }, new ResourceViewModel { Id = "Paye2" } })
+                    : new ResourceList(new List<ResourceViewModel> { new ResourceViewModel { Id = "Paye11" }, new ResourceViewModel { Id = "Paye22" } });
 
-        private long[] LowestToHighestNumberOfPayeSchemes => new [] { _checks[2].Id, _checks[1].Id, _checks[0].Id };
-        private long[] FirstToLastReceived => new [] { _checks[0].Id, _checks[1].Id, _checks[2].Id };
+                var url = $"/api/accounts/{_context.HashingService.HashValue(employmentCheck.AccountId)}/payeschemes";
 
-        private void SetupAccountsApiMock(Data.Models.EmploymentCheck employmentCheck, int noOfPayeSchemes)
-        {
-            _accountsApiResponse = new ResourceList(_context.Fixture.CreateMany<ResourceViewModel>(noOfPayeSchemes));
-
-            var url =
-                $"/api/accounts/{_context.HashingService.HashValue(employmentCheck.AccountId)}/payeschemes";
-
-            _context.EmployerAccountsApi.MockServer
-                .Given(
-                    Request
-                        .Create()
-                        .WithPath(url)
-                        .UsingGet()
-                )
-                .RespondWith(Response.Create()
-                    .WithStatusCode(HttpStatusCode.OK)
-                    .WithHeader("Content-Type", "application/json")
-                    .WithBodyAsJson(_accountsApiResponse));
+                _context.EmployerAccountsApi.MockServer
+                    .Given(
+                        Request
+                            .Create()
+                            .WithPath(url)
+                            .UsingGet()
+                    )
+                    .RespondWith(Response.Create()
+                        .WithStatusCode(HttpStatusCode.OK)
+                        .WithHeader("Content-Type", "application/json")
+                        .WithBodyAsJson(accountsApiResponse));
+            }
         }
 
         [Given(@"valid National Insurance Numbers are returned for the learners")]
@@ -94,8 +114,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             foreach (var employmentCheck in _checks)
             {
-                _dcApiResponse = new List<LearnerNiNumber>
-                    { new LearnerNiNumber(employmentCheck.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
+                var dcApiResponse = new List<LearnerNiNumber>
+                {
+                    new LearnerNiNumber(employmentCheck.Uln, employmentCheck.ApprenticeshipId == 101 ? "AB123456A" : "CD123456A", HttpStatusCode.OK)
+                };
 
                 const string url = "/api/v1/ilr-data/learnersNi/2122";
 
@@ -110,7 +132,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .RespondWith(Response.Create()
                         .WithStatusCode(HttpStatusCode.OK)
                         .WithHeader("Content-Type", "application/json")
-                        .WithBodyAsJson(_dcApiResponse));
+                        .WithBodyAsJson(dcApiResponse));
             }
         }
 
@@ -130,31 +152,46 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithBodyAsJson(_context.Fixture.Create<EmploymentStatus>()));
 
             await _context.TestFunction.ExecuteCreateEmploymentCheckCacheRequestsOrchestrator();
+            await Task.Delay(TimeSpan.FromSeconds(5));
             await _context.TestFunction.ExecuteProcessEmploymentCheckRequestsOrchestrator();
         }
 
-        [Then(@"the Employment Checks are performed in order of smallest to largest employers")]
+        [Then(@"the Employment Checks Sent to Hmrc order of PayeScheme Priority Order")]
         public async Task ThenTheEmploymentCheckArePerformedInOrderOfSmallestToLargestEmployers()
         {
-            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheck>())
-                .OrderBy(r => r.LastUpdatedOn)
-                .Select(r => r.Id)
-                .Distinct();
+            var correlationIds = _checks.Select(c => c.CorrelationId).ToArray();
 
-            result.Should().BeEquivalentTo(LowestToHighestNumberOfPayeSchemes, options => options.WithStrictOrdering());
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var result = (await dbConnection.QueryAsync<EmploymentCheckCacheRequest>(
+                sql: @"SELECT * FROM [Cache].[EmploymentCheckCacheRequest] WHERE CorrelationId in @CorrelationIds",
+                param: new { CorrelationIds = correlationIds },
+                commandType: CommandType.Text)).ToList();
+
+            result.Count.Should().Be(4);
+
+            result.SingleOrDefault(r => r.PayeScheme == "Paye1")?.RequestCompletionStatus.Should().Be(2);
+            result.SingleOrDefault(r => r.PayeScheme == "Paye2")?.RequestCompletionStatus.Should().Be(3);
+            result.SingleOrDefault(r => r.PayeScheme == "Paye11")?.RequestCompletionStatus.Should().Be(2);
+            result.SingleOrDefault(r => r.PayeScheme == "Paye22")?.RequestCompletionStatus.Should().Be(3);
         }
 
-        [Then(@"the Employment Checks are performed in order of first to last received")]
+        [Then(@"the Employment Checks are performed in order of PayeScheme Priority Order")]
         public async Task ThenTheEmploymentChecksArePerformedInOrderOfFirstToLastReceived()
         {
-            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheck>())
-                .OrderBy(r => r.LastUpdatedOn)
-                .Select(r => r.Id)
-                .Distinct();
+            var correlationIds = _checks.Select(c => c.CorrelationId);
 
-            result.Should().BeEquivalentTo(FirstToLastReceived, options => options.WithStrictOrdering());
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var result = (await dbConnection.QueryAsync<EmploymentCheckCacheRequest>(
+                sql: @"SELECT * FROM [Cache].[EmploymentCheckCacheRequest] WHERE CorrelationId in @CorrelationIds",
+                param: new { CorrelationIds = correlationIds },
+                commandType: CommandType.Text)).ToList();
+
+            result.Count.Should().Be(4);
+
+            result.SingleOrDefault(r => r.PayeScheme == "Paye1")?.PayeSchemePriority.Should().Be(1);
+            result.SingleOrDefault(r => r.PayeScheme == "Paye2")?.PayeSchemePriority.Should().Be(2);
+            result.SingleOrDefault(r => r.PayeScheme == "Paye11")?.PayeSchemePriority.Should().Be(1);
+            result.SingleOrDefault(r => r.PayeScheme == "Paye22")?.PayeSchemePriority.Should().Be(2);
         }
     }
 }

@@ -34,8 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 
             } while (check != null);
 
-            _logger.LogInformation(
-                $"\n\n{nameof(CreateEmploymentCheckCacheRequestsOrchestrator)}: {nameof(GetEmploymentCheckActivity)} returned no results. Nothing to process.");
+            _logger.LogInformation($"\n\n{nameof(CreateEmploymentCheckCacheRequestsOrchestrator)}: {nameof(GetEmploymentCheckActivity)} returned no results. Nothing to process.");
 
         }
 
