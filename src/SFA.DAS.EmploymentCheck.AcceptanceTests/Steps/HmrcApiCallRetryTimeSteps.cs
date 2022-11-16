@@ -19,14 +19,16 @@ using System;
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
     [Binding]
-    [Scope(Feature = "HmrcApiCallRetry")]
-    public class HmrcApiCallRetrySteps
+    [Scope(Feature = "HmrcApiCallRetryTime")]
+    public class HmrcApiCallRetryTimeSteps
     {
         private EmploymentCheckCacheRequest _checkCacheRequest;
         private readonly TestContext _context;
-        private Data.Models.EmploymentCheck _check;
+        private int _statusCode = 0;
+        private DateTime _dtStart = DateTime.MinValue;
+        private DateTime _dtEnd = DateTime.MaxValue;
 
-        public HmrcApiCallRetrySteps(TestContext context)
+        public HmrcApiCallRetryTimeSteps(TestContext context)
         {
             _context = context;
         }
@@ -35,17 +37,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         public async Task GivenAnExistingEmploymentCheckCacheRequest()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-           
-            _check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
-                .With(c => c.RequestCompletionStatus, (short?) 1)
-                .Without(c => c.Employed)
-                .Without(c => c.LastUpdatedOn)
-                .Create();
-
-            var checkId = await dbConnection.InsertAsync(_check);
-
             _checkCacheRequest = _context.Fixture.Build<Data.Models.EmploymentCheckCacheRequest>()
-                .With(c => c.ApprenticeEmploymentCheckId, checkId)
                 .Without(c => c.RequestCompletionStatus)
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)
@@ -57,6 +49,10 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         [When(@"Hmrc Api call returns (.*) status code")]
         public async Task WhenHmrcApiCallReturnsStatusCode(int statusCode)
         {
+            _dtStart = DateTime.Now;
+
+            _statusCode = statusCode;
+
             var url = $"/apprenticeship-levy/epaye/{_checkCacheRequest.PayeScheme}/employed/{_checkCacheRequest.Nino}";
 
             _context.HmrcApi.MockServer
@@ -86,24 +82,19 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 "A running instance of the orchestrator detected. Manually delete it and retry.");
         }
 
-        [Then(@"the Api call with (.*) is retried (.*) times")]
-        public void ThenTheApiCallWithIsRetriedTimes(int statusCode, int noOfRetries)
+        [Then(@"then the Api has done (.*) retries within (.*) seconds")]
+        public void ThenThenTheApiHasDoneRetriesWithinSeconds(int retries, int withInTimeInSeconds)
         {
+            _dtEnd = DateTime.Now;
+
             var logs = _context.HmrcApi.MockServer.LogEntries
-               .Where(l => (int)l.ResponseMessage.StatusCode == statusCode)
-               .ToList();
+              .Where(l => (int)l.ResponseMessage.StatusCode == _statusCode)
+              .ToList();
 
-            logs.Should().HaveCount(noOfRetries + 1);
-            
+            TimeSpan ts = _dtEnd - _dtStart;
+
+            logs.Should().HaveCount(retries + 1);
+            ts.Seconds.Should().BeLessThan(withInTimeInSeconds);
         }
-
-        [Then(@"the error response is persisted")]
-        public async Task ThenTheErrorResponseIsPersisted()
-        {
-            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
-            var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheckCacheRequest>()).SingleOrDefault(x => x.CorrelationId == _checkCacheRequest.CorrelationId);
-            result.LastUpdatedOn.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
-        }
-
     }
 }
