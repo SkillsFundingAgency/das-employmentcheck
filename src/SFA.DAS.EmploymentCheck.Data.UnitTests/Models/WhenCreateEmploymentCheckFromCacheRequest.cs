@@ -41,6 +41,24 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Models
         }
 
         [Test]
+        public void Then_The_EmploymentCheck_Is_Created_Then_Is_Completed()
+        {
+            // Arrange
+            var request = _fixture.Create<EmploymentCheckCacheRequest>();
+            var result = Data.Models.EmploymentCheck.CreateEmploymentCheck(request);
+
+            // Act
+            result.SetRequestCompletionStatus(Domain.Enums.ProcessingCompletionStatus.Completed);
+
+            // Assert
+            result.Id.Should().Be(request.ApprenticeEmploymentCheckId);
+            result.Employed.Should().Be(request.Employed);
+            result.RequestCompletionStatus.Should().Be((short)Domain.Enums.ProcessingCompletionStatus.Completed);
+            result.ErrorType.Should().Be(null);
+        }
+       
+
+        [Test]
         public void Then_The_EmploymentCheck_Is_Created_With_ErrorType_HmrcFailure()
         {
             // Arrange

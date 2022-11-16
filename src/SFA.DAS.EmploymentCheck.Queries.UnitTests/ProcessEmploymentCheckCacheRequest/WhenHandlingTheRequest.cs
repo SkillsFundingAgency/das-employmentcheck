@@ -29,14 +29,14 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.ProcessEmploymentCheckCacheR
         {
             // Arrange
             var request = _fixture.Create<ProcessEmploymentCheckCacheRequestQueryRequest>();
-            var expected = _fixture.Create<EmploymentCheckCacheRequest>();
-            _serviceMock.Setup(s => s.GetEmploymentCheckCacheRequest()).ReturnsAsync(expected);
+            var expected = _fixture.Create<EmploymentCheckCacheRequest[]>();
+            _serviceMock.Setup(s => s.GetEmploymentCheckCacheRequests()).ReturnsAsync(expected);
 
             // Act
             var actual = await _sut.Handle(request, CancellationToken.None);
 
             // Assert
-            _serviceMock.Verify(s => s.GetEmploymentCheckCacheRequest(), Times.Once);
+            _serviceMock.Verify(s => s.GetEmploymentCheckCacheRequests(), Times.Once);
             actual.EmploymentCheckCacheRequest.Should().BeEquivalentTo(expected);
         }
     }

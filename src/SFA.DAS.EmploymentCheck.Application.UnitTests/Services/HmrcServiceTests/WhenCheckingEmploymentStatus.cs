@@ -52,7 +52,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             _settings = new HmrcApiRateLimiterOptions
             {
                 DelayInMs = 0,
-                MinimumUpdatePeriodInDays = 0,
+                MinimumReduceDelayIntervalInMinutes = 0,
                 TooManyRequestsRetryCount = 10,
                 TransientErrorRetryCount = 2,
                 TransientErrorDelayInMs = 1,
@@ -66,7 +66,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 _rateLimiterRepositoryMock.Object);
 
             _sut = new HmrcService(
-                _tokenServiceMock.Object,
+                new HmrcTokenStore(_tokenServiceMock.Object, retryPolicies, Mock.Of<ILogger<HmrcTokenStore>>()),
                 _apprenticeshipLevyServiceMock.Object,
                 Mock.Of<ILogger<HmrcService>>(),
                 _employmentCheckServiceMock.Object,
@@ -155,7 +155,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             {
                 AccessCode = _fixture
                 .Create<string>(),
-                ExpiryTime = DateTime.UtcNow.AddSeconds(-1)
+                ExpiryTime = DateTime.UtcNow.AddMilliseconds(100)
             };
 
             _tokenServiceMock.Setup(ts => ts.GetPrivilegedAccessTokenAsync())
@@ -163,6 +163,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
 
             // Act
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await Task.Delay(TimeSpan.FromSeconds(1));
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
@@ -192,8 +193,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut
-                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
@@ -530,8 +530,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 .ThrowsAsync(exception);
 
             // Act
-            await _sut
-                .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
+            await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
             _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(3));

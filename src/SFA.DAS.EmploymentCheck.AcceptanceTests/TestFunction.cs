@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -90,7 +92,8 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 
                         s.Configure<DataCollectionsApiConfiguration>(c =>
                         {
-                            c.BaseUrl = testContext.DataCollectionsApi.BaseAddress;
+                            c.BaseUrl = testContext.DataCollectionsApiConfiguration.BaseUrl;
+                            c.Path = testContext.DataCollectionsApiConfiguration.Path;
                         });
 
                         s.Configure<ApplicationSettings>(a =>
@@ -100,10 +103,12 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                             a.Hashstring = "test hash string";
                         });
 
+                        s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
                         s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);                        
                         s.AddSingleton(typeof(IHmrcApiOptionsRepository), CreateHmrcApiOptionsRepository().Object);
+                        s.AddSingleton(typeof(IApiOptionsRepository), CreateApiOptionsRepository().Object);
                         s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
                         s.AddSingleton(commandMessageHook);
                     })
@@ -131,6 +136,21 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             return mock;
         }
 
+        private static Mock<IDcTokenService> CreateDcTokenServiceMock()
+        {
+            var mock = new Mock<IDcTokenService>();
+            mock.Setup(_ => _.GetTokenAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new AuthResult
+                {
+                    AccessToken = "test_access_token",
+                    ExpiresIn = 999999,
+                    ExtExpiresIn = 999999,
+                    TokenType = "TokenType"
+
+                });
+            return mock;
+        }
+
         private static Mock<IHmrcApiOptionsRepository> CreateHmrcApiOptionsRepository()
         {
             var mock = new Mock<IHmrcApiOptionsRepository>();
@@ -139,6 +159,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 {
                     DelayInMs = 0,
                     TokenFailureRetryDelayInMs = 0,
+                    TransientErrorDelayInMs = 0
+                });
+            return mock;
+        }
+
+        private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
+        {
+            var mock = new Mock<IApiOptionsRepository>();
+            mock.Setup(_ => _.GetOptions(It.IsAny<string>()))
+                .ReturnsAsync(new ApiRetryOptions
+                {
                     TransientErrorDelayInMs = 0
                 });
             return mock;

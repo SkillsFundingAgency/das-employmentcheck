@@ -15,12 +15,10 @@ namespace SFA.DAS.EmploymentCheck.Queries.GetHmrcLearnerEmploymentStatus
             _service = service;
         }
 
-        public async Task<GetHmrcLearnerEmploymentStatusQueryResult> Handle(
-            GetHmrcLearnerEmploymentStatusQueryRequest request,
-            CancellationToken cancellationToken)
+        public async Task<GetHmrcLearnerEmploymentStatusQueryResult> Handle(GetHmrcLearnerEmploymentStatusQueryRequest request, CancellationToken cancellationToken = default)
         {
             var employmentCheckCacheRequest = await _service.IsNationalInsuranceNumberRelatedToPayeScheme(request.EmploymentCheckCacheRequest);
-
+            
             return new GetHmrcLearnerEmploymentStatusQueryResult(employmentCheckCacheRequest);
         }
     }

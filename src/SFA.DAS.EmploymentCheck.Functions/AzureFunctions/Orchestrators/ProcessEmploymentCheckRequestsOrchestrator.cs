@@ -1,9 +1,11 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
 {
@@ -11,8 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
     {
         private readonly ILogger<ProcessEmploymentCheckRequestsOrchestrator> _logger;
 
-        public ProcessEmploymentCheckRequestsOrchestrator(
-            ILogger<ProcessEmploymentCheckRequestsOrchestrator> logger)
+        public ProcessEmploymentCheckRequestsOrchestrator(ILogger<ProcessEmploymentCheckRequestsOrchestrator> logger)
         {
             _logger = logger;
         }
@@ -20,24 +21,34 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators
         [FunctionName(nameof(ProcessEmploymentCheckRequestsOrchestrator))]
         public async Task ProcessEmploymentCheckRequestsOrchestratorTask([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            EmploymentCheckCacheRequest request;
+            EmploymentCheckCacheRequest[] employmentCheckRequests;
 
             do
             {
-                request = await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetEmploymentCheckCacheRequestActivity), null);
-                
-                await ProcessEmploymentCheckRequest(context, request);
+                var stopwatch = Stopwatch.StartNew();
 
-            } while (request != null);
+                employmentCheckRequests = await context.CallActivityAsync<EmploymentCheckCacheRequest[]>(nameof(GetEmploymentCheckCacheRequestActivity), null);
+
+                await ProcessEmploymentCheckRequest(context, employmentCheckRequests);
+
+                stopwatch.Stop();
+
+                _logger.LogInformation($"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)}: Finished Processing Batch of EmploymentCheckRequests in {stopwatch.Elapsed.TotalMilliseconds}.");
+
+            } while (employmentCheckRequests != null && employmentCheckRequests.Any());
 
             _logger.LogInformation($"\n\n{nameof(ProcessEmploymentCheckRequestsOrchestrator)}: {nameof(GetEmploymentCheckCacheRequestActivity)} returned no results. Nothing to process.");
         }
 
-        private static async Task ProcessEmploymentCheckRequest(IDurableOrchestrationContext context, EmploymentCheckCacheRequest request)
+        private static async Task ProcessEmploymentCheckRequest(IDurableOrchestrationContext context, EmploymentCheckCacheRequest[] employmentCheckRequests)
         {
-            if (request == null) return;
+            if (employmentCheckRequests == null || !employmentCheckRequests.Any()) return;
 
-            await context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), request);
+            var getEmploymentStatusTasks = employmentCheckRequests.Select(request => context.CallActivityAsync<EmploymentCheckCacheRequest>(nameof(GetHmrcLearnerEmploymentStatusActivity), request));
+
+            var completedRequests = await Task.WhenAll(getEmploymentStatusTasks);
+
+            await context.CallActivityAsync(nameof(AbandonRelatedRequestsActivity), completedRequests);
         }
     }
 }

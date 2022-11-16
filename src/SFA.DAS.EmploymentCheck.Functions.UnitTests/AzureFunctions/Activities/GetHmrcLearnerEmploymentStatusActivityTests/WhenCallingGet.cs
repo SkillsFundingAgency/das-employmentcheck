@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -42,6 +43,20 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
             // Assert
             Assert.NotNull(result);
             Assert.AreEqual(queryResult.EmploymentCheckCacheRequest, result);
+        }
+
+        [Test]
+        public void Then_The_EmploymentCheckCacheRequest_Is_Returned()
+        {
+            // Arrange
+            var expectedEmploymentCheckCacheRequest = _employmentCheckCacheRequest;
+            var sut = new GetHmrcLearnerEmploymentStatusQueryResult(_employmentCheckCacheRequest);
+
+            // Act
+            var employmentCheckCacheRequest = sut.EmploymentCheckCacheRequest;
+
+            // Assert
+            employmentCheckCacheRequest.Should().Be(expectedEmploymentCheckCacheRequest);
         }
     }
 }

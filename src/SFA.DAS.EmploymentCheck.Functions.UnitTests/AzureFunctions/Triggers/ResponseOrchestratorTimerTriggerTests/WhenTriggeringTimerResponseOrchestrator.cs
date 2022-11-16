@@ -1,4 +1,8 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -6,12 +10,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.CreateEmploymentCheckRequestsHttpTriggerTests
+namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Triggers.ResponseOrchestratorTimerTriggerTests
 {
     public class WhenTriggeringTimerResponseOrchestrators
     {

@@ -6,6 +6,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheckServiceTests
 {
@@ -24,8 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _sut = new EmploymentCheckService(
                 _repositoryMock.Object,
                 Mock.Of<IEmploymentCheckCacheRequestRepository>(),
-                Mock.Of<IUnitOfWork>()
-            );
+                Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<EmploymentCheckService>>());
         }
 
         [Test]

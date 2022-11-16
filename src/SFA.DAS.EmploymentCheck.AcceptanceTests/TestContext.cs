@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Commands;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Tests.Database;
 using SFA.DAS.HashingService;
 using System;
@@ -18,6 +19,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         public SqlDatabase SqlDatabase { get; set; }
         public MockApi EmployerAccountsApi { get; set; }
         public MockApi DataCollectionsApi { get; set; }
+        public DataCollectionsApiConfiguration DataCollectionsApiConfiguration { get; set; }
         public MockApi HmrcApi { get; set; }
         public IHashingService HashingService { get; set; }
         public TestData TestData { get; set; }
@@ -45,6 +47,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             EventsPublished = new List<object>();
             PublishedEvents = new List<PublishedEvent>();
             CommandsPublished = new List<PublishedCommand>();
+            DataCollectionsApiConfiguration = new DataCollectionsApiConfiguration();
         }
 
         private bool _isDisposed;

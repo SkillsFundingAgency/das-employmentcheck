@@ -58,5 +58,18 @@ namespace SFA.DAS.EmploymentCheck.Data.UnitTests.Helpers
 
             result.Nino.Should().Be(NINO);
         }
+
+        [Test]
+        public async Task Then_A_CreateEmploymentCheckCacheRequest_Is_Created_And_IsValid()
+        {
+            // Arrange
+            EmploymentCheckCacheRequestValidator validator = new EmploymentCheckCacheRequestValidator();
+            _sut = new EmploymentCheckCacheRequestFactory();
+            var model = await _sut.CreateEmploymentCheckCacheRequest(_employmentCheck, NINO, PAYE);
+
+            // Act and Assert
+            validator.Validate(model).IsValid.Should().BeTrue();
+            
+        }
     }
 }
