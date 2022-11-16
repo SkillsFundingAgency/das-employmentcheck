@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using SFA.DAS.EmploymentCheck.Commands;
+using SFA.DAS.EmploymentCheck.Abstractions;
 using SFA.DAS.EmploymentCheck.Commands.CreateEmploymentCheckCacheRequest;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using System.Threading.Tasks;

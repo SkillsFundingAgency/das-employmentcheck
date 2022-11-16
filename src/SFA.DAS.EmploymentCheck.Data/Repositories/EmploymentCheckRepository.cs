@@ -93,6 +93,74 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             return employmentCheck;
         }
 
+        public async Task<Models.EmploymentCheck> GetResponseEmploymentCheck()
+        {
+            Models.EmploymentCheck employmentCheck;
+
+            var dbConnection = new DbConnection();
+            await using (var sqlConnection = await dbConnection.CreateSqlConnection(
+                _settings.DbConnectionString,
+                _azureServiceTokenProvider))
+            {
+                await sqlConnection.OpenAsync();
+                var transaction = sqlConnection.BeginTransaction();
+
+                try
+                {
+                    employmentCheck = (await sqlConnection.QueryAsync<Models.EmploymentCheck>(
+                            sql: "SELECT TOP (1) " +
+                                "[Id], " +
+                                "[CorrelationId], " +
+                                "[CheckType], " +
+                                "[Uln], " +
+                                "[ApprenticeshipId], " +
+                                "[AccountId], " +
+                                "[MinDate], " +
+                                "[MaxDate], " +
+                                "[Employed], " +
+                                "[RequestCompletionStatus], " +
+                                "[MessageSentDate], " +
+                                "[ErrorType], " +
+                                "[CreatedOn], " +
+                                "[LastUpdatedOn] " +
+                                "FROM [Business].[EmploymentCheck] AEC " +
+                                "WHERE AEC.RequestCompletionStatus = 2 " +
+                                "AND MessageSentDate IS NULL " +
+                                "ORDER BY CreatedOn ",
+                            commandType: CommandType.Text,
+                            transaction: transaction)).FirstOrDefault();
+
+                    if (employmentCheck != null)
+                    {
+                        var dateTimeNow = DateTime.Now;
+                        var parameter = new DynamicParameters();
+                        parameter.Add("@Id", employmentCheck.Id, DbType.Int64);
+                        parameter.Add("@messageSentDate", dateTimeNow, DbType.DateTime);
+                        parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                        await sqlConnection.ExecuteAsync(
+                            "UPDATE [Business].[EmploymentCheck] " +
+                            "SET MessageSentDate = @messageSentDate, LastUpdatedOn = @lastUpdatedOn " +
+                            "WHERE Id = @Id ",
+                            parameter,
+                            commandType: CommandType.Text,
+                            transaction: transaction);
+
+                        employmentCheck.MessageSentDate = dateTimeNow;
+                        transaction.Commit();
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    _logger.LogError($"EmploymentCheckService.GetResponseEmploymentCheck(): ERROR: An error occurred reading the employment check. Exception [{e}]");
+                    throw;
+                }
+            }
+
+            return employmentCheck;
+        }
+
         public async Task InsertOrUpdate(Models.EmploymentCheck check)
         {
             Guard.Against.Null(check, nameof(check));
@@ -149,7 +217,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql = "UPDATE [Business].[EmploymentCheck] " +
-                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, ErrorType = @errorType, LastUpdatedOn = @lastUpdatedOn " +
+                               "SET Employed = @employed, RequestCompletionStatus = @requestCompletionStatus, ErrorType = @errorType, LastUpdatedOn = @lastUpdatedOn, MessageSentDate = null " +
                                "WHERE Id = @Id AND (Employed IS NULL OR Employed = 0) ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameter);

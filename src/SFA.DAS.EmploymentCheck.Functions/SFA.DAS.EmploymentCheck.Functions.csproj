@@ -40,6 +40,9 @@
     <PackageReference Include="SFA.DAS.TokenService.Api.Client" Version="2.2.1" />
     <PackageReference Include="SFA.DAS.TokenService.Api.Types" Version="2.2.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="SFA.DAS.NServiceBus.AzureFunction" Version="16.0.21" />
+    <PackageReference Include="NServiceBus.Extensions.DependencyInjection" Version="1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj" />
@@ -49,11 +52,14 @@
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.TokenServiceStub\SFA.DAS.EmploymentCheck.TokenServiceStub.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="local.settings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>

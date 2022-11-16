@@ -9,6 +9,7 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheckServiceTests
 {
@@ -25,11 +26,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
             _fixture = new Fixture();
             _employmentCheckRepositoryMock = new Mock<IEmploymentCheckRepository>();
             _employmentCheckCashRequestRepositoryMock = new Mock<IEmploymentCheckCacheRequestRepository>();
+
             _sut = new EmploymentCheckService(
                 _employmentCheckRepositoryMock.Object,
                 _employmentCheckCashRequestRepositoryMock.Object,
-                Mock.Of<IUnitOfWork>()
-            );
+                Mock.Of<IUnitOfWork>(), Mock.Of<ILogger<EmploymentCheckService>>());
         }
 
         [Test]

@@ -4,7 +4,7 @@ using Dapper;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IAsyncDisposable, IDisposable
     {
         Task BeginAsync();
         Task CommitAsync();

@@ -1,7 +1,11 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using Polly.Wrap;
+using SFA.DAS.EmploymentCheck.Application.ApiClients;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -19,20 +23,48 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Fixture _fixture;
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
+        private DataCollectionsApiConfiguration _apiApiConfiguration;
         private Data.Models.EmploymentCheck _employmentCheck;
+        private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
+        private ApiRetryOptions _settings;
+        private Mock<ILogger<LearnerService>> _logger;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
 
+            _logger = new Mock<ILogger<LearnerService>>();
             _apiClientMock = new Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>>();
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>();
             _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
 
+            _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
+
+            _settings = new ApiRetryOptions
+            {
+                TooManyRequestsRetryCount = 10,
+                TransientErrorRetryCount = 2,
+                TransientErrorDelayInMs = 1
+            };
+
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions(It.IsAny<string>())).ReturnsAsync(_settings);
+
+            _apiApiConfiguration = new DataCollectionsApiConfiguration
+            {
+                Path = "/api/v1/ilr-data/learnersNi/2122"
+            };
+
+            var retryPolicies = new ApiRetryPolicies(
+                Mock.Of<ILogger<ApiRetryPolicies>>(),
+                _apiOptionsRepositoryMock.Object);
+
             _sut = new LearnerService(
                 _apiClientMock.Object,
-                _repositoryMock.Object
+                _repositoryMock.Object,
+                retryPolicies,
+                _logger.Object,
+                _apiApiConfiguration
             );
         }
 
@@ -43,8 +75,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
             await _sut.GetNiNumber(_employmentCheck);
 
             // Assert
-            _apiClientMock.Verify(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(r =>
-                r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")));
+            _apiClientMock.Verify(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.Is<GetNationalInsuranceNumberRequest>(r =>
+                r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")));
         }
 
         [Test]
@@ -63,8 +95,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 StatusCode = HttpStatusCode.OK
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.Is<GetNationalInsuranceNumberRequest>(
+                    r => r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -100,8 +132,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 StatusCode = HttpStatusCode.OK
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.Is<GetNationalInsuranceNumberRequest>(
-                    r => r.GetUrl == $"/api/v1/ilr-data/learnersNi/2122?ulns={_employmentCheck.Uln}")))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.Is<GetNationalInsuranceNumberRequest>(
+                    r => r.GetUrl == $"{_apiApiConfiguration.Path}?ulns={_employmentCheck.Uln}")))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -115,7 +147,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         public async Task Then_Error_Response_Is_Saved_In_Case_Of_Null_Response()
         {
             // Arrange
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync((HttpResponseMessage)null);
 
             // Act
@@ -138,7 +170,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Null_Response()
         {
             // Arrange
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync((HttpResponseMessage)null);
 
             // Act
@@ -149,20 +181,26 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         }
 
         [Test]
-        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response()
+        [TestCase(HttpStatusCode.BadRequest)]
+        [TestCase(HttpStatusCode.NotFound)]
+        [TestCase(HttpStatusCode.Unauthorized)]
+        [TestCase(HttpStatusCode.InternalServerError)]
+        public async Task Then_Error_Response_Is_Saved_In_Case_Of_Unsuccessful_Response(HttpStatusCode httpStatusCode)
         {
             // Arrange
             var httpResponse = new HttpResponseMessage
             {
                 Content = new StringContent(_fixture.Create<string>()),
-                StatusCode = HttpStatusCode.BadRequest
+                StatusCode = httpStatusCode
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync(httpResponse);
-
-            // Act
-            await _sut.GetNiNumber(_employmentCheck);
+            
+                // Act
+                await _sut.GetNiNumber(_employmentCheck);
+            
+            
 
             // Assert
             _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<DataCollectionsResponse>(
@@ -177,6 +215,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 , Times.Once());
         }
 
+
         [Test]
         public async Task Then_LearnerNiNumber_Is_Returned_To_Caller_In_Case_Of_Unsuccessful_Response()
         {
@@ -187,7 +226,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 StatusCode = HttpStatusCode.BadRequest
             };
 
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -204,7 +243,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         {
             // Arrange
             var exception = _fixture.Create<Exception>();
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ThrowsAsync(exception);
 
             // Act
@@ -227,7 +266,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         public async Task Then_Null_Is_Returned_To_Caller_In_Case_Of_Unexpected_Exception()
         {
             // Arrange
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ThrowsAsync(_fixture.Create<Exception>());
 
             // Act
@@ -251,7 +290,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
                 .With(x => x.HttpStatusCode, httpResponse.StatusCode)
                 .Create();
 
-            _apiClientMock.Setup(_ => _.Get(It.IsAny<GetNationalInsuranceNumberRequest>()))
+            _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(),It.IsAny<GetNationalInsuranceNumberRequest>()))
                 .ReturnsAsync(httpResponse);
 
             // Act

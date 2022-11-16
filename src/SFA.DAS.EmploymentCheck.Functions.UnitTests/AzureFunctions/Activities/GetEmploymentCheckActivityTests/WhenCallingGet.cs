@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetEmploymentCheck;
+using SFA.DAS.EmploymentCheck.Queries.GetResponseEmploymentCheck;
 using System.Threading;
 using System.Threading.Tasks;
 

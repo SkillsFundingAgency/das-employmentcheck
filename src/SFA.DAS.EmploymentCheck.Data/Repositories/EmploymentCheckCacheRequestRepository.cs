@@ -14,19 +14,21 @@ using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Data.Repositories
 {
-    public class EmploymentCheckCacheRequestRepository
-        : IEmploymentCheckCacheRequestRepository
+    public class EmploymentCheckCacheRequestRepository : IEmploymentCheckCacheRequestRepository
     {
+        private readonly IHmrcApiOptionsRepository _hmrcApiOptionsRepository;
         private readonly ILogger<EmploymentCheckCacheRequestRepository> _logger;
         private readonly string _connectionString;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public EmploymentCheckCacheRequestRepository(
             ApplicationSettings applicationSettings,
+            IHmrcApiOptionsRepository hmrcApiOptionsRepository,
             ILogger<EmploymentCheckCacheRequestRepository> logger,
             AzureServiceTokenProvider azureServiceTokenProvider = null
         )
         {
+            _hmrcApiOptionsRepository = hmrcApiOptionsRepository;
             _logger = logger;
             _azureServiceTokenProvider = azureServiceTokenProvider;
             _connectionString = applicationSettings.DbConnectionString;
@@ -99,23 +101,25 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             parameters.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
 
             const string sql =
-                "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                "SET    RequestCompletionStatus     =  @requestCompletionStatus, " +
-                "       Employed                    =  null, " +
-                "       LastUpdatedOn               =  @lastUpdatedOn " +
-                "WHERE  Id                          <> @Id " +
-                "AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId " +
-                "AND    Nino                        =  @nino " +
-                "AND    MinDate                     =  @minDate " +
-                "AND    MaxDate                     =  @maxDate " +
-                "AND    (Employed                   IS NULL OR Employed = 0) " +
-                "AND    RequestCompletionStatus     IS NULL ";
+                @"UPDATE [Cache].[EmploymentCheckCacheRequest]
+                  SET    RequestCompletionStatus     =  @requestCompletionStatus,
+                         Employed                    =  null,
+                         LastUpdatedOn               =  @lastUpdatedOn
+                  WHERE  Id                          <> @Id
+                  AND    ApprenticeEmploymentCheckId =  @apprenticeEmploymentCheckId
+                  AND    Nino                        =  @nino
+                  AND    MinDate                     =  @minDate
+                  AND    MaxDate                     =  @maxDate
+                  AND    (Employed                   IS NULL OR Employed = 0)
+                  AND    RequestCompletionStatus     IS NULL
+                ";
 
             await unitOfWork.ExecuteSqlAsync(sql, parameters);
         }
 
-        public async Task<EmploymentCheckCacheRequest> GetEmploymentCheckCacheRequest()
+        public async Task<EmploymentCheckCacheRequest[]> GetEmploymentCheckCacheRequests()
         {
+            var rateLimiterOptions = await _hmrcApiOptionsRepository.GetHmrcRateLimiterOptions();
             var dbConnection = new DbConnection();
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(
@@ -123,47 +127,80 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                 _azureServiceTokenProvider);
             Guard.Against.Null(sqlConnection, nameof(sqlConnection));
 
-            EmploymentCheckCacheRequest employmentCheckCacheRequest = null;
+            EmploymentCheckCacheRequest[] employmentCheckCacheRequests;
             await sqlConnection.OpenAsync();
+            var transaction = sqlConnection.BeginTransaction();
+            try
             {
-                var transaction = sqlConnection.BeginTransaction();
-                try
+                const string selectQuery = @"
+                    ;WITH SmallestLearner AS
+                    (
+                        SELECT TOP(@employmentCheckBatchSize)
+                            [ApprenticeEmploymentCheckId], --Group by ApprenticeEmploymentCheck
+                            MIN([Id]) [RequestId],         --pick the oldest ID from each group of ApprenticeEmploymentCheck
+                            COUNT([Id]) [Count]            --count number of checks in each group for ordering
+                        FROM [Cache].[EmploymentCheckCacheRequest]
+                        WHERE [RequestCompletionStatus] IS NULL
+                        GROUP BY [ApprenticeEmploymentCheckId]
+                        ORDER BY COUNT([Id]) ASC
+                    )
+                    SELECT TOP(@employmentCheckBatchSize)
+                          r.[Id]
+                        , r.[ApprenticeEmploymentCheckId]
+                        , r.[CorrelationId] 
+                        , r.[Nino]
+                        , r.[PayeScheme]
+                        , r.[MinDate]
+                        , r.[MaxDate]
+                        , r.[Employed]
+                        , r.[RequestCompletionStatus]
+                        , r.[CreatedOn]
+                        , r.[LastUpdatedOn]
+                    FROM [Cache].[EmploymentCheckCacheRequest] r
+                    INNER JOIN SmallestLearner a
+                    ON a.RequestId = r.Id --this does have a downside, if the batch size is 30 but only 15 learner remains then due to this join we will only process 15 learners in parallel
+                    WHERE r.[RequestCompletionStatus] IS NULL
+                    Order by r.[Id]
+                    ;
+                ";
+                var selectParameter = new DynamicParameters();
+                selectParameter.Add("@employmentCheckBatchSize", rateLimiterOptions.EmploymentCheckBatchSize, DbType.Int64);
+
+                employmentCheckCacheRequests = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
+                    sql: selectQuery,
+                    param: selectParameter,
+                    commandType: CommandType.Text,
+                    transaction: transaction)).ToArray();
+
+                if (employmentCheckCacheRequests.Any())
                 {
-                    employmentCheckCacheRequest = (await sqlConnection.QueryAsync<EmploymentCheckCacheRequest>(
-                        sql: "SELECT    TOP(1) * " +
-                             "FROM      [Cache].[EmploymentCheckCacheRequest] " +
-                             "WHERE     (RequestCompletionStatus IS NULL)" +
-                             "ORDER BY  Id",
+                    var updateParameter = new DynamicParameters();
+                    updateParameter.Add("@Ids", employmentCheckCacheRequests.Select(ecr => ecr.Id).ToArray());
+                    updateParameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
+                    updateParameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
+
+                    const string updateQuery = @"
+                    UPDATE [Cache].[EmploymentCheckCacheRequest]
+                    SET    RequestCompletionStatus = @requestCompletionStatus,
+                           LastUpdatedOn = @lastUpdatedOn
+                    WHERE  Id in @Ids";
+
+                    await sqlConnection.ExecuteAsync(
+                        sql: updateQuery,
+                        param: updateParameter,
                         commandType: CommandType.Text,
-                        transaction: transaction)).FirstOrDefault();
-
-                    if (employmentCheckCacheRequest != null)
-                    {
-                        var parameter = new DynamicParameters();
-                        parameter.Add("@Id", employmentCheckCacheRequest.Id, DbType.Int64);
-                        parameter.Add("@requestCompletionStatus", ProcessingCompletionStatus.Started, DbType.Int16);
-                        parameter.Add("@lastUpdatedOn", DateTime.Now, DbType.DateTime);
-
-                        await sqlConnection.ExecuteAsync(
-                            "UPDATE [Cache].[EmploymentCheckCacheRequest] " +
-                            "SET    RequestCompletionStatus = @requestCompletionStatus, " +
-                            "       LastUpdatedOn = @lastUpdatedOn " +
-                            "WHERE  Id = @Id ",
-                            parameter,
-                            commandType: CommandType.Text,
-                            transaction: transaction);
-                    }
-
-                    transaction.Commit();
+                        transaction: transaction);
                 }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
             }
 
-            return employmentCheckCacheRequest;
+            return employmentCheckCacheRequests;
         }
     }
 }

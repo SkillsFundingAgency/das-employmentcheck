@@ -20,7 +20,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
         public async Task CanUpdate()
         {
             // Arrange
-            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
+            _sut = new EmploymentCheckCacheRequestRepository(Settings, Mock.Of<IHmrcApiOptionsRepository>(), Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
             var saved = Fixture.Create<Models.EmploymentCheckCacheRequest>();
 
             await Insert(saved);

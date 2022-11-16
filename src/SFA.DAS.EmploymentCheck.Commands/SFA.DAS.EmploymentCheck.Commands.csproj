@@ -5,12 +5,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NServiceBus" Version="7.7.3" />
     <PackageReference Include="Scrutor" Version="4.0.0" />
+    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
+    <PackageReference Include="SFA.DAS.NServiceBus.AzureFunction" Version="16.0.21" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.62" />
+    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
+    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.28" />
   </ItemGroup>
     
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Abstractions\SFA.DAS.EmploymentCheck.Abstractions.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Application\SFA.DAS.EmploymentCheck.Application.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Infrastructure\SFA.DAS.EmploymentCheck.Infrastructure.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmploymentCheck.Types\SFA.DAS.EmploymentCheck.Types.csproj" />
   </ItemGroup>
 
 </Project>

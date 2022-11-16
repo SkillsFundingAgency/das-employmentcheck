@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SFA.DAS.EmploymentCheck.Abstractions;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SFA.DAS.EmploymentCheck.Commands
 {
