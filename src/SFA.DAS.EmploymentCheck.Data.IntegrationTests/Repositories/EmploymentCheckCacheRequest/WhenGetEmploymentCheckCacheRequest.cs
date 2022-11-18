@@ -146,10 +146,12 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
                 .CreateMany(noOfRequests)
                 .ToList();
 
-            foreach (var request in requests)
+            for (var index = 0; index < requests.Count; index++)
             {
-               var id = await Insert(request);
-               request.Id = id;
+                var request = requests[index];
+                request.PayeSchemePriority = index + 1;
+                var id = await Insert(request);
+                request.Id = id;
             }
 
             return requests;
