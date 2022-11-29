@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceTests
@@ -24,11 +24,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         {
             // Arrange and Act
             var uln = _fixture.Create<long>();
+            var academicYear = _fixture.Create<string>();
             _apiApiConfiguration.Path = "a" + _fixture.Create<string>();
-            _sut = new GetNationalInsuranceNumberRequest(uln, _apiApiConfiguration);
+            _sut = new GetNationalInsuranceNumberRequest(uln, academicYear, _apiApiConfiguration);
 
             // Assert
-            _sut.GetUrl.Should().Be($"/{_apiApiConfiguration.Path}?ulns={uln}");
+            _sut.GetUrl.Should().Be($"/{_apiApiConfiguration.Path}/{academicYear}?ulns={uln}");
         }
 
         [Test]
@@ -36,11 +37,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         {
             // Arrange and Act
             var uln = _fixture.Create<long>();
+            var academicYear = _fixture.Create<string>();
             _apiApiConfiguration.Path = "/" + _fixture.Create<string>();
-            _sut = new GetNationalInsuranceNumberRequest(uln, _apiApiConfiguration);
+            _sut = new GetNationalInsuranceNumberRequest(uln, academicYear, _apiApiConfiguration);
 
             // Assert
-            _sut.GetUrl.Should().Be($"{_apiApiConfiguration.Path}?ulns={uln}");
+            _sut.GetUrl.Should().Be($"{_apiApiConfiguration.Path}/{academicYear}?ulns={uln}");
         }
 
         [Test]
@@ -48,10 +50,11 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         {
             // Arrange and Act
             var uln = _fixture.Create<long>();
-            _sut = new GetNationalInsuranceNumberRequest(uln, _apiApiConfiguration);
+            var academicYear = _fixture.Create<string>();
+            _sut = new GetNationalInsuranceNumberRequest(uln, academicYear, _apiApiConfiguration);
 
             // Assert
-            _sut.GetUrl.Should().Be($"/api/v1/ilr-data/learnersNi/2122?ulns={uln}");
+            _sut.GetUrl.Should().Be($"/api/v1/ilr-data/learnersNi/{academicYear}?ulns={uln}");
         }
     }
 }

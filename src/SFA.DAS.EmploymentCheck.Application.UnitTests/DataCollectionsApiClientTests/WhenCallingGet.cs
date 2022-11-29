@@ -7,6 +7,7 @@ using Moq.Protected;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;

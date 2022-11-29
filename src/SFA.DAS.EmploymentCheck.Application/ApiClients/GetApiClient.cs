@@ -49,7 +49,6 @@ namespace SFA.DAS.EmploymentCheck.Application.ApiClients
                     {
                         throw new HttpException(response.StatusCode);
                     }
-
                 });
 
                 return response;

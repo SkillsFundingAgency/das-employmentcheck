@@ -111,6 +111,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                         .WithStatusCode(HttpStatusCode.OK)
                         .WithHeader("Content-Type", "application/json")
                         .WithBodyAsJson(_dcApiResponse));
+
+                _context.DataCollectionsApi.MockServer
+                  .Given(
+                      Request
+                          .Create()
+                          .WithPath("/api/v1/academic-years")
+                          .UsingGet()
+                  )
+                  .RespondWith(Response.Create()
+                      .WithStatusCode(HttpStatusCode.OK)
+                      .WithHeader("Content-Type", "application/json")
+                      .WithBodyAsJson("2122"));
             }
         }
 
