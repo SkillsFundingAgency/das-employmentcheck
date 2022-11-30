@@ -4,7 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
-namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceTests
+namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.NationalInsuranceNumberTests
 {
     public class WhenGetNationalInsuranceNumberRequest
     {
