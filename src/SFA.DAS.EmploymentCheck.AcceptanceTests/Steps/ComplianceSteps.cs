@@ -70,7 +70,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             _dcApiResponse = new List<LearnerNiNumber>
                 { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
 
-            string path =  $"{_context.DataCollectionsApiConfiguration.Path}";
+            string path =  $"{_context.DataCollectionsApiConfiguration.Path}/2122";
 
             _context.DataCollectionsApi.MockServer
                 .Given(
@@ -84,6 +84,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(_dcApiResponse));
+
+            _context.DataCollectionsApi.MockServer
+              .Given(
+                  Request
+                      .Create()
+                      .WithPath(_context.DataCollectionsApiConfiguration.AcademicYearsPath)
+                      .UsingGet()
+              )
+              .RespondWith(Response.Create()
+                  .WithStatusCode(HttpStatusCode.OK)
+                  .WithHeader("Content-Type", "application/json")
+                  .WithBodyAsJson("2122, 2021, 2223"));
         }
 
         [When(@"the Employment Check is performed")]

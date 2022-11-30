@@ -8,10 +8,16 @@
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string Path { get; set; }
+        public string AcademicYearsPath { get; set; }
+        public int NumberOfAcademicYearsToSearch { get; set; }
+        public int AcademicYearsCacheDurationSecs { get; set; }
 
         public DataCollectionsApiConfiguration()
         {
-            Path = @"/api/v1/ilr-data/learnersNi/2122";
+            Path = @"/api/v1/ilr-data/learnersNi";
+            AcademicYearsPath = @"/api/v1/academic-years";
+            NumberOfAcademicYearsToSearch = 2;
+            AcademicYearsCacheDurationSecs = 3600;
         }
     }
 }

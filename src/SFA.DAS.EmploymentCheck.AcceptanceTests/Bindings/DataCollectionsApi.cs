@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Bindings
         {
             _context.DataCollectionsApi ??= FeatureTestContext.FeatureData.GetOrCreate<MockApi>(_featureInfo.Title + nameof(DataCollectionsApi));
             _context.DataCollectionsApiConfiguration.BaseUrl = _context.DataCollectionsApi.BaseAddress;
-            _context.DataCollectionsApiConfiguration.Path = "/api/v1/ilr-data/learnersNi/2122";
+            _context.DataCollectionsApiConfiguration.Path = "/api/v1/ilr-data/learnersNi";
         }
 
         [AfterScenario]

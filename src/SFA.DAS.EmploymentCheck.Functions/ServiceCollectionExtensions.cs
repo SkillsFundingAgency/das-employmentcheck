@@ -1,5 +1,6 @@
 ﻿using HMRC.ESFA.Levy.Api.Client;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -61,7 +63,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 
             serviceCollection.AddTransient<IDataCollectionsApiClient<DataCollectionsApiConfiguration>, DataCollectionsApiClient>();
-            serviceCollection.AddTransient<ILearnerService, LearnerService>();
+
+            serviceCollection.AddTransient<INationalInsuranceNumberYearsService, NationalInsuranceNumberYearsService>();
+            serviceCollection.AddTransient<INationalInsuranceNumberService, NationalInsuranceNumberService>();
+            serviceCollection.Decorate<INationalInsuranceNumberService, NationalInsuranceNumberServiceWithAYLookup>();
+            serviceCollection.Decorate<INationalInsuranceNumberService, NationalInsuranceNumberServiceWithLogging>();            
+            serviceCollection.AddTransient<ILearnerService, LearnerService>();            
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
