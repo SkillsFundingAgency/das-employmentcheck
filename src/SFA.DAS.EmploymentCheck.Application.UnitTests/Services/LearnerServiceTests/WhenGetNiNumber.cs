@@ -7,7 +7,6 @@ using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,10 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private Fixture _fixture;
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
         private Mock<INationalInsuranceNumberService> _niServiceMock;
-        private DataCollectionsApiConfiguration _apiApiConfiguration;
         private Data.Models.EmploymentCheck _employmentCheck;
-        private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
-        private ApiRetryOptions _settings;
         private Mock<ILogger<LearnerService>> _logger;
 
         [SetUp]

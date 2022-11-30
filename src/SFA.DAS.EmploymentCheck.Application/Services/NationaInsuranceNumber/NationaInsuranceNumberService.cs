@@ -92,7 +92,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
             if (!string.IsNullOrEmpty(jsonContent))
             {
                 var learnerNiNumbers = JsonConvert.DeserializeObject<List<LearnerNiNumber>>(jsonContent);
-                if (learnerNiNumbers != null && learnerNiNumbers.Count() > 0)
+                if (learnerNiNumbers.Any())
                 {
                     var learnerNiNumber = learnerNiNumbers.First();
                     learnerNiNumber.HttpStatusCode = (HttpStatusCode)dataCollectionsResponse.HttpStatusCode;

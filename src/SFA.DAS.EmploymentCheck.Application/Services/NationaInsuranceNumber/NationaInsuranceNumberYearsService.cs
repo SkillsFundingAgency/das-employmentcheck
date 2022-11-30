@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
 
             var years = data.Split(',').Select(y => y.Trim()).ToList();
 
-            if (years.Count() > _apiConfiguration.NumberOfAcademicYearsToSearch)
+            if (years.Count > _apiConfiguration.NumberOfAcademicYearsToSearch)
             {
                 years = years.OrderByDescending(y => y).Take(2).ToList();
             }
