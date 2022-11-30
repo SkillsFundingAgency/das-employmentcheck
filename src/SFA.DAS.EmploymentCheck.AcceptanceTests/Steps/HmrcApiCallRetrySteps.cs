@@ -102,7 +102,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
             var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheckCacheRequest>()).SingleOrDefault(x => x.CorrelationId == _checkCacheRequest.CorrelationId);
-            result.LastUpdatedOn.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1));
+            result.LastUpdatedOn.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(10));
         }
 
     }

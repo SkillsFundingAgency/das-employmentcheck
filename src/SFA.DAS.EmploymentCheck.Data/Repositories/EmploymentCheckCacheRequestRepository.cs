@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -133,23 +134,13 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             try
             {
                 const string selectQuery = @"
-                    ;WITH SmallestLearner AS
-                    (
-                        SELECT TOP(@employmentCheckBatchSize)
-                            [ApprenticeEmploymentCheckId], --Group by ApprenticeEmploymentCheck
-                            MIN([Id]) [RequestId],         --pick the oldest ID from each group of ApprenticeEmploymentCheck
-                            COUNT([Id]) [Count]            --count number of checks in each group for ordering
-                        FROM [Cache].[EmploymentCheckCacheRequest]
-                        WHERE [RequestCompletionStatus] IS NULL
-                        GROUP BY [ApprenticeEmploymentCheckId]
-                        ORDER BY COUNT([Id]) ASC
-                    )
                     SELECT TOP(@employmentCheckBatchSize)
                           r.[Id]
                         , r.[ApprenticeEmploymentCheckId]
                         , r.[CorrelationId] 
                         , r.[Nino]
                         , r.[PayeScheme]
+                        , r.[PayeSchemePriority]
                         , r.[MinDate]
                         , r.[MaxDate]
                         , r.[Employed]
@@ -157,10 +148,8 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
                         , r.[CreatedOn]
                         , r.[LastUpdatedOn]
                     FROM [Cache].[EmploymentCheckCacheRequest] r
-                    INNER JOIN SmallestLearner a
-                    ON a.RequestId = r.Id --this does have a downside, if the batch size is 30 but only 15 learner remains then due to this join we will only process 15 learners in parallel
                     WHERE r.[RequestCompletionStatus] IS NULL
-                    Order by r.[Id]
+                    Order by [PayeSchemePriority], Id
                     ;
                 ";
                 var selectParameter = new DynamicParameters();
@@ -201,6 +190,50 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             }
 
             return employmentCheckCacheRequests;
+        }
+
+        public async Task<List<LearnerPayeCheckPriority>> GetLearnerPayeCheckPriority(string niNumber)
+        {
+            var dbConnection = new DbConnection();
+
+            await using var sqlConnection = await dbConnection.CreateSqlConnection(_connectionString, _azureServiceTokenProvider);
+            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+            List<LearnerPayeCheckPriority> learnerPayeCheckPriorities;
+            await sqlConnection.OpenAsync();
+            var transaction = sqlConnection.BeginTransaction();
+            try
+            {
+                //if you need to run this query for multiple Nino then update the Row_Number to Partition by Nino
+                //SELECT DISTINCT Nino, PayeScheme, ROW_NUMBER() OVER(PARTITION BY Nino ORDER BY MIN(CreatedOn) DESC) AS Row
+                //WHERE Employed = 1 AND Nino in ( @NiNumbers )
+                //GROUP BY Nino, PayeScheme
+
+                const string selectQuery = @"
+                    SELECT DISTINCT PayeScheme, ROW_NUMBER() OVER(ORDER BY MIN(CreatedOn) DESC) AS PriorityOrder
+                    FROM Cache.EmploymentCheckCacheRequest
+                    WHERE Employed = 1 AND Nino = @NiNumber
+                    GROUP BY PayeScheme
+                    ;
+                ";
+                var selectParameter = new DynamicParameters();
+                selectParameter.Add("@NiNumber", niNumber, DbType.String);
+
+                learnerPayeCheckPriorities = (await sqlConnection.QueryAsync<LearnerPayeCheckPriority>(
+                    sql: selectQuery,
+                    param: selectParameter,
+                    commandType: CommandType.Text,
+                    transaction: transaction)).ToList();
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+
+            return learnerPayeCheckPriorities;
         }
     }
 }
