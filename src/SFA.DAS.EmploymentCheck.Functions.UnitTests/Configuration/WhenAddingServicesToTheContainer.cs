@@ -24,6 +24,7 @@ using SFA.DAS.TokenService.Api.Client;
 using System;
 using SFA.DAS.EmploymentCheck.Abstractions;
 using System.Reflection;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
@@ -52,6 +53,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IDcTokenService))]
         [TestCase(typeof(IEmploymentCheckService))]
         [TestCase(typeof(ILearnerService))]
+        [TestCase(typeof(INationalInsuranceNumberService))]
+        [TestCase(typeof(INationalInsuranceNumberYearsService))]
         [TestCase(typeof(IAzureClientCredentialHelper))]
         [TestCase(typeof(IEmployerAccountService))]
         [TestCase(typeof(IHmrcService))]
@@ -127,6 +130,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         {
             serviceCollection.AddSingleton(Mock.Of<IWebHostEnvironment>());
             serviceCollection.AddOptions();
+            serviceCollection.AddMemoryCache();
 
             var applicationSettings = _fixture.Create<ApplicationSettings>();
             serviceCollection.AddSingleton(applicationSettings);
