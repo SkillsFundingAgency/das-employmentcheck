@@ -36,7 +36,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.NationalInsuran
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>();
             _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
-            _employmentCheck = _fixture.Build<Data.Models.EmploymentCheck>().Create();
+            _employmentCheck = _fixture.Create<Data.Models.EmploymentCheck>();
             _settings = new ApiRetryOptions
             {
                 TooManyRequestsRetryCount = 10,

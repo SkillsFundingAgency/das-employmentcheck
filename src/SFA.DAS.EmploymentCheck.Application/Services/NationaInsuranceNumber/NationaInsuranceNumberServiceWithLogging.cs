@@ -11,12 +11,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
     public class NationalInsuranceNumberServiceWithLogging : INationalInsuranceNumberService
     {
         private readonly INationalInsuranceNumberService _nationalInsuranceNumberService;
-        private readonly ILogger<LearnerService> _logger;
+        private readonly ILogger<NationalInsuranceNumberService> _logger;
         private readonly IDataCollectionsResponseRepository _repository;
 
         public NationalInsuranceNumberServiceWithLogging(
             INationalInsuranceNumberService nationalInsuranceNumberService,
-            ILogger<LearnerService> logger,
+            ILogger<NationalInsuranceNumberService> logger,
             IDataCollectionsResponseRepository repository
             )
         {
@@ -33,7 +33,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
             }
             catch (Exception e)
             {
-                _logger.LogError($"{nameof(LearnerService)}: Exception occurred [{e}]");
+                _logger.LogError($"{nameof(NationalInsuranceNumberService)}: Exception occurred [{e}]");
                 await HandleException(nationalInsuranceNumberRequest.EmploymentCheck, e);
                 return null;
             }
