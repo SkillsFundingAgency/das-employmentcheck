@@ -103,7 +103,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.NationalInsuran
                                     && response.Uln == _employmentCheck.Uln
                                     && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
                                     && response.CorrelationId == _employmentCheck.CorrelationId
-                                    && response.HttpResponse == httpResponse.ToString()
+                                    && response.HttpResponse.StartsWith(httpResponse.ToString())
                                     && response.HttpStatusCode == (short)httpResponse.StatusCode
                     )
                 )
@@ -205,7 +205,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.NationalInsuran
                                     && response.Uln == _employmentCheck.Uln
                                     && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
                                     && response.CorrelationId == _employmentCheck.CorrelationId
-                                    && response.HttpResponse == httpResponse.ToString()
+                                    && response.HttpResponse.StartsWith(httpResponse.ToString())
                                     && response.HttpStatusCode == (short)httpResponse.StatusCode
                     )
                 )
