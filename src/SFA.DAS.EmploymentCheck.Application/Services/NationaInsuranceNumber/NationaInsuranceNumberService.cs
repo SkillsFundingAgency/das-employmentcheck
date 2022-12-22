@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Newtonsoft.Json;
+using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -37,10 +38,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
             var policy = await _apiRetryPolicies.GetAll("LearnerApiKey");
             var request = new GetNationalInsuranceNumberRequest(nationalInsuranceNumberRequest.EmploymentCheck.Uln, nationalInsuranceNumberRequest.AcademicYear, _apiConfiguration);
             var response = await _apiClient.GetWithPolicy(policy, request);
-            return await ProcessNiNumberFromApiResponse(nationalInsuranceNumberRequest.EmploymentCheck, response);
+            return await ProcessNiNumberFromApiResponse(nationalInsuranceNumberRequest.EmploymentCheck, response, request);
         }
 
-        private async Task<LearnerNiNumber> ProcessNiNumberFromApiResponse(Data.Models.EmploymentCheck employmentCheck, HttpResponseMessage httpResponseMessage)
+        private async Task<LearnerNiNumber> ProcessNiNumberFromApiResponse(
+            Data.Models.EmploymentCheck employmentCheck, 
+            HttpResponseMessage httpResponseMessage, 
+            IGetApiRequest request)
         {
             Guard.Against.Null(employmentCheck, nameof(employmentCheck));
 
@@ -50,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
                 return null;
             }
 
-            var response = CreateResponseModel(employmentCheck, httpResponseMessage.ToString(), httpResponseMessage.StatusCode);
+            var response = CreateResponseModel(employmentCheck, $"{httpResponseMessage} for request : {request.GetUrl}", httpResponseMessage.StatusCode);
 
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
