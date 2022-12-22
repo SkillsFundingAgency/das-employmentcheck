@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
         }
 
         private async Task<IEnumerable<string>> RefreshList()
-        {
+        {   
             var request = new GetNationalInsuranceNumberYearsRequest(_apiConfiguration);
             var response = await _apiClient.Get(request);
 
@@ -49,13 +49,22 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            var data = JsonConvert.DeserializeObject<string>(jsonString);
+            List<string> years;
 
-            var years = data.Split(',').Select(y => y.Trim()).ToList();
+            try 
+            {                
+                var data = JsonConvert.DeserializeObject<string>(jsonString);
 
-            if (years.Count > _apiConfiguration.NumberOfAcademicYearsToSearch)
+                years = data.Split(',').Select(y => y.Trim()).ToList();
+
+                if (years.Count > _apiConfiguration.NumberOfAcademicYearsToSearch)
+                {
+                    years = years.OrderByDescending(y => y).Take(2).ToList();
+                }
+            }
+            catch(Exception ex)
             {
-                years = years.OrderByDescending(y => y).Take(2).ToList();
+                throw new Exception($"Response string : {jsonString}, caused error :{ex.Message}");
             }
 
             return years;
