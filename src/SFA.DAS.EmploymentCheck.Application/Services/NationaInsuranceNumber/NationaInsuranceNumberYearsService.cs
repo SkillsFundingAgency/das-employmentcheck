@@ -52,12 +52,12 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
             List<string> years = new List<string>();
 
             try 
-            {                
-                var data = JsonConvert.DeserializeObject<string[]>(jsonString);
+            {
+                years = new List<string>(JsonConvert.DeserializeObject<string[]>(jsonString));
 
-                if (data.Length > _apiConfiguration.NumberOfAcademicYearsToSearch)
+                if (years.Count > _apiConfiguration.NumberOfAcademicYearsToSearch)
                 {
-                    years = data.OrderByDescending(y => y).Take(2).ToList();
+                    years = years.OrderByDescending(y => y).Take(_apiConfiguration.NumberOfAcademicYearsToSearch).ToList();
                 }
             }
             catch(Exception ex)
@@ -65,7 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
                 throw new Exception($"Response string : {jsonString}, caused error :{ex.Message}");
             }
 
-            return years;
+            return years.OrderByDescending(y => y);
         }
     }
 

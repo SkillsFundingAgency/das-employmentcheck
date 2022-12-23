@@ -95,7 +95,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
               .RespondWith(Response.Create()
                   .WithStatusCode(HttpStatusCode.OK)
                   .WithHeader("Content-Type", "application/json")
-                  .WithBodyAsJson("2122, 2021, 2223"));
+                  .WithBody("[2122, 2021, 2223]"));
         }
 
         [When(@"the Employment Check is performed")]

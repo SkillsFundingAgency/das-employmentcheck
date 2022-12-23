@@ -87,7 +87,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                   .RespondWith(Response.Create()
                       .WithStatusCode(HttpStatusCode.OK)
                       .WithHeader("Content-Type", "application/json")
-                      .WithBodyAsJson("2122"));
+                      .WithBody("[2122]"));
 
             _accountsApiResponse = new ResourceList(_context.Fixture.CreateMany<ResourceViewModel>(1));
 

@@ -39,8 +39,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             HttpResponseMessage response = null;
 
             try
-            {
-                
+            {                
                 var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
                 var request = new GetAccountPayeSchemesRequest(hashedAccountId);
 
