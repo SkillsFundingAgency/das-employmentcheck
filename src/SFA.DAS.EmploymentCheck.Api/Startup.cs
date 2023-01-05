@@ -54,7 +54,7 @@ namespace SFA.DAS.EmploymentCheck.Api
             services.AddControllers();
             services.AddApplicationInsightsTelemetry();
             services.AddHealthChecks();
-            services.AddNLogForApi();
+            services.AddNLogForApi();            
 
             services.AddSwaggerGen(c =>
             {

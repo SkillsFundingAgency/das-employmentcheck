@@ -24,6 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             builder.Services
                 .AddNLog()
                 .AddOptions()
+                .AddMemoryCache()
                 ;
 
             var serviceProvider = builder.Services.BuildServiceProvider();

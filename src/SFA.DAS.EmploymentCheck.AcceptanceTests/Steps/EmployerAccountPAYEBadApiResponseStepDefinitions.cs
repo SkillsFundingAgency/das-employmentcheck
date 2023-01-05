@@ -62,6 +62,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Given(
                     Request
                         .Create()
+                        .WithPath("/api/v1/academic-years")
+                        .UsingGet()
+                )
+                .RespondWith(Response.Create()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithHeader("Content-Type", "application/json")
+                    .WithBody("[2122]"));
+
+            _context.DataCollectionsApi.MockServer
+                .Given(
+                    Request
+                        .Create()
                         .WithPath(datacollectionsurl)
                         .WithParam("ulns", new ExactMatcher($"{_check.Uln}"))
                         .UsingGet()
