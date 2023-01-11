@@ -13,11 +13,11 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
     {
         private const string RowKey = "HmrcApiRateLimiterOptions";
         private const string StorageTableName = "EmploymentCheckHmrcApiRateLimiterOptions";
-        private readonly HmrcApiRateLimiterConfiguration _rateLimiterConfiguration;
+        private readonly AzureStorageConnectionConfiguration _rateLimiterConfiguration;
         private readonly ILogger<HmrcApiOptionsRepository> _logger;
         private CloudTable _table;
 
-        public HmrcApiOptionsRepository(HmrcApiRateLimiterConfiguration options, ILogger<HmrcApiOptionsRepository> logger)
+        public HmrcApiOptionsRepository(AzureStorageConnectionConfiguration options, ILogger<HmrcApiOptionsRepository> logger)
         {
             _rateLimiterConfiguration = options;
             _logger = logger;
@@ -41,16 +41,17 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             var query = new TableQuery<HmrcApiRateLimiterOptions>();
             var queryResult = await GetTable().ExecuteQuerySegmentedAsync(query, null);
-            var record = queryResult.Results.SingleOrDefault(
-                r => r.RowKey == RowKey && r.PartitionKey == _rateLimiterConfiguration.EnvironmentName);
+            var record = queryResult.Results.SingleOrDefault(r => r.RowKey == RowKey && r.PartitionKey == _rateLimiterConfiguration.EnvironmentName);
 
             return record ?? GetDefaultOptions();
         }
 
         public async Task ReduceDelaySetting(HmrcApiRateLimiterOptions options)
         {
+            if (options.DelayInMs == 0) return;
+
             var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromDays(options.MinimumUpdatePeriodInDays)) return;
+            if (timeSinceLastUpdate < TimeSpan.FromMinutes(options.MinimumReduceDelayIntervalInMinutes)) return;
 
             options.DelayInMs = Math.Max(0, options.DelayInMs - options.DelayAdjustmentIntervalInMs);
             options.UpdateDateTime = DateTime.UtcNow;
@@ -63,6 +64,9 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
         {
+            var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
+            if (timeSinceLastUpdate < TimeSpan.FromSeconds(options.MinimumIncreaseDelayIntervalInSeconds)) return;
+
             options.DelayInMs += options.DelayAdjustmentIntervalInMs;
             options.UpdateDateTime = DateTime.UtcNow;
 

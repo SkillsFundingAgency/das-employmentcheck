@@ -4,6 +4,7 @@
 	[CorrelationId] [uniqueidentifier] NOT NULL,
 	[Nino] [varchar](20) NOT NULL,
 	[PayeScheme] [varchar](1000) NOT NULL,
+	[PayeSchemePriority] [int] NULL,
 	[MinDate] [datetime] NOT NULL,
 	[MaxDate] [datetime] NOT NULL,
 	[Employed] [bit] NULL,
@@ -19,4 +20,22 @@
 GO
 
 CREATE INDEX [IX_EmploymentCheckCacheRequest_Column] ON [Cache].[EmploymentCheckCacheRequest] ([ApprenticeEmploymentCheckId], [CorrelationId], [Nino], [PayeScheme], [MinDate], [MaxDate])
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Cache_EmploymentCheckCacheRequest__ApprenticeEmploymentCheckId]
+    ON [Cache].[EmploymentCheckCacheRequest]([ApprenticeEmploymentCheckId] ASC);
+GO
+
+CREATE INDEX IX_EmploymentCheckCacheRequest__RequestCompletionStatus_Id ON [Cache].[EmploymentCheckCacheRequest] ([RequestCompletionStatus], [Id])
+GO
+
+CREATE NONCLUSTERED INDEX [Get_Pending_EmploymentCheck_Requests] ON [Cache].[EmploymentCheckCacheRequest] 
+	([RequestCompletionStatus]) 
+INCLUDE 
+	([ApprenticeEmploymentCheckId])
+GO
+
+CREATE NONCLUSTERED INDEX [Get_Learner_Paye_Check_Priority]
+ON [Cache].[EmploymentCheckCacheRequest] ([Nino],[Employed])
+INCLUDE ([PayeScheme],[CreatedOn])
 GO

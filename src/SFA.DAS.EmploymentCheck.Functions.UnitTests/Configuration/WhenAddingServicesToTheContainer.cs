@@ -1,10 +1,12 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Api.Common.Interfaces;
+using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
@@ -16,9 +18,13 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.Queries.GetNiNumber;
+using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.HashingService;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using SFA.DAS.EmploymentCheck.Abstractions;
+using System.Reflection;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
@@ -26,15 +32,13 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
     {
         private Fixture _fixture = new Fixture();
         private ServiceProvider _provider;
+        private Infrastructure.Configuration.TokenServiceApiClientConfiguration _tokenConfig;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            // Arrange
             _fixture = new Fixture();
-            var serviceCollection = new ServiceCollection();
-            SetupServiceCollection(serviceCollection);
-            _provider = serviceCollection.BuildServiceProvider();
+            _tokenConfig = _fixture.Build<Infrastructure.Configuration.TokenServiceApiClientConfiguration>().Create();
         }
 
         [OneTimeTearDown]
@@ -45,9 +49,12 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 
         [TestCase(typeof(IHmrcApiOptionsRepository))]
         [TestCase(typeof(IHmrcApiRetryPolicies))]
+        [TestCase(typeof(IApiRetryPolicies))]
         [TestCase(typeof(IDcTokenService))]
         [TestCase(typeof(IEmploymentCheckService))]
         [TestCase(typeof(ILearnerService))]
+        [TestCase(typeof(INationalInsuranceNumberService))]
+        [TestCase(typeof(INationalInsuranceNumberYearsService))]
         [TestCase(typeof(IAzureClientCredentialHelper))]
         [TestCase(typeof(IEmployerAccountService))]
         [TestCase(typeof(IHmrcService))]
@@ -65,6 +72,11 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IQueryHandler<GetNiNumberQueryRequest, GetNiNumberQueryResult>))]
         public void Then_The_Dependencies_Are_Correctly_Resolved(Type toResolve)
         {
+            // Arrange
+            var serviceCollection = new ServiceCollection();
+            SetupServiceCollection(serviceCollection, "PROD");
+            _provider = serviceCollection.BuildServiceProvider();
+
             // Act
             var type = _provider.GetService(toResolve);
 
@@ -72,10 +84,53 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
             Assert.IsNotNull(type);
         }
 
-        private void SetupServiceCollection(IServiceCollection serviceCollection)
+        [TestCase("LOCAL")]
+        [TestCase("DEV")]
+        [TestCase("TEST")]
+        [TestCase("TEST2")]
+        [TestCase("PP")]
+        [TestCase("DEMO")]
+        [TestCase("MO")]
+        public void Then_The_TokenServiceApiClient_Stub_Is_Used_For_Non_Prod_Environments(string environment)
+        {
+            // Arrange
+            var serviceCollection = new ServiceCollection();
+            SetupServiceCollection(serviceCollection, environment);
+            _provider = serviceCollection.BuildServiceProvider();
+
+            // Act
+            var type = _provider.GetService(typeof(ITokenServiceApiClient)) as TokenServiceApiClientStub;
+
+            // Assert
+            Assert.IsNotNull(type);
+        }
+
+        [TestCase("PROD")]
+        public void Then_The_Real_TokenServiceApiClient_Is_Used_For_Prod_Environments(string environment)
+        {
+            // Arrange
+            var serviceCollection = new ServiceCollection();
+            SetupServiceCollection(serviceCollection, environment);
+            _provider = serviceCollection.BuildServiceProvider();
+
+            // Act
+            TokenServiceApiClient tokenServiceApiClient = _provider.GetService(typeof(ITokenServiceApiClient)) as TokenServiceApiClient;
+
+            // Assert
+            tokenServiceApiClient.Should().NotBeNull();
+            FieldInfo field = typeof(TokenServiceApiClient).GetField("_configuration", BindingFlags.NonPublic |
+                                             BindingFlags.Instance);
+
+            var config = field.GetValue(tokenServiceApiClient);
+            config.Should().Be(_tokenConfig);
+
+        }
+
+        private void SetupServiceCollection(IServiceCollection serviceCollection, string environment)
         {
             serviceCollection.AddSingleton(Mock.Of<IWebHostEnvironment>());
             serviceCollection.AddOptions();
+            serviceCollection.AddMemoryCache();
 
             var applicationSettings = _fixture.Create<ApplicationSettings>();
             serviceCollection.AddSingleton(applicationSettings);
@@ -86,17 +141,19 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .Create();
             serviceCollection.AddSingleton<IOptions<HmrcApiConfiguration>>(new OptionsWrapper<HmrcApiConfiguration>(hmrcApiSettings));
 
+            serviceCollection.AddSingleton<IOptions<Infrastructure.Configuration.TokenServiceApiClientConfiguration>>(new OptionsWrapper<Infrastructure.Configuration.TokenServiceApiClientConfiguration>(_tokenConfig));
+
             var apiConfiguration = _fixture.Build<EmployerAccountApiConfiguration>()
                 .With(x => x.Url, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton(apiConfiguration);
 
             var dataCollectionsApiConfiguration = _fixture.Build<DataCollectionsApiConfiguration>()
-                .With(x => x.Url, "https://hostname.co")
+                .With(x => x.BaseUrl, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
 
-            serviceCollection.AddEmploymentCheckService("PROD")
+            serviceCollection.AddEmploymentCheckService(environment)
                 .AddPersistenceServices()
                 .AddNLog()
                 .AddApprenticeshipLevyApiClient()

@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
     public class WhenCallingGet
     {
         private Fixture _fixture;
-        private EmploymentCheckCacheRequest _request;
+        private EmploymentCheckCacheRequest[] _request;
         private Mock<IQueryDispatcher> _dispatcher;
 
         [SetUp]
@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Activities.
         {
             _fixture = new Fixture();
             _dispatcher = new Mock<IQueryDispatcher>();
-            _request = _fixture.Create<EmploymentCheckCacheRequest>();
+            _request = _fixture.Create<EmploymentCheckCacheRequest[]>();
         }
 
         [Test]

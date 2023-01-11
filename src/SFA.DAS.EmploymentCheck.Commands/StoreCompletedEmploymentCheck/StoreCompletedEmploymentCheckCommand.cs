@@ -1,4 +1,5 @@
-﻿using Models = SFA.DAS.EmploymentCheck.Data.Models;
+﻿using SFA.DAS.EmploymentCheck.Abstractions;
+using Models = SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Commands.StoreCompletedEmploymentCheck
 {

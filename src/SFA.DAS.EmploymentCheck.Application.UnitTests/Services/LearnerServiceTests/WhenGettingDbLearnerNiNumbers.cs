@@ -3,9 +3,9 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -16,19 +16,19 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.LearnerServiceT
         private ILearnerService _sut;
         private Fixture _fixture;
         private Mock<IDataCollectionsResponseRepository> _repositoryMock;
-        private Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>> _apiClientMock;
+        private Mock<INationalInsuranceNumberService> _nationalInsuranceNumberServiceMock;
 
         [SetUp]
         public void SetUp()
         {
             _fixture = new Fixture();
 
-            _apiClientMock = new Mock<IDataCollectionsApiClient<DataCollectionsApiConfiguration>>();
+            _nationalInsuranceNumberServiceMock = new Mock<INationalInsuranceNumberService>();
             _repositoryMock = new Mock<IDataCollectionsResponseRepository>(MockBehavior.Strict);
 
             _sut = new LearnerService(
-                _apiClientMock.Object,
-                _repositoryMock.Object);
+                _repositoryMock.Object,
+                _nationalInsuranceNumberServiceMock.Object);
         }
 
         [Test]

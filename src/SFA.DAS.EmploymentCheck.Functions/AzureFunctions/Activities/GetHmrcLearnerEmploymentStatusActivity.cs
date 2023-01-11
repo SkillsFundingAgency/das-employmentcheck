@@ -17,8 +17,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Activities
         }
 
         [FunctionName(nameof(GetHmrcLearnerEmploymentStatusActivity))]
-        public async Task<EmploymentCheckCacheRequest> GetHmrcEmploymentStatusTask(
-            [ActivityTrigger] EmploymentCheckCacheRequest request)
+        public async Task<EmploymentCheckCacheRequest> GetHmrcEmploymentStatusTask([ActivityTrigger] EmploymentCheckCacheRequest request)
         {
             var result = await _dispatcher.Send<GetHmrcLearnerEmploymentStatusQueryRequest, GetHmrcLearnerEmploymentStatusQueryResult>(new GetHmrcLearnerEmploymentStatusQueryRequest(request));
 

@@ -14,6 +14,7 @@ using TechTalk.SpecFlow;
 using WireMock.Matchers;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
+using System;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
@@ -23,6 +24,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
     {
         private EmploymentCheckCacheRequest _checkCacheRequest;
         private readonly TestContext _context;
+        private Data.Models.EmploymentCheck _check;
 
         public HmrcApiCallRetrySteps(TestContext context)
         {
@@ -33,7 +35,17 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
         public async Task GivenAnExistingEmploymentCheckCacheRequest()
         {
             await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+           
+            _check = _context.Fixture.Build<Data.Models.EmploymentCheck>()
+                .With(c => c.RequestCompletionStatus, (short?) 1)
+                .Without(c => c.Employed)
+                .Without(c => c.LastUpdatedOn)
+                .Create();
+
+            var checkId = await dbConnection.InsertAsync(_check);
+
             _checkCacheRequest = _context.Fixture.Build<Data.Models.EmploymentCheckCacheRequest>()
+                .With(c => c.ApprenticeEmploymentCheckId, checkId)
                 .Without(c => c.RequestCompletionStatus)
                 .Without(c => c.Employed)
                 .Without(c => c.LastUpdatedOn)
@@ -82,8 +94,15 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                .ToList();
 
             logs.Should().HaveCount(noOfRetries + 1);
-
             
+        }
+
+        [Then(@"the error response is persisted")]
+        public async Task ThenTheErrorResponseIsPersisted()
+        {
+            await using var dbConnection = new SqlConnection(_context.SqlDatabase.DatabaseInfo.ConnectionString);
+            var result = (await dbConnection.GetAllAsync<Data.Models.EmploymentCheckCacheRequest>()).SingleOrDefault(x => x.CorrelationId == _checkCacheRequest.CorrelationId);
+            result.LastUpdatedOn.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(10));
         }
 
     }

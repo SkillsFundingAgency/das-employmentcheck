@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Boxed.AspNetCore;
 using Newtonsoft.Json;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
@@ -6,7 +7,6 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.HashingService;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -19,25 +19,33 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
         private readonly IHashingService _hashingService;
         private readonly IAccountsResponseRepository _repository;
         private readonly IEmployerAccountApiClient<EmployerAccountApiConfiguration> _apiClient;
+        private readonly IApiRetryPolicies _apiRetryPolicies;
 
         public EmployerAccountService(
             IHashingService hashingService,
             IAccountsResponseRepository repository,
-            IEmployerAccountApiClient<EmployerAccountApiConfiguration> apiClient
+            IEmployerAccountApiClient<EmployerAccountApiConfiguration> apiClient,
+            IApiRetryPolicies apiRetryPolicies
         )
         {
             _hashingService = hashingService;
             _repository = repository;
             _apiClient = apiClient;
+            _apiRetryPolicies = apiRetryPolicies;
         }
 
         public async Task<EmployerPayeSchemes> GetEmployerPayeSchemes(Data.Models.EmploymentCheck employmentCheck)
         {
+            HttpResponseMessage response = null;
+
             try
-            {
+            {                
                 var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
                 var request = new GetAccountPayeSchemesRequest(hashedAccountId);
-                var response = await _apiClient.Get(request);
+
+                var policy = await _apiRetryPolicies.GetAll("AccountApiKey");
+                response = await _apiClient.GetWithPolicy(policy, request);
+
                 return await ProcessPayeSchemesFromApiResponse(employmentCheck, response);
             }
             catch (Exception ex)
@@ -65,13 +73,21 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             }
 
             var jsonContent = await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var employerPayeSchemes = DeserialiseContent(jsonContent, response);
+            
+            try
+            {
+                var employerPayeSchemes = DeserialiseContent(jsonContent, response);
 
-            response.SetPayeSchemes(employerPayeSchemes?.PayeSchemes);
+                response.SetPayeSchemes(employerPayeSchemes?.PayeSchemes);
 
-            await Save(response);
+                await Save(response);
 
-            return employerPayeSchemes;
+                return employerPayeSchemes;
+            }
+            catch(Exception)
+            {
+                return new EmployerPayeSchemes(employmentCheck.AccountId, (HttpStatusCode)response.HttpStatusCode);
+            }
         }
 
         private static AccountsResponse CreateResponseModel(Data.Models.EmploymentCheck employmentCheck, string httpResponseMessage = null, HttpStatusCode statusCode = HttpStatusCode.InternalServerError)

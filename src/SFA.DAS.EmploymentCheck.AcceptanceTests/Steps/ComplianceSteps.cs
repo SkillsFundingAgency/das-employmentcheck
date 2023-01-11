@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -69,13 +70,13 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             _dcApiResponse = new List<LearnerNiNumber>
                 { new LearnerNiNumber(_check.Uln, _context.Fixture.Create<string>()[..10], HttpStatusCode.OK)};
 
-            const string url = "/api/v1/ilr-data/learnersNi/2122";
+            string path =  $"{_context.DataCollectionsApiConfiguration.Path}/2122";
 
             _context.DataCollectionsApi.MockServer
                 .Given(
                     Request
                         .Create()
-                        .WithPath(url)
+                        .WithPath(path)
                         .WithParam("ulns", new ExactMatcher($"{_check.Uln}"))
                         .UsingGet()
                 )
@@ -83,6 +84,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     .WithStatusCode(HttpStatusCode.OK)
                     .WithHeader("Content-Type", "application/json")
                     .WithBodyAsJson(_dcApiResponse));
+
+            _context.DataCollectionsApi.MockServer
+              .Given(
+                  Request
+                      .Create()
+                      .WithPath(_context.DataCollectionsApiConfiguration.AcademicYearsPath)
+                      .UsingGet()
+              )
+              .RespondWith(Response.Create()
+                  .WithStatusCode(HttpStatusCode.OK)
+                  .WithHeader("Content-Type", "application/json")
+                  .WithBody("[2122, 2021, 2223]"));
         }
 
         [When(@"the Employment Check is performed")]

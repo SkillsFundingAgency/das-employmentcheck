@@ -10,5 +10,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry);
         Task ReduceRetryDelay();
         Task<AsyncPolicy> GetTokenRetrievalRetryPolicy();
+        Task DelayApiExecutionByRetryPolicy();
     }
 }
