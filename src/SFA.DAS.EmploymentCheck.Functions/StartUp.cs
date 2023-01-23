@@ -28,7 +28,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
         
             builder.Services
                 .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable("EnvironmentName"))
-                .AddOptions();
+                .AddOptions()
+                .AddMemoryCache()
+                ;
 
             var serviceProvider = builder.Services.BuildServiceProvider();
 

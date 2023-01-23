@@ -7,6 +7,7 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -133,39 +134,24 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             try
             {
                 const string selectQuery = @"
-                    ;WITH AccountIdOfSmallestEmployer AS
-                        (
-                        SELECT TOP(@employmentCheckBatchSize) 
-                               c.[AccountId],
-                               c.[Uln],
-                               COUNT(r.[Id]) [Count]
-                        FROM [Business].[EmploymentCheck] c
-                        INNER JOIN [Cache].[EmploymentCheckCacheRequest] r
-                          ON c.[Id]=r.[ApprenticeEmploymentCheckId]
-                        WHERE r.[RequestCompletionStatus] IS NULL AND r.[LastUpdatedOn] IS NULL  /* Started and not in error */
-                        GROUP BY [AccountId],[Uln]
-                        ORDER BY COUNT(r.[Id]) ASC
-                        )
-                    SELECT TOP(@employmentCheckBatchSize) 
-                           r.[Id]
-                          ,r.[ApprenticeEmploymentCheckId]
-                          ,r.[CorrelationId] 
-                          ,r.[Nino]
-                          ,r.[PayeScheme]
-                          ,r.[MinDate]
-                          ,r.[MaxDate]
-                          ,r.[Employed]
-                          ,r.[RequestCompletionStatus]
-                          ,r.[CreatedOn]
-                          ,r.[LastUpdatedOn]
-                      FROM [Cache].[EmploymentCheckCacheRequest] r
-                      INNER JOIN [Business].[EmploymentCheck] c
-                        ON c.[Id]=r.[ApprenticeEmploymentCheckId]
-                      INNER JOIN AccountIdOfSmallestEmployer a
-                        ON a.[AccountId]=c.[AccountId] AND a.[Uln]=c.[Uln]
-                      WHERE r.[RequestCompletionStatus] IS NULL
-                        ;
-                    ";
+                    SELECT TOP(@employmentCheckBatchSize)
+                          r.[Id]
+                        , r.[ApprenticeEmploymentCheckId]
+                        , r.[CorrelationId] 
+                        , r.[Nino]
+                        , r.[PayeScheme]
+                        , r.[PayeSchemePriority]
+                        , r.[MinDate]
+                        , r.[MaxDate]
+                        , r.[Employed]
+                        , r.[RequestCompletionStatus]
+                        , r.[CreatedOn]
+                        , r.[LastUpdatedOn]
+                    FROM [Cache].[EmploymentCheckCacheRequest] r
+                    WHERE r.[RequestCompletionStatus] IS NULL
+                    Order by [PayeSchemePriority], Id
+                    ;
+                ";
                 var selectParameter = new DynamicParameters();
                 selectParameter.Add("@employmentCheckBatchSize", rateLimiterOptions.EmploymentCheckBatchSize, DbType.Int64);
 
@@ -204,6 +190,50 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             }
 
             return employmentCheckCacheRequests;
+        }
+
+        public async Task<List<LearnerPayeCheckPriority>> GetLearnerPayeCheckPriority(string niNumber)
+        {
+            var dbConnection = new DbConnection();
+
+            await using var sqlConnection = await dbConnection.CreateSqlConnection(_connectionString, _azureServiceTokenProvider);
+            Guard.Against.Null(sqlConnection, nameof(sqlConnection));
+
+            List<LearnerPayeCheckPriority> learnerPayeCheckPriorities;
+            await sqlConnection.OpenAsync();
+            var transaction = sqlConnection.BeginTransaction();
+            try
+            {
+                //if you need to run this query for multiple Nino then update the Row_Number to Partition by Nino
+                //SELECT DISTINCT Nino, PayeScheme, ROW_NUMBER() OVER(PARTITION BY Nino ORDER BY MIN(CreatedOn) DESC) AS Row
+                //WHERE Employed = 1 AND Nino in ( @NiNumbers )
+                //GROUP BY Nino, PayeScheme
+
+                const string selectQuery = @"
+                    SELECT DISTINCT PayeScheme, ROW_NUMBER() OVER(ORDER BY MIN(CreatedOn) DESC) AS PriorityOrder
+                    FROM Cache.EmploymentCheckCacheRequest
+                    WHERE Employed = 1 AND Nino = @NiNumber
+                    GROUP BY PayeScheme
+                    ;
+                ";
+                var selectParameter = new DynamicParameters();
+                selectParameter.Add("@NiNumber", niNumber, DbType.String);
+
+                learnerPayeCheckPriorities = (await sqlConnection.QueryAsync<LearnerPayeCheckPriority>(
+                    sql: selectQuery,
+                    param: selectParameter,
+                    commandType: CommandType.Text,
+                    transaction: transaction)).ToList();
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+
+            return learnerPayeCheckPriorities;
         }
     }
 }

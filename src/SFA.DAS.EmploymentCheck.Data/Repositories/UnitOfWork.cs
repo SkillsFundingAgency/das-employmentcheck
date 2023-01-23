@@ -33,7 +33,17 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task ExecuteSqlAsync(string sql, DynamicParameters parameter = null)
         {
-            await _sqlConnection.ExecuteAsync(sql, parameter,  _transaction, commandType: CommandType.Text);
+            await _sqlConnection.ExecuteAsync(sql, parameter, _transaction, commandType: CommandType.Text);
+        }
+
+        public async Task UpdateAsync<T>(T entity) where T : class
+        {
+            await _sqlConnection.UpdateAsync(entity, _transaction);
+        }
+
+        public async Task InsertAsync<T>(T entity) where T : class
+        {
+            await _sqlConnection.InsertAsync(entity, _transaction);
         }
 
         public async Task BeginAsync()
@@ -58,13 +68,12 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             try
             {
-                if (_isTransactionActive)
-                {
-                    await _transaction?.RollbackAsync();
-                    await DisposeAsync();
-                }
+                if (_transaction != null && _isTransactionActive) 
+                    await _transaction.RollbackAsync();
+
+                await DisposeAsync();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger?.LogError($"{nameof(UnitOfWork)}: failed during transaction rollback [{e}]");
             }
@@ -76,21 +85,21 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             _transaction = null;
         }
 
-        public async Task UpdateAsync<T>(T entity) where T : class
-        {
-            await _sqlConnection.UpdateAsync(entity, _transaction);
-        }
-
-        public async Task InsertAsync<T>(T entity) where T : class
-        {
-            await _sqlConnection.InsertAsync(entity, _transaction);
-        }
-
         public async ValueTask DisposeAsync()
         {
             if (_transaction != null)
                 await _transaction.DisposeAsync();
+
+            if (_sqlConnection != null)
+            {
+                if (_sqlConnection.State != ConnectionState.Closed) 
+                    await _sqlConnection.CloseAsync();
+
+                await _sqlConnection.DisposeAsync();
+            }
+
             _transaction = null;
+            _sqlConnection = null;
         }
     }
 }

@@ -48,6 +48,8 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task ReduceDelaySetting(HmrcApiRateLimiterOptions options)
         {
+            if (options.DelayInMs == 0) return;
+
             var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
             if (timeSinceLastUpdate < TimeSpan.FromMinutes(options.MinimumReduceDelayIntervalInMinutes)) return;
 
