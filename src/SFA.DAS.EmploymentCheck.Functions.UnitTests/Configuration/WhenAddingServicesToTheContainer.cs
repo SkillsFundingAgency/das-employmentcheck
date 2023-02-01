@@ -25,6 +25,7 @@ using SFA.DAS.EmploymentCheck.Abstractions;
 using System.Reflection;
 using SFA.DAS.EmploymentCheck.Commands;
 using SFA.DAS.Encoding;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 
 namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 {
@@ -53,6 +54,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         [TestCase(typeof(IDcTokenService))]
         [TestCase(typeof(IEmploymentCheckService))]
         [TestCase(typeof(ILearnerService))]
+        [TestCase(typeof(INationalInsuranceNumberService))]
+        [TestCase(typeof(INationalInsuranceNumberYearsService))]
         [TestCase(typeof(IAzureClientCredentialHelper))]
         [TestCase(typeof(IEmployerAccountService))]
         [TestCase(typeof(IHmrcService))]
@@ -127,6 +130,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
         {
             serviceCollection.AddSingleton(Mock.Of<IWebHostEnvironment>());
             serviceCollection.AddOptions();
+            serviceCollection.AddMemoryCache();
 
             var applicationSettings = _fixture.Create<ApplicationSettings>();
             serviceCollection.AddSingleton(applicationSettings);
@@ -148,8 +152,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
                 .With(x => x.BaseUrl, "https://hostname.co")
                 .Create();
             serviceCollection.AddSingleton(dataCollectionsApiConfiguration);
-
-            var encodingConfig = new EncodingConfig 
+            var encodingConfig = new EncodingConfig
             {
                 Encodings = new List<Encoding.Encoding>
                 {
@@ -161,7 +164,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.Configuration
 
             serviceCollection.AddEmploymentCheckService(environment)
                 .AddPersistenceServices()
-                .AddNLog()
+                .AddNLog(Environment.CurrentDirectory, "LOCAL")
                 .AddApprenticeshipLevyApiClient()
                 .AddCommandServices()
                 .AddQueryServices()

@@ -5,16 +5,10 @@
 	them systematically until the learner is found. This may cause delays if there are many PAYE schemes.
 
 Scenario: Employment Checks prioritise smaller employers
-	Given a number of unprocessed employment checks
-	And valid PAYE schemes are returned for the Accounts
+	Given a number of New Pending employment checks are added
+	And  a number of Previously processed employment checks
 	And valid National Insurance Numbers are returned for the learners
-	When the Employment Checks are performed
-	Then the Employment Checks are performed in order of smallest to largest employers
-
-Scenario: Employment Checks prioritise first received
-	Given a number of unprocessed employment checks
-	And all employers have the same number of PAYE schemes
 	And valid PAYE schemes are returned for the Accounts
-	And valid National Insurance Numbers are returned for the learners
 	When the Employment Checks are performed
-	Then the Employment Checks are performed in order of first to last received
+	Then the Employment Checks are performed in order of PayeScheme Priority Order
+	And the Employment Checks Sent to Hmrc order of PayeScheme Priority Order

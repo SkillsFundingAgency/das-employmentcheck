@@ -1,5 +1,6 @@
 ﻿using HMRC.ESFA.Levy.Api.Client;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -19,6 +21,9 @@ using SFA.DAS.EmploymentCheck.TokenServiceStub;
 using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.IO;
+using System.Net.Http;
+using NLog;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -60,14 +65,20 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 
             serviceCollection.AddTransient<IDataCollectionsApiClient<DataCollectionsApiConfiguration>, DataCollectionsApiClient>();
-            serviceCollection.AddTransient<ILearnerService, LearnerService>();
+
+            serviceCollection.AddTransient<INationalInsuranceNumberYearsService, NationalInsuranceNumberYearsService>();
+            serviceCollection.AddTransient<INationalInsuranceNumberService, NationalInsuranceNumberService>();
+            serviceCollection.Decorate<INationalInsuranceNumberService, NationalInsuranceNumberServiceWithAYLookup>();
+            serviceCollection.Decorate<INationalInsuranceNumberService, NationalInsuranceNumberServiceWithLogging>();            
+            serviceCollection.AddTransient<ILearnerService, LearnerService>();            
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
             serviceCollection.AddTransient<IEmployerAccountApiClient<EmployerAccountApiConfiguration>, EmployerAccountApiClient>();
             serviceCollection.AddTransient<IEmployerAccountService, EmployerAccountService>();
 
-            serviceCollection.AddSingleton<IHmrcService, HmrcService>();
+            serviceCollection.AddTransient<IHmrcService, HmrcService>();
+            serviceCollection.AddSingleton<IHmrcTokenStore, HmrcTokenStore>();
             serviceCollection.AddSingleton<ILearnerNiNumberValidator, LearnerNiNumberValidator>();
             serviceCollection.AddSingleton<IEmployerPayeSchemesValidator, EmployerPayeSchemesValidator>();
             serviceCollection.AddSingleton<IEmploymentCheckDataValidator, EmploymentCheckDataValidator>();
@@ -95,32 +106,44 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
         public static IServiceCollection AddPersistenceServices(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<IEmploymentCheckRepository, EmploymentCheckRepository>();
+            serviceCollection.AddTransient<IEmploymentCheckRepository, EmploymentCheckRepository>();
             serviceCollection.AddSingleton<IDataCollectionsResponseRepository, DataCollectionsResponseRepository>();
             serviceCollection.AddSingleton<IAccountsResponseRepository, AccountsResponseRepository>();
-            serviceCollection.AddSingleton<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
-            serviceCollection.AddSingleton<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
-            serviceCollection.AddSingleton<IUnitOfWork, Data.Repositories.UnitOfWork>();
+            serviceCollection.AddTransient<IEmploymentCheckCacheRequestRepository, EmploymentCheckCacheRequestRepository>();
+            serviceCollection.AddTransient<IEmploymentCheckCacheResponseRepository, EmploymentCheckCacheResponseRepository>();
+            serviceCollection.AddTransient<IUnitOfWork, Data.Repositories.UnitOfWork>();
 
             return serviceCollection;
         }
 
-        public static IServiceCollection AddNLog(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddNLog(this IServiceCollection serviceCollection, string currentDirectory, string environmentName)
         {
-            var nLogConfiguration = new NLogConfiguration();
+            if (!String.IsNullOrWhiteSpace(environmentName))
+            {
+                var configFileName = "nlog.config";
+                if (ConfigurationIsLocalOrDev(environmentName))
+                {
+                    configFileName = "nlog.local.config";
+                }
+
+                LogManager.Setup()
+                    .SetupExtensions(e => e.AutoLoadAssemblies(false))
+                    .LoadConfigurationFromFile($"{currentDirectory}{Path.DirectorySeparatorChar}{configFileName}",
+                        optional: false)
+                    .LoadConfiguration(builder => builder.LogFactory.AutoShutdown = false)
+                    .GetCurrentClassLogger();
+            }
 
             serviceCollection.AddLogging((options) =>
             {
-                options.AddFilter("SFA.DAS", LogLevel.Information); // this is because all logging is filtered out by defualt
-                options.SetMinimumLevel(LogLevel.Trace);
+                options.AddFilter("SFA.DAS", Microsoft.Extensions.Logging.LogLevel.Information); // this is because all logging is filtered out by defualt
+                options.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {
                     CaptureMessageTemplates = true,
                     CaptureMessageProperties = true
                 });
                 options.AddConsole();
-
-                nLogConfiguration.ConfigureNLog();
             });
 
             return serviceCollection;
@@ -132,10 +155,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             {
                 var settings = s.GetService<IOptions<HmrcApiConfiguration>>().Value;
 
-                var clientBuilder = new HttpClientBuilder()
-                    .WithLogging(s.GetService<ILoggerFactory>());
-
-                var httpClient = clientBuilder.Build();
+                var httpClient = new HttpClient();
 
                 if (!settings.BaseUrl.EndsWith("/"))
                 {
