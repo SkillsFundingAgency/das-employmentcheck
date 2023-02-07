@@ -1,34 +1,33 @@
 ﻿using Ardalis.GuardClauses;
-using Boxed.AspNetCore;
 using Newtonsoft.Json;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using SFA.DAS.HashingService;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
     public class EmployerAccountService : IEmployerAccountService
     {
-        private readonly IHashingService _hashingService;
+        private readonly IEncodingService _encodingService;
         private readonly IAccountsResponseRepository _repository;
         private readonly IEmployerAccountApiClient<EmployerAccountApiConfiguration> _apiClient;
         private readonly IApiRetryPolicies _apiRetryPolicies;
 
         public EmployerAccountService(
-            IHashingService hashingService,
+            IEncodingService encodingService,
             IAccountsResponseRepository repository,
             IEmployerAccountApiClient<EmployerAccountApiConfiguration> apiClient,
             IApiRetryPolicies apiRetryPolicies
         )
         {
-            _hashingService = hashingService;
+            _encodingService = encodingService;
             _repository = repository;
             _apiClient = apiClient;
             _apiRetryPolicies = apiRetryPolicies;
@@ -39,8 +38,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
             HttpResponseMessage response = null;
 
             try
-            {                
-                var hashedAccountId = _hashingService.HashValue(employmentCheck.AccountId);
+            {
+                
+                var hashedAccountId = _encodingService.Encode(employmentCheck.AccountId, EncodingType.AccountId);
                 var request = new GetAccountPayeSchemesRequest(hashedAccountId);
 
                 var policy = await _apiRetryPolicies.GetAll("AccountApiKey");

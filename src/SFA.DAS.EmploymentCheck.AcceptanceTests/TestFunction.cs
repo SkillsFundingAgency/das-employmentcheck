@@ -100,8 +100,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         s.Configure<ApplicationSettings>(a =>
                         {
                             a.DbConnectionString = testContext.SqlDatabase.DatabaseInfo.ConnectionString;
-                            a.AllowedHashstringCharacters = "46789BCDFGHJKLMNPRSTVWXY";
-                            a.Hashstring = "test hash string";
                         });
 
                         s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);

@@ -11,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using SFA.DAS.Encoding;
 using Dapper;
 using TechTalk.SpecFlow;
 using WireMock.Matchers;
@@ -93,7 +94,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                     ? new ResourceList(new List<ResourceViewModel> { new ResourceViewModel { Id = "Paye1" }, new ResourceViewModel { Id = "Paye2" } })
                     : new ResourceList(new List<ResourceViewModel> { new ResourceViewModel { Id = "Paye11" }, new ResourceViewModel { Id = "Paye22" } });
 
-                var url = $"/api/accounts/{_context.HashingService.HashValue(employmentCheck.AccountId)}/payeschemes";
+                var url = $"/api/accounts/{_context.EncodingService.Encode(employmentCheck.AccountId, EncodingType.AccountId)}/payeschemes";
 
                 _context.EmployerAccountsApi.MockServer
                     .Given(
