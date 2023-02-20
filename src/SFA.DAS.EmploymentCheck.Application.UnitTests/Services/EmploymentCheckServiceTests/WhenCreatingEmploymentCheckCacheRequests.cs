@@ -50,6 +50,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmploymentCheck
                     CorrelationId = check.CorrelationId,
                     Nino = nino.NiNumber,
                     PayeScheme = paye.PayeSchemes.FirstOrDefault(),
+                    PayeSchemePriority = 1,
                     MaxDate = check.MaxDate,
                     MinDate = check.MinDate,
                     RequestCompletionStatus = null

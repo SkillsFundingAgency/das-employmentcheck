@@ -34,6 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Models
         public DateTime? LastUpdatedOn { get; set; }
 
         public DateTime CreatedOn { get; set; }
+        public int PayeSchemePriority { get; set; }
 
         public void SetEmployed(bool value)
         {

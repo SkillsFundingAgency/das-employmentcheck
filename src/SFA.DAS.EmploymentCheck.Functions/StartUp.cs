@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,8 @@ using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.
 using System.IO;
 using Microsoft.ApplicationInsights.Extensibility;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry;
+using Newtonsoft.Json;
+using SFA.DAS.Encoding;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -21,11 +24,18 @@ namespace SFA.DAS.EmploymentCheck.Functions
     [ExcludeFromCodeCoverage]
     public class Startup : FunctionsStartup
     {
+        private const string EncodingConfigKey = "SFA.DAS.Encoding";
+
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            var localRoot = Environment.GetEnvironmentVariable("AzureWebJobsScriptRoot");
+            var azureRoot = $"{Environment.GetEnvironmentVariable("HOME")}/site/wwwroot";
+            var applicationDirectory = localRoot ?? azureRoot;
+        
             builder.Services
-                .AddNLog()
+                .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable("EnvironmentName"))
                 .AddOptions()
+                .AddMemoryCache()
                 ;
 
             var serviceProvider = builder.Services.BuildServiceProvider();
@@ -45,6 +55,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
                     options.EnvironmentName = configuration["EnvironmentName"];
                     options.PreFixConfigurationKeys = false;
+                    options.ConfigurationKeysRawJsonResult = new[] { EncodingConfigKey };
                 });
             }
 
@@ -85,11 +96,25 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
             var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
 
+            if (!config["EnvironmentName"]
+                    .Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var encodingConfigJson = config.GetSection(EncodingConfigKey).Value;
+                var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
+                builder.Services.AddSingleton(encodingConfig);
+            }
+            else
+            {
+                var encodingConfigJson = File.ReadAllText(Directory.GetCurrentDirectory() + "\\local.encoding.json");
+                var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
+                builder.Services.AddSingleton(encodingConfig);
+            }
+            builder.Services.AddSingleton<IEncodingService, EncodingService>();
+
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
                 .AddApprenticeshipLevyApiClient()
-                .AddHashingService()
                 .AddEmploymentCheckService(config["EnvironmentName"])
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()

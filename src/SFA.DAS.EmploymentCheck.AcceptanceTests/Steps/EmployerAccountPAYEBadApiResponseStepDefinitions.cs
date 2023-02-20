@@ -17,6 +17,7 @@ using WireMock.ResponseBuilders;
 using System;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
@@ -62,6 +63,18 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
                 .Given(
                     Request
                         .Create()
+                        .WithPath("/api/v1/academic-years")
+                        .UsingGet()
+                )
+                .RespondWith(Response.Create()
+                    .WithStatusCode(HttpStatusCode.OK)
+                    .WithHeader("Content-Type", "application/json")
+                    .WithBody("[2122]"));
+
+            _context.DataCollectionsApi.MockServer
+                .Given(
+                    Request
+                        .Create()
                         .WithPath(datacollectionsurl)
                         .WithParam("ulns", new ExactMatcher($"{_check.Uln}"))
                         .UsingGet()
@@ -73,7 +86,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
             _accountsApiResponse = new ResourceList(_context.Fixture.CreateMany<ResourceViewModel>(1));
 
-            var url = $"/api/accounts/{_context.HashingService.HashValue(_check.AccountId)}/payeschemes";
+            var url = $"/api/accounts/{_context.EncodingService.Encode(_check.AccountId, EncodingType.AccountId)}/payeschemes";
 
             _context.EmployerAccountsApi.MockServer
                 .Given(
