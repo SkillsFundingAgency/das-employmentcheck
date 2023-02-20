@@ -6,18 +6,17 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Polly.Wrap;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.EmploymentCheck.Application.ApiClients;
 using SFA.DAS.EmploymentCheck.Application.Services;
 using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using SFA.DAS.HashingService;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccountTests
 {
@@ -27,7 +26,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         private Fixture _fixture;
         private Mock<IAccountsResponseRepository> _repositoryMock;
         private Mock<IEmployerAccountApiClient<EmployerAccountApiConfiguration>> _apiClientMock;
-        private Mock<IHashingService> _hashingServiceMock;
+        private Mock<IEncodingService> _encodingServiceMock;
         private Data.Models.EmploymentCheck _employmentCheck;
         private string _hashedAccountId;
         private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
@@ -41,9 +40,9 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             _apiClientMock = new Mock<IEmployerAccountApiClient<EmployerAccountApiConfiguration>>();
             _repositoryMock = new Mock<IAccountsResponseRepository>();
-            _hashingServiceMock = new Mock<IHashingService>();
+            _encodingServiceMock = new Mock<IEncodingService>();
             _hashedAccountId = _fixture.Create<string>();
-            _hashingServiceMock.Setup(_ => _.HashValue(_employmentCheck.AccountId)).Returns(_hashedAccountId);
+            _encodingServiceMock.Setup(_ => _.Encode(_employmentCheck.AccountId, EncodingType.AccountId)).Returns(_hashedAccountId);
 
             _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
@@ -61,7 +60,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 _apiOptionsRepositoryMock.Object);
 
             _sut = new EmployerAccountService(
-                _hashingServiceMock.Object,
+                _encodingServiceMock.Object,
                 _repositoryMock.Object,
                 _apiClientMock.Object,
                 retryPolicies

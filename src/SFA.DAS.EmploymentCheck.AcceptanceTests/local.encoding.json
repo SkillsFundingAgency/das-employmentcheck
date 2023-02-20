@@ -1,0 +1,10 @@
+{
+  "Encodings": [
+    {
+      "EncodingType": "AccountId",
+      "Salt": "SFA: digital apprenticeship service",
+      "MinHashLength": 6,
+      "Alphabet": "46789BCDFGHJKLMNPRSTVWXY"
+    }
+  ]
+}

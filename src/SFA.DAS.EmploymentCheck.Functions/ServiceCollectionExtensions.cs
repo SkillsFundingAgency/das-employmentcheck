@@ -1,5 +1,6 @@
 ﻿using HMRC.ESFA.Levy.Api.Client;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,15 +12,18 @@ using SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.TokenServiceStub;
-using SFA.DAS.HashingService;
+using SFA.DAS.Http;
 using SFA.DAS.TokenService.Api.Client;
 using System;
+using System.IO;
 using System.Net.Http;
+using NLog;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -61,7 +65,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
             serviceCollection.AddTransient<IEmploymentCheckService, EmploymentCheckService>();
 
             serviceCollection.AddTransient<IDataCollectionsApiClient<DataCollectionsApiConfiguration>, DataCollectionsApiClient>();
-            serviceCollection.AddTransient<ILearnerService, LearnerService>();
+
+            serviceCollection.AddTransient<INationalInsuranceNumberYearsService, NationalInsuranceNumberYearsService>();
+            serviceCollection.AddTransient<INationalInsuranceNumberService, NationalInsuranceNumberService>();
+            serviceCollection.Decorate<INationalInsuranceNumberService, NationalInsuranceNumberServiceWithAYLookup>();
+            serviceCollection.Decorate<INationalInsuranceNumberService, NationalInsuranceNumberServiceWithLogging>();            
+            serviceCollection.AddTransient<ILearnerService, LearnerService>();            
 
             serviceCollection.AddTransient<IAzureClientCredentialHelper, AzureClientCredentialHelper>();
 
@@ -107,22 +116,34 @@ namespace SFA.DAS.EmploymentCheck.Functions
             return serviceCollection;
         }
 
-        public static IServiceCollection AddNLog(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddNLog(this IServiceCollection serviceCollection, string currentDirectory, string environmentName)
         {
-            var nLogConfiguration = new NLogConfiguration();
+            if (!String.IsNullOrWhiteSpace(environmentName))
+            {
+                var configFileName = "nlog.config";
+                if (ConfigurationIsLocalOrDev(environmentName))
+                {
+                    configFileName = "nlog.local.config";
+                }
+
+                LogManager.Setup()
+                    .SetupExtensions(e => e.AutoLoadAssemblies(false))
+                    .LoadConfigurationFromFile($"{currentDirectory}{Path.DirectorySeparatorChar}{configFileName}",
+                        optional: false)
+                    .LoadConfiguration(builder => builder.LogFactory.AutoShutdown = false)
+                    .GetCurrentClassLogger();
+            }
 
             serviceCollection.AddLogging((options) =>
             {
-                options.AddFilter("SFA.DAS", LogLevel.Information); // this is because all logging is filtered out by defualt
-                options.SetMinimumLevel(LogLevel.Trace);
+                options.AddFilter("SFA.DAS", Microsoft.Extensions.Logging.LogLevel.Information); // this is because all logging is filtered out by defualt
+                options.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                 options.AddNLog(new NLogProviderOptions
                 {
                     CaptureMessageTemplates = true,
                     CaptureMessageProperties = true
                 });
                 options.AddConsole();
-
-                nLogConfiguration.ConfigureNLog();
             });
 
             return serviceCollection;
@@ -143,17 +164,6 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 httpClient.BaseAddress = new Uri(settings.BaseUrl);
 
                 return new ApprenticeshipLevyApiClient(httpClient);
-            });
-
-            return serviceCollection;
-        }
-
-        public static IServiceCollection AddHashingService(this IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddSingleton<IHashingService>(c =>
-            {
-                var settings = c.GetService<IOptions<ApplicationSettings>>().Value;
-                return new HashingService.HashingService(settings.AllowedHashstringCharacters, settings.Hashstring);
             });
 
             return serviceCollection;
