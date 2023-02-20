@@ -12,6 +12,8 @@ using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using System.IO;
+using Microsoft.ApplicationInsights.Extensibility;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -79,6 +81,9 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
             var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+
+            //HRMC Api Telemetry Processor
+            builder.Services.AddSingleton<ITelemetryInitializer, TelemetryIntializer>();
 
             builder.Services
                 .AddCommandServices()
