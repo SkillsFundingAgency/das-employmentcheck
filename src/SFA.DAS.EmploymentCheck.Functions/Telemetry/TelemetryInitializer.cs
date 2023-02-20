@@ -1,6 +1,7 @@
 ﻿using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry
 {
@@ -8,7 +9,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry
     {
         public void Initialize(ITelemetry telemetry)
         {
-            ProcessHmrcApiTelemetry(telemetry);
+            //ProcessHmrcApiTelemetry(telemetry);
         }
 
         private static void ProcessHmrcApiTelemetry(ITelemetry telemetry)
