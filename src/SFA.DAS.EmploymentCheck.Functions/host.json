@@ -8,8 +8,7 @@
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": false
-      },
-      "enableDependencyTracking": false
+      }
     }
   },
   "extensions": {
