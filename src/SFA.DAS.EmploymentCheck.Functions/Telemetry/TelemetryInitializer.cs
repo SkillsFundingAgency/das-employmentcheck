@@ -9,7 +9,7 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry
     {
         public void Initialize(ITelemetry telemetry)
         {
-            //ProcessHmrcApiTelemetry(telemetry);
+            ProcessHmrcApiTelemetry(telemetry);
         }
 
         private static void ProcessHmrcApiTelemetry(ITelemetry telemetry)

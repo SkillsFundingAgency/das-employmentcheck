@@ -17,6 +17,8 @@ using Microsoft.ApplicationInsights.Extensibility;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry;
 using Newtonsoft.Json;
 using SFA.DAS.Encoding;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -111,15 +113,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             }
             builder.Services.AddSingleton<IEncodingService, EncodingService>();
 
-            builder.Services
-                .AddCommandServices()
-                .AddQueryServices()
-                .AddApprenticeshipLevyApiClient()
-                .AddEmploymentCheckService(config["EnvironmentName"])
-                .AddPersistenceServices()
-                .AddNServiceBusClientUnitOfWork()
-                .AddNServiceBus(applicationSettings)
-                .AddNServiceBusMessageHandlers(logger, applicationSettings);
+            var appInsightsInstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
+            var telemetryConfiguration = new TelemetryConfiguration(appInsightsInstrumentationKey);
+            builder.Services.AddTransient(sp => new TelemetryConfiguration(appInsightsInstrumentationKey));
+            builder.Services.AddSingleton<TelemetryClient>();
         }
     }
 }
