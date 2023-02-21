@@ -64,6 +64,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             var appInsightsInstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
             var telemetryConfiguration = new TelemetryConfiguration(appInsightsInstrumentationKey);
+            builder.Services.AddApplicationInsightsTelemetry();
             builder.Services.AddTransient(sp => new TelemetryConfiguration(appInsightsInstrumentationKey));
             builder.Services.AddSingleton<TelemetryClient>();
             builder.Services.AddTransient<ITelemetryClient, TelemetryWrapper>();
