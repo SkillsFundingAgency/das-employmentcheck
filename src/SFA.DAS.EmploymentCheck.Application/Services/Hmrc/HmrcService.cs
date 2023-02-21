@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
-using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
+using SFA.DAS.EmploymentCheck.Application.Telemetry;
 using SFA.DAS.EmploymentCheck.Data.Models;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
@@ -19,7 +19,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         private readonly ILogger<HmrcService> _logger;
         private readonly IEmploymentCheckService _employmentCheckService;
         private readonly IHmrcApiRetryPolicies _retryPolicies;
-        private readonly TelemetryClient _telemetryClient;
+        private readonly ITelemetryClient _telemetryClient;
 
         public HmrcService(
             IHmrcTokenStore hmrcTokenStore,
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             ILogger<HmrcService> logger,
             IEmploymentCheckService employmentCheckService,
             IHmrcApiRetryPolicies retryPolicies,
-            TelemetryClient telemetryClient)
+            ITelemetryClient telemetryClient)
         {
             _hmrcTokenStore = hmrcTokenStore;
             _apprenticeshipLevyService = apprenticeshipLevyService;

@@ -11,6 +11,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Application.Telemetry;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
@@ -66,7 +67,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 Mock.Of<ILogger<HmrcApiRetryPolicies>>(),
                 _rateLimiterRepositoryMock.Object);
 
-            var telmetryClient = new Mock<TelemetryClient>();
+            var telmetryClient = new Mock<ITelemetryClient>();
 
             _sut = new HmrcService(
                 new HmrcTokenStore(_tokenServiceMock.Object, retryPolicies, Mock.Of<ILogger<HmrcTokenStore>>()),

@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Encoding;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights;
+using SFA.DAS.EmploymentCheck.Application.Telemetry;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -60,6 +61,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
                     options.ConfigurationKeysRawJsonResult = new[] { EncodingConfigKey };
                 });
             }
+
+            var appInsightsInstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
+            var telemetryConfiguration = new TelemetryConfiguration(appInsightsInstrumentationKey);
+            builder.Services.AddTransient(sp => new TelemetryConfiguration(appInsightsInstrumentationKey));
+            builder.Services.AddSingleton<TelemetryClient>();
+            builder.Services.AddTransient<ITelemetryClient, TelemetryWrapper>();
 
             configBuilder.AddJsonFile("local.settings.json", optional: true);
 
@@ -113,10 +120,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             }
             builder.Services.AddSingleton<IEncodingService, EncodingService>();
 
-            var appInsightsInstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
-            var telemetryConfiguration = new TelemetryConfiguration(appInsightsInstrumentationKey);
-            builder.Services.AddTransient(sp => new TelemetryConfiguration(appInsightsInstrumentationKey));
-            builder.Services.AddSingleton<TelemetryClient>();
+            
         }
     }
 }

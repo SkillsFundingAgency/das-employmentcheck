@@ -25,6 +25,9 @@ using System.IO;
 using System.Net.Http;
 using NLog;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights;
+using SFA.DAS.EmploymentCheck.Application.Telemetry;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
@@ -57,6 +60,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 };
                 return new ApiOptionsRepository(apiConfiguration);
             });
+
+            var appInsightsInstrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY") ?? Guid.NewGuid().ToString();
+            var telemetryConfiguration = new TelemetryConfiguration(appInsightsInstrumentationKey);
+            serviceCollection.AddTransient(sp => new TelemetryConfiguration(appInsightsInstrumentationKey));
+            serviceCollection.AddSingleton<TelemetryClient>();
+            serviceCollection.AddTransient<ITelemetryClient, TelemetryWrapper>();
 
             serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();
             serviceCollection.AddSingleton<IApiRetryPolicies, ApiRetryPolicies>();
