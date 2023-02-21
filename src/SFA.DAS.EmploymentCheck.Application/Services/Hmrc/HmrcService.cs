@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
@@ -50,6 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                 var result = await GetEmploymentStatusWithRetries(request);
 
                 _telemetryClient.TrackDependency("HTTP", "HMRC API", "nodata", DateTime.Now, stopWatch.Elapsed, true);
+                _telemetryClient.TrackEvent("HMRC API Called and success received", new Dictionary<string, string> { ["fake"] = "property"});
 
                 request.SetEmployed(result.Employed);
 
@@ -70,6 +72,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             {
                 _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} EmploymentCheckRequestId: {request.Id} ApiHttpException occurred [{e}]");
 
+                _telemetryClient.TrackEvent("HMRC API Called and ApiHttpException received", new Dictionary<string, string> { ["fake"] = "property" });
+
                 response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
                     request.Id,
@@ -80,6 +84,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             catch (Exception e)
             {
                 _logger.LogError($"{nameof(HmrcService)}: CorrelationId: {request.CorrelationId} EmploymentCheckRequestId: {request.Id} Exception occurred [{e}]");
+
+                _telemetryClient.TrackEvent("HMRC API Called and Exception received", new Dictionary<string, string> { ["fake"] = "property" });
 
                 response = EmploymentCheckCacheResponse.CreateCompleteCheckErrorResponse(
                     request.ApprenticeEmploymentCheckId,
