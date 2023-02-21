@@ -120,7 +120,15 @@ namespace SFA.DAS.EmploymentCheck.Functions
             }
             builder.Services.AddSingleton<IEncodingService, EncodingService>();
 
-            
+            builder.Services
+                .AddCommandServices()
+                .AddQueryServices()
+                .AddApprenticeshipLevyApiClient()
+                .AddEmploymentCheckService(config["EnvironmentName"])
+                .AddPersistenceServices()
+                .AddNServiceBusClientUnitOfWork()
+                .AddNServiceBus(applicationSettings)
+                .AddNServiceBusMessageHandlers(logger, applicationSettings);
         }
     }
 }
