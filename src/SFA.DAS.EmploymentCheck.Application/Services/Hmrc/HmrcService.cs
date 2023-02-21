@@ -41,6 +41,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
         {
             EmploymentCheckCacheResponse response;
 
+            _telemetryClient.TrackEvent("Preparing to call HMRC API");
+
             var stopWatch = Stopwatch.StartNew();
 
             try

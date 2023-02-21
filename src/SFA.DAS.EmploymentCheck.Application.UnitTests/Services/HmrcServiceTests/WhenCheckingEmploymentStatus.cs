@@ -5,6 +5,7 @@ using AutoFixture;
 using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -65,12 +66,15 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 Mock.Of<ILogger<HmrcApiRetryPolicies>>(),
                 _rateLimiterRepositoryMock.Object);
 
+            var telmetryClient = new Mock<TelemetryClient>();
+
             _sut = new HmrcService(
                 new HmrcTokenStore(_tokenServiceMock.Object, retryPolicies, Mock.Of<ILogger<HmrcTokenStore>>()),
                 _apprenticeshipLevyServiceMock.Object,
                 Mock.Of<ILogger<HmrcService>>(),
                 _employmentCheckServiceMock.Object,
-                retryPolicies);
+                retryPolicies,
+                telmetryClient.Object);
         }
 
         [Test]
