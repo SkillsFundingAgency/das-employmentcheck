@@ -12,8 +12,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Telemetry
             //Arrange
             var dependencyTelemetry = new DependencyTelemetry
             {
-                Data = "before/paye/someextradata/extrapath?then=query",
-                Name = "http://stub.hmrc.gov.uk/before/paye/someextradata/extrapath?then=query"
+                Data = "before/epaye/someextradata/extrapath?then=query",
+                Name = "http://stub.hmrc.gov.uk/before/epaye/someextradata/extrapath?then=query"
             };
 
             var sut = new HmrcApiTelemetrySanitizer();
@@ -22,8 +22,8 @@ namespace SFA.DAS.EmploymentCheck.Functions.UnitTests.AzureFunctions.Telemetry
             sut.ProcessHmrcApiTelemetry(dependencyTelemetry);
 
             //Assert
-            Assert.AreEqual("before/paye/", dependencyTelemetry.Data);
-            Assert.AreEqual("http://stub.hmrc.gov.uk/before/paye/", dependencyTelemetry.Name);
+            Assert.AreEqual("before/epaye/", dependencyTelemetry.Data);
+            Assert.AreEqual("http://stub.hmrc.gov.uk/before/epaye/", dependencyTelemetry.Name);
         }
 
         [Test]

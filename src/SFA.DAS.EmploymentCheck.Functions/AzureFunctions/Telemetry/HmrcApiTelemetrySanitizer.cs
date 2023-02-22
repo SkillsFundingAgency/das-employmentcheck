@@ -9,16 +9,16 @@ namespace SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry
         {
             if (telemetry is DependencyTelemetry dependency)
             {
-                var indexOfMarker = dependency.Name.LastIndexOf("/paye/");
+                var indexOfMarker = dependency.Name.LastIndexOf("/epaye/");
                 if (indexOfMarker >= 0)
                 {
-                    dependency.Name = dependency.Name[..(indexOfMarker + "/paye/".Length)];
+                    dependency.Name = dependency.Name[..(indexOfMarker + "/epaye/".Length)];
                 }
 
-                indexOfMarker = dependency.Data.LastIndexOf("/paye/");
+                indexOfMarker = dependency.Data.LastIndexOf("/epaye/");
                 if (indexOfMarker >= 0)
                 {
-                    dependency.Data = dependency.Data[..(indexOfMarker + "/paye/".Length)];
+                    dependency.Data = dependency.Data[..(indexOfMarker + "/epaye/".Length)];
                 }
             };
         }
