@@ -6,6 +6,7 @@
       "samplingSettings": {
         "isEnabled": false
       }
+    }
   },
   "extensions": {
     "durableTask": {
