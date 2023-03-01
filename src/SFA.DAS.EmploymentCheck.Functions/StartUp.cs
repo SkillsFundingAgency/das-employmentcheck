@@ -92,6 +92,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             //HmrcAApiTelemetrySanitizer
             builder.Services.AddTransient<IHmrcApiTelemetrySanitizer, HmrcApiTelemetrySanitizer>();
+            builder.Services.AddTransient<ILearnerDataTelemetrySanitizer, LearnerDataTelemetrySanitizer>();
             builder.Services.AddSingleton<ITelemetryInitializer, TelemetryIntializer>();
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
