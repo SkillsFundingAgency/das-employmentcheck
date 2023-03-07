@@ -2,14 +2,10 @@
   "version": "2.0",
   "functionTimeout": "04:00:00",
   "logging": {
-    "logLevel": {
-        "Function.GetHmrcLearnerEmploymentStatusActivity": "Warning"
-    },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": false
-      },
-      "enableDependencyTracking": false
+      }
     }
   },
   "extensions": {

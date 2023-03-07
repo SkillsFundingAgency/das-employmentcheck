@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +14,9 @@ using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
-using System.IO;
-using Newtonsoft.Json;
+using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry;
 using SFA.DAS.Encoding;
+using Newtonsoft.Json;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -87,6 +89,11 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // HmrcAuthTokenService Settings
             builder.Services.Configure<HmrcAuthTokenServiceConfiguration>(config.GetSection("HmrcAuthTokenService"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcAuthTokenServiceConfiguration>>().Value);
+
+            //HmrcAApiTelemetrySanitizer
+            builder.Services.AddTransient<IHmrcApiTelemetrySanitizer, HmrcApiTelemetrySanitizer>();
+            builder.Services.AddTransient<ILearnerDataTelemetrySanitizer, LearnerDataTelemetrySanitizer>();
+            builder.Services.AddSingleton<ITelemetryInitializer, TelemetryIntializer>();
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
             var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
