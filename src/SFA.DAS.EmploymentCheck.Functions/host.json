@@ -1,14 +1,13 @@
 {
   "version": "2.0",
+  "functionTimeout": "04:00:00",
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
+        "isEnabled": false
       }
     }
   },
-  "functionTimeout": "00:10:00",
   "extensions": {
     "durableTask": {
       "extendedSessionsEnabled": true,

@@ -57,7 +57,7 @@
         },
         "configNames": {
             "type": "string",
-            "defaultValue": "SFA.DAS.EmploymentCheck.Functions"
+            "defaultValue": "SFA.DAS.EmploymentCheck.Functions,SFA.DAS.Encoding"
         },
         "databaseSkuName": {
             "type": "string",

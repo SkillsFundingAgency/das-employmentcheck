@@ -41,16 +41,17 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         {
             var query = new TableQuery<HmrcApiRateLimiterOptions>();
             var queryResult = await GetTable().ExecuteQuerySegmentedAsync(query, null);
-            var record = queryResult.Results.SingleOrDefault(
-                r => r.RowKey == RowKey && r.PartitionKey == _rateLimiterConfiguration.EnvironmentName);
+            var record = queryResult.Results.SingleOrDefault(r => r.RowKey == RowKey && r.PartitionKey == _rateLimiterConfiguration.EnvironmentName);
 
             return record ?? GetDefaultOptions();
         }
 
         public async Task ReduceDelaySetting(HmrcApiRateLimiterOptions options)
         {
+            if (options.DelayInMs == 0) return;
+
             var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromDays(options.MinimumUpdatePeriodInDays)) return;
+            if (timeSinceLastUpdate < TimeSpan.FromMinutes(options.MinimumReduceDelayIntervalInMinutes)) return;
 
             options.DelayInMs = Math.Max(0, options.DelayInMs - options.DelayAdjustmentIntervalInMs);
             options.UpdateDateTime = DateTime.UtcNow;
@@ -63,6 +64,9 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
         {
+            var timeSinceLastUpdate = DateTime.UtcNow - options.UpdateDateTime;
+            if (timeSinceLastUpdate < TimeSpan.FromSeconds(options.MinimumIncreaseDelayIntervalInSeconds)) return;
+
             options.DelayInMs += options.DelayAdjustmentIntervalInMs;
             options.UpdateDateTime = DateTime.UtcNow;
 

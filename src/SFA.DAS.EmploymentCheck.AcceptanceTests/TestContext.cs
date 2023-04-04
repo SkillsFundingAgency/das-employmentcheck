@@ -3,10 +3,11 @@ using SFA.DAS.EmploymentCheck.AcceptanceTests.Commands;
 using SFA.DAS.EmploymentCheck.AcceptanceTests.Hooks;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using SFA.DAS.EmploymentCheck.Tests.Database;
-using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
         public MockApi DataCollectionsApi { get; set; }
         public DataCollectionsApiConfiguration DataCollectionsApiConfiguration { get; set; }
         public MockApi HmrcApi { get; set; }
-        public IHashingService HashingService { get; set; }
+        public IEncodingService EncodingService { get; set; }
         public TestData TestData { get; set; }
         public List<IHook> Hooks { get; set; }
         public List<object> EventsPublished { get; set; }
@@ -42,7 +43,9 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             TestData.GetOrCreate("ThrowErrorAfterPublishCommand", () => false);
             TestData.GetOrCreate("ThrowErrorAfterProcessedCommand", () => false);
             TestData.GetOrCreate("ThrowErrorAfterPublishEvent", () => false);
-            HashingService = new HashingService.HashingService("46789BCDFGHJKLMNPRSTVWXY", "test hash string");
+            var encodingConfigJson = File.ReadAllText(Directory.GetCurrentDirectory() + "\\local.encoding.json");
+            var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
+            EncodingService = new EncodingService(encodingConfig);
             Hooks = new List<IHook>();
             EventsPublished = new List<object>();
             PublishedEvents = new List<PublishedEvent>();

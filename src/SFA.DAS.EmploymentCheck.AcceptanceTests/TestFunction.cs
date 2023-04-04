@@ -53,6 +53,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "ApplicationSettings:UseLearningEndpointStorageDirectory", Path.Combine(testContext.TestDirectory.FullName, ".learningtransport") },
                 { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase.DatabaseInfo.ConnectionString },
                 { "ApplicationSettings:NServiceBusEndpointName", testContext.InstanceId },
+                { "AzureWebJobsScriptRoot", testContext.TestDirectory.FullName } 
             };
 
             _host = new HostBuilder()
@@ -99,8 +100,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         s.Configure<ApplicationSettings>(a =>
                         {
                             a.DbConnectionString = testContext.SqlDatabase.DatabaseInfo.ConnectionString;
-                            a.AllowedHashstringCharacters = "46789BCDFGHJKLMNPRSTVWXY";
-                            a.Hashstring = "test hash string";
                         });
 
                         s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);

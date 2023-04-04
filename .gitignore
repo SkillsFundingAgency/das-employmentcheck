@@ -266,3 +266,5 @@ src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 **/config.json
 /src/_tools/app-levy-data-seeder/Files/*
 appsettings.*.json
+
+*.feature.cs
