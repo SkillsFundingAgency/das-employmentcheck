@@ -65,9 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 TransientErrorDelayInMs = 1
             };
 
-            _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).ReturnsAsync(_settings);
-
-            
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).Returns(_settings);
         }
 
         private void CreateDataCollectionsClient(HttpStatusCode statusCode)

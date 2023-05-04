@@ -13,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
     public class WhenGetHmrcRateLimiterOptions 
     {
         [Test]
-        public async Task Then_retry_options_are_retrieved_from_config()
+        public void Then_retry_options_are_retrieved_from_config()
         {
             //Arrange
             HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions();
@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
             IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
 
             //Act
-            HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
 
             //Assert
             result.Should().NotBeNull();

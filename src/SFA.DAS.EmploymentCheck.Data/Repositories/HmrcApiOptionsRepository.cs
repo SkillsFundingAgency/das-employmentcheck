@@ -22,12 +22,12 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             _logger = logger;
         }
         
-        public async Task<HmrcApiRateLimiterOptions> GetHmrcRateLimiterOptions()
+        public HmrcApiRateLimiterOptions GetHmrcRateLimiterOptions()
         {
             return _hmrcApiRateLimiterOptions;
         }
 
-        public async Task ReduceDelaySetting(HmrcApiRateLimiterOptions options)
+        public void ReduceDelaySetting(HmrcApiRateLimiterOptions options)
         {
             if (_apiRetryDelaySettings.DelayInMs == 0) return;
 
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             _logger.LogInformation("[HmrcApiOptionsRepository] Reducing DelayInMs setting to {0}ms", new { _apiRetryDelaySettings.DelayInMs });
         }
 
-        public async Task IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
+        public void IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
         {
             var timeSinceLastUpdate = DateTime.UtcNow - _apiRetryDelaySettings.UpdateDateTime;
             if (timeSinceLastUpdate < TimeSpan.FromSeconds(options.MinimumIncreaseDelayIntervalInSeconds)) return;

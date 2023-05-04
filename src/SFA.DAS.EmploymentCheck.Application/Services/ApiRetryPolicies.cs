@@ -24,7 +24,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
 
         public async Task<AsyncPolicyWrap> GetAll()
         {
-            _settings = await _optionsRepository.GetOptions();
+            _settings = _optionsRepository.GetOptions();
 
             var unauthorizedAccessExceptionRetryPolicy = Policy
                 .Handle<UnauthorizedAccessException>()

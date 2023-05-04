@@ -34,7 +34,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
         public async Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry)
         {
-            _settings = await _optionsRepository.GetHmrcRateLimiterOptions();
+            _settings = _optionsRepository.GetHmrcRateLimiterOptions();
 
             var tooManyRequestsApiHttpExceptionRetryPolicy = Policy
                 .Handle<ApiHttpException>(e =>
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                         _logger.LogInformation(
                             $"{nameof(HmrcApiRetryPolicies)}: [{retryNumber}/{_apiRetryOptions.TooManyRequestsRetryCount}] TooManyRequests error occurred. Retrying after a delay of {_apiRetryDelaySettings.DelayInMs}ms ...");
 
-                        await _optionsRepository.IncreaseDelaySetting(_settings);
+                        _optionsRepository.IncreaseDelaySetting(_settings);
                     }
                 );
 
@@ -88,14 +88,14 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
         private TimeSpan GetDelayAdjustmentInterval(int arg)
         {
-            _settings = _optionsRepository.GetHmrcRateLimiterOptions().Result;
+            _settings = _optionsRepository.GetHmrcRateLimiterOptions();
 
             return TimeSpan.FromMilliseconds(_apiRetryDelaySettings.DelayInMs);
         }
 
         public async Task<AsyncPolicy> GetTokenRetrievalRetryPolicy()
         {
-            _settings = await _optionsRepository.GetHmrcRateLimiterOptions();
+            _settings = _optionsRepository.GetHmrcRateLimiterOptions();
 
             return await Task.FromResult<AsyncPolicy>(Policy
                 .Handle<Exception>()
@@ -110,7 +110,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                 ));
         }
 
-        public async Task ReduceRetryDelay() => await _optionsRepository.ReduceDelaySetting(_settings);
+        public async Task ReduceRetryDelay() => _optionsRepository.ReduceDelaySetting(_settings);
         
         public async Task DelayApiExecutionByRetryPolicy()
         {

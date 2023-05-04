@@ -120,7 +120,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
 
         public async Task<EmploymentCheckCacheRequest[]> GetEmploymentCheckCacheRequests()
         {
-            var rateLimiterOptions = await _hmrcApiOptionsRepository.GetHmrcRateLimiterOptions();
+            var rateLimiterOptions = _hmrcApiOptionsRepository.GetHmrcRateLimiterOptions();
             var dbConnection = new DbConnection();
 
             await using var sqlConnection = await dbConnection.CreateSqlConnection(

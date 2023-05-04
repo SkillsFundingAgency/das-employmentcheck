@@ -75,7 +75,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 DelayInMs = 0
             };
 
-            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_hmrcApiRateLimiterOptions);
+            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).Returns(_hmrcApiRateLimiterOptions);
 
             var retryPolicies = new HmrcApiRetryPolicies(
                 Mock.Of<ILogger<HmrcApiRetryPolicies>>(),
