@@ -32,7 +32,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
             _apiRetryDelaySettings = apiRetryDelaySettings;
         }
 
-        public async Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry)
+        public AsyncPolicyWrap GetAll(Func<Task> onRetry)
         {
             _settings = _optionsRepository.GetHmrcRateLimiterOptions();
 
@@ -110,7 +110,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
                 ));
         }
 
-        public async Task ReduceRetryDelay() => _optionsRepository.ReduceDelaySetting(_settings);
+        public void ReduceRetryDelay() => _optionsRepository.ReduceDelaySetting(_settings);
         
         public async Task DelayApiExecutionByRetryPolicy()
         {
