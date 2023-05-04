@@ -43,7 +43,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
                 var hashedAccountId = _encodingService.Encode(employmentCheck.AccountId, EncodingType.AccountId);
                 var request = new GetAccountPayeSchemesRequest(hashedAccountId);
 
-                var policy = await _apiRetryPolicies.GetAll("AccountApiKey");
+                var policy = await _apiRetryPolicies.GetAll();
                 response = await _apiClient.GetWithPolicy(policy, request);
 
                 return await ProcessPayeSchemesFromApiResponse(employmentCheck, response);

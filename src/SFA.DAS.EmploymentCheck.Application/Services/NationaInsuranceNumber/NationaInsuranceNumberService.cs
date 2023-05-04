@@ -35,7 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.NationalInsuranceNumber
 
         public async Task<LearnerNiNumber> Get(NationalInsuranceNumberRequest nationalInsuranceNumberRequest)
         {
-            var policy = await _apiRetryPolicies.GetAll("LearnerApiKey");
+            var policy = await _apiRetryPolicies.GetAll();
             var request = new GetNationalInsuranceNumberRequest(nationalInsuranceNumberRequest.EmploymentCheck.Uln, nationalInsuranceNumberRequest.AcademicYear, _apiConfiguration);
             var response = await _apiClient.GetWithPolicy(policy, request);
             return await ProcessNiNumberFromApiResponse(nationalInsuranceNumberRequest.EmploymentCheck, response, request);

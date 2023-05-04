@@ -66,6 +66,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             builder.Services.AddOptions();
 
+            // API Retry Configuration
+            builder.Services.Configure<ApiRetryOptions>(config.GetSection("ApiRetryOptions"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<ApiRetryOptions>>().Value);
+
             // Accounts API Configuration
             builder.Services.Configure<EmployerAccountApiConfiguration>(config.GetSection("AccountsInnerApi"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerAccountApiConfiguration>>().Value);
@@ -73,6 +77,10 @@ namespace SFA.DAS.EmploymentCheck.Functions
             // HMRC API Configuration
             builder.Services.Configure<HmrcApiConfiguration>(config.GetSection("HmrcApiSettings"));
             builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiConfiguration>>().Value);
+
+            // HMRC API Rate Limiter Options
+            builder.Services.Configure<HmrcApiRateLimiterOptions>(config.GetSection("HmrcApiRateLimiterOptions"));
+            builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<HmrcApiRateLimiterOptions>>().Value);
 
             // Token Service API Configuration
             builder.Services.Configure<TokenServiceApiClientConfiguration>(config.GetSection("TokenService"));

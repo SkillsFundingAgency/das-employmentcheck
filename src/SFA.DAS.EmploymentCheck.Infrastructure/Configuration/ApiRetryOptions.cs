@@ -1,12 +1,11 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
-
+﻿
 namespace SFA.DAS.EmploymentCheck.Infrastructure.Configuration
 {
-    public class ApiRetryOptions : TableEntity
+    public class ApiRetryOptions 
     {
-        public int TooManyRequestsRetryCount { get; set; } = 10;
-        public int TransientErrorRetryCount { get; set; } = 3;
-        public int TransientErrorDelayInMs { get; set; } = 10000;
-        public int TokenRetrievalRetryCount { get; set; } = 2;
+        public int TooManyRequestsRetryCount { get; set; } 
+        public int TransientErrorRetryCount { get; set; } 
+        public int TransientErrorDelayInMs { get; set; } 
+        public int TokenRetrievalRetryCount { get; set; } 
     }
 }

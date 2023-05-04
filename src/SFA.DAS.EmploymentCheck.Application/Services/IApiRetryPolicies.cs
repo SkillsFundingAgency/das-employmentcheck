@@ -5,6 +5,6 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
 {
     public interface IApiRetryPolicies
     {
-        Task<AsyncPolicyWrap> GetAll(string rowKey);
+        Task<AsyncPolicyWrap> GetAll();
     }
 }

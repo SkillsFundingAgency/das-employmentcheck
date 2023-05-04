@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using NLog;
+using SFA.DAS.EmploymentCheck.Data;
 using TokenServiceApiClientConfiguration = SFA.DAS.EmploymentCheck.Infrastructure.Configuration.TokenServiceApiClientConfiguration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -34,29 +35,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
         {
             serviceCollection.AddHttpClient();
 
-            serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(s =>
-            {
-                var hmrcApiRateLimiterConfiguration = new AzureStorageConnectionConfiguration
-                {
-                    EnvironmentName = environmentName,
-                    StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
-                        Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
-                        "UseDevelopmentStorage=true",
-                };
-                return new HmrcApiOptionsRepository(hmrcApiRateLimiterConfiguration, s.GetService<ILogger<HmrcApiOptionsRepository>>());
-            });
+            serviceCollection.AddSingleton<ApiRetryDelaySettings>();
 
-            serviceCollection.AddSingleton<IApiOptionsRepository>(s =>
-            {
-                var apiConfiguration = new AzureStorageConnectionConfiguration
-                {
-                    EnvironmentName = environmentName,
-                    StorageAccountConnectionString = NotDevelopmentOrAcceptanceTests(environmentName) ?
-                        Environment.GetEnvironmentVariable("AzureWebJobsStorage") :
-                        "UseDevelopmentStorage=true",
-                };
-                return new ApiOptionsRepository(apiConfiguration);
-            });
+            serviceCollection.AddSingleton<IHmrcApiOptionsRepository>(
+                    s => new HmrcApiOptionsRepository(s.GetService<ApiRetryDelaySettings>(), 
+                    s.GetService<IOptions<HmrcApiRateLimiterOptions>>(), 
+                    s.GetService<ILogger<HmrcApiOptionsRepository>>()));
+
+            serviceCollection.AddSingleton<IApiOptionsRepository>(s => new ApiOptionsRepository(s.GetService<IOptions<ApiRetryOptions>>()));
 
             serviceCollection.AddSingleton<IHmrcApiRetryPolicies, HmrcApiRetryPolicies>();
             serviceCollection.AddSingleton<IApiRetryPolicies, ApiRetryPolicies>();
