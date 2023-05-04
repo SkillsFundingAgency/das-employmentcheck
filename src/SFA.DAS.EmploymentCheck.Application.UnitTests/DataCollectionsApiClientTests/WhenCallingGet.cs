@@ -65,7 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 TransientErrorDelayInMs = 1
             };
 
-            _apiOptionsRepositoryMock.Setup(r => r.GetOptions(It.IsAny<string>())).ReturnsAsync(_settings);
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).ReturnsAsync(_settings);
 
             
         }
@@ -129,7 +129,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
                 _apiOptionsRepositoryMock.Object);
 
-            var ret = await retryPolicies.GetAll("Test");
+            var ret = await retryPolicies.GetAll();
 
             // Act
             var actual = await _sut.GetWithPolicy(ret, _request);
@@ -184,7 +184,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
                 _apiOptionsRepositoryMock.Object);
 
-            var ret = await retryPolicies.GetAll("Test");
+            var ret = await retryPolicies.GetAll();
 
             // Act
             var actual = await _sut.GetWithPolicy(ret, _request);
@@ -222,7 +222,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
                 _apiOptionsRepositoryMock.Object);
 
-            var ret = await retryPolicies.GetAll("Test");
+            var ret = await retryPolicies.GetAll();
 
             // Act
             var actual = await _sut.GetWithPolicy(ret, _request);
@@ -242,7 +242,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
                 _apiOptionsRepositoryMock.Object);
 
-            var ret = await retryPolicies.GetAll("Test");
+            var ret = await retryPolicies.GetAll();
 
             // Act
             var actual = await _sut.GetWithPolicy(ret, _request);

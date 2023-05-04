@@ -53,7 +53,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 TransientErrorDelayInMs = 1
             };
 
-            _apiOptionsRepositoryMock.Setup(r => r.GetOptions(It.IsAny<string>())).ReturnsAsync(_settings);
+            _apiOptionsRepositoryMock.Setup(r => r.GetOptions()).ReturnsAsync(_settings);
 
             var retryPolicies = new ApiRetryPolicies(
                 Mock.Of<ILogger<ApiRetryPolicies>>(),
