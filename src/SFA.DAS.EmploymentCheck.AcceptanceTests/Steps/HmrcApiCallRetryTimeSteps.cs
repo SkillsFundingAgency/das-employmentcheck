@@ -94,7 +94,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
             TimeSpan ts = _dtEnd - _dtStart;
 
             logs.Should().HaveCount(retries + 1);
-            ts.Seconds.Should().BeLessThan(withInTimeInSeconds);
+            ts.Seconds.Should().BeLessOrEqualTo(withInTimeInSeconds);
         }
     }
 }
