@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
@@ -27,28 +26,32 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
             return _hmrcApiRateLimiterOptions;
         }
 
-        public void ReduceDelaySetting(HmrcApiRateLimiterOptions options)
+        public ApiRetryDelaySettings ReduceDelaySetting(HmrcApiRateLimiterOptions options)
         {
-            if (_apiRetryDelaySettings.DelayInMs == 0) return;
+            if (_apiRetryDelaySettings.DelayInMs == 0) return _apiRetryDelaySettings;
 
             var timeSinceLastUpdate = DateTime.UtcNow - _apiRetryDelaySettings.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromMinutes(options.MinimumReduceDelayIntervalInMinutes)) return;
+            if (timeSinceLastUpdate < TimeSpan.FromMinutes(options.MinimumReduceDelayIntervalInMinutes)) return _apiRetryDelaySettings;
 
             _apiRetryDelaySettings.DelayInMs = Math.Max(0, _apiRetryDelaySettings.DelayInMs - options.DelayAdjustmentIntervalInMs);
             _apiRetryDelaySettings.UpdateDateTime = DateTime.UtcNow;
 
             _logger.LogInformation("[HmrcApiOptionsRepository] Reducing DelayInMs setting to {0}ms", new { _apiRetryDelaySettings.DelayInMs });
+
+            return _apiRetryDelaySettings;
         }
 
-        public void IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
+        public ApiRetryDelaySettings IncreaseDelaySetting(HmrcApiRateLimiterOptions options)
         {
             var timeSinceLastUpdate = DateTime.UtcNow - _apiRetryDelaySettings.UpdateDateTime;
-            if (timeSinceLastUpdate < TimeSpan.FromSeconds(options.MinimumIncreaseDelayIntervalInSeconds)) return;
+            if (timeSinceLastUpdate < TimeSpan.FromSeconds(options.MinimumIncreaseDelayIntervalInSeconds)) return _apiRetryDelaySettings;
 
             _apiRetryDelaySettings.DelayInMs += options.DelayAdjustmentIntervalInMs;
             _apiRetryDelaySettings.UpdateDateTime = DateTime.UtcNow;
 
             _logger.LogInformation("[HmrcApiOptionsRepository] Increasing DelayInMs setting to {0}ms", new { _apiRetryDelaySettings.DelayInMs });
+
+            return _apiRetryDelaySettings;
         }
     }
 }

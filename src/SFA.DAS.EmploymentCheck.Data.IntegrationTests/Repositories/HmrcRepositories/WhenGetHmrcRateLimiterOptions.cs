@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Data.Repositories;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 
 namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcRepositories
@@ -35,204 +35,187 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.HmrcReposit
 
         }
 
-        //[Test]
-        //public async Task Then_GetTable_CloudTable_And_Then_IncreaseDelaySetting()
-        //{
-        //    //Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
-        //    HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
-        //    int delayInMs = result.DelayInMs;
+        [Test]
+        public void Then_IncreaseDelaySetting()
+        {
+            //Arrange
+            var apiRetryDelaySettings = new ApiRetryDelaySettings 
+            {
+                DelayInMs = 50, 
+                UpdateDateTime = DateTime.UtcNow.AddSeconds(-15)
+            };
+            HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions 
+            {
+                DelayAdjustmentIntervalInMs = 50,
+                MinimumIncreaseDelayIntervalInSeconds = 10
+            };
+            var hmrcApiRateLimiterOptions = new Mock<IOptions<HmrcApiRateLimiterOptions>>();
+            hmrcApiRateLimiterOptions.Setup(x => x.Value).Returns(options);
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
+            var originalDelayInMs = apiRetryDelaySettings.DelayInMs;
 
-        //    //Act
-        //    await sut.IncreaseDelaySetting(result);
-            
+            //Act
+            var updatedSettings = sut.IncreaseDelaySetting(result);
 
-        //    //Assert
-        //    result.Should().NotBeNull();
-        //    result.DelayInMs.Should().BeGreaterThan(delayInMs);
-        //}
-        
-        //[Test]
-        //public async Task Then_IncreaseDelaySetting_Does_Nothing_when_Latest_Update_Less_then_MinimumIncreaseDelayIntervalInSeconds_Ago()
-        //{
-        //    //Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
-        //    var result = await sut.GetHmrcRateLimiterOptions();
-        //    var delayInMs = result.DelayInMs;
-        //    result.MinimumIncreaseDelayIntervalInSeconds = 1;
-        //    result.UpdateDateTime = DateTime.UtcNow;
+            //Assert
+            updatedSettings.DelayInMs.Should().BeGreaterThan(originalDelayInMs);
+        }
 
-        //    //Act
-        //    await sut.IncreaseDelaySetting(result);
+        [Test]
+        public void Then_IncreaseDelaySetting_Does_Nothing_when_Latest_Update_Less_then_MinimumIncreaseDelayIntervalInSeconds_Ago()
+        {
+            //Arrange
+            var apiRetryDelaySettings = new ApiRetryDelaySettings
+            {
+                DelayInMs = 50,
+                UpdateDateTime = DateTime.UtcNow.AddSeconds(-5)
+            };
+            HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions
+            {
+                DelayAdjustmentIntervalInMs = 50,
+                MinimumIncreaseDelayIntervalInSeconds = 10
+            };
+            var hmrcApiRateLimiterOptions = new Mock<IOptions<HmrcApiRateLimiterOptions>>();
+            hmrcApiRateLimiterOptions.Setup(x => x.Value).Returns(options);
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
+            var originalDelayInMs = apiRetryDelaySettings.DelayInMs;
 
-        //    //Assert
-        //    result.Should().NotBeNull();
-        //    result.DelayInMs.Should().Be(delayInMs);
-        //}
-        
-        //[Test]
-        //public async Task Then_IncreaseDelaySetting_Updates_DelayInMs_when_Latest_Update_Greater_then_MinimumIncreaseDelayIntervalInSeconds_Ago()
-        //{
-        //    //Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
-        //    var result = await sut.GetHmrcRateLimiterOptions();
-        //    var delayInMs = result.DelayInMs;
-        //    result.MinimumIncreaseDelayIntervalInSeconds = 1;
-        //    result.UpdateDateTime = DateTime.UtcNow.AddSeconds(-2);
+            //Act
+            var updatedSettings = sut.IncreaseDelaySetting(result);
 
-        //    //Act
-        //    await sut.IncreaseDelaySetting(result);
+            //Assert
+            updatedSettings.DelayInMs.Should().Be(originalDelayInMs);
+        }
 
-        //    //Assert
-        //    result.Should().NotBeNull();
-        //    result.DelayInMs.Should().BeGreaterThan(delayInMs);
-        //}
-        
-        //[Test]
-        //public async Task Then_IncreaseDelaySetting_When_LastUpdated_Is_Greater_then_MinimumIncreaseDelayIntervalInSeconds()
-        //{
-        //    //Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
-        //    HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
-            
-        //    result.MinimumIncreaseDelayIntervalInSeconds = 1;
-        //    result.UpdateDateTime = DateTime.UtcNow.AddSeconds(-3);
-            
-        //    var delayInMs = result.DelayInMs;
+        [Test]
+        public void Then_ReduceDelaySetting()
+        {
+            //Arrange
+            var apiRetryDelaySettings = new ApiRetryDelaySettings
+            {
+                DelayInMs = 50,
+                UpdateDateTime = DateTime.UtcNow.AddSeconds(-15)
+            };
+            HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions
+            {
+                DelayAdjustmentIntervalInMs = 50,
+                MinimumIncreaseDelayIntervalInSeconds = 10
+            };
+            var hmrcApiRateLimiterOptions = new Mock<IOptions<HmrcApiRateLimiterOptions>>();
+            hmrcApiRateLimiterOptions.Setup(x => x.Value).Returns(options);
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
+            var originalDelayInMs = apiRetryDelaySettings.DelayInMs;
 
-        //    //Act
-        //    await sut.IncreaseDelaySetting(result);
-            
+            //Act
+            var updatedSettings = sut.ReduceDelaySetting(result);
 
-        //    //Assert
-        //    result.Should().NotBeNull();
-        //    result.DelayInMs.Should().BeGreaterThan(delayInMs);
-        //}
+            //Assert
+            updatedSettings.DelayInMs.Should().BeLessThanOrEqualTo(originalDelayInMs);
+        }
 
-        //[Test]
-        //public async Task Then_Does_Not_IncreaseDelaySetting_When_LastUpdated_Is_Less_then_MinimumIncreaseDelayIntervalInSeconds()
-        //{
-        //    //Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
-        //    HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
-            
-        //    result.MinimumIncreaseDelayIntervalInSeconds = 1;
-        //    result.UpdateDateTime = DateTime.UtcNow.AddSeconds(2);
-            
-        //    var delayInMs = result.DelayInMs;
+        [Test]
+        public void Then_retry_delay_time_is_Not_decreased_When_DelayInMs_Is_Already_Zero()
+        {
+            //Arrange
+            var apiRetryDelaySettings = new ApiRetryDelaySettings
+            {
+                DelayInMs = 0,
+                UpdateDateTime = DateTime.UtcNow
+            };
+            HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions
+            {
+                DelayAdjustmentIntervalInMs = 50,
+                MinimumIncreaseDelayIntervalInSeconds = 10
+            };
+            var hmrcApiRateLimiterOptions = new Mock<IOptions<HmrcApiRateLimiterOptions>>();
+            hmrcApiRateLimiterOptions.Setup(x => x.Value).Returns(options);
+            var hmrcApiOptionsRepositoryLogger = new Mock<ILogger<HmrcApiOptionsRepository>>();
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, hmrcApiOptionsRepositoryLogger.Object);
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
 
-        //    //Act
-        //    await sut.IncreaseDelaySetting(result);
-            
+            // Act
+            sut.ReduceDelaySetting(result);
 
-        //    //Assert
-        //    result.Should().NotBeNull();
-        //    result.DelayInMs.Should().Be(delayInMs);
-        //}
+            // Assert
+            hmrcApiOptionsRepositoryLogger.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Never);
+        }
 
-        //[Test]
-        //public async Task Then_GetTable_CloudTable_And_Then_ReduceDelaySetting()
-        //{
-        //    //Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, Mock.Of<ILogger<HmrcApiOptionsRepository>>());
-        //    HmrcApiRateLimiterOptions result = await sut.GetHmrcRateLimiterOptions();
-        //    int delayInMs = result.DelayInMs;
+        [Test]
+        public void Then_retry_delay_time_is_decreased_When_DelayInMs_Is_Greater_than_Zero()
+        {
+            //Arrange
+            var apiRetryDelaySettings = new ApiRetryDelaySettings
+            {
+                DelayInMs = 100,
+                UpdateDateTime = DateTime.UtcNow.AddMinutes(-6)
+            };
+            HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions
+            {
+                DelayAdjustmentIntervalInMs = 50,
+                MinimumIncreaseDelayIntervalInSeconds = 10
+            };
+            var hmrcApiRateLimiterOptions = new Mock<IOptions<HmrcApiRateLimiterOptions>>();
+            hmrcApiRateLimiterOptions.Setup(x => x.Value).Returns(options);
+            var hmrcApiOptionsRepositoryLogger = new Mock<ILogger<HmrcApiOptionsRepository>>();
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, hmrcApiOptionsRepositoryLogger.Object);
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
 
-        //    //Act
-        //    await sut.ReduceDelaySetting(result);
-            
+            // Act
+            sut.ReduceDelaySetting(result);
 
-        //    //Assert
-        //    result.Should().NotBeNull();
-        //    result.DelayInMs.Should().BeLessThanOrEqualTo(delayInMs);
+            // Assert
+            hmrcApiOptionsRepositoryLogger.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Once);
+        }
 
-        //}
+        [Test]
+        public void Then_retry_delay_time_is_Not_decreased_When_When_LastUpdated_Is_Less_then_MinimumReduceDelayIntervalInMinutes()
+        {
+            //Arrange
+            var apiRetryDelaySettings = new ApiRetryDelaySettings
+            {
+                DelayInMs = 100,
+                UpdateDateTime = DateTime.UtcNow.AddSeconds(-1)
+            };
+            HmrcApiRateLimiterOptions options = new HmrcApiRateLimiterOptions
+            {
+                DelayAdjustmentIntervalInMs = 50,
+                MinimumReduceDelayIntervalInMinutes = 5
+            };
+            var hmrcApiRateLimiterOptions = new Mock<IOptions<HmrcApiRateLimiterOptions>>();
+            hmrcApiRateLimiterOptions.Setup(x => x.Value).Returns(options);
+            var hmrcApiOptionsRepositoryLogger = new Mock<ILogger<HmrcApiOptionsRepository>>();
+            IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(apiRetryDelaySettings, hmrcApiRateLimiterOptions.Object, hmrcApiOptionsRepositoryLogger.Object);
+            HmrcApiRateLimiterOptions result = sut.GetHmrcRateLimiterOptions();
 
-        //[Test]
-        //public async Task Then_retry_delay_time_is_Not_decreased_When_DelayInMs_Is_Already_Zero()
-        //{
-        //    // Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    var hmrcApiOptionsRepositoryLoggerMock = new Mock<ILogger<HmrcApiOptionsRepository>>();
+            // Act
+            sut.ReduceDelaySetting(result);
 
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, hmrcApiOptionsRepositoryLoggerMock.Object);
-        //    var result = await sut.GetHmrcRateLimiterOptions();
-            
-        //    result.DelayInMs = 0;
-        //    result.UpdateDateTime = DateTime.UtcNow;
-            
-        //    // Act
-        //    await sut.ReduceDelaySetting(result);
-
-        //    // Assert
-        //    hmrcApiOptionsRepositoryLoggerMock.Verify(
-        //        x => x.Log(
-        //            LogLevel.Information,
-        //            It.IsAny<EventId>(),
-        //            It.IsAny<It.IsAnyType>(),
-        //            It.IsAny<Exception>(),
-        //            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-        //        Times.Never);
-        //}
-
-        //[Test]
-        //public async Task Then_retry_delay_time_is_decreased_When_DelayInMs_Is_Greater_than_Zero()
-        //{
-        //    // Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    var hmrcApiOptionsRepositoryLoggerMock = new Mock<ILogger<HmrcApiOptionsRepository>>();
-
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, hmrcApiOptionsRepositoryLoggerMock.Object);
-        //    var result = await sut.GetHmrcRateLimiterOptions();
-            
-        //    result.DelayInMs = 100;
-        //    result.UpdateDateTime = DateTime.UtcNow.AddMinutes(-6);
-            
-        //    // Act
-        //    await sut.ReduceDelaySetting(result);
-
-        //    // Assert
-        //    hmrcApiOptionsRepositoryLoggerMock.Verify(
-        //        x => x.Log(
-        //            LogLevel.Information,
-        //            It.IsAny<EventId>(),
-        //            It.IsAny<It.IsAnyType>(),
-        //            It.IsAny<Exception>(),
-        //            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-        //        Times.Once);
-        //}
-
-        //[Test]
-        //public async Task Then_retry_delay_time_is_Not_decreased_When_When_LastUpdated_Is_Less_then_MinimumReduceDelayIntervalInMinutes()
-        //{
-        //    // Arrange
-        //    var options = new AzureStorageConnectionConfiguration();
-        //    var hmrcApiOptionsRepositoryLoggerMock = new Mock<ILogger<HmrcApiOptionsRepository>>();
-
-        //    IHmrcApiOptionsRepository sut = new HmrcApiOptionsRepository(options, hmrcApiOptionsRepositoryLoggerMock.Object);
-        //    var result = await sut.GetHmrcRateLimiterOptions();
-            
-        //    result.DelayInMs = 100;
-        //    result.UpdateDateTime = DateTime.UtcNow;
-            
-        //    // Act
-        //    await sut.ReduceDelaySetting(result);
-
-        //    // Assert
-        //    hmrcApiOptionsRepositoryLoggerMock.Verify(
-        //        x => x.Log(
-        //            LogLevel.Information,
-        //            It.IsAny<EventId>(),
-        //            It.IsAny<It.IsAnyType>(),
-        //            It.IsAny<Exception>(),
-        //            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
-        //        Times.Never);
-        //}
+            // Assert
+            hmrcApiOptionsRepositoryLogger.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+                Times.Never);
+        }
     }
 }
