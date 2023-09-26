@@ -15,7 +15,7 @@ In order to run this solution locally you will need the following:
 * [.NET Core SDK >= 3.1](https://www.microsoft.com/net/download/)
 * (VS Code Only) [C# Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 * [SQL Server Express LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb)
-* [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) (previosuly known as Azure Storage Emulator)
+* [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) (previously known as Azure Storage Emulator)
 
 ### Environment Setup
 * Deploy local database from the `SFA.DAS.EmploymentCheck.Database` Visual Studio project
