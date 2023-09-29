@@ -23,6 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.Repositories
         
         public HmrcApiRateLimiterOptions GetHmrcRateLimiterOptions()
         {
+            _logger.LogInformation($"HMRC rate limiter options configured: EmploymentCheckBatchSize = {_hmrcApiRateLimiterOptions.EmploymentCheckBatchSize}, DelayAdjustmentIntervalInMs = {_hmrcApiRateLimiterOptions.DelayAdjustmentIntervalInMs} ");
             return _hmrcApiRateLimiterOptions;
         }
 
