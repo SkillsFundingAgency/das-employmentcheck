@@ -23,7 +23,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Arrange
             var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
             hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
-                .ReturnsAsync(new HmrcApiRateLimiterOptions { EmploymentCheckBatchSize = 1 });
+                .Returns(new HmrcApiRateLimiterOptions { EmploymentCheckBatchSize = 1 });
 
             _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
@@ -49,7 +49,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Arrange
             var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
             hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
-                .ReturnsAsync(new HmrcApiRateLimiterOptions { EmploymentCheckBatchSize = 3 });
+                .Returns(new HmrcApiRateLimiterOptions { EmploymentCheckBatchSize = 3 });
 
             _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
@@ -79,7 +79,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Arrange
             var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
             hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
-                .ReturnsAsync(new HmrcApiRateLimiterOptions { EmploymentCheckBatchSize = 3 });
+                .Returns(new HmrcApiRateLimiterOptions { EmploymentCheckBatchSize = 3 });
 
             _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 
@@ -107,7 +107,7 @@ namespace SFA.DAS.EmploymentCheck.Data.IntegrationTests.Repositories.EmploymentC
             // Arrange
             var hmrcApiOptionsRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
             hmrcApiOptionsRepositoryMock.Setup(x => x.GetHmrcRateLimiterOptions())
-                .ReturnsAsync(new HmrcApiRateLimiterOptions());
+                .Returns(new HmrcApiRateLimiterOptions());
 
             _sut = new EmploymentCheckCacheRequestRepository(Settings, hmrcApiOptionsRepositoryMock.Object, Mock.Of<ILogger<EmploymentCheckCacheRequestRepository>>());
 

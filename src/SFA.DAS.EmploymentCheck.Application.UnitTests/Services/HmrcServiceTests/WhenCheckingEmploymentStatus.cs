@@ -6,10 +6,12 @@ using HMRC.ESFA.Levy.Api.Client;
 using HMRC.ESFA.Levy.Api.Types;
 using HMRC.ESFA.Levy.Api.Types.Exceptions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmploymentCheck.Application.Services.EmploymentCheck;
 using SFA.DAS.EmploymentCheck.Application.Services.Hmrc;
+using SFA.DAS.EmploymentCheck.Data;
 using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
@@ -29,7 +31,10 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
         private PrivilegedAccessToken _token;
         private EmploymentCheckCacheRequest _request;
         private Fixture _fixture;
-        private HmrcApiRateLimiterOptions _settings;
+        private HmrcApiRateLimiterOptions _hmrcApiRateLimiterOptions;
+        private Mock<IOptions<ApiRetryOptions>> _apiRetryOptionsMock;
+        private ApiRetryOptions _apiRetryOptions;
+        private ApiRetryDelaySettings _apiRetryDelaySettings;
         private Mock<IEmploymentCheckService> _employmentCheckServiceMock;
 
         [SetUp]
@@ -40,6 +45,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             _tokenServiceMock = new Mock<ITokenServiceApiClient>();
             _rateLimiterRepositoryMock = new Mock<IHmrcApiOptionsRepository>();
             _employmentCheckServiceMock = new Mock<IEmploymentCheckService>();
+            _apiRetryOptionsMock = new Mock<IOptions<ApiRetryOptions>>();
 
             _token = new PrivilegedAccessToken { AccessCode = _fixture.Create<string>(), ExpiryTime = DateTime.Today.AddDays(7) };
 
@@ -49,21 +55,33 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             _request.MinDate = _fixture.Create<DateTime>();
             _request.MaxDate = _request.MinDate.AddMonths(-6);
 
-            _settings = new HmrcApiRateLimiterOptions
+            _hmrcApiRateLimiterOptions = new HmrcApiRateLimiterOptions
             {
-                DelayInMs = 0,
                 MinimumReduceDelayIntervalInMinutes = 0,
-                TooManyRequestsRetryCount = 10,
-                TransientErrorRetryCount = 2,
-                TransientErrorDelayInMs = 1,
                 TokenFailureRetryDelayInMs = 0
             };
 
-            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).ReturnsAsync(_settings);
+            _apiRetryOptions = new ApiRetryOptions
+            {
+                TooManyRequestsRetryCount = 10,
+                TransientErrorRetryCount = 2,
+                TransientErrorDelayInMs = 1,
+                TokenRetrievalRetryCount = 2
+            };
+            _apiRetryOptionsMock.Setup(x => x.Value).Returns(_apiRetryOptions);
+
+            _apiRetryDelaySettings = new ApiRetryDelaySettings
+            {
+                DelayInMs = 0
+            };
+
+            _rateLimiterRepositoryMock.Setup(r => r.GetHmrcRateLimiterOptions()).Returns(_hmrcApiRateLimiterOptions);
 
             var retryPolicies = new HmrcApiRetryPolicies(
                 Mock.Of<ILogger<HmrcApiRetryPolicies>>(),
-                _rateLimiterRepositoryMock.Object);
+                _rateLimiterRepositoryMock.Object,
+                _apiRetryOptionsMock.Object,
+                _apiRetryDelaySettings);
 
             _sut = new HmrcService(
                 new HmrcTokenStore(_tokenServiceMock.Object, retryPolicies, Mock.Of<ILogger<HmrcTokenStore>>()),
@@ -97,13 +115,15 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
         public async Task Then_The_TokenServiceApiClient_Call_Is_Retried_On_Error()
         {
             // Arrange
-            _tokenServiceMock.Setup(x => x.GetPrivilegedAccessTokenAsync()).ThrowsAsync(_fixture.Create<Exception>());
+            var httpException = new ApiHttpException((int)HttpStatusCode.InternalServerError, "error", "/get-token",
+                string.Empty, new Exception("failed"));
+            _tokenServiceMock.Setup(x => x.GetPrivilegedAccessTokenAsync()).ThrowsAsync(httpException);
 
             // Act
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly((_apiRetryOptions.TokenRetrievalRetryCount + 1) * _apiRetryOptions.TransientErrorRetryCount));
         }
 
         [Test]
@@ -196,7 +216,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_apiRetryOptions.TransientErrorRetryCount + 1));
         }
 
         [Test]
@@ -414,7 +434,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 _request.PayeScheme,
                 _request.Nino,
                 _request.MinDate,
-                _request.MaxDate), Times.Exactly(_settings.TooManyRequestsRetryCount + 1));
+                _request.MaxDate), Times.Exactly(_apiRetryOptions.TooManyRequestsRetryCount + 1));
         }
 
 
@@ -446,8 +466,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
                 .IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _rateLimiterRepositoryMock.Verify(x => x.GetHmrcRateLimiterOptions(), Times.Exactly(_settings.TooManyRequestsRetryCount + 2));
-            _rateLimiterRepositoryMock.Verify(x => x.IncreaseDelaySetting(It.IsAny<HmrcApiRateLimiterOptions>()), Times.Exactly(_settings.TooManyRequestsRetryCount));
+            _rateLimiterRepositoryMock.Verify(x => x.GetHmrcRateLimiterOptions(), Times.Exactly(_apiRetryOptions.TooManyRequestsRetryCount + 2));
+            _rateLimiterRepositoryMock.Verify(x => x.IncreaseDelaySetting(It.IsAny<HmrcApiRateLimiterOptions>()), Times.Exactly(_apiRetryOptions.TooManyRequestsRetryCount));
         }
 
         [TestCase((short)HttpStatusCode.Unauthorized, TestName = "Then_Unauthorized_response_is_saved_as_complete")]
@@ -667,13 +687,13 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_apiRetryOptions.TransientErrorRetryCount + 1));
             _apprenticeshipLevyServiceMock.Verify(x => x.GetEmploymentStatus(
                 _token.AccessCode,
                 _request.PayeScheme,
                 _request.Nino,
                 _request.MinDate,
-                _request.MaxDate), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+                _request.MaxDate), Times.Exactly(_apiRetryOptions.TransientErrorRetryCount + 1));
         }
 
         [Test]
@@ -700,7 +720,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
             await _sut.IsNationalInsuranceNumberRelatedToPayeScheme(_request);
 
             // Assert
-            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_settings.TransientErrorRetryCount + 1));
+            _tokenServiceMock.Verify(x => x.GetPrivilegedAccessTokenAsync(), Times.Exactly(_apiRetryOptions.TransientErrorRetryCount + 1));
         }
 
         [Test]
@@ -730,7 +750,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.HmrcServiceTest
 
             // Assert
             _rateLimiterRepositoryMock.Verify(r => r.IncreaseDelaySetting(It.IsAny<HmrcApiRateLimiterOptions>()),
-                Times.Exactly(_settings.TooManyRequestsRetryCount));
+                Times.Exactly(_apiRetryOptions.TooManyRequestsRetryCount));
         }
 
         [Test]

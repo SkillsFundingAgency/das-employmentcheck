@@ -6,7 +6,6 @@ using SFA.DAS.EmploymentCheck.Data.Repositories.Interfaces;
 using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 using System;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services
 {
@@ -22,9 +21,9 @@ namespace SFA.DAS.EmploymentCheck.Application.Services
             _optionsRepository = optionsRepository; 
         }
 
-        public async Task<AsyncPolicyWrap> GetAll(string rowKey)
+        public AsyncPolicyWrap GetAll()
         {
-            _settings = await _optionsRepository.GetOptions(rowKey);
+            _settings = _optionsRepository.GetOptions();
 
             var unauthorizedAccessExceptionRetryPolicy = Policy
                 .Handle<UnauthorizedAccessException>()

@@ -23,7 +23,9 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Application.Services.Learner;
+using SFA.DAS.EmploymentCheck.Data;
 using SFA.DAS.EmploymentCheck.Data.Models;
+using SFA.DAS.EmploymentCheck.Data.Repositories;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests
 {
@@ -102,12 +104,29 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                             a.DbConnectionString = testContext.SqlDatabase.DatabaseInfo.ConnectionString;
                         });
 
+                        s.Configure<HmrcApiRateLimiterOptions>(h =>
+                        {
+                            h.DelayAdjustmentIntervalInMs = 50;
+                            h.EmploymentCheckBatchSize = 3;
+                            h.MinimumIncreaseDelayIntervalInSeconds = 1;
+                            h.MinimumReduceDelayIntervalInMinutes = 5;
+                            h.TokenFailureRetryDelayInMs = 1000;
+                        });
+
+                        s.Configure<ApiRetryOptions>(a =>
+                        {
+                            a.TokenRetrievalRetryCount = 2;
+                            a.TooManyRequestsRetryCount = 10;
+                            a.TransientErrorRetryCount = 3;
+                            a.TransientErrorDelayInMs = 10000;
+                        });
+
                         s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
                         s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);                        
-                        s.AddSingleton(typeof(IHmrcApiOptionsRepository), CreateHmrcApiOptionsRepository().Object);
-                        s.AddSingleton(typeof(IApiOptionsRepository), CreateApiOptionsRepository().Object);
+                        s.AddSingleton<IHmrcApiOptionsRepository, HmrcApiOptionsRepository>();
+                        s.AddSingleton<IApiOptionsRepository, ApiOptionsRepository>();
                         s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
                         s.AddSingleton(commandMessageHook);
                     })
@@ -150,29 +169,29 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
             return mock;
         }
 
-        private static Mock<IHmrcApiOptionsRepository> CreateHmrcApiOptionsRepository()
-        {
-            var mock = new Mock<IHmrcApiOptionsRepository>();
-            mock.Setup(_ => _.GetHmrcRateLimiterOptions())
-                .ReturnsAsync(new HmrcApiRateLimiterOptions
-                {
-                    DelayInMs = 0,
-                    TokenFailureRetryDelayInMs = 0,
-                    TransientErrorDelayInMs = 0
-                });
-            return mock;
-        }
+        //private static Mock<IHmrcApiOptionsRepository> CreateHmrcApiOptionsRepository()
+        //{
+        //    var repo = new HmrcApiOptionsRepository(new ApiRetryDelaySettings(), )
 
-        private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
-        {
-            var mock = new Mock<IApiOptionsRepository>();
-            mock.Setup(_ => _.GetOptions(It.IsAny<string>()))
-                .ReturnsAsync(new ApiRetryOptions
-                {
-                    TransientErrorDelayInMs = 0
-                });
-            return mock;
-        }
+        //    var mock = new Mock<IHmrcApiOptionsRepository>();
+        //    mock.Setup(_ => _.GetHmrcRateLimiterOptions())
+        //        .ReturnsAsync(new HmrcApiRateLimiterOptions
+        //        {
+        //            TokenFailureRetryDelayInMs = 0
+        //        });
+        //    return mock;
+        //}
+
+        //private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
+        //{
+        //    var mock = new Mock<IApiOptionsRepository>();
+        //    mock.Setup(_ => _.GetOptions())
+        //        .ReturnsAsync(new ApiRetryOptions
+        //        {
+        //            TransientErrorDelayInMs = 0
+        //        });
+        //    return mock;
+        //}
 
         public async Task ExecuteCreateEmploymentCheckCacheRequestsOrchestrator()
         {

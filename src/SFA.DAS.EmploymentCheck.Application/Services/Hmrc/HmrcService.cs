@@ -51,7 +51,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
                 await _employmentCheckService.StoreCompletedCheck(request, response);
 
-                await _retryPolicies.ReduceRetryDelay();
+                _retryPolicies.ReduceRetryDelay();
 
                 return request;
             }
@@ -85,7 +85,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 
         private async Task<EmploymentStatus> GetEmploymentStatusWithRetries(EmploymentCheckCacheRequest request)
         {
-            var policyWrap = await _retryPolicies.GetAll(() => _hmrcTokenStore.GetTokenAsync(true));
+            var policyWrap = _retryPolicies.GetAll(() => _hmrcTokenStore.GetTokenAsync(true));
 
             var result = await policyWrap.ExecuteAsync(() => GetEmploymentStatus(request));
 
@@ -97,9 +97,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 		     _logger.LogInformation($"{nameof(HmrcService)}: Calling Hmrc Api to get employment status for CorrelationId: {request.CorrelationId} EmploymentCheckRequestId: {request.Id}");
 
             var accessCode = await _hmrcTokenStore.GetTokenAsync();
-
-            await _retryPolicies.DelayApiExecutionByRetryPolicy();
-
+            
             var employmentStatus = await _apprenticeshipLevyService.GetEmploymentStatus(
                 accessCode,
                 request.PayeScheme,

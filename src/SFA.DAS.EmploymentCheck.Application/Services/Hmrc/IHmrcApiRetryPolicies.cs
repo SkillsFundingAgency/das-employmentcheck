@@ -7,8 +7,8 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.Hmrc
 {
     public interface IHmrcApiRetryPolicies
     {
-        Task<AsyncPolicyWrap> GetAll(Func<Task> onRetry);
-        Task ReduceRetryDelay();
+        AsyncPolicyWrap GetAll(Func<Task> onRetry);
+        void ReduceRetryDelay();
         Task<AsyncPolicy> GetTokenRetrievalRetryPolicy();
         Task DelayApiExecutionByRetryPolicy();
     }
