@@ -168,31 +168,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 });
             return mock;
         }
-
-        //private static Mock<IHmrcApiOptionsRepository> CreateHmrcApiOptionsRepository()
-        //{
-        //    var repo = new HmrcApiOptionsRepository(new ApiRetryDelaySettings(), )
-
-        //    var mock = new Mock<IHmrcApiOptionsRepository>();
-        //    mock.Setup(_ => _.GetHmrcRateLimiterOptions())
-        //        .ReturnsAsync(new HmrcApiRateLimiterOptions
-        //        {
-        //            TokenFailureRetryDelayInMs = 0
-        //        });
-        //    return mock;
-        //}
-
-        //private static Mock<IApiOptionsRepository> CreateApiOptionsRepository()
-        //{
-        //    var mock = new Mock<IApiOptionsRepository>();
-        //    mock.Setup(_ => _.GetOptions())
-        //        .ReturnsAsync(new ApiRetryOptions
-        //        {
-        //            TransientErrorDelayInMs = 0
-        //        });
-        //    return mock;
-        //}
-
+        
         public async Task ExecuteCreateEmploymentCheckCacheRequestsOrchestrator()
         {
             var response = await Start(
