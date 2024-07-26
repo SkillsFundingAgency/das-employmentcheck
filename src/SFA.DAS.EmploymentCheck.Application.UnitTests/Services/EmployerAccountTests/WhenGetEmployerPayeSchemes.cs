@@ -16,7 +16,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccountTests
 {
@@ -26,9 +25,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
         private Fixture _fixture;
         private Mock<IAccountsResponseRepository> _repositoryMock;
         private Mock<IEmployerAccountApiClient<EmployerAccountApiConfiguration>> _apiClientMock;
-        private Mock<IEncodingService> _encodingServiceMock;
         private Data.Models.EmploymentCheck _employmentCheck;
-        private string _hashedAccountId;
         private Mock<IApiOptionsRepository> _apiOptionsRepositoryMock;
         private ApiRetryOptions _settings;
 
@@ -40,10 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             _apiClientMock = new Mock<IEmployerAccountApiClient<EmployerAccountApiConfiguration>>();
             _repositoryMock = new Mock<IAccountsResponseRepository>();
-            _encodingServiceMock = new Mock<IEncodingService>();
-            _hashedAccountId = _fixture.Create<string>();
-            _encodingServiceMock.Setup(_ => _.Encode(_employmentCheck.AccountId, EncodingType.AccountId)).Returns(_hashedAccountId);
-
+            
             _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
             _settings = new ApiRetryOptions
@@ -60,7 +54,6 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                 _apiOptionsRepositoryMock.Object);
 
             _sut = new EmployerAccountService(
-                _encodingServiceMock.Object,
                 _repositoryMock.Object,
                 _apiClientMock.Object,
                 retryPolicies
@@ -75,7 +68,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             // Assert
             _apiClientMock.Verify(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.Is<GetAccountPayeSchemesRequest>(r =>
-                r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")));
+                r.GetUrl == $"api/accounts/{_employmentCheck.AccountId}/payeschemes")));
         }
 
         [Test]
@@ -94,7 +87,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             };
 
             _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.Is<GetAccountPayeSchemesRequest>(
-                    r => r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")))
+                    r => r.GetUrl == $"api/accounts/{_employmentCheck.AccountId}/payeschemes")))
                 .ReturnsAsync(httpResponse);
 
             // Act
@@ -130,7 +123,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             };
 
             _apiClientMock.Setup(_ => _.GetWithPolicy(It.IsAny<AsyncPolicyWrap>(), It.Is<GetAccountPayeSchemesRequest>(
-                    r => r.GetUrl == $"api/accounts/{_hashedAccountId}/payeschemes")))
+                    r => r.GetUrl == $"api/accounts/{_employmentCheck.AccountId}/payeschemes")))
                 .ReturnsAsync(httpResponse);
 
             // Act
