@@ -15,8 +15,6 @@ using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry;
-using SFA.DAS.Encoding;
-using Newtonsoft.Json;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -105,22 +103,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
             var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-
-            if (!config["EnvironmentName"]
-                    .Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var encodingConfigJson = config.GetSection(EncodingConfigKey).Value;
-                var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
-                builder.Services.AddSingleton(encodingConfig);
-            }
-            else
-            {
-                var encodingConfigJson = File.ReadAllText(Directory.GetCurrentDirectory() + "\\local.encoding.json");
-                var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
-                builder.Services.AddSingleton(encodingConfig);
-            }
-            builder.Services.AddSingleton<IEncodingService, EncodingService>();
-
+            
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
