@@ -8,6 +8,7 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.7" />
 	  <PackageReference Include="Scrutor" Version="4.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.2" />
 	  <PackageReference Include="System.Text.Encodings.Web" Version="4.7.2" />
 	  <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
