@@ -22,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
     [ExcludeFromCodeCoverage]
     public class Startup : FunctionsStartup
     {
-        private const string EncodingConfigKey = "SFA.DAS.Encoding";
+        private const string EnvironmentName = "EnvironmentName";
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
@@ -31,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var applicationDirectory = localRoot ?? azureRoot;
         
             builder.Services
-                .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable("EnvironmentName"))
+                .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable(EnvironmentName))
                 .AddOptions()
                 .AddMemoryCache()
                 ;
@@ -45,15 +45,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration["EnvironmentName"]))
+            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration[EnvironmentName]))
             {
                 configBuilder.AddAzureTableStorage(options =>
                 {
                     options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
                     options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-                    options.EnvironmentName = configuration["EnvironmentName"];
+                    options.EnvironmentName = configuration[EnvironmentName];
                     options.PreFixConfigurationKeys = false;
-                    options.ConfigurationKeysRawJsonResult = new[] { EncodingConfigKey };
                 });
             }
 
@@ -108,7 +107,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .AddCommandServices()
                 .AddQueryServices()
                 .AddApprenticeshipLevyApiClient()
-                .AddEmploymentCheckService(config["EnvironmentName"])
+                .AddEmploymentCheckService(config[EnvironmentName])
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()
                 .AddNServiceBus(applicationSettings)
