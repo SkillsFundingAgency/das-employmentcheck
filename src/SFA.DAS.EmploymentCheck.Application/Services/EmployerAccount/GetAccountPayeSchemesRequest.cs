@@ -4,13 +4,13 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
     public class GetAccountPayeSchemesRequest : IGetApiRequest
     {
-        private readonly string _hashedAccountId;
+        private readonly long _accountId;
 
-        public GetAccountPayeSchemesRequest(string hashedAccountId)
+        public GetAccountPayeSchemesRequest(long accountId)
         {
-            _hashedAccountId = hashedAccountId;
+            _accountId = accountId;
         }
 
-        public string GetUrl => $"api/accounts/{_hashedAccountId}/payeschemes";
+        public string GetUrl => $"api/accounts/{_accountId}/payeschemes";
     }
 }

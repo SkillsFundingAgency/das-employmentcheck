@@ -15,8 +15,6 @@ using SFA.DAS.EmploymentCheck.Queries;
 using SFA.DAS.EmploymentCheck.TokenServiceStub.Configuration;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Telemetry;
-using SFA.DAS.Encoding;
-using Newtonsoft.Json;
 
 [assembly: FunctionsStartup(typeof(SFA.DAS.EmploymentCheck.Functions.Startup))]
 namespace SFA.DAS.EmploymentCheck.Functions
@@ -24,7 +22,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
     [ExcludeFromCodeCoverage]
     public class Startup : FunctionsStartup
     {
-        private const string EncodingConfigKey = "SFA.DAS.Encoding";
+        private const string EnvironmentName = "EnvironmentName";
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
@@ -33,7 +31,7 @@ namespace SFA.DAS.EmploymentCheck.Functions
             var applicationDirectory = localRoot ?? azureRoot;
         
             builder.Services
-                .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable("EnvironmentName"))
+                .AddNLog(applicationDirectory, Environment.GetEnvironmentVariable(EnvironmentName))
                 .AddOptions()
                 .AddMemoryCache()
                 ;
@@ -47,15 +45,14 @@ namespace SFA.DAS.EmploymentCheck.Functions
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration["EnvironmentName"]))
+            if (ServiceCollectionExtensions.NotDevelopmentOrAcceptanceTests(configuration[EnvironmentName]))
             {
                 configBuilder.AddAzureTableStorage(options =>
                 {
                     options.ConfigurationKeys = configuration["ConfigNames"].Split(",");
                     options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-                    options.EnvironmentName = configuration["EnvironmentName"];
+                    options.EnvironmentName = configuration[EnvironmentName];
                     options.PreFixConfigurationKeys = false;
-                    options.ConfigurationKeysRawJsonResult = new[] { EncodingConfigKey };
                 });
             }
 
@@ -105,27 +102,12 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             var logger = serviceProvider.GetService<ILoggerProvider>().CreateLogger(GetType().AssemblyQualifiedName);
             var applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-
-            if (!config["EnvironmentName"]
-                    .Equals("LOCAL_ACCEPTANCE_TESTS", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var encodingConfigJson = config.GetSection(EncodingConfigKey).Value;
-                var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
-                builder.Services.AddSingleton(encodingConfig);
-            }
-            else
-            {
-                var encodingConfigJson = File.ReadAllText(Directory.GetCurrentDirectory() + "\\local.encoding.json");
-                var encodingConfig = JsonConvert.DeserializeObject<EncodingConfig>(encodingConfigJson);
-                builder.Services.AddSingleton(encodingConfig);
-            }
-            builder.Services.AddSingleton<IEncodingService, EncodingService>();
-
+            
             builder.Services
                 .AddCommandServices()
                 .AddQueryServices()
                 .AddApprenticeshipLevyApiClient()
-                .AddEmploymentCheckService(config["EnvironmentName"])
+                .AddEmploymentCheckService(config[EnvironmentName])
                 .AddPersistenceServices()
                 .AddNServiceBusClientUnitOfWork()
                 .AddNServiceBus(applicationSettings)

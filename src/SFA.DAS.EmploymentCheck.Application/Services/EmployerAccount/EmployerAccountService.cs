@@ -9,25 +9,21 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 {
     public class EmployerAccountService : IEmployerAccountService
     {
-        private readonly IEncodingService _encodingService;
         private readonly IAccountsResponseRepository _repository;
         private readonly IEmployerAccountApiClient<EmployerAccountApiConfiguration> _apiClient;
         private readonly IApiRetryPolicies _apiRetryPolicies;
 
         public EmployerAccountService(
-            IEncodingService encodingService,
             IAccountsResponseRepository repository,
             IEmployerAccountApiClient<EmployerAccountApiConfiguration> apiClient,
             IApiRetryPolicies apiRetryPolicies
         )
         {
-            _encodingService = encodingService;
             _repository = repository;
             _apiClient = apiClient;
             _apiRetryPolicies = apiRetryPolicies;
@@ -39,9 +35,7 @@ namespace SFA.DAS.EmploymentCheck.Application.Services.EmployerAccount
 
             try
             {
-                
-                var hashedAccountId = _encodingService.Encode(employmentCheck.AccountId, EncodingType.AccountId);
-                var request = new GetAccountPayeSchemesRequest(hashedAccountId);
+                var request = new GetAccountPayeSchemesRequest(employmentCheck.AccountId);
 
                 var policy = _apiRetryPolicies.GetAll();
                 response = await _apiClient.GetWithPolicy(policy, request);

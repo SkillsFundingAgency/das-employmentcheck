@@ -6,7 +6,6 @@ using SFA.DAS.EmploymentCheck.Data.Models;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Orchestrators;
 using SFA.DAS.EmploymentCheck.Functions.TestHelpers.AzureDurableFunctions;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using SFA.DAS.EmploymentCheck.Functions.AzureFunctions.Triggers;
@@ -17,7 +16,6 @@ using WireMock.ResponseBuilders;
 using System;
 using SFA.DAS.EmploymentCheck.Domain.Enums;
 using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 {
@@ -92,7 +90,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests.Steps
 
             _accountsApiResponse = new ResourceList(_context.Fixture.CreateMany<ResourceViewModel>(1));
 
-            var url = $"/api/accounts/{_context.EncodingService.Encode(_check.AccountId, EncodingType.AccountId)}/payeschemes";
+            var url = $"/api/accounts/{_check.AccountId}/payeschemes";
 
             _context.EmployerAccountsApi.MockServer
                 .Given(
