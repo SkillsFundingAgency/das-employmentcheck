@@ -1,8 +1,8 @@
-parameters:  
+parameters:
   Environment:
   ServiceConnection:
   OverrideBlockOnPossibleDataLoss: false
-  AppRoleAssignmentsServiceConnection: 
+  AppRoleAssignmentsServiceConnection:
 
 jobs:
 - deployment: DeployInfrastructure
@@ -62,7 +62,6 @@ jobs:
             AzureSubscription: ${{ parameters.ServiceConnection }}
             ServerName: $(SharedSQLServerFQDN)
             SqlUsername: $(SharedSQLServerUsername)
-            SqlPassword: $(SharedSQLServerPassword)
             DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/SFA.DAS.EmploymentCheck.Database/bin/Output/SFA.DAS.EmploymentCheck.Database.dacpac
             DatabaseName: $(DatabaseName)
             OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
