@@ -404,7 +404,7 @@
                         "value": "[variables('apiAppServiceName')]"
                     },
                     "scopedResourceId": {
-                        "value": "[reference(api-application-insights).outputs.AppInsightsResourceId.value]"
+                        "value": "[reference('api-application-insights').outputs.AppInsightsResourceId.value]"
                     }
                 }
             }
