@@ -64,10 +64,19 @@ namespace SFA.DAS.EmploymentCheck.Api
             var envName = Configuration["EnvironmentName"] ?? string.Empty;
             if (!envName.Equals("LOCAL", StringComparison.OrdinalIgnoreCase))
             {
-                var tenant = Configuration["AzureAd:Tenant"] ?? string.Empty;
-                var tenantId = Configuration["AzureAd:TenantId"] ?? tenant;
-                var identifierUri = Configuration["AzureAd:Identifier"];
-                var clientId = Configuration["AzureAd:ClientId"];
+                var tenant = Configuration["AzureAd:Tenant"]
+                          ?? Configuration["AzureActiveDirectory:Tenant"]
+                          ?? string.Empty;
+
+                var tenantId = Configuration["AzureAd:TenantId"]
+                            ?? Configuration["AzureActiveDirectory:TenantId"]
+                            ?? tenant;
+
+                var identifierUri = Configuration["AzureAd:Identifier"]
+                                 ?? Configuration["AzureActiveDirectory:Identifier"];
+
+                var clientId = Configuration["AzureAd:ClientId"]
+                            ?? Configuration["AzureActiveDirectory:ClientId"];
 
                 services.AddAuthentication(options =>
                 {
@@ -122,14 +131,12 @@ namespace SFA.DAS.EmploymentCheck.Api
             services
                 .AddRepositories()
                 .AddServices()
-                .AddHandlers()
-                ;
+                .AddHandlers();
 
             services.AddApiVersioning(opt =>
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
-
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
