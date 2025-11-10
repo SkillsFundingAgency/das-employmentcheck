@@ -64,19 +64,10 @@ namespace SFA.DAS.EmploymentCheck.Api
             var envName = Configuration["EnvironmentName"] ?? string.Empty;
             if (!envName.Equals("LOCAL", StringComparison.OrdinalIgnoreCase))
             {
-                var tenant = Configuration["AzureAd:Tenant"]
-                          ?? Configuration["AzureActiveDirectory:Tenant"]
-                          ?? string.Empty;
-
-                var tenantId = Configuration["AzureAd:TenantId"]
-                            ?? Configuration["AzureActiveDirectory:TenantId"]
-                            ?? tenant;
-
-                var identifierUri = Configuration["AzureAd:Identifier"]
-                                 ?? Configuration["AzureActiveDirectory:Identifier"];
-
-                var clientId = Configuration["AzureAd:ClientId"]
-                            ?? Configuration["AzureActiveDirectory:ClientId"];
+                var tenant = Configuration["AzureAd:Tenant"] ?? string.Empty;
+                var tenantId = Configuration["AzureAd:TenantId"] ?? tenant;
+                var identifierUri = Configuration["AzureAd:Identifier"];
+                var clientId = Configuration["AzureAd:ClientId"];
 
                 services.AddAuthentication(options =>
                 {
@@ -87,26 +78,9 @@ namespace SFA.DAS.EmploymentCheck.Api
                 {
                     options.Authority = $"https://login.microsoftonline.com/{tenant}/v2.0";
 
-                    var audiences = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                    if (!string.IsNullOrWhiteSpace(identifierUri))
-                    {
-                        audiences.Add(identifierUri);
-                        if (!identifierUri.EndsWith("-ar", StringComparison.OrdinalIgnoreCase))
-                        {
-                            audiences.Add($"{identifierUri}-ar");
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(clientId))
-                    {
-                        audiences.Add($"api://{clientId}");
-                    }
-
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateAudience = true,
-                        ValidAudiences = audiences,
+                        ValidateAudience = false,
                         ValidateIssuer = true,
                         ValidIssuers = new[]
                         {
@@ -137,6 +111,7 @@ namespace SFA.DAS.EmploymentCheck.Api
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
