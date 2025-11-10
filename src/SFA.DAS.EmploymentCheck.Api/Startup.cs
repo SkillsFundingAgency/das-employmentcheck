@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -17,6 +18,7 @@ using SFA.DAS.EmploymentCheck.Api.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -65,31 +67,62 @@ namespace SFA.DAS.EmploymentCheck.Api
             if (!envName.Equals("LOCAL", StringComparison.OrdinalIgnoreCase))
             {
                 var tenant = Configuration["AzureAd:Tenant"] ?? string.Empty;
-                var tenantId = Configuration["AzureAd:TenantId"] ?? tenant;
-                var identifierUri = Configuration["AzureAd:Identifier"];
-                var clientId = Configuration["AzureAd:ClientId"];
+                var identifierCsv = Configuration["AzureAd:Identifier"]; // matches old package’s config shape
 
-                services.AddAuthentication(options =>
+                // --- Build audiences exactly like the old package ---
+                // Supports comma-separated identifiers and auto-adds "-ar" variant.
+                var audiences = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (!string.IsNullOrWhiteSpace(identifierCsv))
                 {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = $"https://login.microsoftonline.com/{tenant}/v2.0";
-
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    foreach (var raw in identifierCsv.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()))
                     {
-                        ValidateAudience = false,
-                        ValidateIssuer = true,
-                        ValidIssuers = new[]
+                        audiences.Add(raw);
+                        if (!raw.EndsWith("-ar", StringComparison.OrdinalIgnoreCase))
                         {
-                            $"https://login.microsoftonline.com/{tenant}/v2.0",
-                            $"https://login.microsoftonline.com/{tenant}/",
-                            $"https://sts.windows.net/{tenantId}/"
+                            audiences.Add($"{raw}-ar");
                         }
-                    };
-                });
+                    }
+                }
+
+                services
+                    .AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(options =>
+                    {
+                        // --- Match old package: NO /v2.0 suffix ---
+                        options.Authority = $"https://login.microsoftonline.com/{tenant}/";
+
+                        // --- Match old package: only set ValidAudiences; DO NOT pin ValidIssuers ---
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateAudience = true,
+                            ValidAudiences = audiences,
+                            // Let JwtBearer infer/validate issuer from Authority like before:
+                            // Do NOT set ValidIssuer/ValidIssuers here.
+                            ValidateIssuer = true
+                        };
+
+                        // Helpful diagnostics if validation still fails
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnAuthenticationFailed = ctx =>
+                            {
+                                // Write detailed reason to logs (won’t leak to caller)
+                                var logger = ctx.HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<Startup>>();
+                                logger?.LogError(ctx.Exception, "JWT auth failed: {Message}", ctx.Exception.Message);
+                                return System.Threading.Tasks.Task.CompletedTask;
+                            },
+                            OnChallenge = ctx =>
+                            {
+                                var logger = ctx.HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<Startup>>();
+                                logger?.LogWarning("JWT auth challenge: error={Error}, desc={Desc}", ctx.Error, ctx.ErrorDescription);
+                                return System.Threading.Tasks.Task.CompletedTask;
+                            }
+                        };
+                    });
 
                 services.AddAuthorization(o =>
                 {
@@ -111,7 +144,6 @@ namespace SFA.DAS.EmploymentCheck.Api
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
-
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
