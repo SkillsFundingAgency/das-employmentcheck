@@ -17,8 +17,6 @@ using SFA.DAS.EmploymentCheck.Api.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -67,6 +65,7 @@ namespace SFA.DAS.EmploymentCheck.Api
             if (!envName.Equals("LOCAL", StringComparison.OrdinalIgnoreCase))
             {
                 var tenant = Configuration["AzureAd:Tenant"] ?? string.Empty;
+                var tenantId = Configuration["AzureAd:TenantId"] ?? tenant;
                 var identifierUri = Configuration["AzureAd:Identifier"];
                 var clientId = Configuration["AzureAd:ClientId"];
 
@@ -84,9 +83,7 @@ namespace SFA.DAS.EmploymentCheck.Api
                     if (!string.IsNullOrWhiteSpace(identifierUri))
                     {
                         audiences.Add(identifierUri);
-
-                        if (identifierUri.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-                            && !identifierUri.EndsWith("-ar", StringComparison.OrdinalIgnoreCase))
+                        if (!identifierUri.EndsWith("-ar", StringComparison.OrdinalIgnoreCase))
                         {
                             audiences.Add($"{identifierUri}-ar");
                         }
@@ -100,7 +97,14 @@ namespace SFA.DAS.EmploymentCheck.Api
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateAudience = true,
-                        ValidAudiences = audiences
+                        ValidAudiences = audiences,
+                        ValidateIssuer = true,
+                        ValidIssuers = new[]
+                        {
+                            $"https://login.microsoftonline.com/{tenant}/v2.0",
+                            $"https://login.microsoftonline.com/{tenant}/",
+                            $"https://sts.windows.net/{tenantId}/"
+                        }
                     };
                 });
 
@@ -125,7 +129,7 @@ namespace SFA.DAS.EmploymentCheck.Api
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
-            
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
