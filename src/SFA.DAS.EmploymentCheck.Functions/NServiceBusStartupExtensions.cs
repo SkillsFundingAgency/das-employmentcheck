@@ -50,7 +50,13 @@ namespace SFA.DAS.EmploymentCheck.Functions
 
             var conventions = endpointConfiguration.Conventions();
             conventions.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith(".Commands"));
-            conventions.DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith(".Events"));
+            conventions.DefiningEventsAs(t =>
+                t.Namespace is not null &&
+                t.Name.EndsWith("Event", StringComparison.Ordinal) &&
+                (
+                    t.Namespace.EndsWith(".Events", StringComparison.Ordinal) ||
+                    t.Namespace.EndsWith(".Types", StringComparison.Ordinal)
+                ));
             conventions.DefiningMessagesAs(t => t.Namespace != null && t.Namespace.EndsWith(".Messages"));
 
             endpointConfiguration.EnableInstallers();
