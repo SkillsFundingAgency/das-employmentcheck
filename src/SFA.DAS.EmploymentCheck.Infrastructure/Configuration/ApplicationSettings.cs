@@ -5,5 +5,7 @@
         public string DbConnectionString { get; set; }
         public string NServiceBusConnectionString { get; set; }
         public string NServiceBusLicense { get; set; }
+        public string NServiceBusFullyQualifiedNamespace { get; set; }
+        public bool UseNServiceBusConnectionString { get; set; } = false;
     }
 }

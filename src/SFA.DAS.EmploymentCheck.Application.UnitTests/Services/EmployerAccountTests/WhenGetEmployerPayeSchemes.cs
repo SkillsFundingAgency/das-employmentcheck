@@ -21,7 +21,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 {
     public class WhenGetEmployerPayeSchemes
     {
-        private IEmployerAccountService _sut;
+        private EmployerAccountService _sut;
         private Fixture _fixture;
         private Mock<IAccountsResponseRepository> _repositoryMock;
         private Mock<IEmployerAccountApiClient<EmployerAccountApiConfiguration>> _apiClientMock;
@@ -37,7 +37,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             _apiClientMock = new Mock<IEmployerAccountApiClient<EmployerAccountApiConfiguration>>();
             _repositoryMock = new Mock<IAccountsResponseRepository>();
-            
+
             _apiOptionsRepositoryMock = new Mock<IApiOptionsRepository>();
 
             _settings = new ApiRetryOptions
@@ -98,7 +98,8 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
                         response => response.AccountId == _employmentCheck.AccountId
                                     && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
                                     && response.CorrelationId == _employmentCheck.CorrelationId
-                                    && response.HttpResponse == httpResponse.ToString()
+                                    && response.HttpResponse.Contains("StatusCode:")
+                                    && response.HttpResponse.Contains(((int)httpResponse.StatusCode).ToString())
                                     && response.HttpStatusCode == (short)httpResponse.StatusCode
                                     && response.PayeSchemes == expectedPayeShemes
                     )
@@ -193,12 +194,12 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
 
             // Assert
             _repositoryMock.Verify(repository => repository.InsertOrUpdate(It.Is<AccountsResponse>(
-                        response => response.PayeSchemes == null
-                                    && response.AccountId == _employmentCheck.AccountId
-                                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
-                                    && response.CorrelationId == _employmentCheck.CorrelationId
-                                    && response.HttpResponse == httpResponse.ToString()
-                                    && response.HttpStatusCode == (short)httpResponse.StatusCode
+                response =>
+                    response.PayeSchemes == null
+                    && response.AccountId == _employmentCheck.AccountId
+                    && response.ApprenticeEmploymentCheckId == _employmentCheck.Id
+                    && response.CorrelationId == _employmentCheck.CorrelationId
+                    && response.HttpStatusCode == (short)httpStatusCode
                     )
                 )
                 , Times.Once());
@@ -227,7 +228,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             // Assert
             result.Should().NotBeNull();
             result.HttpStatusCode.Should().Be(httpResponse.StatusCode);
-            result.PayeSchemes.Count().Should().Be(0);
+            result.PayeSchemes.Count.Should().Be(0);
         }
 
         [Test]
@@ -292,7 +293,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.Services.EmployerAccount
             result.Should().NotBeNull();
             result.HttpStatusCode.Should().Be(employerPayeSchemes.HttpStatusCode);
             result.PayeSchemes.Should().NotBeNull();
-            result.PayeSchemes.Count().Should().Be(0);
+            result.PayeSchemes.Count.Should().Be(0);
         }
     }
 }

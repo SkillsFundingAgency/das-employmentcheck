@@ -55,7 +55,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 { "ApplicationSettings:UseLearningEndpointStorageDirectory", Path.Combine(testContext.TestDirectory.FullName, ".learningtransport") },
                 { "ApplicationSettings:DbConnectionString", testContext.SqlDatabase.DatabaseInfo.ConnectionString },
                 { "ApplicationSettings:NServiceBusEndpointName", testContext.InstanceId },
-                { "AzureWebJobsScriptRoot", testContext.TestDirectory.FullName } 
+                { "AzureWebJobsScriptRoot", testContext.TestDirectory.FullName }
             };
 
             _host = new HostBuilder()
@@ -74,8 +74,6 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         options.ExtendedSessionsEnabled = false;
                         options.StorageProvider["maxQueuePollingInterval"] = new TimeSpan(0, 0, 0, 0, 500);
                         options.StorageProvider["partitionCount"] = 1;
-                        options.NotificationUrl = new Uri("localhost:7071");
-
                     })
                     .AddAzureStorageCoreServices()
                     .ConfigureServices(s =>
@@ -124,7 +122,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                         s.AddSingleton(typeof(IDcTokenService), CreateDcTokenServiceMock().Object);
                         s.AddSingleton(typeof(IOrchestrationData), _orchestrationData);
                         s.AddSingleton(typeof(ITokenServiceApiClient), CreateHmrcApiTokenServiceMock().Object);
-                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);                        
+                        s.AddSingleton(typeof(IWebHostEnvironment), CreateWebHostEnvironmentMock().Object);
                         s.AddSingleton<IHmrcApiOptionsRepository, HmrcApiOptionsRepository>();
                         s.AddSingleton<IApiOptionsRepository, ApiOptionsRepository>();
                         s.Decorate<IEventPublisher>((handler, sp) => new TestEventPublisher(handler, eventMessageHook));
@@ -168,7 +166,7 @@ namespace SFA.DAS.EmploymentCheck.AcceptanceTests
                 });
             return mock;
         }
-        
+
         public async Task ExecuteCreateEmploymentCheckCacheRequestsOrchestrator()
         {
             var response = await Start(

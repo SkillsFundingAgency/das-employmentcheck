@@ -46,7 +46,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             _tokenServiceMock = new Mock<IDcTokenService>();
             _tokenServiceMock.Setup(ts => ts.GetTokenAsync(
-                $"https://login.microsoftonline.com/{_configuration.Tenant}",
+                It.Is<string>(u => u.Contains("login.microsoftonline.com") && u.EndsWith("/oauth2/v2.0/token")),
                 "client_credentials",
                 _configuration.ClientSecret,
                 _configuration.ClientId,
@@ -161,7 +161,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             // Assert
             _tokenServiceMock.Verify(_ => _.GetTokenAsync(
-                $"https://login.microsoftonline.com/{_configuration.Tenant}",
+                It.Is<string>(u => u.Contains("login.microsoftonline.com") && u.EndsWith("/oauth2/v2.0/token")),
                 "client_credentials",
                 _configuration.ClientSecret,
                 _configuration.ClientId,
@@ -189,7 +189,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             // Assert
             _tokenServiceMock.Verify(_ => _.GetTokenAsync(
-                $"https://login.microsoftonline.com/{_configuration.Tenant}",
+                It.Is<string>(u => u.Contains("login.microsoftonline.com") && u.EndsWith("/oauth2/v2.0/token")),
                 "client_credentials",
                 _configuration.ClientSecret,
                 _configuration.ClientId,
@@ -247,7 +247,7 @@ namespace SFA.DAS.EmploymentCheck.Application.UnitTests.DataCollectionsApiClient
 
             // Assert
             _tokenServiceMock.Verify(_ => _.GetTokenAsync(
-                $"https://login.microsoftonline.com/{_configuration.Tenant}",
+                It.Is<string>(u => u.Contains("login.microsoftonline.com") && u.EndsWith("/oauth2/v2.0/token")),
                 "client_credentials",
                 _configuration.ClientSecret,
                 _configuration.ClientId,

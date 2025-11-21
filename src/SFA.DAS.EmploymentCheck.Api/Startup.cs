@@ -1,118 +1,158 @@
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SFA.DAS.Api.Common.AppStart;
-using SFA.DAS.Api.Common.Configuration;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using PolicyNames = SFA.DAS.Api.Common.Infrastructure.PolicyNames;
+using System.Linq;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
-    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-
-            var configBuilder = new ConfigurationBuilder()
-                .AddConfiguration(Configuration)
+            var builder = new ConfigurationBuilder()
+                .AddConfiguration(configuration)
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables();
 
-            configBuilder.AddJsonFile("appsettings.Development.json", optional: true);
+            builder.AddJsonFile("appsettings.Development.json", optional: true);
 
-            configBuilder.AddAzureTableStorage(options =>
+            builder.AddAzureTableStorage(options =>
             {
-                options.ConfigurationKeys = Configuration["ConfigNames"].Split(",");
-                options.StorageConnectionString = Configuration["ConfigurationStorageConnectionString"];
-                options.EnvironmentName = Configuration["EnvironmentName"];
+                options.ConfigurationKeys = configuration["ConfigNames"]?.Split(",") ?? Array.Empty<string>();
+                options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+                options.EnvironmentName = configuration["EnvironmentName"];
                 options.PreFixConfigurationKeys = false;
             });
 
-            Configuration = configBuilder.Build();
+            Configuration = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddApplicationInsightsTelemetry();
             services.AddHealthChecks();
-            services.AddNLogForApi();            
+            services.AddNLogForApi();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0"});
-                c.OperationFilter<AddVersionHeaderParameter>();
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SFA.DAS.EmploymentCheck.Api", Version = "v1.0" });
+                c.CustomSchemaIds(type => type.FullName);
             });
-       
+
             services.Replace(ServiceDescriptor.Singleton(typeof(IConfiguration), Configuration));
 
             services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
 
-            if (!Configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) &&
-                !Configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
+            var envName = Configuration["EnvironmentName"] ?? string.Empty;
+            if (!envName.Equals("LOCAL", StringComparison.OrdinalIgnoreCase))
             {
-                services.AddSingleton(new AzureServiceTokenProvider());
+                var tenant = Configuration["AzureAd:Tenant"] ?? string.Empty;
+                var identifierCsv = Configuration["AzureAd:Identifier"]; // matches old package’s config shape
 
-                var azureAdConfiguration = Configuration
-                    .GetSection("AzureAd")
-                    .Get<AzureActiveDirectoryConfiguration>();
-                
-                var policies = new Dictionary<string, string>
+                // --- Build audiences exactly like the old package ---
+                // Supports comma-separated identifiers and auto-adds "-ar" variant.
+                var audiences = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (!string.IsNullOrWhiteSpace(identifierCsv))
                 {
-                    { "default", PolicyNames.Default }
-                };
-
-                services.AddAuthentication(azureAdConfiguration, policies);
+                    foreach (var raw in identifierCsv.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()))
+                    {
+                        audiences.Add(raw);
+                        if (!raw.EndsWith("-ar", StringComparison.OrdinalIgnoreCase))
+                        {
+                            audiences.Add($"{raw}-ar");
+                        }
+                    }
+                }
 
                 services
-                    .AddMvc(o => { o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>())); })
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                    .AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(options =>
+                    {
+                        // --- Match old package: NO /v2.0 suffix ---
+                        options.Authority = $"https://login.microsoftonline.com/{tenant}/";
+
+                        // --- Match old package: only set ValidAudiences; DO NOT pin ValidIssuers ---
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateAudience = true,
+                            ValidAudiences = audiences,
+                            // Let JwtBearer infer/validate issuer from Authority like before:
+                            // Do NOT set ValidIssuer/ValidIssuers here.
+                            ValidateIssuer = true
+                        };
+
+                        // Helpful diagnostics if validation still fails
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnAuthenticationFailed = ctx =>
+                            {
+                                // Write detailed reason to logs (won’t leak to caller)
+                                var logger = ctx.HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<Startup>>();
+                                logger?.LogError(ctx.Exception, "JWT auth failed: {Message}", ctx.Exception.Message);
+                                return System.Threading.Tasks.Task.CompletedTask;
+                            },
+                            OnChallenge = ctx =>
+                            {
+                                var logger = ctx.HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<Startup>>();
+                                logger?.LogWarning("JWT auth challenge: error={Error}, desc={Desc}", ctx.Error, ctx.ErrorDescription);
+                                return System.Threading.Tasks.Task.CompletedTask;
+                            }
+                        };
+                    });
+
+                services.AddAuthorization(o =>
+                {
+                    o.AddPolicy(PolicyNames.Default, p => p.RequireAuthenticatedUser());
+                });
+
+                services.AddMvc(o =>
+                {
+                    o.Conventions.Add(new AuthorizeControllerModelConvention(new List<string>()));
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             }
 
             services
                 .AddRepositories()
                 .AddServices()
-                .AddHandlers()
-                ;
+                .AddHandlers();
 
             services.AddApiVersioning(opt =>
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
             });
-
-
         }
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseAuthentication();
-
-            app.UseHttpsRedirection();
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

@@ -12,7 +12,7 @@
     "durableTask": {
       "extendedSessionsEnabled": true,
       "extendedSessionIdleTimeoutInSeconds": 10,
-      "maxOrchestrationActions": "10000000",
+      "maxOrchestrationActions": 10000000,
       "hubName": "EmploymentCheckProcessingHub"
     }
   }

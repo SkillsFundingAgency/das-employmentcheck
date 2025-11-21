@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.Dispatcher
 {
@@ -15,30 +15,21 @@ namespace SFA.DAS.EmploymentCheck.Queries.UnitTests.Dispatcher
 
             // Assert
             queryDispatcherException.Should().NotBeNull();
-
         }
 
         [Test]
-        public void Then_Create_QueryDispatcherException_Using_Serailisation()
+        public void Then_Create_QueryDispatcherException_Using_Serialisation()
         {
             // Arrange
             var expectedMessage = "ExceptionTest Message";
             var queryDispatcherException = new QueryDispatcherException(expectedMessage);
-            QueryDispatcherException actual;
 
-            // Act
-            using (MemoryStream mem = new MemoryStream())
-            {
-                BinaryFormatter b = new BinaryFormatter();
-                b.Serialize(mem, queryDispatcherException);
-                mem.Seek(0, SeekOrigin.Begin);
-                actual = b.Deserialize(mem) as QueryDispatcherException;
-            }
+            var json = JsonConvert.SerializeObject(queryDispatcherException);
+            var actual = JsonConvert.DeserializeObject<QueryDispatcherException>(json);
 
             // Assert
             actual.Should().NotBeNull();
             actual.Message.Should().Be(expectedMessage);
-
         }
     }
 }

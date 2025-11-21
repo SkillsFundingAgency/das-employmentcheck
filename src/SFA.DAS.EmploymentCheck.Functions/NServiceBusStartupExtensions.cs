@@ -1,102 +1,106 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using NServiceBus.ObjectBuilder.MSDependencyInjection;
-using SFA.DAS.EmploymentCheck.Commands;
-using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
-using SFA.DAS.NServiceBus.AzureFunction.Configuration;
-using SFA.DAS.NServiceBus.AzureFunction.Hosting;
-using SFA.DAS.NServiceBus.Configuration;
-using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
-using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
-using SFA.DAS.NServiceBus.SqlServer.Configuration;
-using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
+﻿#nullable enable annotations
 using System;
-using System.IO;
+using System.Text.RegularExpressions;
+using Azure.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
+using NServiceBus.Newtonsoft.Json;
+using NServiceBus.Transport.AzureServiceBus;
+using SFA.DAS.EmploymentCheck.Infrastructure.Configuration;
 
 namespace SFA.DAS.EmploymentCheck.Functions
 {
     public static class NServiceBusStartupExtensions
     {
-        public static IServiceCollection AddNServiceBus(
-           this IServiceCollection serviceCollection,
-           ApplicationSettings configuration)
+        public static IServiceCollection AddNServiceBus(this IServiceCollection services, ApplicationSettings appSettings)
         {
-            var webBuilder = serviceCollection.AddWebJobs(x => { });
-            webBuilder.AddExecutionContextBinding();
+            var endpointConfiguration = new EndpointConfiguration("SFA.DAS.EmploymentCheck");
 
-            var endpointConfiguration = new EndpointConfiguration("sfa.das.employmentcheck")
-                .UseMessageConventions()
-                .UseNewtonsoftJsonSerializer()
-                .UseOutbox(true)
-                .UseSqlServerPersistence(() => new SqlConnection(configuration.DbConnectionString))
-                .UseUnitOfWork();
+            var scanner = endpointConfiguration.AssemblyScanner();
+            scanner.ExcludeAssemblies(
+                "Azure.Core",
+                "Microsoft.Bcl.AsyncInterfaces",
+                "System.Threading.Tasks.Extensions",
+                "System.Reactive.Core",
+                "System.Reactive",
+                "System.Reactive.Linq",
+                "System.ClientModel",
+                "Grpc.Core",
+                "Grpc.Core.Api",
+                "Grpc.Net.Client",
+                "Grpc.Net.Common",
+                "Google.Protobuf"
+            );
+            scanner.ThrowExceptions = false;
+            scanner.ScanAppDomainAssemblies = true;
 
-            if (configuration.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
+            var raw = appSettings.NServiceBusConnectionString?.Trim();
+
+            if (string.Equals(raw, "UseLearningEndpoint=true", StringComparison.OrdinalIgnoreCase))
             {
-                var dir = Path.Combine(Directory.GetCurrentDirectory()[..Directory.GetCurrentDirectory()
-                    .IndexOf("src", StringComparison.Ordinal)], "src\\.learningtransport");
-                endpointConfiguration
-                    .UseTransport<LearningTransport>()
-                    .StorageDirectory(dir);
-                endpointConfiguration.UseLearningTransport(s => s.AddRouting());
+                endpointConfiguration.UseTransport<LearningTransport>();
             }
             else
             {
-                endpointConfiguration
-                    .UseAzureServiceBusTransport(configuration.NServiceBusConnectionString, r => r.AddRouting());
+                var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
+                ConfigureAzureServiceBusTransport(transport, raw);
             }
 
-            if (!string.IsNullOrEmpty(configuration.NServiceBusLicense))
-            {
-                endpointConfiguration.License(configuration.NServiceBusLicense);
-            }
+            endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
 
-            var endpointWithExternallyManagedServiceProvider = EndpointWithExternallyManagedServiceProvider.Create(endpointConfiguration, serviceCollection);
-            endpointWithExternallyManagedServiceProvider.Start(new UpdateableServiceProvider(serviceCollection));
-            serviceCollection.AddSingleton(p => endpointWithExternallyManagedServiceProvider.MessageSession.Value);
+            var conventions = endpointConfiguration.Conventions();
+            conventions.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith(".Commands"));
+            conventions.DefiningEventsAs(t =>
+                t.Namespace is not null &&
+                t.Name.EndsWith("Event", StringComparison.Ordinal) &&
+                (
+                    t.Namespace.EndsWith(".Events", StringComparison.Ordinal) ||
+                    t.Namespace.EndsWith(".Types", StringComparison.Ordinal)
+                ));
+            conventions.DefiningMessagesAs(t => t.Namespace != null && t.Namespace.EndsWith(".Messages"));
 
-            return serviceCollection;
+            endpointConfiguration.EnableInstallers();
+            endpointConfiguration.SendFailedMessagesTo("error");
+
+            var endpointInstance = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+            services.AddSingleton<IMessageSession>(endpointInstance);
+
+            return services;
         }
 
-        public static IServiceCollection AddNServiceBusMessageHandlers(
-            this IServiceCollection serviceCollection,
-            ILogger logger,
-            ApplicationSettings configuration,
-            Action<NServiceBusOptions> onConfigureOptions = null)
+        private static void ConfigureAzureServiceBusTransport(
+            TransportExtensions<AzureServiceBusTransport> transport,
+            string? value)
         {
-            Environment.SetEnvironmentVariable("NServiceBusConnectionString", configuration.NServiceBusConnectionString, EnvironmentVariableTarget.Process);
+            if (string.IsNullOrWhiteSpace(value))
+                throw new InvalidOperationException(
+                    "ApplicationSettings:NServiceBusConnectionString is required. " +
+                    "Set 'UseLearningEndpoint=true' locally or 'Endpoint=sb://<ns>.servicebus.windows.net/' in Azure.");
 
-            var webBuilder = serviceCollection.AddWebJobs(x => { });
-            webBuilder.AddExecutionContextBinding();
+            var hasKey = value.Contains("SharedAccessKey", StringComparison.OrdinalIgnoreCase);
+            var hasSas = value.Contains("SharedAccessSignature", StringComparison.OrdinalIgnoreCase);
 
-            var options = new NServiceBusOptions
+            var endpointMatch = Regex.Match(
+                value,
+                @"Endpoint=sb:\/\/(?<host>[^\/;]+)",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                TimeSpan.FromMilliseconds(250));
+
+            if (endpointMatch.Success && !(hasKey || hasSas))
             {
-                OnMessageReceived = context =>
-                {
-                    context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
-                    context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
-                    context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
-                    context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
-                    logger.LogDebug($"Received NServiceBusTriggerData Message of type '{(messageType != null ? messageType.Split(',')[0] : string.Empty)}' with messageId '{messageId}' and correlationId '{correlationId}' from endpoint '{originatingEndpoint}'");
-                },
-                OnMessageErrored = (ex, context) =>
-                {
-                    context.Headers.TryGetValue("NServiceBus.EnclosedMessageTypes", out var messageType);
-                    context.Headers.TryGetValue("NServiceBus.MessageId", out var messageId);
-                    context.Headers.TryGetValue("NServiceBus.CorrelationId", out var correlationId);
-                    context.Headers.TryGetValue("NServiceBus.OriginatingEndpoint", out var originatingEndpoint);
-                    logger.LogError(ex, $"Error handling NServiceBusTriggerData Message of type '{(messageType != null ? messageType.Split(',')[0] : string.Empty)}' with messageId '{messageId}' and correlationId '{correlationId}' from endpoint '{originatingEndpoint}'");
-                },
-            };
+                var fqdn = endpointMatch.Groups["host"].Value.Trim();
+                transport.CustomTokenCredential(fqdn, new DefaultAzureCredential());
+                return;
+            }
 
-            onConfigureOptions?.Invoke(options);
+            if (!value.Contains(';') && value.Contains(".servicebus.windows.net", StringComparison.OrdinalIgnoreCase))
+            {
+                var cleaned = value.Replace("sb://", "", StringComparison.OrdinalIgnoreCase).TrimEnd('/');
+                transport.CustomTokenCredential(cleaned, new DefaultAzureCredential());
+                return;
+            }
 
-            webBuilder.AddExtension(new NServiceBusExtensionConfigProvider(options));
-
-            return serviceCollection;
+            transport.ConnectionString(value);
         }
     }
 }
