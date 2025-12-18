@@ -116,7 +116,7 @@ There are two projects for testing data access repositories:
     }
     ```
 #### System Acceptance Tests
-These tests are written using [SpecFlow .NET](https://specflow.org/) BDD Framework with Gherkin specifications. These tests have the following dependencies:
+These tests are written using SpecFlow .NET BDD Framework with Gherkin specifications. These tests have the following dependencies:
 * MSSQLLocalDB
 * Azurite (Azure Storage Emulator)
 * Azure Functions Core Tools
