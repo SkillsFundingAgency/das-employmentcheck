@@ -21,25 +21,11 @@ paths:
           description: A health check has failed
           $ref: '#/components/responses/healthCheckResponse'
 
-  /employment-check/employers/{employerId}/providers/{ukprn}/learners:
+  /employment-check/learners:
     get:
       summary: Returns the latest check for this data
-      security:
-        - ApiKeyAuth: []  # Require API Key authentication
       parameters:
-        - name: employerId
-          in: path
-          required: true
-          example: 2425
-          schema:
-            type: integer
-        - name: ukprn
-          in: path
-          required: true
-          description: The UK Provider Reference Number for the provider entering this learner
-          schema:
-            type: string
-        - name: ulns
+        - name: apprenticeshipIds
           in: query
           required: true
           description: The ulns of the users being checked
@@ -54,29 +40,16 @@ paths:
           $ref: '#/components/responses/notFoundResponse'
   
   
-  /employment-check/employers/{employerId}/providers/{ukprn}/learners/{uln}:
+  /employment-check/learners/{apprenticeshipId}:
     get:
       summary: Returns the latest check for this data
       security:
         - ApiKeyAuth: []  # Require API Key authentication
       parameters:
-        - name: employerId
+        - name: apprenticeshipId
           in: path
           required: true
           example: 2425
-          schema:
-            type: integer
-        - name: ukprn
-          in: path
-          required: true
-          description: The UK Provider Reference Number for the provider entering this learner
-          schema:
-            type: string
-        - name: uln
-          in: path
-          required: true
-          example: 20
-          description: The uln of the user being checked
           schema:
             type: integer
       responses:
@@ -138,6 +111,8 @@ components:
       properties:
         employerId: 
           type: integer
+        apprenticeshipId: 
+          type: integer
         ukprn: 
           type: string
         uln: 
@@ -180,6 +155,3 @@ components:
           type: string
         result: 
           type: string 
-
-security:
-  - ApiKeyAuth: []  # Apply API Key security globally
