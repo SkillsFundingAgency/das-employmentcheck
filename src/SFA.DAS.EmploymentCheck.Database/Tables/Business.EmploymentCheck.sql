@@ -1,4 +1,4 @@
-﻿CREATE TABLE [Business].[EmploymentCheck](
+CREATE TABLE [Business].[EmploymentCheck](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[CorrelationId] [uniqueidentifier] NOT NULL,
 	[CheckType] [varchar](50) NOT NULL,
@@ -30,4 +30,9 @@ CREATE NONCLUSTERED INDEX [Idx_Business_EmploymentCheck_RequestCompletionStatus_
 	[RequestCompletionStatus] ASC,
 	[MessageSentDate] ASC
 )
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Business_EmploymentCheck_ApprenticeshipId_Id]
+    ON [Business].[EmploymentCheck]([ApprenticeshipId] ASC, [Id] DESC)
+    INCLUDE ([AccountId], [Uln], [Employed], [RequestCompletionStatus], [ErrorType], [CreatedOn], [LastUpdatedOn])
 GO
