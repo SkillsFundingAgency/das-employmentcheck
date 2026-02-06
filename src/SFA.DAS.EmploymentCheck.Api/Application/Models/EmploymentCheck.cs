@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Dapper.Contrib.Extensions;
 
 namespace SFA.DAS.EmploymentCheck.Api.Application.Models
@@ -39,8 +39,6 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Models
         public bool? Employed { get; set; }
 
         public short? RequestCompletionStatus { get; set; }
-
-        public string ErrorType { get; set; }
 
         public DateTime LastUpdatedOn { get; set; }
 
