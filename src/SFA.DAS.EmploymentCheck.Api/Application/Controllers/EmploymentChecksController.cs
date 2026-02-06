@@ -9,13 +9,13 @@ using ApplicationModels = SFA.DAS.EmploymentCheck.Api.Application.Models;
 namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers;
 
 [ApiController]
-[Route("api/employment-check")]
-public class EmploymentCheckLearnersController(IEmploymentCheckRepository repository) : ControllerBase
+[Route("api/employment-checks")]
+public class EmploymentChecksController(IEmploymentCheckRepository repository) : ControllerBase
 {
     private const int MaxApprenticeshipIds = 1000;
 
-    [HttpGet("learners")]
-    public async Task<IActionResult> GetLearners([FromQuery] List<long> apprenticeshipIds)
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] List<long> apprenticeshipIds)
     {
         if (apprenticeshipIds == null || apprenticeshipIds.Count == 0)
             return BadRequest("apprenticeshipIds is required and must not be empty.");

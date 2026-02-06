@@ -11,9 +11,9 @@ using SFA.DAS.EmploymentCheck.Api.Repositories;
 using SFA.DAS.EmploymentCheck.Api.Responses;
 using ApplicationModels = SFA.DAS.EmploymentCheck.Api.Application.Models;
 
-namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Application.Controllers.EmploymentCheckLearnersControllerTests;
+namespace SFA.DAS.EmploymentCheck.Api.UnitTests.Application.Controllers.EmploymentChecksControllerTests;
 
-public class WhenGettingLearners
+public class WhenGettingEmploymentChecksByApprenticeshipIds
 {
     private Fixture _fixture;
     private Mock<IEmploymentCheckRepository> _repository;
@@ -34,10 +34,10 @@ public class WhenGettingLearners
             .Setup(x => x.GetLatestChecksByApprenticeshipIds(apprenticeshipIds))
             .ReturnsAsync(new List<ApplicationModels.EmploymentCheck>());
 
-        var sut = new EmploymentCheckLearnersController(_repository.Object);
+        var sut = new EmploymentChecksController(_repository.Object);
 
         // Act
-        await sut.GetLearners(apprenticeshipIds);
+        await sut.Get(apprenticeshipIds);
 
         // Assert
         _repository.VerifyAll();
@@ -70,10 +70,10 @@ public class WhenGettingLearners
             .Setup(x => x.GetLatestChecksByApprenticeshipIds(It.IsAny<IReadOnlyList<long>>()))
             .ReturnsAsync(checks);
 
-        var sut = new EmploymentCheckLearnersController(_repository.Object);
+        var sut = new EmploymentChecksController(_repository.Object);
 
         // Act
-        var result = await sut.GetLearners(apprenticeshipIds) as OkObjectResult;
+        var result = await sut.Get(apprenticeshipIds) as OkObjectResult;
 
         // Assert
         result.Should().NotBeNull();
@@ -99,10 +99,10 @@ public class WhenGettingLearners
             .Setup(x => x.GetLatestChecksByApprenticeshipIds(apprenticeshipIds))
             .ReturnsAsync(new List<ApplicationModels.EmploymentCheck>());
 
-        var sut = new EmploymentCheckLearnersController(_repository.Object);
+        var sut = new EmploymentChecksController(_repository.Object);
 
         // Act
-        var result = await sut.GetLearners(apprenticeshipIds) as OkObjectResult;
+        var result = await sut.Get(apprenticeshipIds) as OkObjectResult;
 
         // Assert
         result.Should().NotBeNull();
@@ -115,10 +115,10 @@ public class WhenGettingLearners
     public async Task And_ApprenticeshipIds_Is_Null_Then_400_BadRequest()
     {
         // Arrange
-        var sut = new EmploymentCheckLearnersController(_repository.Object);
+        var sut = new EmploymentChecksController(_repository.Object);
 
         // Act
-        var result = await sut.GetLearners(null) as BadRequestObjectResult;
+        var result = await sut.Get(null) as BadRequestObjectResult;
 
         // Assert
         result.Should().NotBeNull();
@@ -130,10 +130,10 @@ public class WhenGettingLearners
     public async Task And_ApprenticeshipIds_Is_Empty_Then_400_BadRequest()
     {
         // Arrange
-        var sut = new EmploymentCheckLearnersController(_repository.Object);
+        var sut = new EmploymentChecksController(_repository.Object);
 
         // Act
-        var result = await sut.GetLearners([]) as BadRequestObjectResult;
+        var result = await sut.Get([]) as BadRequestObjectResult;
 
         // Assert
         result.Should().NotBeNull();
@@ -149,10 +149,10 @@ public class WhenGettingLearners
         for (var i = 0; i < 1001; i++)
             tooMany.Add(i);
 
-        var sut = new EmploymentCheckLearnersController(_repository.Object);
+        var sut = new EmploymentChecksController(_repository.Object);
 
         // Act
-        var result = await sut.GetLearners(tooMany) as BadRequestObjectResult;
+        var result = await sut.Get(tooMany) as BadRequestObjectResult;
 
         // Assert
         result.Should().NotBeNull();
