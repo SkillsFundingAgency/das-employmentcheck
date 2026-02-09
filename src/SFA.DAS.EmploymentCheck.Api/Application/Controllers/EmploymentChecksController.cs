@@ -26,12 +26,12 @@ public class EmploymentChecksController(IEmploymentCheckRepository repository) :
         var ids = apprenticeshipIds.AsReadOnly();
         var checks = await repository.GetLatestChecksByApprenticeshipIds(ids);
 
-        var response = checks
+        var checksList = checks
             .Where(c => c.ApprenticeshipId.HasValue)
             .Select(MapToEvsCheck)
             .ToList();
 
-        return Ok(response);
+        return Ok(new GetEmploymentChecksResponse { Checks = checksList });
     }
 
     private static EvsCheckResponse MapToEvsCheck(ApplicationModels.EmploymentCheck c)

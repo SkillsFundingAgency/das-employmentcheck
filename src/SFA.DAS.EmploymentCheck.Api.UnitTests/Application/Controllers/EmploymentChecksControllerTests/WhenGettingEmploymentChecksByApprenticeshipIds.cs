@@ -78,16 +78,16 @@ public class WhenGettingEmploymentChecksByApprenticeshipIds
         // Assert
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(200);
-        var response = result.Value.Should().BeAssignableTo<List<EvsCheckResponse>>().Subject;
-        response.Should().HaveCount(1);
-        response[0].EmployerId.Should().Be(200);
-        response[0].ApprenticeshipId.Should().Be(100);
-        response[0].Uln.Should().Be("1234567890");
-        response[0].RequestDate.Should().Be(createdOn);
-        response[0].DateOfCheck.Should().Be(lastUpdatedOn);
-        response[0].Result.Employed.Should().Be(true);
-        response[0].Result.CompletionStatus.Should().Be(2);
-        response[0].Result.ErrorCode.Should().BeNull();
+        var response = result.Value.Should().BeAssignableTo<GetEmploymentChecksResponse>().Subject;
+        response.Checks.Should().HaveCount(1);
+        response.Checks[0].EmployerId.Should().Be(200);
+        response.Checks[0].ApprenticeshipId.Should().Be(100);
+        response.Checks[0].Uln.Should().Be("1234567890");
+        response.Checks[0].RequestDate.Should().Be(createdOn);
+        response.Checks[0].DateOfCheck.Should().Be(lastUpdatedOn);
+        response.Checks[0].Result.Employed.Should().Be(true);
+        response.Checks[0].Result.CompletionStatus.Should().Be(2);
+        response.Checks[0].Result.ErrorCode.Should().BeNull();
     }
 
     [Test]
@@ -107,8 +107,8 @@ public class WhenGettingEmploymentChecksByApprenticeshipIds
         // Assert
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(200);
-        var response = result.Value.Should().BeAssignableTo<List<EvsCheckResponse>>().Subject;
-        response.Should().BeEmpty();
+        var response = result.Value.Should().BeAssignableTo<GetEmploymentChecksResponse>().Subject;
+        response.Checks.Should().BeEmpty();
     }
 
     [Test]
