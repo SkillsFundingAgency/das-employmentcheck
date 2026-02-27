@@ -40,7 +40,6 @@ public class EmploymentChecksController(IEmploymentCheckRepository repository) :
         {
             EmployerId = c.AccountId,
             ApprenticeshipId = c.ApprenticeshipId.Value,
-            Ukprn = string.Empty,
             Uln = c.Uln.ToString(),
             RequestDate = c.CreatedOn,
             DateOfCheck = c.LastUpdatedOn,
