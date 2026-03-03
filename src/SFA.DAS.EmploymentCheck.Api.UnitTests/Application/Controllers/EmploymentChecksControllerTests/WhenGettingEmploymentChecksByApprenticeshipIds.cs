@@ -142,11 +142,11 @@ public class WhenGettingEmploymentChecksByApprenticeshipIds
     }
 
     [Test]
-    public async Task And_ApprenticeshipIds_Exceeds_1000_Then_400_BadRequest()
+    public async Task And_ApprenticeshipIds_Exceeds_50_Then_400_BadRequest()
     {
         // Arrange
         var tooMany = new List<long>();
-        for (var i = 0; i < 1001; i++)
+        for (var i = 0; i < 51; i++)
             tooMany.Add(i);
 
         var sut = new EmploymentChecksController(_repository.Object);
@@ -157,7 +157,7 @@ public class WhenGettingEmploymentChecksByApprenticeshipIds
         // Assert
         result.Should().NotBeNull();
         result!.StatusCode.Should().Be(400);
-        result.Value.Should().Be("apprenticeshipIds must not exceed 1000.");
+        result.Value.Should().Be("apprenticeshipIds must not exceed 50.");
         _repository.VerifyNoOtherCalls();
     }
 }

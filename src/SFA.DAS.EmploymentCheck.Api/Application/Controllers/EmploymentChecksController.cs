@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace SFA.DAS.EmploymentCheck.Api.Application.Controllers;
 [Route("api/employment-checks")]
 public class EmploymentChecksController(IEmploymentCheckRepository repository) : ControllerBase
 {
-    private const int MaxApprenticeshipIds = 1000;
+    private const int MaxApprenticeshipIds = 50;
 
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] List<long> apprenticeshipIds)
