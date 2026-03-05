@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmploymentCheck.Api.Repositories;
-
-public interface IEmploymentCheckRepository
+namespace SFA.DAS.EmploymentCheck.Api.Repositories
 {
-    Task<Application.Models.EmploymentCheck> GetEmploymentCheck(Guid correlationId);
-    Task Insert(Application.Models.EmploymentCheck employmentCheck);
-    Task<IReadOnlyList<Application.Models.EmploymentCheck>> GetLatestChecksByApprenticeshipIds(IReadOnlyList<long> apprenticeshipIds);
+    public interface IEmploymentCheckRepository
+    {
+        public Task<Application.Models.EmploymentCheck> GetEmploymentCheck(Guid correlationId);
+        public Task Insert(Application.Models.EmploymentCheck employmentCheck);
+    }
 }
