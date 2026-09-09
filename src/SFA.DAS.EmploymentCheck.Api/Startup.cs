@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
+using SFA.DAS.EmploymentCheck.Api.Middleware;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -148,6 +149,8 @@ namespace SFA.DAS.EmploymentCheck.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<RemoveServerHeadersMiddleware>();
+
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseRouting();
