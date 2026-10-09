@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -15,10 +19,7 @@ using Microsoft.OpenApi.Models;
 using SFA.DAS.Api.Common.Infrastructure;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmploymentCheck.Api.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using SFA.DAS.EmploymentCheck.Api.Middleware;
 
 namespace SFA.DAS.EmploymentCheck.Api
 {
@@ -62,6 +63,8 @@ namespace SFA.DAS.EmploymentCheck.Api
 
             services.Configure<EmploymentCheckSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmploymentCheckSettings>>().Value);
+
+            services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
 
             var envName = Configuration["EnvironmentName"] ?? string.Empty;
             if (!envName.Equals("LOCAL", StringComparison.OrdinalIgnoreCase))
@@ -148,7 +151,16 @@ namespace SFA.DAS.EmploymentCheck.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            app.UseMiddleware<SecurityHeadersMiddleware>();
 
             app.UseRouting();
             app.UseAuthentication();
